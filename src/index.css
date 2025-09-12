@@ -1,2 +1,36 @@
 @import 'tailwindcss';
 
+/**
+* Font Family: Satoshi Variable
+* Para mejor rendimiento, solo usamos la versión variable
+*/
+@font-face {
+  font-family: 'Satoshi';
+  src: url('./fonts/Satoshi-Variable.woff2') format('woff2'),
+       url('./fonts/Satoshi-Variable.woff') format('woff'),
+       url('./fonts/Satoshi-Variable.ttf') format('truetype');
+  font-weight: 300 900;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('./fonts/Satoshi-VariableItalic.woff2') format('woff2'),
+       url('./fonts/Satoshi-VariableItalic.woff') format('woff'),
+       url('./fonts/Satoshi-VariableItalic.ttf') format('truetype');
+  font-weight: 300 900;
+  font-display: swap;
+  font-style: italic;
+}
+
+* {
+  font-family: 'Satoshi', sans-serif;
+}
+
+/* Clases de utilidad para diferentes pesos */
+.font-light { font-weight: 300; }
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-bold { font-weight: 700; }
+.font-black { font-weight: 900; }
