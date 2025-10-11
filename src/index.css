@@ -34,3 +34,209 @@
 .font-medium { font-weight: 500; }
 .font-bold { font-weight: 700; }
 .font-black { font-weight: 900; }
+
+/* Optimizaciones de performance mejoradas */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+body {
+  background: #000;
+  color: white;
+  font-display: swap;
+}
+
+/* Optimizaciones para elementos animados */
+.logo-svg {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  overflow: visible !important;
+}
+
+.logo-svg * {
+  overflow: visible !important;
+}
+
+.nav-item,
+.skill-item,
+.project-item {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  contain: layout style paint;
+}
+
+.letter {
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  /* Contorno negro para que sea legible sobre cualquier fondo */
+  -webkit-text-stroke: 2px rgba(0, 0, 0, 0.8);
+  paint-order: stroke fill;
+  /* Sombra para mayor profundidad */
+  text-shadow:
+    0 0 20px rgba(0, 0, 0, 0.9),
+    0 0 40px rgba(0, 0, 0, 0.6),
+    3px 3px 6px rgba(0, 0, 0, 0.8);
+}
+
+.particle {
+  will-change: transform;
+  contain: strict;
+}
+
+/* Cursor personalizado - ocultar cursor por defecto */
+body {
+  cursor: none;
+}
+
+button, a, .interactive {
+  cursor: none;
+}
+
+/* Smooth scrolling mejorado */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Optimizaciones para móvil */
+@media (max-width: 768px) {
+  body {
+    cursor: auto;
+  }
+  
+  .custom-cursor {
+    display: none;
+  }
+}
+
+/* Animaciones suaves para transformaciones */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-auto {
+  will-change: auto;
+}
+
+/* GPU acelerado para gradients */
+.bg-gradient-to-b,
+.bg-gradient-to-br,
+.bg-gradient-to-tl {
+  transform: translateZ(0);
+  will-change: background;
+}
+
+/* Transform GPU acelerado */
+.transform-gpu {
+  transform: translateZ(0);
+}
+
+/* Optimización para backdrop-blur */
+.backdrop-blur-sm,
+.backdrop-blur-md {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transform: translateZ(0);
+}
+
+/* Animaciones optimizadas */
+@keyframes matrix-rain {
+  0% { opacity: 0; transform: translateY(-50px); }
+  50% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(50px); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes float-simple {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Utilidades de animación optimizadas */
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+  will-change: transform;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 4s ease-in-out infinite;
+  will-change: opacity;
+}
+
+.animate-float-simple {
+  animation: float-simple 4s ease-in-out infinite;
+  will-change: transform;
+}
+
+.matrix-char {
+  animation: matrix-rain 6s linear infinite;
+  animation-delay: calc(var(--delay, 0) * 0.2s);
+  will-change: opacity, transform;
+}
+
+/* Efectos de scroll suave para elementos complejos */
+.scroll-smooth-complex {
+  scroll-behavior: smooth;
+  scroll-padding-top: 2rem;
+}
+
+/* Mejoras 3D */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.perspective-2000 {
+  perspective: 2000px;
+}
+
+/* Efectos simplificados sin glitch pesado */
+.subtle-glow {
+  filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.3));
+  transition: filter 0.3s ease;
+}
+
+.subtle-glow:hover {
+  filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.5));
+}
+
+/* Efectos de partículas simplificados */
+.particle-simple {
+  background: rgba(6, 182, 212, 0.4);
+  border-radius: 50%;
+  width: 2px;
+  height: 2px;
+  position: absolute;
+  animation: particle-float 3s ease-in-out infinite;
+}
+
+@keyframes particle-float {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
