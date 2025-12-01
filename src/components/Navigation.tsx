@@ -6,7 +6,7 @@ interface NavigationProps {
 }
 
 const Navigation = ({ onSectionChange }: NavigationProps) => {
-  const navRef = useRef<HTMLNavElement>(null);
+  const navRef = useRef<HTMLElement>(null);
   const [activeSection, setActiveSection] = useState('home');
   const [isVisible, setIsVisible] = useState(false);
 
@@ -78,7 +78,7 @@ const Navigation = ({ onSectionChange }: NavigationProps) => {
 
       // Ocultar otros indicadores
       const otherItems = navRef.current?.querySelectorAll('.nav-indicator');
-      otherItems?.forEach(indicator => {
+      otherItems?.forEach((indicator: Element) => {
         if (indicator !== activeItem.querySelector('.nav-indicator')) {
           gsap.to(indicator, {
             scale: 0,

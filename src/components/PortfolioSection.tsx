@@ -1,9 +1,8 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 const PortfolioSection = () => {
-  const sectionRef = useRef<HTMLSectionElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
 
@@ -140,7 +139,7 @@ const PortfolioSection = () => {
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
           style={{ willChange: 'transform' }}
         >
-          {projects.map((project, index) => (
+          {projects.map((project) => (
             <div
               key={project.title}
               className="project-item bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10 hover:border-white/30 transition-colors duration-300 interactive"

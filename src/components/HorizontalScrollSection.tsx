@@ -100,7 +100,7 @@ const HorizontalScrollSection = () => {
     });
 
     // Animaciones simples para cada tarjeta
-    cards.forEach((card, index) => {
+    cards.forEach((card) => {
       if (!card) return;
 
       // Fade in simple cuando la tarjeta está visible

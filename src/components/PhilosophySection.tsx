@@ -66,7 +66,7 @@ const PhilosophySection = () => {
     }
 
     // Animaciones optimizadas de los pensamientos
-    thoughts.forEach((thought, index) => {
+    thoughts.forEach((thought) => {
       if (!thought) return;
 
       const concept = thought.querySelector('.concept');

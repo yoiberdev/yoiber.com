@@ -34,9 +34,6 @@ const ExpandingLogo = ({
     const bgTrapezoid = bgLogoRef.current.querySelector(".bg-trapezoid");
     const bgDiagonalBar = bgLogoRef.current.querySelector(".bg-diagonal-bar");
     
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    
     // Logo principal - estado inicial
     gsap.set([triangle, trapezoid, diagonalBar], {
       x: 0, y: 0, scale: 1, rotation: 0, opacity: 1
@@ -69,7 +66,7 @@ const ExpandingLogo = ({
     const bgDiagonalBar = bgLogo.querySelector(".bg-diagonal-bar");
 
     // Crear la animación principal de scroll
-    const scrollTL = gsap.timeline({
+    gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
         start: "center center",

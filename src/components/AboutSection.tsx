@@ -1,9 +1,8 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 const AboutSection = () => {
-  const sectionRef = useRef<HTMLSectionElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const skillsRef = useRef<HTMLDivElement>(null);
@@ -140,7 +139,7 @@ const AboutSection = () => {
           className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto"
           style={{ willChange: 'transform' }}
         >
-          {skills.map((skill, index) => (
+          {skills.map((skill) => (
             <div
               key={skill}
               className="skill-item bg-white/10 backdrop-blur-sm rounded-lg px-6 py-4 border border-white/20 hover:border-cyan-400/50 transition-colors duration-300 interactive"
