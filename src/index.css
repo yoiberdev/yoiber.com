@@ -193,11 +193,14 @@ html {
 }
 
 .hero-text {
-  /* Misma altura que el título para reservar el hueco antes de que aparezca */
-  min-height: clamp(2.75rem, 12vw, 8.5rem);
+  /* Altura fija, independiente del contenido: el título se centra dentro y el
+     grupo no cambia de tamaño cuando aparece, así el logo no se desplaza. */
+  height: clamp(2.75rem, 12vw, 8.5rem);
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: visible;
 }
 
 /* Título principal (AnimatedText): Space Grotesk, sin contorno, con perspectiva
@@ -218,6 +221,7 @@ html {
 
 .hero-letter {
   display: inline-block;
+  line-height: 1;
   transform-style: preserve-3d;
   will-change: transform, opacity, filter;
 }
