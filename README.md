@@ -1,5 +1,7 @@
 # yoiber.com
 
+**En producción: https://yoiber.com**
+
 Web personal de [yoiberdev](https://github.com/yoiberdev). Intro animada con el logo y el nombre,
 construida con **Vite + React 19 + TypeScript + Tailwind 4 + GSAP**.
 
@@ -32,3 +34,11 @@ sudo /opt/yoiblog/actualizar.sh # en el servidor: git pull + docker compose buil
 ```
 
 La integración continua (GitHub Actions) ejecuta lint y build en cada push y pull request.
+
+## Licencia
+
+El **código** es MIT (ver `LICENSE`): cógelo, apréndelo, reutilízalo.
+
+El **contenido no**: los textos, el logo, la tipografía Satoshi Variable (licencia de
+Indian Type Foundry) y las imágenes son míos o de sus autores y no entran en la licencia. Si
+reutilizas el código, cambia la marca por la tuya.
