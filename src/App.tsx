@@ -6,21 +6,20 @@ const App = () => {
   const [showText, setShowText] = useState(false);
 
   return (
-    <main className="h-screen w-screen relative overflow-hidden">
+    <main className="h-screen w-screen relative overflow-hidden flex items-center justify-center">
       {/* Fondo con gradiente */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-800 via-black to-black" aria-hidden="true"></div>
 
-      <div className="relative h-full w-full flex flex-col items-center justify-center" style={{ overflow: "visible" }}>
-        {/* Logo animado: el texto se muestra cuando termina su animación */}
-        <div className="absolute inset-0 flex items-center justify-center" style={{ overflow: "visible" }}>
-          <AnimatedLogo size={400} onAnimationComplete={() => setShowText(true)} />
-        </div>
+      {/* Lockup: logo arriba, nombre debajo. El grupo entero queda centrado. */}
+      <div className="hero relative z-10 flex flex-col items-center">
+        <AnimatedLogo size="clamp(170px, 42vmin, 320px)" onAnimationComplete={() => setShowText(true)} />
 
-        {showText && (
-          <div className="relative z-10 px-4 max-w-full">
+        {/* Altura reservada para que el logo no salte cuando aparece el texto */}
+        <div className="hero-text px-4 max-w-full">
+          {showText && (
             <AnimatedText
               text="yoiberdev"
-              delay={0.4}
+              delay={0.2}
               staggerDelay={0.06}
               flipDelay={1.6}
               flipInterval={3}
@@ -28,8 +27,8 @@ const App = () => {
               primaryColor="text-white"
               secondaryColor="text-cyan-400"
             />
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </main>
   );

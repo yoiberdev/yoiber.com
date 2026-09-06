@@ -187,6 +187,19 @@ html {
   will-change: opacity, transform;
 }
 
+/* Lockup de la portada: logo + nombre */
+.hero {
+  gap: clamp(1.25rem, 4vmin, 2.5rem);
+}
+
+.hero-text {
+  /* Misma altura que el título para reservar el hueco antes de que aparezca */
+  min-height: clamp(2.75rem, 12vw, 8.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Título principal (AnimatedText): Space Grotesk, sin contorno, con perspectiva
    para el giro 3D de la "i". No usa .letter para no heredar el contorno negro. */
 .hero-title {
@@ -207,7 +220,6 @@ html {
   display: inline-block;
   transform-style: preserve-3d;
   will-change: transform, opacity, filter;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55);
 }
 
 .hero-letter-i {

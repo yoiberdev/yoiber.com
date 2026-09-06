@@ -4,14 +4,15 @@ import gsap from "gsap";
 interface AnimatedLogoProps {
   className?: string;
   autoPlay?: boolean;
-  size?: number;
+  /** Ancho del logo como longitud CSS (px, clamp(), vw...). El alto se calcula solo. */
+  size?: string;
   onAnimationComplete?: () => void;
 }
 
 const AnimatedLogo = ({
   className = "",
   autoPlay = true,
-  size = 200,
+  size = "200px",
   onAnimationComplete,
 }: AnimatedLogoProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -125,14 +126,12 @@ const AnimatedLogo = ({
       <svg
         ref={logoRef}
         className="logo-svg"
-        width={size}
-        height={size * 1.19}
         viewBox="0 0 439 523"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
         aria-label="Logo de yoiberdev"
-        style={{ transformOrigin: "center", overflow: "visible" }}
+        style={{ width: size, height: "auto", transformOrigin: "center", overflow: "visible" }}
       >
         {/* opacity 0 inicial: nada visible hasta que GSAP toma el control */}
         <path
