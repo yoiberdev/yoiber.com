@@ -1,0 +1,52 @@
+name: Error
+description: Algo que no funciona como debería.
+title: "[Error] "
+labels: ["tipo: error", "estado: por hacer"]
+body:
+  - type: textarea
+    id: pasa
+    attributes:
+      label: Qué pasa
+      placeholder: "El nombre aparece antes de que carguen las fuentes y da un salto."
+    validations:
+      required: true
+  - type: textarea
+    id: reproducir
+    attributes:
+      label: Cómo reproducirlo
+      placeholder: |
+        1. Abrir yoiber.com en el móvil con la caché vacía.
+        2. El logo aparece y a los dos segundos el texto se desplaza.
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Qué debería pasar
+    validations:
+      required: true
+  - type: input
+    id: navegador
+    attributes:
+      label: Navegador y dispositivo
+      placeholder: "Chrome 140 en Android 15, o Safari en iPhone 13"
+    validations:
+      required: true
+  - type: dropdown
+    id: entorno
+    attributes:
+      label: Dónde lo viste
+      options:
+        - Producción (yoiber.com)
+        - Desarrollo local
+    validations:
+      required: true
+  - type: dropdown
+    id: prioridad
+    attributes:
+      label: Prioridad
+      options:
+        - Alta
+        - Media
+        - Baja
+      default: 1

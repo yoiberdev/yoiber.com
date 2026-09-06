@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: La web en vivo
+    url: https://yoiber.com
+    about: Míralo primero ahí; muchas dudas se resuelven viendo el estado actual.
+  - name: Cómo se publica
+    url: https://docs.kipups.com/PUBLICAR.md
+    about: Dónde vive, cómo se despliega y cómo se trabaja con la IA.

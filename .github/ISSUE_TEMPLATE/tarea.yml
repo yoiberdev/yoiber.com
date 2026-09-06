@@ -1,0 +1,54 @@
+name: Tarea
+description: Algo nuevo o una mejora. Escríbelo para que una persona o la IA pueda hacerlo sin preguntar.
+title: "[Tarea] "
+labels: ["tipo: tarea", "estado: por hacer"]
+body:
+  - type: textarea
+    id: que
+    attributes:
+      label: Qué quiero
+      description: En una o dos frases, desde el punto de vista de quien visita la web. Qué aporta.
+      placeholder: "Que al bajar aparezca una sección con tres proyectos, cada uno con imagen y enlace."
+    validations:
+      required: true
+  - type: dropdown
+    id: donde
+    attributes:
+      label: Dónde
+      description: Parte de la web que toca.
+      multiple: true
+      options:
+        - Intro y animaciones
+        - Secciones y contenido
+        - Estilos y tipografía
+        - Rendimiento y accesibilidad
+        - Despliegue e infraestructura
+        - Documentación
+    validations:
+      required: true
+  - type: textarea
+    id: comprobar
+    attributes:
+      label: Cómo se comprueba que está bien
+      description: Pasos concretos. Es lo que la IA usará para verificar antes de abrir el pull request.
+      placeholder: |
+        1. Abrir yoiber.com y bajar hasta la segunda pantalla.
+        2. Aparecen tres tarjetas de proyecto, en fila en escritorio y en columna en el móvil.
+        3. Cada tarjeta lleva a su enlace y se ve bien con el movimiento reducido activado.
+    validations:
+      required: true
+  - type: textarea
+    id: limites
+    attributes:
+      label: Límites y detalles
+      description: Lo que no debe cambiar, decisiones ya tomadas, enlaces a referencias o capturas.
+      placeholder: "No tocar la intro del logo. Mantener el fondo negro y la tipografía actual."
+  - type: dropdown
+    id: prioridad
+    attributes:
+      label: Prioridad
+      options:
+        - Alta
+        - Media
+        - Baja
+      default: 1
