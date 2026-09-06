@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@fontsource-variable/space-grotesk';
 
 /**
 * Font Family: Satoshi Variable
@@ -184,6 +185,41 @@ html {
   animation: matrix-rain 6s linear infinite;
   animation-delay: calc(var(--delay, 0) * 0.2s);
   will-change: opacity, transform;
+}
+
+/* Título principal (AnimatedText): Space Grotesk, sin contorno, con perspectiva
+   para el giro 3D de la "i". No usa .letter para no heredar el contorno negro. */
+.hero-title {
+  font-family: 'Space Grotesk Variable', 'Satoshi', sans-serif;
+  font-weight: 700;
+  font-size: clamp(2.75rem, 12vw, 8.5rem);
+  line-height: 1;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+  margin: 0;
+  perspective: 700px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'ss01', 'ss03';
+}
+
+.hero-letter {
+  display: inline-block;
+  transform-style: preserve-3d;
+  will-change: transform, opacity, filter;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55);
+}
+
+.hero-letter-i {
+  /* La i gira sobre su propio centro; el hueco visual se compensa con el kerning */
+  transform-origin: 50% 50%;
+}
+
+/* Sin animaciones si el usuario lo pide */
+@media (prefers-reduced-motion: reduce) {
+  .hero-letter {
+    will-change: auto;
+  }
 }
 
 /* Efectos de scroll suave para elementos complejos */

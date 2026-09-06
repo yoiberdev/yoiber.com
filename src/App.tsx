@@ -20,12 +20,9 @@ const App = () => {
           <div className="relative z-10 px-4 max-w-full">
             <AnimatedText
               text="yoiberdev"
-              className="font-bold whitespace-nowrap leading-none"
-              // Escala con el ancho de pantalla: 128px en escritorio, sin recortarse en móvil
-              style={{ fontSize: "clamp(2.75rem, 12vw, 8rem)" }}
-              delay={0.5}
-              staggerDelay={0.08}
-              flipDelay={1.5}
+              delay={0.4}
+              staggerDelay={0.06}
+              flipDelay={1.6}
               flipInterval={3}
               colorSplit={6}
               primaryColor="text-white"
