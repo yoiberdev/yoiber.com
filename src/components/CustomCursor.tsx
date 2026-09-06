@@ -11,6 +11,8 @@ const CustomCursor = () => {
     
     if (!cursor || !follower) return;
 
+    document.body.classList.add('custom-cursor-active');
+
     let mouseX = 0;
     let mouseY = 0;
 
@@ -60,6 +62,7 @@ const CustomCursor = () => {
     });
 
     return () => {
+      document.body.classList.remove('custom-cursor-active');
       document.removeEventListener('mousemove', handleMouseMove);
       interactiveElements.forEach(el => {
         el.removeEventListener('mouseenter', handleMouseEnter);

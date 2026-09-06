@@ -1,9 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 
 interface AnimatedTextProps {
   text: string;
   className?: string;
+  style?: React.CSSProperties;
   delay?: number;
   staggerDelay?: number;
   flipDelay?: number;
@@ -16,6 +17,7 @@ interface AnimatedTextProps {
 const AnimatedText = ({
   text,
   className = "text-3xl font-bold text-white",
+  style,
   delay = 0.5,
   staggerDelay = 0.08,
   flipDelay = 1.5,
@@ -26,101 +28,64 @@ const AnimatedText = ({
 }: AnimatedTextProps) => {
   const textRef = useRef<HTMLHeadingElement>(null);
 
-  useEffect(() => {
+  // useLayoutEffect: el estado inicial se fija antes del primer pintado,
+  // así las letras no aparecen ya colocadas durante un instante.
+  useLayoutEffect(() => {
     if (!textRef.current) return;
 
     const letters = textRef.current.querySelectorAll(".letter");
     const iLetter = textRef.current.querySelector(".letter-i");
+    const pending: gsap.core.Tween[] = [];
+    let iTimeline: gsap.core.Timeline | null = null;
 
-    // Posición inicial - todas las letras vienen desde la derecha
-    gsap.set(letters, {
-      x: 100,
-      opacity: 0,
-    });
+    gsap.set(letters, { x: 100, opacity: 0 });
 
-    // Timeline principal
-    const tl = gsap.timeline({
-      delay, // Delay configurable
-    });
+    const tl = gsap.timeline({ delay });
+    tl.to(letters, { x: 0, opacity: 1, duration: 0.8, ease: "power3.out", stagger: staggerDelay });
 
-    // Entrada desde la derecha con stagger
-    tl.to(letters, {
-      x: 0,
-      opacity: 1,
-      duration: 0.8,
-      ease: "power3.out",
-      stagger: staggerDelay, // Stagger configurable
-    });
-
-    // Animación continua de la "i" - alterna entre normal y volteada
+    // La "i" alterna entre normal y volteada cada flipInterval segundos.
     if (iLetter) {
-      // Variable para trackear el estado actual
       let isFlipped = false;
 
       const animateI = () => {
-        const iTimeline = gsap.timeline({
+        iTimeline = gsap.timeline({
           onComplete: () => {
-            // Después de completar, esperar y repetir
-            gsap.delayedCall(flipInterval, animateI);
+            pending.push(gsap.delayedCall(flipInterval, animateI));
           },
         });
-
-        // Determinar la rotación objetivo basada en el estado actual
         const targetRotation = isFlipped ? 0 : 180;
-
-        // Primera vuelta completa (360°) - siempre igual
-        iTimeline.to(iLetter, {
-          rotationX: 360,
-          duration: 0.5,
-          ease: "power2.inOut",
-          transformOrigin: "center center",
-        });
-
-        // Después ir a la posición final (0° o 180°)
-        iTimeline.to(iLetter, {
-          rotationX: targetRotation,
-          duration: 0.8,
-          ease: "power1.out",
-          transformOrigin: "center center",
-        });
-
-        // Cambiar el estado para la próxima iteración
+        iTimeline
+          .to(iLetter, { rotationX: 360, duration: 0.5, ease: "power2.inOut", transformOrigin: "center center" })
+          .to(iLetter, { rotationX: targetRotation, duration: 0.8, ease: "power1.out", transformOrigin: "center center" });
         isFlipped = !isFlipped;
       };
 
-      // Empezar la animación después de que entren las letras
-      gsap.delayedCall(flipDelay, animateI);
+      pending.push(gsap.delayedCall(flipDelay, animateI));
     }
 
     return () => {
       tl.kill();
+      iTimeline?.kill();
+      pending.forEach((d) => d.kill());
     };
   }, [text, delay, staggerDelay, flipDelay, flipInterval]);
 
-  // Dividir el texto en letras individuales
-  const renderLetters = (inputText: string) => {
-    return inputText.split("").map((letter, index) => {
-      // Determinar el color basado en la posición
-      let letterColor = primaryColor;
-      if (colorSplit && index >= colorSplit) {
-        letterColor = secondaryColor;
-      }
-
+  const renderLetters = (inputText: string) =>
+    inputText.split("").map((letter, index) => {
+      const letterColor = colorSplit && index >= colorSplit ? secondaryColor : primaryColor;
       return (
         <span
           key={index}
-          className={`letter inline-block ${
-            letter === "i" ? "letter-i" : ""
-          } ${letterColor}`}
+          className={`letter inline-block ${letter === "i" ? "letter-i" : ""} ${letterColor}`}
+          style={{ opacity: 0 }}
         >
           {letter}
         </span>
       );
     });
-  };
 
   return (
-    <h1 ref={textRef} className={className}>
+    <h1 ref={textRef} className={className} style={style}>
       {renderLetters(text)}
     </h1>
   );

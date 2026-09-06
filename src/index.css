@@ -7,8 +7,7 @@
 @font-face {
   font-family: 'Satoshi';
   src: url('./fonts/Satoshi-Variable.woff2') format('woff2'),
-       url('./fonts/Satoshi-Variable.woff') format('woff'),
-       url('./fonts/Satoshi-Variable.ttf') format('truetype');
+       url('./fonts/Satoshi-Variable.woff') format('woff');
   font-weight: 300 900;
   font-display: swap;
   font-style: normal;
@@ -17,8 +16,7 @@
 @font-face {
   font-family: 'Satoshi';
   src: url('./fonts/Satoshi-VariableItalic.woff2') format('woff2'),
-       url('./fonts/Satoshi-VariableItalic.woff') format('woff'),
-       url('./fonts/Satoshi-VariableItalic.ttf') format('truetype');
+       url('./fonts/Satoshi-VariableItalic.woff') format('woff');
   font-weight: 300 900;
   font-display: swap;
   font-style: italic;
@@ -49,7 +47,6 @@ html, body {
 body {
   background: #000;
   color: white;
-  font-display: swap;
 }
 
 /* Optimizaciones para elementos animados */
@@ -91,12 +88,11 @@ body {
   contain: strict;
 }
 
-/* Cursor personalizado - ocultar cursor por defecto */
-body {
-  cursor: none;
-}
-
-button, a, .interactive {
+/* Cursor personalizado: solo se oculta el puntero cuando CustomCursor está montado */
+body.custom-cursor-active,
+body.custom-cursor-active button,
+body.custom-cursor-active a,
+body.custom-cursor-active .interactive {
   cursor: none;
 }
 
@@ -107,7 +103,7 @@ html {
 
 /* Optimizaciones para móvil */
 @media (max-width: 768px) {
-  body {
+  body.custom-cursor-active {
     cursor: auto;
   }
   

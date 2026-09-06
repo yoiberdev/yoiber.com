@@ -30,7 +30,7 @@ const PhilosophySection = () => {
 
     const codeMatrix = codeMatrixRef.current;
     const thoughts = thoughtsRef.current;
-    let matrixIntervals: number[] = [];
+    const matrixIntervals: number[] = [];
 
     // Matriz de código optimizada
     if (codeMatrix) {

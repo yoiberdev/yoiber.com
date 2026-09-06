@@ -235,10 +235,11 @@ const ExpandingLogo = ({
   }, [autoPlay, playInitialAnimation]);
 
   useEffect(() => {
+    const container = containerRef.current;
     return () => {
       if (timelineRef.current) timelineRef.current.kill();
       ScrollTrigger.getAll().forEach(trigger => {
-        if (trigger.trigger === containerRef.current) {
+        if (trigger.trigger === container) {
           trigger.kill();
         }
       });

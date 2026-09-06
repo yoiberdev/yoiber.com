@@ -1,69 +1,34 @@
-# React + TypeScript + Vite
+# yoiber.com
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Web personal de [yoiberdev](https://github.com/yoiberdev). Intro animada con el logo y el nombre,
+construida con **Vite + React 19 + TypeScript + Tailwind 4 + GSAP**.
 
-Currently, two official plugins are available:
+## Desarrollo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm ci
+npm run dev      # servidor local con recarga
+npm run lint     # eslint
+npm run build    # tsc + vite build -> dist/
+npm run preview  # sirve dist/ en local
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Estructura
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `src/App.tsx`: página actual (logo animado + texto).
+- `src/components/AnimatedLogo.tsx`, `AnimatedText.tsx`: componentes en uso.
+- Resto de `src/components/`: secciones preparadas para la versión completa de la web
+  (navegación, sobre mí, portfolio, scroll horizontal...). Todavía no se montan.
+- `src/fonts/`: Satoshi Variable (woff2/woff), la única fuente que se carga.
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Despliegue
+
+Se sirve como estáticos con nginx dentro de Docker en el servidor de Kip-Up
+(`/opt/yoiblog`, dominios yoiber.com y yoiber.dev). Para publicar una nueva versión:
+
+```bash
+git push origin main            # desde tu máquina
+sudo /opt/yoiblog/actualizar.sh # en el servidor: git pull + docker compose build + up
 ```
+
+La integración continua (GitHub Actions) ejecuta lint y build en cada push y pull request.
