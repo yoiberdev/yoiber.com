@@ -1,11 +1,16 @@
-# yoi-demo — reglas para la IA
+# yoiber.com rama v2 — reglas para la IA
 
-- La web personal yoiber.com (repo `yoiberdev/yoiber.com`) tiene su propio logo animado con GSAP.
-  **No se sustituye ni se porta a Anime.js**: es difícil de replicar y Yoiber quiere conservarlo.
-  Lo que se aprenda aquí no se lleva allí salvo que él lo pida.
-- Repositorio propio `yoiberdev/yoi-demo` (público, rama `main`). Salió de una rama huérfana del
-  repositorio de la web personal el 2026-09-06; no comparte código con `yoiberdev/yoiber.com` y no
-  toca otros proyectos del servidor.
+- Esto es la PRÓXIMA versión de la web personal de Yoiber, no una demo: nada de textos tipo "demo
+  de animaciones" o "en construcción", ni créditos de librerías en la página.
+- Vive en `yoiberdev/yoiber.com`, **rama `v2`** (el clon de trabajo es `/home/yoiber/proyectos/yoi-demo`
+  y el de despliegue `/opt/yoi-demo/src`; los nombres de carpeta son históricos). La versión que hoy
+  está en yoiber.com es la rama `main`, y las dos NO comparten un solo fichero: `v2` nació el
+  2026-09-06 como rama huérfana y estuvo un tiempo en un repositorio aparte (`yoiberdev/yoi-demo`,
+  hoy archivado). Cuando Yoiber lo decida, `v2` pasará a ser `main`. **No fusiones nada de `main`
+  en `v2` ni al revés sin que él lo pida.**
+- La intro del logo con GSAP de `main` (AnimatedLogo.tsx) está portada literalmente en
+  `src/effects/logo-intro.ts`: **no se sustituye ni se traduce a Anime.js**, y no se toca su
+  coreografía. Es regla del proyecto.
 - Todo se ejecuta como usuario `yoiber` (`runuser -u yoiber -- …`) salvo `git push`, que hace root
   con el alias `github-yoiberdev`; después `chown -R yoiber:yoiber .git`.
 - No hay Node en el host: `npm` siempre dentro de `node:22-alpine` (ver README y docker-compose.dev.yml).
