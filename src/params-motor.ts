@@ -30,6 +30,11 @@ export const PM = {
     // `medioAncho` es además el RADIO máximo del grafo (hypot(x, z) = 2,48 en los tubos, sonda19),
     // así que vale para el ancho proyectado con cualquier guiñada. Las usan el encuadre (rig.ts)
     // y el desvío de la galería, para no sacar la máquina del cuadro (ver coreografia.ts).
+    // Vueltas a medir en la Vuelta 3 (sonda del carril objeto, tras pegar la turbobomba y las
+    // aletas al cuerpo): min (-2,48, -3,348) y max (2,48, 3,165), centro 0,091: no cambian, porque
+    // los extremos siguen siendo los tubos en el labio y los tornillos de la brida de empuje. Lo
+    // que sí cambia es el radio de lo demás: turbobomba 1,72 (era 2,34), conductos 1,51 (1,95),
+    // aletas 1,20 (los paneles, 2,06).
     medioAncho: 2.48,
     medioAlto: 3.35,
     centro: 0.09,     // el motor se sube esto para que su centro caiga en el centro del encuadre
@@ -65,12 +70,15 @@ export const PM = {
     //   · oscuro (fondo #1f1e1d = 30): sombra 34 (3-5 puntos por encima del fondo, fundida como
     //     la de la referencia: #212121 sobre #252423), medio 100, claro 215;
     //   · claro (fondo #efe9df = 233): aquí el tono más cercano al papel es el ILUMINADO (237,
-    //     un blanco sobre crema, por eso el valor pasa de 1), medio 195, sombra 150. La sombra es
-    //     CLARA a propósito: el capítulo claro es el despiece, visto desde arriba (rotX -20), y
-    //     ahí la pared de la campana mira hacia abajo, lejos de la única luz: con una sombra de 80
-    //     la campana entera salía como un cubo negro sobre el crema mientras la cúpula y los tubos
-    //     eran blancos (v1-claro-solo.png). Sobre papel el objeto es blanco y se dibuja con la
-    //     tinta; los tres tonos solo lo modelan un poco, como en la lámina de la referencia.
+    //     un blanco sobre crema, por eso el valor pasa de 1), medio 228, sombra 220. Era
+    //     150 / 195 / 237 en la Vuelta 2, con la sombra ya clara a propósito (el capítulo claro es
+    //     el despiece visto desde arriba, y la pared de la campana mira lejos de la única luz: con
+    //     una sombra de 80 salía como un cubo negro sobre el crema). Con la TINTA dibujando cada
+    //     pieza (Vuelta 3, fila 19f) la sombra se funde más aún: sobre papel el objeto es blanco y
+    //     lo dibuja la línea, los tres tonos solo lo modelan, como en la lámina de la referencia.
+    //     Medido en COMO 40 % (barrido-claro, variante B/D): pared en sombra de la campana 220
+    //     (13 puntos bajo el crema 233; la meta era 8-15), medio 228, iluminado 236; con 150 la
+    //     campana era una mancha gris de 193 de media sobre la lámina (variante A).
     //   sRGB -> lineal -> g = lineal · π / (0,904 · 2,33). Sin ambiente, cada material sale de la
     //   misma escala: el gris `medio` de la paleta está elegido para que su cara iluminada sea el
     //   tono medio del blanco (ver M.paleta en geometria.ts).
@@ -85,7 +93,7 @@ export const PM = {
       // la referencia, y la tapa de la cúpula (normal hacia arriba, dot 0,59) sigue en claro.
       cortes: [0.12, 0.5] as [number, number],
       oscuro: [0.024, 0.19, 1.0] as [number, number, number],
-      claro: [0.455, 0.81, 1.26] as [number, number, number],
+      claro: [1.07, 1.16, 1.26] as [number, number, number],
       anchura: 64,
     },
     // LA LUZ DE BORDE (rim), en el shader: rim = (1 - dot(normal, vista))^potencia · color · fuerza,
@@ -104,26 +112,88 @@ export const PM = {
     // en el borde. La fuerza sube a la vez (0,35 -> 0,8) porque ahora solo pinta el borde y tiene
     // que verse: en el píxel del borde exacto vale (232, 162, 127) antes del suavizado.
     rim: { color: 0xffb38a, fuerza: 0.8, fuerzaClaro: 0.4, potencia: 8 },
+    // LA TINTA (informe BRECHA, fila 19) y el FXAA (fila 25): un pase de pantalla (motor/tinta.ts)
+    // que dibuja la línea donde la PROFUNDIDAD o la NORMAL saltan entre píxeles vecinos. Sustituye
+    // a los 14 EdgesGeometry y los 7 cascos de silueta (21 llamadas de dibujo y ~30 000 triángulos
+    // repetidos que solo perfilaban las mallas grandes): ahora la corona de tubos, los tornillos,
+    // los tirantes, los álabes y los canales llevan su línea, y la escena baja a 41 llamadas.
+    tinta: {
+      // Píxeles CSS de línea, no unidades de motor: el casco de antes medía 2,7 px en el reposo y
+      // 1,6 en el despiece porque iba en unidades del objeto (M.aristas.grosor 0,028). La cruz
+      // muestrea a ±grosor·dpr/2 texels y la línea sale de ~grosor px, sea cual sea el zoom.
+      grosor: 1.4,
+      // LA PLUMA SE AFINA CUANDO EL DIBUJO ES PEQUEÑO. Medido en el iPhone 13 en COMO 40 % (zoom
+      // 0,43 y el despiece encogido a 0,67 entre las bandas de rótulos): la corona son 36 tubos de
+      // ~3 px de ancho y con 1,4 px de línea era una mancha negra (v2-ip13-media-como-40: el 34 %
+      // del objeto a 200 px era tinta pura). Una pluma fija es lo que hace la referencia, pero su
+      // objeto nunca baja de la mitad del cuadro. El grosor efectivo es grosor · √(escala
+      // aparente), con la escala aparente = zoom de la cámara · escala del desvío (1 en HERO_OUT,
+      // 0,72 en la galería, 0,43 en COMO, 0,29 en COMO en el iPhone), y nunca menos que
+      // `grosorMin`: COMO en escritorio 0,92 px, en el iPhone 0,75. Por debajo de ~0,6 texels de
+      // radio la cruz muestrea el mismo texel y la línea desaparece: tinta.ts lo acota.
+      grosorMin: 0.75,
+      // Segunda diferencia de la profundidad entre muestras diagonales, en unidades de motor: la
+      // línea empieza aquí y es plena al doble. 0,04 u es menos de medio radio de tubo (0,10) y
+      // del alto de una cabeza de tornillo (0,05), y más que el escalón de un canal (0,03 va por
+      // normales) y que lo que una superficie curva vista de canto acumula a 2 texels de su
+      // silueta (ver tinta.ts).
+      umbralProfundidad: 0.025,
+      // |n1 − n2| entre muestras diagonales: 0,25 son dos normales a 14°. Los pliegues del objeto
+      // son de 24° (el umbral de los EdgesGeometry de antes) o más; una revolución suavizada de
+      // 96 segmentos cambia < 0,05 entre muestras vecinas fuera de su silueta.
+      umbralNormal: 0.55,
+      fuerza: 1,          // opacidad de la tinta sobre el color, tema oscuro
+      fuerzaClaro: 1,     // ...y tema claro: sobre el crema la tinta es lo que dibuja el objeto
+      // El fondo de la página por tema (base.css, --bg): el FXAA calcula la luminancia como se VE
+      // (el lienzo es alfa y el borde exterior del objeto es un borde de alfa, no de color).
+      fondo: 0x1f1e1d,
+      fondoClaro: 0xefe9df,
+      // Qué lleva cada calidad (capacidad.ts). El FXAA es una pasada más a pantalla completa (9
+      // muestras por píxel): en 'baja' (móviles justos) se queda fuera y el vigilante de fotogramas
+      // lo apaga también en escritorio en su segundo peldaño (effects/motor3d.ts).
+      fxaa: { alta: true, media: true, baja: false } as Record<'alta' | 'media' | 'baja', boolean>,
+      // Por cuánto se divide el presupuesto de píxeles de capacidad.ts: el fotograma ya no es una
+      // pasada de relleno sino tres (geometría a dos texturas + tinta + FXAA) o dos. Ver
+      // escalaLienzo(): en un teléfono manda antes el tope de dpr (1,5), así que esto solo recorta
+      // en pantallas táctiles grandes; en escritorio la GPU dedicada o integrada va sobrada con
+      // 4 MP · 3 pasadas y el vigilante de fotogramas degrada si no.
+      relleno: { alta: 1, media: 1, baja: 1.5 } as Record<'alta' | 'media' | 'baja', number>,
+    },
     origen: 'propio',
   },
 
-  // Las NUEVE piezas rotuladas del despiece, en el orden en que se separan (de arriba abajo) y en
-  // el que ocupan las ranuras de su columna. Ese orden se cuadró MIDIENDO la altura proyectada de
-  // cada pieza en el despiece: con la lista sin ordenar, dos guías se cruzaban (se ve en captura).
-  //   y:     desplazamiento axial del despiece.
+  // Las NUEVE piezas rotuladas del despiece (informe BRECHA, fila 22: el despiece como LÁMINA). El
+  // orden es el de las ranuras de cada lista (de arriba abajo) y el del escalonado al separarse:
+  // los cuatro de la izquierda son la cabeza, de la brida de empuje al anillo de aletas; los cinco
+  // de la derecha van de la línea al domo —lo más alto del conjunto bomba + conductos— a la
+  // campana. Con las ranuras en el mismo orden que la y de las anclas ninguna guía cruza otra.
+  //   y:     desplazamiento axial. SEPARACIONES IGUALES a lo largo del eje: cada pieza axial
+  //          arranca G = 0,5 u por encima de donde acaba la anterior, con la extensión de cada una
+  //          medida en el grafo (sonda del carril objeto, marco del motor, vértices con instancias):
+  //            campana [-3,35, 0,50]   refrigeracion [-3,35, 0,47]   camara [-0,15, 2,20]
+  //            aletas [0,98, 1,60]     inyector inclinado 50° [1,46, 3,02]
+  //            cupula [2,32, 3,09]     bancada [1,95, 3,17]
+  //          y la pila entera centrada en y = 0 (de -8,59 a +8,60, 17,2 u): d_campana = -5,24 y
+  //          hacia arriba d = d_anterior + (fin_anterior − inicio_siguiente) + G. Antes la corona
+  //          subía solo 1,3 sobre la campana y los radiadores salían en T: piezas de 17:1 de
+  //          tamaño y guías de 600 px. La turbobomba y los conductos van a la altura de la cámara
+  //          (a la que están atados) y salen por su radio como UN conjunto; la placa, con la brida.
   //   r:     desplazamiento radial (sale por su propio vector; 0 si va en el eje).
-  //   ancla: punto LOCAL de la pieza donde engancha la guía del rótulo.
-  //   lado:  columna izquierda (-1, cuatro) o derecha (+1, cinco).
+  //   ancla: punto LOCAL de la pieza donde engancha la guía. Los de la izquierda están en el
+  //          azimut 215° del marco del motor y los de la derecha en el 35°: con la guiñada del
+  //          despiece (20° a 54°) x_pantalla = r · cos(azimut − guiñada), o sea que cada ancla cae
+  //          en el flanco de su lista. El del inyector es local a su centro (geometria.ts).
+  //   lado:  lista izquierda (-1, cuatro) o derecha (+1, cinco).
   piezas: [
-    { id: 'bancada',       y: 3.6,  r: 0,   ancla: [1.15, 3.05, 0],     lado: -1, movil: true, titulo: 'Estructura de empuje', nota: 'anillo y 12 tirantes en A' },
-    { id: 'radiadores',    y: 1.9,  r: 0,   ancla: [-2.30, 2.40, 1.05], lado: -1, titulo: 'Paneles radiadores', nota: 'tres a 120°, aristas a 60,1°' },
-    { id: 'cupula',        y: 2.2,  r: 0,   ancla: [0.6, 2.8, 0],       lado: 1,  titulo: 'Cúpula del colector', nota: 'se levanta y deja ver los inyectores' },
-    { id: 'inyector',      y: 1.3,  r: 0,   ancla: [1.06, 2.24, 0],     lado: 1,  movil: true, titulo: 'Placa de inyectores', nota: '127 orificios en siete anillos' },
-    { id: 'turbobomba',    y: 0.9,  r: 2.3, ancla: [0, 0.2, 0],         lado: 1,  titulo: 'Turbobomba', nota: 'voluta, cuerpo, turbina y escape' },
-    { id: 'camara',        y: 0.4,  r: 0,   ancla: [0.97, 1.5, 0],      lado: -1, movil: true, titulo: 'Cámara de combustión', nota: 'relación de contracción 3,24' },
-    { id: 'conductos',     y: 0,    r: 1.1, ancla: [1.2, 0.8, 0],       lado: 1,  titulo: 'Conductos', nota: 'descarga, línea al domo y escape' },
-    { id: 'refrigeracion', y: -1.0, r: 0,   ancla: [0.66, -0.1, 0.3],   lado: -1, titulo: 'Corona de refrigeración', nota: '36 tubos de radio variable' },
-    { id: 'campana',       y: -2.3, r: 0,   ancla: [1.6, -2.6, 0],      lado: 1,  movil: true, titulo: 'Campana de la tobera', nota: 'perfil de Rao, expansión 17,6' },
+    { id: 'bancada',       y: 5.43,  r: 0,   ancla: [-0.94, 3.05, -0.66], anclaMovil: [1.15, 3.05, 0], lado: -1, movil: true, titulo: 'Estructura de empuje', nota: 'anillo y 12 tirantes en A' },
+    { id: 'cupula',        y: 3.79,  r: 0,   ancla: [-0.64, 2.63, -0.45], lado: -1, titulo: 'Cúpula del colector', nota: 'se levanta y deja ver los inyectores' },
+    { id: 'inyector',      y: 2.59,  r: 0,   ancla: [-0.78, 0, -0.55],    anclaMovil: [0.955, 0, 0], lado: -1, movil: true, titulo: 'Placa de inyectores', nota: '127 orificios en siete anillos' },
+    { id: 'aletas',        y: 1.95,  r: 0,   ancla: [-0.98, 0, -0.69],    lado: -1, titulo: 'Anillo de aletas', nota: '29 aletas radiales sobre la cámara' },
+    { id: 'conductos',     y: 0.23,  r: 2.0, ancla: [0.44, 2.56, 0.70],   lado: 1,  titulo: 'Conductos', nota: 'descarga, línea al domo y escape' },
+    { id: 'turbobomba',    y: 0.23,  r: 2.0, ancla: [0.30, 0.20, 0],      lado: 1,  titulo: 'Turbobomba', nota: 'voluta, cuerpo, turbina y escape' },
+    { id: 'camara',        y: 0.23,  r: 0,   ancla: [0.67, 0.55, 0.47],   lado: 1,  movil: true, titulo: 'Cámara de combustión', nota: 'relación de contracción 3,24' },
+    { id: 'refrigeracion', y: -0.89, r: 0,   ancla: [0.74, 0.42, 0.52],   lado: 1,  titulo: 'Corona de refrigeración', nota: '36 tubos de radio variable' },
+    { id: 'campana',       y: -5.24, r: 0,   ancla: [1.60, -2.60, 1.12],  lado: 1,  movil: true, titulo: 'Campana de la tobera', nota: 'perfil de Rao, expansión 17,6' },
   ] as PiezaNum[],
 
   // Piezas que se mueven en el despiece pero NO llevan rótulo. La placa de identificación viaja
@@ -131,7 +201,7 @@ export const PM = {
   // medido, sacándola por su radio se movía HACIA la cámara —o sea, casi nada en pantalla— y se
   // quedaba escondida detrás del inyector, con su guía apuntando a un radiador.
   sueltas: [
-    { id: 'placa', y: 3.6, r: 0.6, ancla: [0, 0, 0], lado: 1, titulo: '', nota: '' },
+    { id: 'placa', y: 5.43, r: 0.6, ancla: [0, 0, 0], lado: 1, titulo: '', nota: '' },
   ] as PiezaNum[],
 
   // LA CAPA DE VIDA. Va con el reloj del NAVEGADOR, no con el del maestro, y esa es toda la idea:
@@ -171,8 +241,10 @@ export const PM = {
     acentoMs: 400,
   },
 
-  // Los tres paneles radiadores además se abren en abanico cada uno por su radio, dentro del grupo.
-  abanicoRadiador: 1.35,
+  // El anillo de aletas además se ABRE en el despiece: escala en X y Z de su grupo (el origen está
+  // en el eje del motor, geometria.ts), o sea que las 29 aletas se separan de la pared a la vez,
+  // 0,3 · r = 0,29-0,36 u, sin tocar ninguna matriz. Sustituye al abanico de los tres paneles.
+  aletasAbrir: 1.3,
 
   coreo: {
     // EL MONTAJE. Ocurre en HERO_OUT, no en INTRO. Dos razones medidas, no de gusto:
@@ -308,9 +380,20 @@ export const PM = {
       quieto: [0.70, 0.79] as [number, number],
       recomponer: [0.79, 1] as [number, number],
       rotX: -20,      // se inclina para ver el despiece desde arriba
-      bajar: -0.64,   // el despiece se va más ARRIBA que abajo: se baja para centrarlo en el cuadro
-      desplazar: -0.6, // el despiece crece hacia la derecha (turbobomba y conductos): se compensa
-      zoom: 0.58,     // el despiece ocupa ~12,3 u de alto: 8,2 / 0,58 = 14,1 u de encuadre
+      // LA PLACA DE INYECTORES SE INCLINA hacia la cámara en el despiece (fila 22: "que se le vea
+      // la cara"). Grados de giro alrededor del eje horizontal de la pantalla, aplicados por el
+      // canal derivado (coreografia.ts, 3b) con el escalar `inclina`. Con los -20 de rotX y los
+      // 9,6 de la propia cámara, la placa queda a 80° de la línea de vista: la retícula de 127
+      // orificios se ve casi de frente y la pieza pasa de 0,16 u de alto proyectado a 1,9.
+      inclinaInyector: 50,
+      bajar: 0,       // la pila del despiece ya está centrada en y = 0 (ver PM.piezas)
+      desplazar: -0.4, // el despiece crece hacia la derecha (turbobomba y conductos a r 3,3): se compensa
+      // 0,43 y no 0,58: el despiece en un eje con separaciones iguales mide 17,2 u de pila (antes
+      // 12,3), que con la inclinación y las elipses de la boca y la brida son 17,5 u proyectadas
+      // (medido: 884 px con 17,83 u visibles a zoom 0,46, tocando los dos bordes). 8,2 / 0,43 =
+      // 19,1 u de encuadre: el despiece ocupa 825 px de 900 y deja ~38 px por arriba y por abajo,
+      // como el de antes (47 / 36).
+      zoom: 0.43,
       giroAbre: 62,
       giroParallax: 34,
       giroFinal: 22,
@@ -344,7 +427,9 @@ export const PM = {
       // ranura de arriba y de la primera de abajo en el iPhone 13, 25 / 17 en el Pixel 5 (851 de
       // alto) y 18 / 10 en 360x640; las cuatro guías no se cruzan.
       vertical: { centro: 0.575, alto: 0.52 },
-      altoDespiece: 12.9,
+      // 17,5 y no 12,9: la pila del despiece en un eje (ver PM.piezas), medida en píxeles en COMO
+      // 40 % a 1440x900 (884 px de 900 con 17,83 u visibles).
+      altoDespiece: 17.5,
     },
     cierre: {
       previo: [0, 0.22] as [number, number],
@@ -406,8 +491,19 @@ export const PM = {
     // capítulo, que en compacto vive a 4,5 rem del borde inferior (~0,915).
     bandaBaja: 0.865,     // primera ranura de la banda de abajo
     pasoCompacto: 0.07,   // separación entre ranuras de una banda
-    columna: 0.045,   // más de la mitad del cuadro era negro vacío con 0,085
-    codo: 0.05,       // el codo va en el extremo CERCANO al objeto: así la diagonal no cruza texto
+    // EN COLUMNAS los rótulos son DOS LISTAS pegadas al objeto (fila 22): la de la izquierda cuelga
+    // desde `listaAlta` hacia abajo (la cabeza del motor, cuatro rótulos) y la de la derecha sube
+    // desde `listaBaja` (cinco, hasta la campana). Estaban en las dos esquinas del cuadro
+    // (columna 0,045) y las guías medían hasta 600 px; con el texto a 0,22 del ancho y el codo en
+    // el borde del texto más ancho de su lista (`codoLista` px, medido en el DOM como en compacto)
+    // la guía más larga mide < 250 px en 1440x900 (medido: sonda del carril objeto). 0,22 y no
+    // menos: el titular "Por dentro" ocupa hasta los 290 px a la izquierda y la lista arranca a 317.
+    // `alto` es el paso entre ranuras: 0,095 (85 px a 900, 59 a 620) para un rótulo de dos o tres
+    // líneas (52 px); las anclas de la cabeza van a ~70 px unas de otras en el despiece.
+    columna: 0.22,
+    listaAlta: 0.15,      // primera ranura de la lista izquierda, fracción del alto
+    listaBaja: 0.74,      // última ranura de la lista derecha
+    codoLista: 26,        // px del tramo horizontal de la guía, del borde del texto al codo
     // EN COMPACTO el codo no puede ir a una fracción del ancho: con 0,05 (20 px a 390) la diagonal
     // salía DESDE DENTRO del bloque de texto y cruzaba los rótulos de debajo —la de "Estructura de
     // empuje" tachaba "Placa de inyectores" y la de "Placa", "Cámara de combustión" (ronda 1,
@@ -419,9 +515,9 @@ export const PM = {
     // baja: el <b> mide 0,72 rem · 1,3 = 15 px (±7,5 del centro), así que 9 deja 1 px entre la caja
     // del texto y el trazo de 1 px. El texto NO se mueve de su ranura: el aire entre las bandas y
     // el despiece (18 / 12 px en el iPhone 13) es el de antes.
-    aireCodo: 8,      // px entre el borde del texto más ancho de la banda y el codo, en compacto
+    aireCodo: 8,      // px entre el borde del texto más ancho de la banda (o lista) y la guía
     raya: 9,          // px del centro de la ranura al tramo horizontal de la guía, en compacto
-    alto: 0.115,
+    alto: 0.095,
     dibujo: 0.62,
     radioPunto: 3.2,
     origen: 'propio',
@@ -462,6 +558,12 @@ export interface PiezaNum {
   y: number;
   r: number;
   ancla: [number, number, number];
+  /** Ancla para COMPACTO, si difiere. En las bandas de móvil las guías de la banda alta salen
+   *  todas del mismo codo, a la izquierda, y bajan hacia la derecha: para que no se crucen las
+   *  anclas tienen que estar en el flanco DERECHO del objeto (medido: con las anclas de la lista
+   *  izquierda de escritorio, en el flanco izquierdo, se cruzaban dos guías en el iPhone 13 y tres
+   *  en el Pixel 5). En escritorio, con las listas, cada ancla mira a su lista. */
+  anclaMovil?: [number, number, number];
   lado: -1 | 1;
   /** Si es true, la pieza conserva rótulo en pantalla estrecha. Nueve rótulos no caben en un móvil. */
   movil?: boolean;

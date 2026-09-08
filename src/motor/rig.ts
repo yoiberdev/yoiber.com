@@ -1,6 +1,6 @@
 import {
   AmbientLight, Color, DirectionalLight, DoubleSide, Group, InstancedMesh, Matrix4,
-  LineBasicMaterial, MeshBasicMaterial, MeshToonMaterial, Object3D, OrthographicCamera, PointLight,
+  MeshBasicMaterial, MeshToonMaterial, Object3D, OrthographicCamera, PointLight,
   Quaternion, Scene, Vector3, type Material,
 } from 'three';
 import { PM } from '../params-motor';
@@ -35,6 +35,7 @@ export interface PiezaRig {
   obj: Object3D;      // el grupo que se aparta en el despiece
   abierto: Vector3;   // desplazamiento del despiece, en el espacio del padre
   ancla: Vector3;     // punto LOCAL de la pieza donde engancha el rótulo
+  anclaMovil?: Vector3;   // el mismo punto para las bandas de compacto, si difiere (ver PM.piezas)
   lado: -1 | 1;
   /** Conserva rótulo en pantalla estrecha. */
   movil: boolean;
@@ -70,8 +71,6 @@ export interface Rig {
    *  reparte por AQUÍ el retardo de entrada de la corona: el índice del tubo no vale, porque el
    *  ángulo del tubo i no es i·360/n (ver escribirTubos). */
   azimutes: number[];
-  /** Los tres paneles radiadores: se abren en abanico dentro de su grupo. */
-  aspas: Object3D[];
   /** La marca: la placa de identificación con el monograma. Ver PM.marca. */
   marca: Object3D;
   /** Materiales PROPIOS de la marca (clones): así el apagado del resto no la toca. */
@@ -96,7 +95,8 @@ export interface Rig {
   cuerpos: Material[];
   /** Escribe las matrices de la corona a partir de `tubos[i].z`. Función pura de esos valores. */
   escribirTubos(): void;
-  /** Repinta las dos tintas (aristas y casco de silueta) al cambiar el tema de la página. */
+  /** El tema en los materiales (tonos del toon, filo, piel de la campana). El color de la TINTA
+   *  lo cambia el pase de pantalla (motor/tinta.ts, tema()): effects/motor3d.ts llama a los dos. */
   tema(claro: boolean): void;
   disponer(ancho: number, alto: number): void;
   liberar(): void;
@@ -133,10 +133,10 @@ export function construirRig(nivel: Calidad): Rig {
   // que este adaptador hace sobre lo que devuelve geometria.ts.
   // -------------------------------------------------------------------------------------------
   const cuerpos: Material[] = [];
-  // 'silueta' va en la lista: es un material mas del objeto para el fundido final. Si se quedara
-  // fuera, al desvanecerse el motor los cascos seguirian opacos y quedaria una silueta de tinta
-  // flotando sobre el fondo, que es exactamente el fallo que el contorno viene a arreglar.
-  for (const clave of ['blanco', 'medio', 'oscuro', 'acento', 'linea', 'silueta', 'caliente'] as const) {
+  // (La tinta ya no esta en esta lista: es un pase de pantalla que se desvanece SOLO con la
+  // cobertura del objeto, ver tinta.ts. Antes el casco de silueta tenia que atenuarse aqui o al
+  // fundirse el motor quedaba una silueta de tinta flotando sobre el fondo.)
+  for (const clave of ['blanco', 'medio', 'oscuro', 'acento', 'caliente'] as const) {
     cuerpos.push(transparentar(motor.materiales[clave] as Material));
   }
   const emisivos = [motor.materiales.acento as MeshToonMaterial];
@@ -175,6 +175,7 @@ export function construirRig(nivel: Calidad): Rig {
         obj,
         abierto: new Vector3(radial.x * p.r, p.y, radial.z * p.r),
         ancla: new Vector3(...p.ancla),
+        anclaMovil: p.anclaMovil ? new Vector3(...p.anclaMovil) : undefined,
         lado: p.lado,
         movil: p.movil === true,
         titulo: p.titulo,
@@ -183,12 +184,10 @@ export function construirRig(nivel: Calidad): Rig {
     }
     return salida;
   };
+  // El anillo de aletas y la placa de inyectores son piezas de esta lista: la coreografía las
+  // busca por su id para abrir el anillo (escala) e inclinar la placa (cuaternión).
   const piezas = resolver(PM.piezas);
   const sueltas = resolver(PM.sueltas);
-
-  const aspas = ['radiador-0', 'radiador-1', 'radiador-2']
-    .map((n) => motor.piezas[n])
-    .filter((o): o is Object3D => !!o);
 
   // -------------------------------------------------------------------------------------------
   // LA CORONA. Una InstancedMesh, un objeto plano por tubo, y una función que compone matrices.
@@ -242,24 +241,24 @@ export function construirRig(nivel: Calidad): Rig {
   escribirTubos();
 
   // -------------------------------------------------------------------------------------------
-  // LA MARCA. La placa comparte materiales con el resto del motor (blanco, medio, oscuro, linea),
+  // LA MARCA. La placa comparte materiales con el resto del motor (blanco, medio, oscuro, chapa),
   // así que bajarle la opacidad al motor se la bajaba también a ella y el momento de la marca no
   // se leía: en la captura el brazo blanco salía gris. Se le CLONAN sus materiales. Además se les
   // pone `emissive` = su propio color, apagado, para que la coreografía pueda auto-iluminarla:
-  // un logotipo no se sombrea.
+  // un logotipo no se sombrea. (Su tinta ya no es un material: la pone el pase de pantalla, que no
+  // distingue clones.)
   const marca = motor.piezas.placa ?? new Group();
   const materialesMarca: Material[] = [];
   const emisivosMarca: MeshToonMaterial[] = [];
   const chapaMarca: Material[] = [];
-  const lineasMarca: LineBasicMaterial[] = [];
+  // Clon -> material del que salió: los grises cambian con el tema (geometria.ts, M.paleta.claro)
+  // y un clon no se entera; `tema()` le copia el color (y el emisivo, que es su propio color).
+  const clonesDe: { clon: MeshToonMaterial; base: MeshToonMaterial }[] = [];
   marca.traverse((o) => {
     const con = o as { material?: Material };
     if (!con.material) return;
     const clon = transparentar(con.material.clone());
-    if (o.name === 'placa-chapa' || o.name === 'aristas-placa-chapa') chapaMarca.push(clon);
-    // La placa lleva materiales CLONADOS, así que el repintado por tema no la alcanzaría: sus
-    // aristas se quedarían con la tinta del tema oscuro en el capítulo claro. Se apuntan aquí.
-    if (o.name.startsWith('aristas-')) lineasMarca.push(clon as LineBasicMaterial);
+    if (o.name === 'placa-chapa') chapaMarca.push(clon);
     const toon = clon as MeshToonMaterial;
     if (toon.isMeshToonMaterial) {
       // `clone()` copia el gradiente (la misma textura: el tema le llega igual) pero NO el
@@ -268,6 +267,7 @@ export function construirRig(nivel: Calidad): Rig {
       toon.emissive = toon.color.clone();
       toon.emissiveIntensity = 0;
       emisivosMarca.push(toon);
+      clonesDe.push({ clon: toon, base: con.material as MeshToonMaterial });
     }
     con.material = clon;
     materialesMarca.push(clon);
@@ -278,7 +278,7 @@ export function construirRig(nivel: Calidad): Rig {
 
   function tema(claro: boolean): void {
     aplicarTema(motor.materiales, claro);
-    for (const mat of lineasMarca) mat.color.copy(motor.materiales.linea.color);
+    for (const { clon, base } of clonesDe) { clon.color.copy(base.color); clon.emissive.copy(base.color); }
   }
 
   const medida = { ancho: 1, alto: 1 };
@@ -315,7 +315,7 @@ export function construirRig(nivel: Calidad): Rig {
   }
 
   return {
-    escena, camara, desvio, medida, raiz, sacudida, motor, piezas, sueltas, tubos, azimutes, aspas, marca, materialesMarca,
+    escena, camara, desvio, medida, raiz, sacudida, motor, piezas, sueltas, tubos, azimutes, marca, materialesMarca,
     emisivosMarca, chapaMarca, turbina, luzClave, luzCamara, emisivos, caliente, cuerpos,
     yLabio: -M.tobera.largo,
     escribirTubos, tema, disponer, liberar,

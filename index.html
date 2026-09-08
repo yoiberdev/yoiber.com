@@ -173,14 +173,32 @@
 
     <!-- LA GALERÍA. Cinco proyectos con demo viva. Las secciones de #capitulos son espaciadores:
          lo que se ve vive aquí, en una capa fija, y el reloj del maestro decide cuál está delante.
-         Es contenido de verdad, no decoración, así que NO lleva aria-hidden. -->
+         Es contenido de verdad, no decoración, así que NO lleva aria-hidden.
+         Cada tarjeta lleva, entre la pila y el detalle, un ESQUEMA (<svg class="esquema">) que el
+         scroll traza mientras la tarjeta está delante (effects/esquemas.ts; las ventanas de cada
+         pieza, en P.galeria.esquemas por su data-paso). Es decorado: lo que dice ya lo dice el
+         texto, por eso va aria-hidden. Las cifras del detalle (<b class="cifra" data-hasta>)
+         cuentan de 0 a su valor en el mismo tramo; el marcado lleva el valor final por si el
+         módulo no llega. El viewBox es 360x64: a 4,5 rem de alto en escritorio se pinta a 1,125
+         aumentos (los rótulos de 10 px salen a 11), a 3,5 rem en ventanas bajas (0,875) y a
+         2,5 rem en teléfonos altos (de 900 px), donde los rótulos se esconden (base.css). -->
     <div id="galeria-tarjetas" class="capa">
       <article class="tarjeta" data-slot="0">
         <h2>SysRRHH</h2>
         <img class="captura" src="/proyectos/sysrrhh.jpg" alt="Panel interno de SysRRHH con el módulo de vacantes" width="900" height="563" loading="lazy" decoding="async" />
         <p class="que">Sistema de recursos humanos completo: reclutamiento, contratos, asistencia, ausencias y portal de empleo.</p>
         <p class="pila">NestJS · Prisma · PostgreSQL · React</p>
-        <p class="detalle">Las ausencias se cuadran con transacciones en nivel <em>serializable</em>, y un índice parcial garantiza un solo contrato vigente por empleado. 571 pruebas en seis segundos y medio.</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="flujo">
+          <line data-paso="linea" x1="1" y1="32" x2="326" y2="32" />
+          <rect class="tapa" data-paso="caja1" x="1" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja2" x="115" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja3" x="229" y="18" width="98" height="28" rx="3" />
+          <text data-paso="r1" x="50" y="35.5" text-anchor="middle">RECLUTAMIENTO</text>
+          <text data-paso="r2" x="164" y="35.5" text-anchor="middle">CONTRATO</text>
+          <text data-paso="r3" x="278" y="35.5" text-anchor="middle">ASISTENCIA</text>
+          <polyline data-paso="tic" points="337,33 344,40 358,24" />
+        </svg>
+        <p class="detalle">Las ausencias se cuadran con transacciones en nivel <em>serializable</em>, y un índice parcial garantiza un solo contrato vigente por empleado. <b class="cifra" data-hasta="571">571</b> pruebas en seis segundos y medio.</p>
         <p class="acceso"><a href="https://sysrrhh-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir la demo</a> · <code>admin@demo.local</code> / <code>Demo1234!</code></p>
         <p class="aviso">Demo pública y editable: lo que hagas ahí lo ve todo el mundo.</p>
       </article>
@@ -190,6 +208,17 @@
         <img class="captura" src="/proyectos/kuidy.jpg" alt="Pantalla de proyectos de KUIDY-CORE" width="900" height="563" loading="lazy" decoding="async" />
         <p class="que">Plataforma sin código: defines proyectos, módulos y campos, y un motor genérico dibuja los formularios y valida los registros.</p>
         <p class="pila">Hono · Drizzle · PostgreSQL con JSONB · React</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="formulario">
+          <rect data-paso="campo1" x="1" y="4" width="166" height="22" rx="3" />
+          <rect data-paso="campo2" x="185" y="4" width="166" height="22" rx="3" />
+          <rect data-paso="campo3" x="1" y="38" width="166" height="22" rx="3" />
+          <rect data-paso="boton" x="185" y="38" width="96" height="22" rx="3" />
+          <rect class="relleno" data-paso="relleno" data-fundido x="185" y="38" width="96" height="22" rx="3" />
+          <text data-paso="r1" x="10" y="18.5">NOMBRE DEL CAMPO</text>
+          <text data-paso="r2" x="194" y="18.5">TIPO · FECHA</text>
+          <text data-paso="r3" x="10" y="52.5">REGLA · OBLIGATORIO</text>
+          <text class="sobre" data-paso="r4" x="233" y="52.5" text-anchor="middle">GUARDAR</text>
+        </svg>
         <p class="detalle">El validador se construye en tiempo de ejecución a partir de los metadatos y es el mismo en el navegador y en el servidor. Los registros viven en una sola tabla JSONB con índice GIN.</p>
         <p class="acceso"><a href="https://kuidy-core-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir la demo</a> · <code>owner@kuidy.demo</code> / <code>Demo1234!</code></p>
         <p class="aviso">Entra como propietario y crea un campo nuevo: el formulario se adapta solo.</p>
@@ -200,7 +229,18 @@
         <img class="captura" src="/proyectos/techdoc.jpg" alt="Swagger de TechDocAPI con sus rutas" width="900" height="563" loading="lazy" decoding="async" />
         <p class="que">API REST para la documentación técnica de los sistemas instalados a bordo de embarcaciones.</p>
         <p class="pila">Java 21 · Spring Boot · JPA · PostgreSQL</p>
-        <p class="detalle">Ocho entidades relacionadas y 47 rutas documentadas, con respuesta uniforme y paginada y filtros por estado, tipo, fechas y etiquetas. Se enseña sola desde Swagger.</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="rutas">
+          <circle data-paso="punto1" cx="6" cy="11" r="3.5" />
+          <text data-paso="r1"><tspan x="18" y="14.5">GET /api/sistemas</tspan><tspan x="306" y="14.5">200</tspan></text>
+          <line data-paso="linea1" x1="136" y1="11" x2="296" y2="11" />
+          <circle data-paso="punto2" cx="6" cy="32" r="3.5" />
+          <text data-paso="r2"><tspan x="18" y="35.5">GET /api/documentos</tspan><tspan x="306" y="35.5">200</tspan></text>
+          <line data-paso="linea2" x1="148" y1="32" x2="296" y2="32" />
+          <circle data-paso="punto3" cx="6" cy="53" r="3.5" />
+          <text data-paso="r3"><tspan x="18" y="56.5">GET /api/versiones</tspan><tspan x="306" y="56.5">200</tspan></text>
+          <line data-paso="linea3" x1="142" y1="53" x2="296" y2="53" />
+        </svg>
+        <p class="detalle">Ocho entidades relacionadas y <b class="cifra" data-hasta="47">47</b> rutas documentadas, con respuesta uniforme y paginada y filtros por estado, tipo, fechas y etiquetas. Se enseña sola desde Swagger.</p>
         <p class="acceso"><a href="https://techdoc-api-164532276262.us-central1.run.app/api/swagger-ui.html" target="_blank" rel="noopener">Abrir Swagger</a> · sin contraseña</p>
         <p class="aviso">Datos ficticios. La API no pide autenticación: cualquiera puede crear o borrar.</p>
       </article>
@@ -210,7 +250,20 @@
         <img class="captura" src="/proyectos/financial.jpg" alt="Página de la demo de la API financiera" width="900" height="563" loading="lazy" decoding="async" />
         <p class="que">Tres microservicios reactivos: uno descifra el código del cliente, llama a los otros dos en paralelo y compone la respuesta.</p>
         <p class="pila">Java 21 · WebFlux · R2DBC · Maven multi-módulo</p>
-        <p class="detalle">El identificador de correlación viaja por el contexto de Reactor y se puede comprobar en vivo: la cabecera coincide con el cuerpo de la respuesta. 99 pruebas.</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="correlacion">
+          <rect data-paso="nodoA" x="1" y="20" width="64" height="24" rx="3" />
+          <text data-paso="rA" x="33" y="35.5" text-anchor="middle">BFF</text>
+          <path data-paso="flecha1" d="M65 24 H96 L190 9 L183.4 6.7 L190 9 L184.4 13.2" />
+          <path data-paso="flecha2" d="M65 40 H96 L190 55 L184.4 50.8 L190 55 L183.4 57.3" />
+          <rect data-paso="nodoB" x="190" y="1" width="112" height="18" rx="3" />
+          <rect data-paso="nodoC" x="190" y="45" width="112" height="18" rx="3" />
+          <text data-paso="rB" x="246" y="13.5" text-anchor="middle">CLIENTES</text>
+          <text data-paso="rC" x="246" y="57.5" text-anchor="middle">PRODUCTOS</text>
+          <path data-paso="vuelta" d="M190 19 V45 M190 32 H65 L71 28.5 L65 32 L71 35.5" />
+          <polyline class="ruta" points="65,24 96,24 190,9 190,32 65,32" />
+          <circle class="punto" data-paso="id" data-ruta cx="65" cy="24" r="3.2" />
+        </svg>
+        <p class="detalle">El identificador de correlación viaja por el contexto de Reactor y se puede comprobar en vivo: la cabecera coincide con el cuerpo de la respuesta. <b class="cifra" data-hasta="99">99</b> pruebas.</p>
         <p class="acceso"><a href="https://financial-api-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir la demo</a> · sin contraseña</p>
         <p class="aviso">Era un reto de entrevista. El cifrado del código es determinista a propósito.</p>
       </article>
@@ -220,6 +273,18 @@
         <img class="captura" src="/proyectos/comandas.jpg" alt="Entrada de Kip-Up Comandas" width="900" height="563" loading="lazy" decoding="async" />
         <p class="que">De la mesa a la cocina y a la caja, sincronizado en tiempo real: plano de mesas, pantalla de cocina e impresión de tickets.</p>
         <p class="pila">Next.js · Prisma · Socket.IO · ESC/POS</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="comandas">
+          <rect data-paso="mesa" x="1" y="19" width="76" height="26" rx="3" />
+          <text data-paso="r1" x="39" y="35.5" text-anchor="middle">MESA</text>
+          <path data-paso="flecha1" d="M77 32 H109 L103 27.5 L109 32 L103 36.5" />
+          <rect data-paso="cocina" x="109" y="19" width="76" height="26" rx="3" />
+          <text data-paso="r2" x="147" y="35.5" text-anchor="middle">COCINA</text>
+          <path data-paso="flecha2" d="M185 32 H217 L211 27.5 L217 32 L211 36.5" />
+          <rect data-paso="caja" x="217" y="19" width="76" height="26" rx="3" />
+          <text data-paso="r3" x="255" y="35.5" text-anchor="middle">CAJA</text>
+          <path data-paso="ticket" d="M313 4 H353 V60 L348 56 L343 60 L338 56 L333 60 L328 56 L323 60 L318 56 L313 60 Z" />
+          <path data-paso="rayas" d="M321 18 H345 M321 28 H345 M321 38 H345" />
+        </svg>
         <p class="detalle">La cuenta se divide por personas o por productos y el descuento de stock es idempotente dentro de una transacción. La imagen se publica por rama y el servidor se actualiza solo.</p>
         <p class="acceso"><a href="https://comandas-dev.kipups.com" target="_blank" rel="noopener">Abrir el entorno de pruebas</a></p>
         <p class="aviso">Producto de Kip-Up, no personal. El enlace es el de pruebas, no el de producción.</p>

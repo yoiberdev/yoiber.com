@@ -1,6 +1,7 @@
 import { createDrawable, stagger, utils, type AnimationParams, type TargetsParam } from 'animejs';
 import { P } from '../params';
 import type { Maestro } from '../core/maestro';
+import { montarEsquema } from './esquemas';
 
 // LA GALERÍA. Cinco proyectos con demo viva, uno por tramo de GALERIA.
 //
@@ -31,6 +32,12 @@ import type { Maestro } from '../core/maestro';
 // '0 1' a lo largo del tramo de cada tarjeta y se reinicia con la siguiente. TRAMPA que ya mordió
 // una vez (diagrama DSS): `draw` SOLO funciona sobre el PROXY que devuelve createDrawable; sobre el
 // nodo, la animación se crea, no avisa y no hace nada.
+//
+// EL ESQUEMA VIVO (fila 21; effects/esquemas.ts). Entre la pila y el detalle cada tarjeta lleva un
+// <svg class="esquema"> que el scroll traza en el TRAMO QUIETO de la tarjeta: de `desde + cruce`
+// (la entrada ha terminado) a `fin` (empieza la salida). Aquí solo se le da su entrada y su salida
+// como a un párrafo más (S.esquema, con tweens propios para no mover el stagger de los párrafos) y
+// se le pasa el tramo; qué se traza y cuándo lo decide el módulo con P.galeria.esquemas.
 
 export interface Galeria {
   actualizar(tiempo: number): void;
@@ -80,8 +87,9 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
     const titulo = busca(el, ['h2']);
     const captura = busca(el, ['.captura']);
     const parrafos = busca(el, ['.que', '.pila', '.detalle']);
+    const esquema = busca(el, ['.esquema']);
     const acceso = busca(el, ['.acceso', '.aviso']);
-    const todas = [...titulo, ...captura, ...parrafos, ...acceso];
+    const todas = [...titulo, ...captura, ...parrafos, ...esquema, ...acceso];
     piezas.push(...todas);
     const E = S.entrada;
     const X = S.salida;
@@ -101,6 +109,7 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
     if (!reduce) {
       tl.set(titulo, { y: E.titulo.y }, 0)
         .set(parrafos, { y: E.parrafos.y }, 0)
+        .set(esquema, { y: S.esquema.entrada.y }, 0)
         .set(acceso, { y: E.acceso.y }, 0)
         .set(captura, { clipPath: CLIP.cerrado }, 0);
     }
@@ -110,6 +119,7 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
     tramo(captura, { opacity: [0, 1], ...(reduce ? {} : { clipPath: [CLIP.cerrado, CLIP.abierto] }), duration: u(E.captura.dur), ease: E.captura.ease }, desde + u(E.captura.ini));
     tramo(parrafos, { opacity: [0, 1], ...y(E.parrafos.y, 0), duration: u(E.parrafos.dur), ease: E.parrafos.ease, delay: stagger(u(E.parrafos.stagger)) }, desde + u(E.parrafos.ini));
     tramo(acceso, { opacity: [0, 1], ...y(E.acceso.y, 0), duration: u(E.acceso.dur), ease: E.acceso.ease, delay: stagger(u(E.acceso.stagger)) }, desde + u(E.acceso.ini));
+    tramo(esquema, { opacity: [0, 1], ...y(S.esquema.entrada.y, 0), duration: u(S.esquema.entrada.dur), ease: S.esquema.entrada.ease }, desde + u(S.esquema.entrada.ini));
 
     // SALIDA, al revés y más corta: aviso y acceso, los párrafos de abajo arriba, la captura
     // volviéndose a tapar, y el título el último.
@@ -117,6 +127,10 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
     tramo(parrafos, { opacity: [1, 0], ...y(0, -X.parrafos.y), duration: u(X.parrafos.dur), ease: X.parrafos.ease, delay: stagger(u(X.parrafos.stagger), { reversed: true }) }, fin + u(X.parrafos.ini));
     tramo(captura, { opacity: [1, 0], ...(reduce ? {} : { clipPath: [CLIP.abierto, CLIP.cerrado] }), duration: u(X.captura.dur), ease: X.captura.ease }, fin + u(X.captura.ini));
     tramo(titulo, { opacity: [1, 0], ...y(0, -X.titulo.y), duration: u(X.titulo.dur), ease: X.titulo.ease }, fin + u(X.titulo.ini));
+    tramo(esquema, { opacity: [1, 0], ...y(0, -S.esquema.salida.y), duration: u(S.esquema.salida.dur), ease: S.esquema.salida.ease }, fin + u(S.esquema.salida.ini));
+
+    // EL DIBUJO DEL ESQUEMA, en el tramo quieto: de que la entrada acaba a que la salida empieza.
+    montarEsquema(tl, el, desde + cruce, fin - (desde + cruce), reduce);
   });
 
   // EL ARCO: un tween lineal por tarjeta sobre el mismo proxy. Los tweens son contiguos y con

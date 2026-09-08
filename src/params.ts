@@ -165,7 +165,75 @@ export const P = {
         captura:  { ini: 0.18, dur: 0.36, ease: 'in(2)' },
         titulo:   { ini: 0.30, dur: 0.40, y: 28, ease: 'in(2)' },                 // acaba en 0,70
       },
+      // EL ESQUEMA (el <svg class="esquema"> entre la pila y el detalle) entra y sale como un
+      // párrafo más, pero con SUS PROPIOS tweens y no metido en el stagger de `parrafos`: así los
+      // tres párrafos siguen entrando cuando entraban. Entra a mitad de camino entre la pila
+      // (0,22 + 0,16 = 0,38) y el detalle (0,54) y sale entre el detalle (0,06) y la pila (0,14).
+      esquema: {
+        entrada: { ini: 0.46, dur: 0.42, y: 18, ease: 'out(3)' },   // acaba en 0,88 < 1,00
+        salida:  { ini: 0.10, dur: 0.28, y: 12, ease: 'in(2)' },    // acaba en 0,38 < 0,70
+      },
     },
+    // LOS ESQUEMAS VIVOS (effects/esquemas.ts, fila 21 del informe: "la galería son cinco capturas
+    // JPG; nada avanza con el scroll dentro de la tarjeta"). Cada tarjeta lleva un dibujo pequeño
+    // que el SCROLL traza mientras la tarjeta está delante: en el TRAMO QUIETO, del final del cruce
+    // de entrada al principio del de salida (1 640 − 2 · 230 = 1 180 unidades con cinco tarjetas en
+    // diez alturas), así que es reversible al subir y no se cruza con las entradas.
+    //
+    // Cada pieza del dibujo tiene su VENTANA en fracciones [desde, hasta] de ese tramo quieto. Las
+    // formas (rect, line, path, polyline, circle) se trazan de '0 0' a '0 1' (createDrawable); los
+    // rótulos <text> y las piezas con data-fundido se encienden en opacidad; el punto con data-ruta
+    // recorre la polilínea .ruta de su esquema en la ventana `viaje`. Todo lineal: a mitad de su
+    // ventana una pieza está exactamente a la mitad, que es lo que se mide en el QA. Las ventanas
+    // se solapan a propósito (la línea del flujo avanza mientras aparecen las cajas): lo que se ve
+    // es una secuencia, no cinco cosas apareciendo de golpe. El nombre de cada clave es el
+    // data-paso del elemento en index.html; una clave sin elemento no hace nada, y al revés igual.
+    esquemas: {
+      // 1) SysRRHH: tres cajas en fila unidas por una línea, y un tic al final. La línea va por
+      //    DEBAJO de las cajas (que tapan con el color del fondo): se dibuja de un tirón y se ve
+      //    asomar entre caja y caja, como una tubería que va llegando a cada etapa.
+      flujo: {
+        caja1: [0.00, 0.16], r1: [0.08, 0.18],
+        linea: [0.06, 0.72],
+        caja2: [0.28, 0.44], r2: [0.36, 0.46],
+        caja3: [0.50, 0.66], r3: [0.58, 0.68],
+        tic:   [0.76, 0.90],
+      },
+      // 2) KUIDY-CORE: un formulario que se construye solo: tres campos cuyos bordes se trazan
+      //    uno tras otro, y un botón que se traza y luego se rellena.
+      formulario: {
+        campo1: [0.00, 0.20], r1: [0.12, 0.22],
+        campo2: [0.22, 0.42], r2: [0.34, 0.44],
+        campo3: [0.44, 0.64], r3: [0.56, 0.66],
+        boton:  [0.68, 0.82], relleno: [0.82, 0.92], r4: [0.86, 0.96],
+      },
+      // 3) TechDocAPI: tres rutas de arriba abajo: el punto, el rótulo y la línea hasta el "200".
+      rutas: {
+        punto1: [0.00, 0.06], r1: [0.06, 0.16], linea1: [0.10, 0.28],
+        punto2: [0.30, 0.36], r2: [0.36, 0.46], linea2: [0.40, 0.58],
+        punto3: [0.60, 0.66], r3: [0.66, 0.76], linea3: [0.70, 0.88],
+      },
+      // 4) API financiera reactiva: el BFF a la izquierda, dos servicios a la derecha, dos flechas
+      //    en paralelo y la vuelta; luego el identificador de correlación (el punto) recorre la
+      //    ruta: sale del BFF, llega a un servicio y vuelve por la línea de abajo.
+      correlacion: {
+        nodoA: [0.00, 0.12], rA: [0.06, 0.14],
+        flecha1: [0.12, 0.30], flecha2: [0.12, 0.30],
+        nodoB: [0.26, 0.38], nodoC: [0.26, 0.38], rB: [0.32, 0.40], rC: [0.32, 0.40],
+        vuelta: [0.38, 0.52],
+        id: [0.52, 0.56], viaje: [0.54, 0.96],
+      },
+      // 5) Kip-Up Comandas: mesa -> cocina -> caja con dos flechas, y el ticket (el rectángulo
+      //    con el borde dentado y tres rayas) aparece al final.
+      comandas: {
+        mesa: [0.00, 0.14], r1: [0.08, 0.16],
+        flecha1: [0.16, 0.28],
+        cocina: [0.28, 0.42], r2: [0.36, 0.44],
+        flecha2: [0.44, 0.56],
+        caja: [0.56, 0.70], r3: [0.64, 0.72],
+        ticket: [0.74, 0.86], rayas: [0.86, 0.94],
+      },
+    } as Record<string, Record<string, [number, number]>>,
     origen: 'propio',
   },
 

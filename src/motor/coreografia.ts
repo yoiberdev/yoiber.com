@@ -5,6 +5,8 @@ import { emisivoDelAcento, M } from './geometria';
 import type { Maestro, Tramo } from '../core/maestro';
 import type { Rig } from './rig';
 
+const GRA = Math.PI / 180;
+
 // COREOGRAFÍA DEL MOTOR
 // ===============================================================================================
 // El reloj lo mueve el scroll; aquí no se reproduce nada. Todo lo que se ve es una función del
@@ -14,7 +16,7 @@ import type { Rig } from './rig';
 //
 //   1) CANAL DIRECTO — la timeline maestra escribe en el grafo de Three con el adaptador.
 //      Solo geometría: raiz(x, y, rotateX, rotateY, scale), camara(zoom), la posición de cada
-//      pieza, el abanico de los tres radiadores y la `z` (radial) de cada tubo de la corona.
+//      pieza, la escala X/Z del anillo de aletas (su apertura) y la `z` (radial) de cada tubo.
 //
 //   2) CANAL DERIVADO — la timeline escribe escalares 0..1 en `estado`; `aplicar(tiempo)` los
 //      convierte en matrices de la corona, cuaterniones de la marca, temblor, vueltas de turbina,
@@ -48,6 +50,7 @@ export interface Estado {
   logo: number;     // 0..1  la placa del monograma viene al frente
   aparta: number;   // 0..1  el motor se desvía para dejar hueco en la galería (dirección: aplicar)
   abierto: number;  // 0..1  el despiece está abierto (COMO): en vertical le hace sitio entre las bandas de rótulos
+  inclina: number;  // 0..1  la placa de inyectores se inclina hacia la cámara en el despiece
   vibra: number;    // 0..1  amplitud del temblor previo al despegue
   penacho: number;  // 0..1  crecimiento del penacho
   estira: number;   // 0..1  estirado del penacho al salir
@@ -65,7 +68,7 @@ export interface Coreografia {
 
 // Orden de MONTAJE (INTRO): primero el esqueleto y el propulsor, y la corona de tubos la última
 // porque es la imagen que vende.
-const ORDEN_MONTAJE = ['bancada', 'camara', 'inyector', 'cupula', 'turbobomba', 'conductos', 'radiadores', 'placa', 'campana'] as const;
+const ORDEN_MONTAJE = ['bancada', 'camara', 'inyector', 'cupula', 'turbobomba', 'conductos', 'aletas', 'placa', 'campana'] as const;
 
 // De dónde entra cada pieza, en unidades de motor (el encuadre son 11,2 de alto).
 const ENTRADA: Record<string, [number, number, number]> = {
@@ -75,7 +78,7 @@ const ENTRADA: Record<string, [number, number, number]> = {
   cupula: [0, 9, 0],
   turbobomba: [7, 3, 0],
   conductos: [8, 0.8, 0],
-  radiadores: [-6, -7, 0],
+  aletas: [-6, -7, 0],
   placa: [4, 7, 0],
   campana: [0, -10, 0],
   refrigeracion: [0, 0, 0],   // la corona no viaja: entran los tubos, uno a uno
@@ -101,7 +104,7 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
 
   const estado: Estado = {
     luz: C.heroOut.luz[0], apagado: 0, pulso: 0, brillo: 0, rpm: 0,
-    logo: 0, aparta: 0, abierto: 0, vibra: 0, penacho: 0, estira: 0, salida: 0,
+    logo: 0, aparta: 0, abierto: 0, inclina: 0, vibra: 0, penacho: 0, estira: 0, salida: 0,
     rotulos: rig.piezas.map(() => ({ t: 0 })),
   };
 
@@ -122,24 +125,25 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
   const porId = new Map(sitios.map((s) => [s.p.id, s]));
   const montaje = ORDEN_MONTAJE.map((id) => porId.get(id)).filter((s): s is (typeof sitios)[number] => !!s);
 
-  // Los tres paneles radiadores, además de subir con su grupo, se abren en abanico: cada uno por
-  // su propio radio. Se guarda reposo y destino aquí para poder escribir [desde, hasta].
-  const abanico = rig.aspas.map((o) => {
-    const reposo = o.position.clone();
-    const r = Math.hypot(reposo.x, reposo.z) || 1;
-    const fuera = reposo.clone().add(new Vector3((reposo.x / r) * PM.abanicoRadiador, 0, (reposo.z / r) * PM.abanicoRadiador));
-    return { o, reposo, fuera };
-  });
+  // El anillo de aletas, además de subir con las demás, se ABRE: escala X y Z de su grupo (el
+  // origen está en el eje), que separa las 29 aletas de la pared a la vez (PM.aletasAbrir). Y la
+  // placa de inyectores se INCLINA hacia la cámara con el escalar `inclina` (canal derivado, 3b):
+  // el eje del giro depende de la guiñada de `raiz`, que la timeline no conoce. Las dos son piezas
+  // de la lista; si la geometría les cambia el nombre, el gesto desaparece y nada revienta.
+  const aletas = porId.get('aletas')?.p.obj;
+  const inyector = porId.get('inyector')?.p.obj;
+  const iInyector = sitios.findIndex((s) => s.p.id === 'inyector');
+  const iAletas = sitios.findIndex((s) => s.p.id === 'aletas');
 
   // ============================================================ t = 0: el estado de partida
   // Con scrub, "el principio" es un sitio al que se vuelve, no un sitio del que se sale.
   const I = C.intro;
   tl.set(raiz, { x: 0, y: 0, rotateX: 0, rotateY: I.rotY[0], rotateZ: 0, scale: I.escala[0] }, 0)
     .set(cam, { zoom: I.zoom }, 0)
-    .set(estado, { luz: C.heroOut.luz[0], apagado: 0, pulso: 0, brillo: 0, rpm: 0, logo: 0, aparta: 0, abierto: 0, vibra: 0, penacho: 0, estira: 0, salida: 0 }, 0)
+    .set(estado, { luz: C.heroOut.luz[0], apagado: 0, pulso: 0, brillo: 0, rpm: 0, logo: 0, aparta: 0, abierto: 0, inclina: 0, vibra: 0, penacho: 0, estira: 0, salida: 0 }, 0)
     .set(estado.rotulos, { t: 0 }, 0);
   for (const s of sitios) tl.set(s.p.obj, { x: s.entrada.x, y: s.entrada.y, z: s.entrada.z }, 0);
-  for (const a of abanico) tl.set(a.o, { x: a.reposo.x, z: a.reposo.z }, 0);
+  if (aletas) tl.set(aletas, { scaleX: 1, scaleZ: 1 }, 0);
   tl.set(rig.tubos, { z: I.coronaFuera }, 0);
 
   // ============================================================ HERO_OUT: montaje y centro
@@ -252,13 +256,15 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
       duration: K.dur, ease: 'outQuint',
     }, en('COMO', K.separar[0], i * K.paso));
   });
-  // los tres paneles se abren en abanico, además de subir con su grupo
-  abanico.forEach((a, i) => {
-    tl.add(a.o, {
-      x: [a.reposo.x, a.fuera.x], z: [a.reposo.z, a.fuera.z],
+  // el anillo de aletas se abre y la placa de inyectores se inclina, cada uno en su turno del
+  // escalonado (el mismo instante en que esa pieza empieza a separarse)
+  if (aletas) {
+    tl.add(aletas, {
+      scaleX: [1, PM.aletasAbrir], scaleZ: [1, PM.aletasAbrir],
       duration: K.dur, ease: 'outQuint',
-    }, en('COMO', K.separar[0], (2 + i) * K.paso));
-  });
+    }, en('COMO', K.separar[0], iAletas * K.paso));
+  }
+  if (inyector) tl.add(estado, { inclina: [0, 1], duration: K.dur, ease: 'outQuint' }, en('COMO', K.separar[0], iInyector * K.paso));
   // y la corona florece: cada tubo se separa de la campana hacia fuera, desde el centro
   tl.add(rig.tubos, {
     // mismo criterio angular que en la entrada (aquí abre por el frente, que es lo que se ve):
@@ -297,12 +303,15 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
       duration: dur('COMO', K.recomponer[0], 0.93), ease: 'inOut(3)',
     }, en('COMO', K.recomponer[0], (sitios.length - 1 - i) * 40));
   });
-  abanico.forEach((a) => {
-    tl.add(a.o, {
-      x: [a.fuera.x, a.reposo.x], z: [a.fuera.z, a.reposo.z],
+  if (aletas) {
+    tl.add(aletas, {
+      scaleX: [PM.aletasAbrir, 1], scaleZ: [PM.aletasAbrir, 1],
       duration: dur('COMO', K.recomponer[0], 0.93), ease: 'inOut(3)',
-    }, en('COMO', K.recomponer[0]));
-  });
+    }, en('COMO', K.recomponer[0], (sitios.length - 1 - iAletas) * 40));
+  }
+  if (inyector) {
+    tl.add(estado, { inclina: [1, 0], duration: dur('COMO', K.recomponer[0], 0.93), ease: 'inOut(3)' }, en('COMO', K.recomponer[0], (sitios.length - 1 - iInyector) * 40));
+  }
   tl.add(rig.tubos, { z: [K.tuboFuera, 0], duration: dur('COMO', K.recomponer[0], 0.93), ease: 'inOut(3)', delay: reparto(K.repartoTubo * 0.6, 'detras') }, en('COMO', K.recomponer[0]))
     // LA CÁMARA VUELVE DESPUÉS QUE LAS PIEZAS, no a la vez. Arrancando las dos juntas, el encuadre
     // ya se había cerrado (zoom 0,58 -> 1) cuando el anillo de bancada todavía estaba en su sitio
@@ -337,6 +346,7 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
   // fotograma.
   const qPadre = new Quaternion();
   const qDestino = new Quaternion();
+  const ejeInclina = new Vector3();
   const dirCam = new Vector3();
   const nodoW = new Vector3();
   const desvio = new Vector3();
@@ -427,6 +437,24 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
 
     // 3. La turbobomba coge vueltas. Ángulo = f(tiempo), no un contador que se incrementa.
     rig.turbina.rotation.y = estado.rpm * tiempo * PM.coreo.cierre.rpm + ahora * PM.vida.turbinaIdle;
+
+    // 3a. LA PLACA DE INYECTORES SE INCLINA hacia la cámara (fila 22). Un cuaternión, no un
+    //     tween de rotateX: el eje del giro es el HORIZONTAL DE LA PANTALLA, y en el marco del
+    //     motor ese eje depende de la guiñada de `raiz` (que además cambia durante el parallax).
+    //     `raiz` gira Ry(ψ) y luego Rx(rotX) (Euler XYZ), y Rx deja el eje X quieto, así que el
+    //     vector local que cae en el X del mundo es Ry(−ψ)·X = (cos ψ, 0, sin ψ). Girar la placa
+    //     +θ alrededor de él lleva su cara (+Y) hacia +Z, que es donde está la cámara. El pivote
+    //     es el centro de la placa porque el grupo `inyector` tiene ahí su origen (geometria.ts).
+    if (inyector) {
+      const Iq = estado.inclina;
+      if (Iq > 0.0005) {
+        const psi = raiz.rotation.y + rig.sacudida.rotation.y;
+        ejeInclina.set(Math.cos(psi), 0, Math.sin(psi));
+        inyector.quaternion.setFromAxisAngle(ejeInclina, Iq * PM.coreo.como.inclinaInyector * GRA);
+      } else {
+        inyector.quaternion.identity();
+      }
+    }
 
     // 3b. EL DESVÍO DE LA GALERÍA. Se escribe en absoluto sobre un grupo que ningún tween toca, y
     //     se calcula CADA FOTOGRAMA porque depende del encuadre: la cámara ortográfica fija el
@@ -599,6 +627,7 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     rig.marca.quaternion.copy(qMarca);
     rig.marca.position.copy(pMarca);
     rig.marca.scale.copy(eMarca);
+    if (inyector) inyector.quaternion.identity();
     for (const mat of rig.cuerpos) mat.opacity = opacidad.get(mat) ?? 1;
     for (let i = 0; i < rig.emisivos.length; i++) rig.emisivos[i].emissiveIntensity = emisivoBase[i];
     rig.caliente.color.copy(colorFrio);
@@ -610,7 +639,7 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
 
   const objetivos: object[] = [
     raiz, cam, estado, ...estado.rotulos, ...rig.tubos,
-    ...sitios.map((s) => s.p.obj as Object3D), ...abanico.map((a) => a.o),
+    ...sitios.map((s) => s.p.obj as Object3D),
   ];
 
   return { estado, aplicar, revertir, objetivos };

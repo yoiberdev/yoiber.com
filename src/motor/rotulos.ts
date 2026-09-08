@@ -45,8 +45,10 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
   const titulos: HTMLElement[] = [];
   const lineas: SVGPolylineElement[] = [];
   const puntos: SVGCircleElement[] = [];
-  // Dos repartos de ranuras: el completo (nueve rótulos) y el compacto (seis). En una pantalla
-  // estrecha nueve títulos en dos columnas se comen el objeto — comprobado en captura de 390 px.
+  // Dos repartos de ranuras: el completo (nueve rótulos, en DOS LISTAS: la de la izquierda cuelga
+  // de PM.rotulos.listaAlta y la de la derecha sube desde listaBaja) y el compacto (cuatro, en dos
+  // bandas). En una pantalla estrecha nueve títulos en dos columnas se comen el objeto —
+  // comprobado en captura de 390 px.
   const ranura: number[] = [];
   const ranuraCompacta: number[] = [];
   let nIzq = 0;
@@ -89,20 +91,29 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
   // escrituras durante el parallax, donde muchos rótulos están quietos en su ranura.
   const ultimo = rig.piezas.map(() => ({ pts: '', tr: '', op: '', r: '', og: '' }));
 
-  // EL <b> MÁS ANCHO DE CADA BANDA en compacto (0 = alta, 1 = baja), en px. Ahí arranca el codo
-  // de sus guías (ver PM.rotulos.aireCodo): es la única manera de que la diagonal nazca FUERA de
-  // todo el texto de la banda. Se lee del DOM cuando la capa se destapa —con [hidden] los rects
-  // son 0x0— y al redimensionar estando abierta; nueve rects, dos veces por visita al capítulo.
-  const anchoBanda = [0, 0];
+  // EL TEXTO MÁS ANCHO DE CADA GRUPO, en px: en compacto el <b> más ancho de cada banda (0 = alta,
+  // 1 = baja); en columnas la caja más ancha (título y nota) de cada lista (0 = izquierda, 1 =
+  // derecha). Ahí arranca el codo de sus guías (ver PM.rotulos.aireCodo / codoLista): es la única
+  // manera de que la diagonal nazca FUERA de todo el texto del grupo, y en las listas es lo que
+  // deja la guía en tres puntos y corta (fila 22 del informe BRECHA: de 600 px a menos de 250).
+  // Se lee del DOM cuando la capa se destapa —con [hidden] los rects son 0x0— y al redimensionar
+  // estando abierta; nueve rects, dos veces por visita al capítulo.
+  const anchoTexto = [0, 0];
   function medirTextos(): void {
-    if (!compacto || capa.hidden) return;
-    anchoBanda[0] = anchoBanda[1] = 0;
+    if (capa.hidden) return;
+    anchoTexto[0] = anchoTexto[1] = 0;
     for (let i = 0; i < titulos.length; i++) {
-      const r = ranuraCompacta[i];
-      if (r < 0) continue;
-      const w = titulos[i].getBoundingClientRect().width;
-      const b = r < mitad ? 0 : 1;
-      if (w > anchoBanda[b]) anchoBanda[b] = w;
+      if (compacto) {
+        const r = ranuraCompacta[i];
+        if (r < 0) continue;
+        const w = titulos[i].getBoundingClientRect().width;
+        const b = r < mitad ? 0 : 1;
+        if (w > anchoTexto[b]) anchoTexto[b] = w;
+      } else {
+        const w = cajas[i].getBoundingClientRect().width;
+        const b = rig.piezas[i].lado < 0 ? 0 : 1;
+        if (w > anchoTexto[b]) anchoTexto[b] = w;
+      }
     }
   }
 
@@ -129,7 +140,6 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
     }
     if (!visible) { capa.hidden = false; visible = true; medirTextos(); }
 
-    const porLado = Math.max(nIzq, nDer);
     for (let i = 0; i < rig.piezas.length; i++) {
       const pieza = rig.piezas[i];
       const ranuraI = compacto ? ranuraCompacta[i] : ranura[i];
@@ -148,13 +158,16 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
       //    como este módulo corre justo ANTES de render(), la matriz es la del frame actual
       //    salvo el primer frame. Para no arrastrar un frame de retraso, se fuerza la matriz
       //    de la rama que nos interesa (8 piezas, no la escena entera).
+      //    En compacto la pieza puede llevar OTRA ancla (PM.piezas, anclaMovil): las guías de la
+      //    banda alta bajan hacia la derecha y solo no se cruzan con las anclas en ese flanco.
       pieza.obj.updateWorldMatrix(true, false);
-      v.copy(pieza.ancla).applyMatrix4(pieza.obj.matrixWorld).project(rig.camara);
+      v.copy(compacto && pieza.anclaMovil ? pieza.anclaMovil : pieza.ancla).applyMatrix4(pieza.obj.matrixWorld).project(rig.camara);
       const ax = (v.x * 0.5 + 0.5) * ancho;
       const ay = (-v.y * 0.5 + 0.5) * alto;
 
-      // 2) la ranura fija. En ancho normal, columna izquierda o derecha repartidas alrededor del
-      //    centro; en compacto, dos bandas (arriba y abajo) con todo el texto pegado a la izquierda.
+      // 2) la ranura fija. En ancho normal, dos LISTAS: la izquierda cuelga de `listaAlta` hacia
+      //    abajo y la derecha sube desde `listaBaja`, las dos con paso `alto` (ver PM.rotulos);
+      //    en compacto, dos bandas (arriba y abajo) con todo el texto pegado a la izquierda.
       // En compacto el LADO lo pone la banda, no la pieza: la de arriba a la izquierda y la de
       // abajo a la derecha. (Se decidió cuando el rótulo de capítulo vivía abajo a la izquierda;
       // hoy el titular va arriba a la derecha en compacto, y las bandas se han dejado como estaban.)
@@ -166,19 +179,26 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
         ? alto * (ranuraI < mitad
           ? PM.rotulos.bandaAlta + ranuraI * PM.rotulos.pasoCompacto
           : PM.rotulos.bandaBaja + (ranuraI - mitad) * PM.rotulos.pasoCompacto)
-        : alto * (0.5 + (ranuraI - (porLado - 1) / 2) * PM.rotulos.alto);
+        : alto * (pieza.lado < 0
+          ? PM.rotulos.listaAlta + ranuraI * PM.rotulos.alto
+          : PM.rotulos.listaBaja - (nDer - 1 - ranuraI) * PM.rotulos.alto);
       // EL CODO VA EN EL EXTREMO CERCANO AL OBJETO (por eso el signo es `-lado`). Con el codo en
       // el extremo lejano, la diagonal salía por detrás del rótulo y cruzaba por delante del
       // bloque de texto entero: se veía la diagonal de "Paneles radiadores" rozando la nota de
       // "Estructura de empuje".
       // EN COMPACTO el codo va al borde del <b> más ancho de la banda más un aire, y la raya
       // horizontal NO pasa por el centro del rótulo sino a `raya` px de él, por debajo en la banda
-      // alta y por encima en la baja (mismo signo `-lado`): en columna la raya corre entre el
-      // título y la nota, pero en compacto la nota está oculta y la raya cruzaba el título, y la
-      // diagonal, naciendo dentro del texto, tachaba los rótulos de debajo (ver PM.rotulos).
-      const cx = compacto
-        ? bx - lado * (anchoBanda[lado < 0 ? 0 : 1] + PM.rotulos.aireCodo)
-        : bx - lado * ancho * PM.rotulos.codo;
+      // alta y por encima en la baja (mismo signo `-lado`): la nota está oculta y la raya cruzaba
+      // el título, y la diagonal, naciendo dentro del texto, tachaba los rótulos de debajo (ver
+      // PM.rotulos). El extremo de la guía (`fin`) es el borde LEJANO del texto: la raya subraya
+      // el rótulo entero.
+      // EN LISTAS la guía no subraya nada: son TRES PUNTOS —el ancla, el codo y el borde CERCANO
+      // del texto más ancho de la lista más un aire— con el tramo horizontal de `codoLista` px a
+      // la altura del hueco entre título y nota. Antes el tramo horizontal recorría el texto
+      // entero (desde su borde lejano) y la guía medía lo que el rótulo más la diagonal.
+      const borde = bx - lado * (anchoTexto[lado < 0 ? 0 : 1] + PM.rotulos.aireCodo);
+      const cx = compacto ? borde : borde - lado * PM.rotulos.codoLista;
+      const fin = compacto ? bx : borde;
       const ly = compacto ? by - lado * PM.rotulos.raya : by;
 
       // 3) la guía se dibuja recortándola por longitud de arco con el mismo escalar.
@@ -186,7 +206,7 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
       //    habría que recalcular getTotalLength() en cada uno. Recortar los puntos es exacto y gratis.
       const d = Math.min(1, t / PM.rotulos.dibujo);
       const l1 = Math.hypot(cx - ax, ly - ay);
-      const l2 = Math.abs(bx - cx);
+      const l2 = Math.abs(fin - cx);
       const hasta = d * (l1 + l2);
       let pts: string;
       if (hasta <= l1) {
@@ -194,7 +214,7 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
         pts = `${ax.toFixed(1)},${ay.toFixed(1)} ${(ax + (cx - ax) * k).toFixed(1)},${(ay + (ly - ay) * k).toFixed(1)}`;
       } else {
         const k = l2 > 0.001 ? (hasta - l1) / l2 : 1;
-        pts = `${ax.toFixed(1)},${ay.toFixed(1)} ${cx.toFixed(1)},${ly.toFixed(1)} ${(cx + (bx - cx) * k).toFixed(1)},${ly.toFixed(1)}`;
+        pts = `${ax.toFixed(1)},${ay.toFixed(1)} ${cx.toFixed(1)},${ly.toFixed(1)} ${(cx + (fin - cx) * k).toFixed(1)},${ly.toFixed(1)}`;
       }
       if (pts !== u.pts) lineas[i].setAttribute('points', u.pts = pts);
       // La guía se ATENÚA con el mismo escalar. Sin esto, al recogerse el rótulo el texto ya era

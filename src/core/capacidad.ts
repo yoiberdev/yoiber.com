@@ -84,10 +84,17 @@ export function medirCapacidad(reduce: boolean): Capacidad {
 // Cuántos píxeles se dibujan de verdad. Dos topes a la vez:
 //   - la relación de píxeles del dispositivo, recortada (2 en sobremesa, 1,5 con puntero grueso);
 //   - un presupuesto absoluto de píxeles, para que un monitor 4K no pida 33 millones.
-export function escalaLienzo(ancho: number, alto: number, tactil: boolean): number {
+// `relleno` es por cuánto se divide el presupuesto: desde la Vuelta 3 el fotograma no es UNA
+// pasada de relleno sino dos o tres (la escena a un target de dos texturas, la tinta a pantalla
+// completa y el FXAA; motor/tinta.ts), y el trozo diferido lo pasa por calidad (PM.motor.tinta.
+// relleno). Los números del presupuesto (params.ts) siguen midiendo píxeles de LIENZO, que es lo
+// que la Vuelta 2 midió; el divisor es lo que la tinta añade. En un teléfono manda antes el tope de
+// dpr (390x664 a 1,5 son 0,58 MP, un cuarto del presupuesto táctil), así que el divisor solo
+// recorta en pantallas táctiles grandes; en un teléfono lo que degrada es el vigilante (motor3d.ts).
+export function escalaLienzo(ancho: number, alto: number, tactil: boolean, relleno = 1): number {
   const tope = tactil ? P.motor.dprMaxTactil : P.motor.dprMax;
   const dpr = Math.min(window.devicePixelRatio || 1, tope);
-  const px = tactil ? P.motor.presupuestoPxTactil : P.motor.presupuestoPx;
+  const px = (tactil ? P.motor.presupuestoPxTactil : P.motor.presupuestoPx) / Math.max(1, relleno);
   const porPresupuesto = Math.sqrt(px / Math.max(1, ancho * alto));
   return Math.max(P.motor.dprMin, Math.min(dpr, porPresupuesto));
 }

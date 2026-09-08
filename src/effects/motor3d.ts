@@ -9,14 +9,12 @@ import { construirRig } from '../motor/rig';
 import { montarCoreografia } from '../motor/coreografia';
 import { montarRotulos } from '../motor/rotulos';
 import { crearPenacho } from '../motor/penacho';
+import { crearTinta } from '../motor/tinta';
 
 // TROZO DIFERIDO. Todo lo que huele a Three vive en este fichero o por debajo de él.
 // La entrada no lo importa nunca de forma estática: solo `import('../effects/motor3d')` desde
 // core/escena.ts. Si esa regla se rompe, Vite mete Three en el bundle de entrada y la primera
 // carga pasa de 33 kB comprimidos a 180 kB. Se comprueba mirando el tamaño de index-*.js.
-
-/** Los dos contornos: las aristas de pliegue (LineSegments) y los cascos de silueta (BackSide). */
-const esContorno = (nombre: string): boolean => nombre.startsWith('aristas-') || nombre.startsWith('silueta-');
 
 export function montarMotor(ctx: ContextoMotor): Escena {
   const { m, anfitrion, tiempo, calidad, tactil, rendirse } = ctx;
@@ -45,9 +43,13 @@ export function montarMotor(ctx: ContextoMotor): Escena {
       // alpha: el fondo lo pone el CSS, que además cambia de tema en el capítulo claro. Así el
       // lienzo no tiene que enterarse del tema ni sincronizar ningún color de borrado.
       alpha: true,
-      antialias: calidad !== 'baja',
+      // SIN MSAA, en todas las calidades: la escena ya no se dibuja en el lienzo sino en un target
+      // (motor/tinta.ts), y el multimuestreo del lienzo no se aplica a los targets; en el lienzo
+      // solo cae un triángulo a pantalla completa. El suavizado es el FXAA, la última pasada.
+      antialias: false,
       stencil: false,
-      depth: true,
+      // Tampoco profundidad en el lienzo: la lleva el target. Son 4 bytes por píxel que nadie lee.
+      depth: false,
       preserveDrawingBuffer: false,
       // 'default', no 'high-performance': ~59 000 triángulos sin sombras; la integrada va sobrada,
       // y pedir la dedicada en un portátil con dos GPU se come la batería sin ganar un fotograma.
@@ -81,14 +83,23 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     // -------------------------------------------------------------------------------------
     const rig = construirRig(calidad);
     deshacer.push(() => rig.liberar());
+    // LA TINTA Y EL FXAA (informe BRECHA, filas 19 y 25): el fotograma entero lo pinta
+    // `tinta.pintar()`, que dibuja la escena en un target de dos texturas y compone la línea en
+    // pantalla. Qué lleva cada calidad, en PM.motor.tinta.
+    const tinta = crearTinta(render, PM.motor.tinta.fxaa[calidad]);
+    deshacer.push(() => tinta.liberar());
 
     // EL TEMA Y LA TINTA. El capítulo "cómo está hecho" pone `html.is-light` y el fondo pasa de
-    // negro a crema. Los dos colores de contorno no valen para los dos fondos (ver
-    // geometria.ts / aplicarTema), y el lienzo es `alpha: true`, así que nadie más se entera del
-    // cambio: aquí se escucha la clase del <html> y se repinta la tinta. Es una sola escritura de
-    // color por cambio de capítulo, no trabajo por fotograma.
+    // negro a crema. Ni el color de la tinta ni los tonos del toon valen para los dos fondos (ver
+    // geometria.ts / aplicarTema y tinta.ts / tema), y el lienzo es `alpha: true`, así que nadie
+    // más se entera del cambio: aquí se escucha la clase del <html> y se repintan. Es una sola
+    // escritura de color por cambio de capítulo, no trabajo por fotograma.
     const raizHtml = document.documentElement;
-    const mirarTema = (): void => rig.tema(raizHtml.classList.contains('is-light'));
+    const mirarTema = (): void => {
+      const claro = raizHtml.classList.contains('is-light');
+      rig.tema(claro);
+      tinta.tema(claro);
+    };
     mirarTema();
     const observadorTema = new MutationObserver(mirarTema);
     observadorTema.observe(raizHtml, { attributes: true, attributeFilter: ['class'] });
@@ -104,13 +115,6 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     deshacer.push(() => utils.remove(coreo.objetivos, m.tl));
     const rotulos = montarRotulos(rig, coreo.estado, anfitrion);
     deshacer.push(() => rotulos.revertir());
-
-    if (calidad === 'baja') {
-      // Los contornos (aristas + cascos de silueta) son 9 llamadas de dibujo y 33 000 triángulos
-      // repetidos, y el casco además rellena: en móvil, donde lo que duele es el relleno, es lo
-      // primero que sobra. La silueta se sigue leyendo por el sombreado plano.
-      rig.motor.grupo.traverse((o) => { if (esContorno(o.name)) o.visible = false; });
-    }
 
     // La coreografía se añade a un maestro que YA está inicializado y en marcha:
     //   (a) todos los valores van como [desde, hasta] explícitos (ver coreografia.ts);
@@ -130,8 +134,9 @@ export function montarMotor(ctx: ContextoMotor): Escena {
       const r = anfitrion.getBoundingClientRect();
       const ancho = Math.max(1, Math.round(r.width));
       const alto = Math.max(1, Math.round(r.height));
-      render.setPixelRatio(escalaLienzo(ancho, alto, tactil) * escalaExtra);
+      render.setPixelRatio(escalaLienzo(ancho, alto, tactil, PM.motor.tinta.relleno[calidad]) * escalaExtra);
       render.setSize(ancho, alto, false);   // false: el tamaño CSS lo pone la hoja de estilos
+      tinta.dimensionar();                  // los targets, al tamaño del búfer de dibujo
       rig.disponer(ancho, alto);            // ortográfica: solo cambia el encuadre, no deforma
       rotulos.medir();
     }
@@ -158,8 +163,15 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     deshacer.push(() => mqDpr?.removeEventListener('change', alCambiarDpr));
 
     // COMPILAR ANTES DE ENSEÑAR. Sin esto, el primer render() arrastra la compilación de los cinco
-    // programas: en un móvil eso es una tarea larga justo en el cruce con el escenario CSS.
-    render.compile(rig.escena, rig.camara);
+    // programas: en un móvil eso es una tarea larga justo en el cruce con el escenario CSS. Se
+    // compila con el TARGET puesto: el programa depende del destino (con un target three fuerza la
+    // salida lineal, ver tinta.ts), y compilado contra el lienzo no se reutilizaría. Y se pinta un
+    // fotograma entero, que es lo que compila las dos pasadas de pantalla.
+    render.setRenderTarget(null);
+    // La escala aparente del objeto, para afinar la pluma (tinta.ts): el zoom de la cámara (lo
+    // anima la coreografía) por la escala del desvío (la composición vertical en un móvil).
+    const pintar = (): void => tinta.pintar(rig.escena, rig.camara, rig.camara.zoom * rig.desvio.scale.x);
+    pintar();
 
     // -------------------------------------------------------------------------------------
     // 4. EL BUCLE. Uno solo, y Anime.js va dentro
@@ -181,9 +193,6 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     let suma = 0;
     let n = 0;
     let calentando = 60;
-    // En calidad baja el peldaño de los contornos es un no-op (ya están ocultos), así que empezar
-    // en 0 gastaría una ventana entera de medición sin degradar nada, justo en el aparato donde
-    // más urge.
     let escalon = 0;
     let avisosGraves = 0;
     let buenas = 0;
@@ -199,7 +208,7 @@ export function montarMotor(ctx: ContextoMotor): Escena {
         coreo.aplicar(t, ahora);
         penacho.aplicar(coreo.estado, t);
         rotulos.aplicar();
-        render.render(rig.escena, rig.camara);
+        pintar();
         fotogramas++;
       } catch (e) {
         // OBLIGATORIO. En three.module.js (WebGLAnimation) el requestAnimationFrame del siguiente
@@ -232,14 +241,14 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     const forzado = consulta.get('motor') === '3d';
     const fijo = consulta.has('fijo');   // ?fijo: ni degrada ni se rinde (capturas de referencia)
 
-    function contornos(visible: boolean): void {
-      if (calidad === 'baja') return;   // en móvil ya están fuera desde el montaje
-      rig.motor.grupo.traverse((o) => { if (esContorno(o.name)) o.visible = visible; });
-    }
-
+    // LOS PELDAÑOS. 1: el lienzo a 0,8 de resolución. 2: se apaga el FXAA (una pasada menos a
+    // pantalla completa, 9 muestras por píxel) y el penacho se aligera. 3: el lienzo a 0,62. La
+    // tinta no se apaga nunca: es lo que dibuja el objeto (y en 'baja' el FXAA ya viene apagado,
+    // así que el peldaño 2 solo aligera el penacho). Nada de esto recrea el renderizador ni el
+    // target: `dimensionar()` los ajusta al nuevo búfer de dibujo.
     function peldano(k: number): void {
       escalon = k;
-      contornos(k < 2);
+      tinta.fxaa(k < 2 && PM.motor.tinta.fxaa[calidad]);
       penacho.ligero(k >= 2);
       escalaExtra = k >= 3 ? 0.62 : k >= 1 ? 0.8 : 1;
       dimensionar();
@@ -300,6 +309,7 @@ export function montarMotor(ctx: ContextoMotor): Escena {
       utils.remove(coreo.objetivos, m.tl);
 
       penacho.liberar();
+      tinta.liberar();
       rig.liberar();
       const nodos: Object3D[] = [];
       rig.escena.traverse((o) => nodos.push(o));
@@ -343,6 +353,8 @@ export function montarMotor(ctx: ContextoMotor): Escena {
         llamadas: render.info.render.calls,
         dpr: render.getPixelRatio(),
         escalon,
+        fxaa: tinta.estado().fxaa,
+        tintaRadio: +tinta.estado().radio.toFixed(2),
         fotogramas,
         contexto: !render.getContext().isContextLost(),
         bucleAnime: engine.useDefaultMainLoop,
@@ -354,13 +366,22 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     //    renderizador y al grafo entero, y además ancla contra la recolección de basura.
     // -------------------------------------------------------------------------------------
     if (consulta.has('debug') || consulta.has('motor')) {
+      // `render.render(escena, camara)` desde las pruebas pinta el fotograma ENTERO (target, tinta
+      // y FXAA), no la escena a secas en el lienzo: la fachada hereda del renderizador de verdad
+      // (info, getPixelRatio, getContext... siguen ahí) y solo sustituye `render`. Las sondas de
+      // las Vueltas 1 y 2 hacen `M.render.render(M.rig.escena, M.rig.camara)` antes de leer el
+      // lienzo y así siguen valiendo; `pintar()` es lo mismo con nombre propio.
+      const fachadaRender = Object.create(render) as WebGLRenderer;
+      fachadaRender.render = pintar;
       (window as unknown as Record<string, unknown>).__motor = {
         tl: m.tl,
         L: m.L,
         PM,
         rig,
         coreo,
-        render,
+        render: fachadaRender,
+        tinta,
+        pintar,
         info,
         /** Coloca el reloj del maestro donde se le diga y pinta ese fotograma, sin tocar el scroll. */
         seek(t: number): void {
@@ -369,7 +390,7 @@ export function montarMotor(ctx: ContextoMotor): Escena {
           coreo.aplicar(t, performance.now());
           penacho.aplicar(coreo.estado, t);
           rotulos.aplicar();
-          render.render(rig.escena, rig.camara);
+          pintar();
         },
         /** Cuenta de verdad lo que hay en el grafo, no lo que se dibujó en el último fotograma. */
         contar(): Record<string, number> {

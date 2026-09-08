@@ -3,11 +3,16 @@
 // Unidades de motor: 1 u ~ 0,5 m reales. Campana: 3,30 u de alto y 4,20 u de boca. Motor entero:
 // 6,52 u de alto (y de -3,35 en el labio a +3,17 en los tornillos de la brida de empuje) y 4,96 u
 // de ancho (la corona de tubos en el labio). Medido sobre los vertices del grafo (sonda19).
+// UNA SOLA FORMA (informe BRECHA, fila 20): por encima de la garganta nada cuelga fuera del cuerpo.
+// La cabeza es un cilindro de r ~1,2 (camara con su anillo de aletas, brida de empuje r 1,21) con
+// la turbobomba atada al costado (eje a r 1,30; su voluta es lo mas ancho, r 1,66) y los conductos
+// rodeando la pared con abrazaderas. Antes los paneles radiadores llegaban a r 2,0 y la bomba a
+// r 2,43, y la parte alta se leia como un aspa con accesorios colgados (par-reposo.png del informe).
 
 import {
-  BackSide, BoxGeometry, BufferGeometry, Color, CylinderGeometry, DataTexture, DoubleSide, DynamicDrawUsage,
-  EdgesGeometry, Euler, ExtrudeGeometry, Float32BufferAttribute, FloatType, Group, InstancedMesh, LatheGeometry,
-  LineBasicMaterial, LineSegments, Matrix4, Mesh, MeshBasicMaterial, MeshToonMaterial, NearestFilter, NoColorSpace,
+  BoxGeometry, BufferGeometry, Color, CylinderGeometry, DataTexture, DoubleSide, DynamicDrawUsage,
+  ExtrudeGeometry, Float32BufferAttribute, FloatType, Group, InstancedMesh, LatheGeometry,
+  Matrix4, Mesh, MeshBasicMaterial, MeshToonMaterial, NearestFilter, NoColorSpace,
   Object3D, Path, Quaternion, RedFormat, Shape, SRGBColorSpace, TorusGeometry, TubeGeometry, Vector2, Vector3,
   CatmullRomCurve3, type Curve, type Material, type WebGLProgramParametersWithUniforms,
 } from 'three';
@@ -64,8 +69,13 @@ export const M: Ajustes = {
     pasosArco: 6,
     espesor: 0.07,
     segmentos: 96,
-    zunchos: 3,              // aros de refuerzo alrededor del cilindro
+    // AROS de refuerzo (ambar) alrededor del cilindro. Ya no se reparten por todo el cilindro: el
+    // tercio bajo lo ocupa ahora el anillo de aletas (M.aletas, y 0,98-1,60) y los tres aros van
+    // a partes iguales en la banda que queda entre las aletas y la brida del inyector (2,157).
+    zunchos: 3,
     rZuncho: 0.05,
+    zunchosDesde: 1.66,
+    zunchosHasta: 2.10,
     // CANALES DE REFRIGERACION: nervios finos y oscuros a lo largo del cilindro (paso 10 grados,
     // 19 px a 1x). Van en UNA InstancedMesh con los apoyos de los radiadores (misma caja unitaria,
     // mismo material, cada instancia lleva su escala en la matriz): 39 instancias, 1 llamada.
@@ -115,20 +125,42 @@ export const M: Ajustes = {
     // material): ninguna llamada de dibujo mas. Entra `hundido` en el domo para no dejar rendija.
     cabezal: { r: 0.20, alto: 0.15, hundido: 0.05 },
   },
-  // Turbobomba, colgada al costado de la camara.
+  // Turbobomba, PEGADA al costado de la camara (informe BRECHA, fila 20). Estaba a r 1,78 y con la
+  // voluta llegaba a r 2,43 (medido: 2,34 en los vertices): un accesorio colgado en el aire fuera
+  // de la silueta del cuerpo. Ahora el eje de la bomba va a r 1,30, el cuerpo (r 0,30) arranca en
+  // r 1,00 contra la pared del cilindro (r 0,97) y lo mas ancho de la bomba es la carcasa, a
+  // r 1,72; dos apoyos (`apoyos`) la atan y en el despiece se quedan CON LA CAMARA. Todo un 15 %
+  // mas pequeno para que quepa: la carcasa de la turbina (r 0,36) baja a la altura del convergente
+  // (y 0,25-0,71, donde la pared exterior esta en r <= 0,92) y no muerde ni la pared ni la corona.
+  // Holguras medidas vertice a vertice (sonda-holguras del carril objeto): cuerpo-pared 0,10,
+  // carcasa-pared 0,09, carcasa-tubos 0,15, voluta-pared 0,37, aletas-bomba 0,24.
   turbobomba: {
     azimut: 20,         // grados alrededor del eje
-    radio: 1.78,        // distancia del eje al centro de la bomba
-    altura: 1.50,       // y del centro
-    rVoluta: 0.46,      // toro de la voluta
-    rTuboVoluta: 0.19,
-    rCuerpo: 0.33,
-    largoCuerpo: 0.80,
-    rTurbina: 0.38,
-    largoTurbina: 0.52,
-    rEntrada: 0.19,
-    largoEntrada: 0.66,
+    radio: 1.30,        // distancia del eje del motor al eje de la bomba
+    altura: 1.05,       // y del centro del cuerpo
+    // La voluta: espiral de seccion creciente (ver construirTurbobomba). `faseVoluta` gira la
+    // espiral para que su extremo ANCHO apunte hacia fuera (local +X = radial): con el eje a
+    // r 1,30 el lado ancho hacia la camara se hundia 0,18 en la pared. 1,35 vueltas son 486
+    // grados; con -126 el final cae en 360 = 0, o sea en +X.
+    rVoluta: 0.26,
+    rTuboVoluta: 0.11,
+    faseVoluta: -126,
+    rCuerpo: 0.30,
+    largoCuerpo: 0.70,
+    rTurbina: 0.32,
+    largoTurbina: 0.44,
+    rEntrada: 0.16,
+    largoEntrada: 0.50,
     segmentos: 24,
+    // APOYOS (la brida contra la camara): dos tacos radiales en el azimut de la bomba, en el marco
+    // del motor. `r0` entra en la pared y `r1` en la bomba: sin rendija por ningun lado. El de
+    // arriba une el cuerpo con el cilindro (pared r 0,97, cuerpo desde r 1,00); el de abajo, la
+    // carcasa con el convergente (pared r 0,77 a y 0,50, carcasa desde r 0,94). Van en la
+    // InstancedMesh de detalles de la camara (construirCamara): cero llamadas de dibujo mas.
+    apoyos: [
+      { y: 1.175, alto: 0.35, ancho: 0.18, r0: 0.90, r1: 1.10 },
+      { y: 0.50, alto: 0.20, ancho: 0.14, r0: 0.70, r1: 0.98 },
+    ],
     // CARCASA DE LA TURBINA. El rotor con sus 18 alabes iba al aire y a 200 px se leia como una
     // PIÑA (fila 10e, zoom-pegotes). Ahora gira dentro de un tambor cerrado con tapas y una VENTANA
     // de `ventana` grados cruzada por `barras` barras verticales; el rotor se ve girar detras.
@@ -138,13 +170,21 @@ export const M: Ajustes = {
   },
   // Conductos: tubos sobre curvas suaves de la bomba al colector de la campana.
   conductos: {
-    radios: [0.115, 0.095, 0.07] as number[],
+    // un 13 % mas finos que antes (0,115 / 0,095): van con una bomba un 15 % mas pequena
+    radios: [0.10, 0.085, 0.07] as number[],
     segmentosU: 56,
     segmentosV: 8,
     // BRIDAS en los seis extremos, en vez de bolitas: un tubo tiene que ACABAR EN ALGO (fila 10a,
     // el conducto de escape terminaba en el aire con una bola). Un disco orientado por la tangente
     // del extremo, en multiplos del radio del tubo, todos en UNA InstancedMesh (antes dos).
     brida: { radio: 1.7, alto: 0.5 },
+    // ABRAZADERAS (fila 20: "conductos pegados al cuerpo, nada en el aire"): collares oscuros que
+    // atan el tubo al cuerpo donde lo roza. Un disco mas ancho y mas largo que la brida, orientado
+    // por la tangente, en la MISMA InstancedMesh que las bridas. `abrazaderas[k]` son las
+    // fracciones u de la curva del conducto k donde va cada una: en la descarga (0) dos, donde
+    // rodea el convergente; en la linea al domo (1) una, a media subida; en el escape (2) una.
+    abrazadera: { radio: 1.45, alto: 0.7 },
+    abrazaderas: [[0.45, 0.72], [0.5], [0.55]] as number[][],
   },
   // Estructura de empuje: anillo + tirantes en A.
   // TORNILLERIA. Lo que hace que una maquina se lea como compleja no son mas piezas grandes, sino
@@ -187,33 +227,25 @@ export const M: Ajustes = {
     // del dorso de la chapa (1,21).
     panel: { azimut: 135, abertura: 54, rInterior: 1.165, espesor: 0.04, y0: 2.22, y1: 3.0 },
   },
-  // Paneles radiadores en corona.
-  radiadores: {
-    n: 3,
-    // 55 grados: con 30 uno de los tres paneles caia casi de canto desde la camara de reposo y se
-    // leia como un cuchillo. Ninguno queda ahora a menos de 25 grados del plano de vista.
-    azimut0: 55,        // grados del primer panel
-    // PEGADOS AL CUERPO Y CORTOS. Medido en el grafo: con rInterior 1,12 y largo 1,45 los paneles
-    // llegaban a radio 2,57 -mas anchos que la boca de la campana (2,18)- y a y = 3,28, por encima
-    // del anillo de bancada (3,13). A 200 px eso no era un motor: era un aspa. Ahora el panel cabe
-    // dentro de la silueta que ya manda (la campana) en vez de discutirla.
-    rInterior: 1.05,
-    largo: 1.00,
-    alto: 0.85,
-    espesor: 0.055,
-    // NEGATIVA: los paneles caen hacia fuera y abajo. Con +16 subian por encima del anillo de
-    // bancada y la silueta del tercio superior era un aspa de veleta, no un motor.
-    inclinacion: -8,    // grados de caida hacia fuera
-    y: 2.00,            // por DEBAJO del anillo de bancada (3,05) y de la cupula (2,94)
-    aletas: 4,          // nervios (corrugado) de la cara: con 6 el panel era un garabato de rayas
-    amplitud: 0.07,     // altura del corrugado
-    sesgo: 60.1,        // grados: el angulo de las aristas largas del logo de Yoiber
-    // APOYO. Entre la raiz del panel (r 1,05) y la pared de la camara (r 0,97) quedaba un hueco de
-    // 0,08 u que la inclinacion de -8 grados abria en cuña hasta 0,15 en la esquina de arriba
-    // (fila 10d, zoom-pegotes). Un pie oscuro por panel, definido en el marco del PROPIO panel
-    // (se inclina con el) y montado en la camara: entra 0,19 en la pared y asoma 0,01 en el panel.
-    // Va con la camara y no con el panel: en el despiece el panel se despega de su pie.
-    soporte: { largo: 0.2, alto: 0.62, grueso: 0.13, retranqueo: 0.09 },
+  // ANILLO DE ALETAS (informe BRECHA, fila 20), en el sitio de los tres paneles radiadores. Los
+  // paneles colgaban a r 1,05 con el canto a y 2,4 y eran tres accesorios FUERA de la silueta: a
+  // 200 px el tercio superior se leia como un aspa (par-reposo.png del informe). Ahora son `n`
+  // aletas RADIALES (placas finas con la cara en el plano del eje) pegadas al cilindro de la
+  // camara, de r 0,955 (0,015 dentro de la pared) a r 1,195: un radiador de verdad, dentro del
+  // radio del cuerpo, y UNA InstancedMesh donde los tres paneles eran tres llamadas. Se saltan las
+  // ranuras a menos de `hueco` grados del azimut de la turbobomba: ahi va el cuerpo de la bomba
+  // (r 0,30 sobre r 1,30 cubre +-13 grados) y su voluta (a r 1,15 llega a +-16). Con 32 ranuras
+  // (11,25 grados) y hueco 18 caen tres: 29 aletas. (Si cambia el numero, cambia la nota del
+  // rotulo en PM.piezas.) En el despiece el anillo sale por el eje como una pieza y se abre
+  // radialmente (PM.aletasAbrir): las aletas se separan de la pared unos milimetros.
+  aletas: {
+    n: 32,
+    hueco: 18,
+    rInterior: 0.955,
+    largo: 0.24,        // radial
+    alto: 0.62,
+    espesor: 0.028,
+    y: 1.29,            // centro de la banda (0,98-1,60): entre la brida moleteada y los aros
   },
   // Placa de identificacion: el monograma de Yoiber como chapa recortada.
   // Contornos precocinados del SVG (yoi-icon.svg), sin SVGLoader: ahorra 11 kB comprimidos.
@@ -230,13 +262,8 @@ export const M: Ajustes = {
     chapa: 0.05,         // espesor de la chapa de soporte que va DETRÁS del monograma
     margen: 0.18,        // margen de la chapa alrededor del monograma, en fracción de `alto`
   },
-  // Contornos. `grosor` es el empuje del casco de silueta en unidades de motor. La camara es
-  // ortografica con `encuadre` 8,2 sobre el alto del lienzo: a 800 px de alto, 1 u = 97,6 px, asi
-  // que 0,028 u son 2,7 px de tinta en el reposo y 1,6 px en el despiece, que va a escala 0,58.
-  // Se probo con 0,022 (2,1 px): en el despiece del capitulo claro bajaba a 1,25 px y el borde de
-  // la campana contra el crema se perdia a ratos (a2-z3.png contra a3-z3.png). Por arriba, mas de
-  // 3,5 px engorda las piezas finas -el conducto mide 0,115 de radio- en vez de perfilarlas.
-  aristas: { umbral: 24, ancho: 1, grosor: 0.028 },
+  // Los contornos ya no son geometria (ni EdgesGeometry ni cascos de silueta): son un pase de
+  // pantalla, motor/tinta.ts, con sus numeros en PM.motor.tinta. Aqui solo queda su COLOR (paleta).
   // Paleta: los grises del logo de Yoiber + el acento del demo. Son ALBEDOS: lo que se ve es el
   // albedo por el escalon del toon (PM.motor.toon), asi que cada gris son hasta tres tonos en
   // pantalla, y por eso los tres grises ya no van "a partes iguales".
@@ -251,42 +278,40 @@ export const M: Ajustes = {
     medio: 0x737370,
     oscuro: 0x3d3d3a,   // gris oscuro del logo: 52 sRGB iluminado, un acento oscuro, no un cuerpo
     acento: 0xffd166,   // --acento del demo (el vigente lo funde la coreografia; ver coreografia.ts)
-    // CASI NEGRO, no gris. Con 0x8a8a86 (gris medio sobre cuerpos grises medios) los contornos
-    // existian en el grafo y NO SE VEIAN en ninguna captura: el objeto se leia como arcilla. Un
-    // contorno oscuro sobre el cuerpo es lo que separa "render por defecto" de "ilustracion".
+    // LA TINTA (el pase de pantalla de motor/tinta.ts la pinta con estos dos; son valores sRGB de
+    // 8 bits, no albedos: el compositor trabaja sobre la imagen ya codificada). CASI NEGRO, no
+    // gris: con 0x8a8a86 (gris medio sobre cuerpos grises medios) los contornos existian y NO SE
+    // VEIAN en ninguna captura, y el objeto se leia como arcilla. Un contorno oscuro sobre el
+    // cuerpo es lo que separa "render por defecto" de "ilustracion".
+    //
+    // Sobre el fondo oscuro (#1f1e1d, luminancia 30) este 20 queda 10 puntos por debajo: dibuja
+    // el borde exterior (que sobre el negro puro no existia) y separa la cara en sombra del blanco
+    // (34) del fondo, y sobre el cuerpo separa una pieza de la de detras, que era lo que la tinta
+    // CLARA (0xc8c8c2, el "contorno de pegatina", probada y descartada en la Vuelta 2) borraba:
+    // pieza y pieza son las dos claras. Era 0x141412 para las aristas y 0x050504 para el casco;
+    // ahora hay UNA tinta y va con la de las aristas, la que separaba piezas.
     linea: 0x141412,
-    // LOS DOS COLORES DE TINTA, UNO POR TEMA. Se probaron los cuatro pares mirando la captura:
-    //
-    //   · Tema oscuro, fondo #000 cuando se eligio (hoy #1f1e1d, ver abajo). La tinta CLARA
-    //     (0xc8c8c2, el "contorno de pegatina") se probo y se descarto: dibuja el borde exterior
-    //     contra el fondo, pero ahi el objeto ya destaca solo, y a cambio BORRA lo unico que hacia
-    //     falta -la separacion entre una pieza y la de detras-, porque pieza y pieza son las dos
-    //     claras (v-osc-claro.png: los radiadores se funden con la camara y el conducto pierde su
-    //     borde). Asi que tinta oscura tambien aqui, y lo mas pegada al fondo que se pueda: con
-    //     0x141412 el casco deja un halo gris de 2 px alrededor de la silueta sobre el negro puro.
-    //   · Tema claro, fondo crema #efe9df, que es el capitulo "como esta hecho". Aqui pasa lo
-    //     contrario: el gris `blanco` del motor (0xf4f4f2) ES el fondo -la campana y la cupula se
-    //     comen con el papel (a0-z4.png: el labio blanco se derrama sobre el crema sin ningun
-    //     borde)- y la tinta pasa de adorno a ser lo unico que dibuja el objeto. Aqui interesa que
-    //     sea la MISMA tinta que la letra de la pagina (--fg #141414), no el negro del otro tema.
-    //
-    // O sea: la tinta es oscura en los dos temas, pero por razones opuestas y con valores
-    // distintos. `aplicarTema()` las cambia cuando el demo cambia de capitulo.
+    // Tema claro, fondo crema #efe9df, el capitulo "como esta hecho": el gris `blanco` del motor
+    // (0xf4f4f2) ES el fondo -la campana y la cupula se comen con el papel- y la tinta pasa de
+    // adorno a ser lo unico que dibuja el objeto (par-claro.png de la referencia es eso: una
+    // lamina). La MISMA tinta que la letra de la pagina (--fg #141414). `aplicarTema()` y
+    // tinta.tema() cambian de una a otra cuando el demo cambia de capitulo.
     lineaClaro: 0x141412,
-    // CASCO DE SILUETA. Copia de las piezas grandes en BackSide con los vertices empujados por su
-    // normal suavizada: es la linea que WebGL no sabe dibujar con `linewidth` y la que separa el
-    // objeto del fondo y una pieza de la de detras.
-    // Sobre el fondo de hoy (#1f1e1d, luminancia 30; informe BRECHA fila 12) este casi negro (5)
-    // queda 25 puntos POR DEBAJO del fondo: el casco vuelve a dibujar el borde exterior, que sobre
-    // el negro puro no existia, y ademas separa la cara en sombra del blanco (34) del fondo (30),
-    // que sin tinta serian el mismo tono.
-    silueta: 0x050504,
-    siluetaClaro: 0x141412,
     // La chapa de la placa de identificacion. Casi negra NO: sobre fondo negro la chapa desaparecia
     // y el recorte se leia como un agujero en el motor. Este gris es mas oscuro que el `oscuro` del
     // logo (0x3d3d3a) pero sigue teniendo cuerpo sobre negro, y los tres brazos del monograma
     // (oscuro, medio, blanco) se separan de el.
     chapa: 0x2a2a27,
+    // LA PALETA CLARA (informe BRECHA, fila 19f): los tres grises, MAS CLAROS, para el capitulo sobre
+    // crema. Con la tinta dibujando cada pieza, el objeto ya no necesita que los grises lo modelen:
+    // sobre papel es una lamina y los grises son rellenos, no cuerpos. Medido en COMO 40 % con la
+    // tinta puesta (barrido-claro, variantes B/D/E): con los grises del tema oscuro las aletas, la
+    // placa de inyectores y la bancada seguian siendo las manchas mas oscuras del despiece
+    // (par-claro-v3-B) mientras la referencia es blanca entera con lineas; con estos, medio sale a
+    // 151-163 sRGB, oscuro a 108-117 y la chapa a 85 (aritmetica del toon, PM.motor.toon.claro), y
+    // el conjunto se lee como lamina (par-claro-v3-D). El blanco no cambia: ya es el papel. Los
+    // clones de la marca (rig.ts) siguen a estos al cambiar el tema.
+    claro: { medio: 0xaaaaa2, oscuro: 0x7a7a76, chapa: 0x5a5a56 },
   },
 };
 
@@ -297,6 +322,7 @@ type Ajustes = {
     margenSalida: number; puntosGarganta: number; segmentos: number; forro: { retranqueo: number; piel: number } };
   camara: { rCamara: number; largoCilindro: number; anguloConvergente: number; arcoGarganta: number;
     pasosArco: number; espesor: number; segmentos: number; zunchos: number; rZuncho: number;
+    zunchosDesde: number; zunchosHasta: number;
     canales: { n: number; ancho: number; fondo: number; margen: number };
     moleteado: { dientes: number; y: number; alto: number; rInterior: number; rDiente: number; profundidad: number };
     collar: { dientes: number; y: number; alto: number; holgura: number; profundidad: number } };
@@ -306,23 +332,22 @@ type Ajustes = {
   inyector: { espesorPlaca: number; rebaje: number; anillos: number[]; porAnillo: number[];
     rOrificio: number; hOrificio: number; ladosOrificio: number; rCupula: number; altoCupula: number; pasosCupula: number;
     cabezal: { r: number; alto: number; hundido: number } };
-  turbobomba: { azimut: number; radio: number; altura: number; rVoluta: number; rTuboVoluta: number;
+  turbobomba: { azimut: number; radio: number; altura: number; rVoluta: number; rTuboVoluta: number; faseVoluta: number;
     rCuerpo: number; largoCuerpo: number; rTurbina: number; largoTurbina: number; rEntrada: number;
     largoEntrada: number; segmentos: number;
-    carcasa: { r: number; ventana: number; azimutVentana: number; barras: number; barra: number } };
+    carcasa: { r: number; ventana: number; azimutVentana: number; barras: number; barra: number };
+    apoyos: { y: number; alto: number; ancho: number; r0: number; r1: number }[] };
   tornillos: { r: number; alto: number; nCamara: number; nBancada: number; nBomba: number; nGarganta: number };
-  conductos: { radios: number[]; segmentosU: number; segmentosV: number; brida: { radio: number; alto: number } };
+  conductos: { radios: number[]; segmentosU: number; segmentosV: number; brida: { radio: number; alto: number };
+    abrazadera: { radio: number; alto: number }; abrazaderas: number[][] };
   bancada: { rAnillo: number; anillo: { ancho: number; alto: number };
     pies: { ancho: number; alto: number; saliente: number; empotrado: number }; altura: number; tirantes: number; rTirante: number;
     anclaje: number; yAnclaje: number;
     panel: { azimut: number; abertura: number; rInterior: number; espesor: number; y0: number; y1: number } };
-  radiadores: { n: number; azimut0: number; rInterior: number; largo: number; alto: number; espesor: number;
-    inclinacion: number; y: number; aletas: number; amplitud: number; sesgo: number;
-    soporte: { largo: number; alto: number; grueso: number; retranqueo: number } };
+  aletas: { n: number; hueco: number; rInterior: number; largo: number; alto: number; espesor: number; y: number };
   placa: { alto: number; espesor: number; azimut: number; radio: number; y: number; chapa: number; margen: number };
-  aristas: { umbral: number; ancho: number; grosor: number };
   paleta: { blanco: number; medio: number; oscuro: number; acento: number; linea: number;
-    lineaClaro: number; silueta: number; siluetaClaro: number; chapa: number };
+    lineaClaro: number; chapa: number; claro: { medio: number; oscuro: number; chapa: number } };
 };
 
 /** Tres niveles. 'baja' es el que va al movil; 'alta' solo si hay sitio de sobra. */
@@ -554,10 +579,6 @@ function anilloMoleteado(rInterior: number, rValle: number, rDiente: number, die
 
 export interface Materiales {
   blanco: Material; medio: Material; oscuro: Material; acento: Material;
-  /** Aristas de pliegue. `aplicarTema()` repinta su color al cambiar de fondo. */
-  linea: LineBasicMaterial;
-  /** Casco de silueta: BackSide, sin iluminar. Es tinta, no un material del objeto. */
-  silueta: MeshBasicMaterial;
   /** Sin iluminar: el unico truco para que la garganta "arda" sin postprocesado. */
   caliente: Material;
   /** La chapa de la placa de identificacion (casi negra: separa los tres grises del monograma). */
@@ -593,6 +614,33 @@ export function emisivoDelAcento(acento: Color, salida = new Color()): Color {
 const filo = { value: new Color() };
 
 /**
+ * LA SALIDA AL TARGET DE LA TINTA (motor/tinta.ts). La escena ya no se dibuja en el lienzo sino
+ * en un WebGLRenderTarget con DOS texturas de color (MRT): el color y la normal de vista. Todo
+ * material que se dibuje en la escena pasa por aqui, porque en un MRT lo que un programa no
+ * escribe en la segunda salida queda INDEFINIDO. Dos cosas:
+ *   1. `gNormal`: la normal de vista, ·0,5 + 0,5, en `location = 1` (Three declara la 0,
+ *      pc_fragColor, en su prefijo). 'normal' para los toon (existe `normal` tras
+ *      normal_fragment_begin, ya volteada en las caras traseras); 'plana' para el inserto de
+ *      garganta (MeshBasic, sin normal: se declara mirando a la camara y sus bordes los pone la
+ *      profundidad y la normal del vecino); 'nada' para el penacho, vec4(0): con mezcla aditiva
+ *      (SRC_ALPHA, ONE) deja la textura de normales como estaba.
+ *   2. La CODIFICACION sRGB, a mano. Three fuerza la salida lineal cuando el destino es un target
+ *      (WebGLPrograms: outputColorSpace = working) y en 8 bits el tono de sombra del tema oscuro
+ *      (34 sRGB = 4/255 lineal) se redondea ±3 puntos: se sustituye <colorspace_fragment> por la
+ *      OETF explicita y el target guarda la misma imagen que antes iba al lienzo (y en el lienzo,
+ *      si alguien pintara la escena directamente, seguiria siendo UNA codificacion: es la misma
+ *      funcion que linearToOutputTexel aplica ahi). Ver el porque entero en tinta.ts.
+ */
+export function salidaAlTarget(shader: WebGLProgramParametersWithUniforms, normal: 'normal' | 'plana' | 'nada'): void {
+  const gNormal = normal === 'normal' ? 'vec4( normal * 0.5 + 0.5, 1.0 )'
+    : normal === 'plana' ? 'vec4( 0.5, 0.5, 1.0, 1.0 )' : 'vec4( 0.0 )';
+  shader.fragmentShader = 'layout(location = 1) out highp vec4 gNormal;\n' + shader.fragmentShader.replace(
+    '#include <colorspace_fragment>',
+    `gl_FragColor = sRGBTransferOETF( gl_FragColor );\n\tgNormal = ${gNormal};`,
+  );
+}
+
+/**
  * La luz de borde (informe BRECHA, fila 12), en dos lineas de GLSL sobre el propio toon:
  * rim = (1 - saturate(dot(normal, vista)))^potencia · color · fuerza, sumado al final. Con la
  * camara ortografica `geometryViewDir` es (0, 0, 1) en el espacio de vista, o sea que el filo solo
@@ -613,10 +661,11 @@ export function ponerFilo(mat: MeshToonMaterial): MeshToonMaterial {
         'vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance'
         + ` + pow( 1.0 - saturate( dot( normal, geometryViewDir ) ), ${potencia} ) * filo;`,
       );
+    salidaAlTarget(shader, 'normal');
   };
   // El programa se cachea por esta clave: todos los toon comparten uno (la potencia va en la clave
   // porque va incrustada en el GLSL).
-  mat.customProgramCacheKey = () => `toon-filo-${potencia}`;
+  mat.customProgramCacheKey = () => `toon-filo-mrt-${potencia}`;
   return mat;
 }
 
@@ -653,14 +702,9 @@ function escribirDegradado(tex: DataTexture, claro: boolean): void {
 }
 
 export function crearMateriales(): Materiales {
-  // POLYGON OFFSET en todas las caras iluminadas. Las aristas de pliegue son LineSegments que
-  // pasan EXACTAMENTE por la superficie de la cara: en el z-test empatan y gana uno u otro según
-  // el redondeo de cada píxel, y en la campana salían puntos negros sueltos y crestas punteadas
-  // (informe BRECHA, fila 5, render/zoom-aristas y zoom-curva). Con factor 1 / units 1 las caras
-  // se empujan un pelín hacia el fondo y la línea gana siempre donde coinciden. Los cascos de
-  // silueta (BackSide, MeshBasic) y la propia línea no lo necesitan: no compiten con nadie.
-  // Medido a 1440x900 y 2x: los píxeles oscuros aislados de la mitad inferior del motor bajan
-  // (cifras en el json del carril "motor" de la vuelta 1).
+  // (Ya sin polygonOffset: lo necesitaban las aristas de pliegue, LineSegments que pasaban
+  // EXACTAMENTE por la superficie y empataban en el z-test —puntos negros sueltos en la campana,
+  // informe BRECHA fila 5—. La tinta es ahora un pase de pantalla y no compite con nadie.)
   //
   // TOON DE TRES TONOS, NO LAMBERT (informe BRECHA, fila 8). Con Lambert + flatShading el motor era
   // un degradado de 43 niveles a 200 px (medido en HERO_OUT 100 %, 1440x900) y cada faceta de la
@@ -675,11 +719,12 @@ export function crearMateriales(): Materiales {
   const degradado = crearDegradado();
   filo.value.setHex(PM.motor.rim.color).multiplyScalar(PM.motor.rim.fuerza);
   const plano = (color: number, extra: object = {}) =>
-    ponerFilo(new MeshToonMaterial({
-      color: new Color(color), gradientMap: degradado,
-      polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1,
-      ...extra,
-    }));
+    ponerFilo(new MeshToonMaterial({ color: new Color(color), gradientMap: degradado, ...extra }));
+  // El inserto de garganta no se ilumina, pero se dibuja en el MRT como todo lo demas: declara la
+  // segunda salida (normal plana) y codifica su color (ver salidaAlTarget).
+  const caliente = new MeshBasicMaterial({ color: new Color(M.paleta.acento), side: DoubleSide });
+  caliente.onBeforeCompile = (shader) => salidaAlTarget(shader, 'plana');
+  caliente.customProgramCacheKey = () => 'basico-mrt-plana';
   return {
     blanco: plano(M.paleta.blanco, { side: DoubleSide }),
     medio: plano(M.paleta.medio),
@@ -687,12 +732,7 @@ export function crearMateriales(): Materiales {
     // El emisivo NO es el propio acento: ver emisivoDelAcento(). La coreografía lo reescribe (color
     // y emisivo) al cambiar el acento vigente.
     acento: plano(M.paleta.acento, { emissive: emisivoDelAcento(new Color(M.paleta.acento)), emissiveIntensity: 0.35 }),
-    // opaco: la linea es tinta, no un velo. (WebGL ignora linewidth: el grosor es siempre 1 px.)
-    linea: new LineBasicMaterial({ color: new Color(M.paleta.linea) }),
-    // El casco NO se ilumina: si respondiera a las luces seria una pieza mas del motor, con su
-    // cara clara y su cara oscura, en vez de una linea de tinta de grosor constante.
-    silueta: new MeshBasicMaterial({ color: new Color(M.paleta.silueta), side: BackSide }),
-    caliente: new MeshBasicMaterial({ color: new Color(M.paleta.acento), side: DoubleSide }),
+    caliente,
     chapa: plano(M.paleta.chapa),
     degradado,
   };
@@ -910,31 +950,33 @@ function construirCamara(mat: Materiales): Group {
   pared.computeVertexNormals();
   g.add(nombrar(new Mesh(pared, mat.blanco), 'camara-pared'));
 
-  // Zunchos de refuerzo, instanciados a lo largo del cilindro.
+  // Zunchos de refuerzo, instanciados en la banda alta del cilindro (M.camara.zunchosDesde/Hasta:
+  // por encima del anillo de aletas, que ocupa el tercio bajo).
   const perfil = perfilCamara();
   const yA = perfil[perfil.length - 2].y;
   const yB = perfil[perfil.length - 1].y;
   const aro = new TorusGeometry(c.rCamara + c.espesor + c.rZuncho * 0.6, c.rZuncho, 6, 48);
   aro.rotateX(Math.PI / 2);
   // En ambar: en el estado ensamblado no habia un solo pixel de acento y el conjunto era
-  // monocromo. Cinco aros pequenos y fijos bastan para que el objeto tenga color propio.
+  // monocromo. Tres aros pequenos y fijos bastan para que el objeto tenga color propio.
   const zunchos = new InstancedMesh(aro, mat.acento, c.zunchos);
   const m = new Matrix4();
   for (let i = 0; i < c.zunchos; i++) {
     const u = (i + 0.5) / c.zunchos;
-    zunchos.setMatrixAt(i, m.makeTranslation(0, yA + (yB - yA) * u, 0));
+    zunchos.setMatrixAt(i, m.makeTranslation(0, c.zunchosDesde + (c.zunchosHasta - c.zunchosDesde) * u, 0));
   }
   zunchos.instanceMatrix.needsUpdate = true;
   g.add(nombrar(zunchos, 'camara-zunchos'));
 
-  // CANALES + APOYOS DE LOS RADIADORES: una caja unitaria, 36 + 3 instancias, 1 llamada
-  // (ver M.camara.canales y M.radiadores.soporte).
+  // CANALES + APOYOS DE LA TURBOBOMBA: una caja unitaria, 36 + 2 instancias, 1 llamada
+  // (ver M.camara.canales y M.turbobomba.apoyos). Antes los tres tacos eran los pies de los
+  // paneles radiadores; los apoyos de la bomba hacen el mismo papel -la pieza colgada se ata a la
+  // camara y en el despiece el taco se queda con la camara- y cuestan lo mismo: nada.
   const k = c.canales;
-  const so = M.radiadores.soporte;
-  const rd = M.radiadores;
   const rExt = c.rCamara + c.espesor;
   const caja = new BoxGeometry(1, 1, 1);
-  const detalles = new InstancedMesh(caja, mat.oscuro, k.n + rd.n);
+  const apoyos = M.turbobomba.apoyos;
+  const detalles = new InstancedMesh(caja, mat.oscuro, k.n + apoyos.length);
   const mD = new Matrix4();
   const qD = new Quaternion();
   const pD = new Vector3();
@@ -952,19 +994,14 @@ function construirCamara(mat: Materiales): Group {
     pD.set(rCanal * Math.cos(th), yCanal, rCanal * Math.sin(th));
     detalles.setMatrixAt(j++, mD.compose(pD, qD, eD.set(k.ancho, altoCanal, k.fondo)));
   }
-  // El pie de cada panel, en el marco EXACTO del panel (misma posicion y rotacion que en
-  // construirRadiadores): centrado `retranqueo` hacia dentro de su raiz, en el eje X local del panel.
-  const mPanel = new Matrix4();
-  const mPie = new Matrix4();
-  for (let i = 0; i < rd.n; i++) {
-    const th = (rd.azimut0 + (i * 360) / rd.n) * GRA;
-    mPanel.compose(
-      pD.set(rd.rInterior * Math.cos(th), rd.y, rd.rInterior * Math.sin(th)),
-      qD.setFromEuler(new Euler(0, -th, rd.inclinacion * GRA)),
-      eD.set(1, 1, 1),
-    );
-    mPie.compose(pD.set(-so.retranqueo, 0, 0), qD.identity(), eD.set(so.largo, so.alto, so.grueso));
-    detalles.setMatrixAt(j++, mD.multiplyMatrices(mPanel, mPie));
+  // Los apoyos: tacos radiales (Z local hacia fuera, como los canales) en el azimut de la bomba,
+  // de r0 (dentro de la pared) a r1 (dentro de la bomba).
+  const thBomba = M.turbobomba.azimut * GRA;
+  for (const a of apoyos) {
+    const rc = (a.r0 + a.r1) / 2;
+    qD.setFromAxisAngle(ejeY, Math.PI / 2 - thBomba);
+    pD.set(rc * Math.cos(thBomba), a.y, rc * Math.sin(thBomba));
+    detalles.setMatrixAt(j++, mD.compose(pD, qD, eD.set(a.ancho, a.alto, a.r1 - a.r0)));
   }
   detalles.instanceMatrix.needsUpdate = true;
   g.add(nombrar(detalles, 'camara-detalles'));
@@ -998,11 +1035,24 @@ function construirInyector(mat: Materiales): Group {
   const g = nombrar(new Group(), 'inyector');
   const yPlaca = perfilCamara()[perfilCamara().length - 1].y;
 
+  // EL ORIGEN DEL GRUPO ESTA EN EL CENTRO DE LA PLACA, no en el de motor (es la unica pieza asi).
+  // En el despiece la placa se INCLINA para que se le vea la cara con los 127 orificios (informe
+  // BRECHA, fila 22; coreografia.ts, punto 3b del canal derivado), y un giro alrededor del origen
+  // del motor la sacaria de su sitio: el pivote tiene que ser su propio centro. La geometria se
+  // construye alrededor de y = 0 y el grupo se sube a `yCentro`; para el despiece y el montaje da
+  // igual (leen la posicion de reposo del objeto), pero el ANCLA del rotulo en PM.piezas es LOCAL
+  // y va referida a este centro.
+  const yCentro = yPlaca + i.espesorPlaca / 2;
+  g.position.y = yCentro;
   const placa = new CylinderGeometry(c.rCamara + i.rebaje, c.rCamara + i.rebaje, i.espesorPlaca, c.segmentos, 1);
-  placa.translate(0, yPlaca + i.espesorPlaca / 2, 0);
   g.add(nombrar(new Mesh(placa, mat.medio), 'inyector-placa'));
 
-  // Reticula radial de orificios: anillos concentricos, todos en una InstancedMesh.
+  // Reticula radial de orificios: anillos concentricos, todos en una InstancedMesh. Van con su
+  // centro EN LA CARA de arriba de la placa: asoman hOrificio / 2 = 0,05 como los tetones de un
+  // inyector de verdad. Antes iban centrados en el espesor (asomaban 0,05 por... dentro) y con la
+  // placa inclinada en el despiece, que es cuando se le ve la cara, la reticula de 127 orificios
+  // del rotulo era un disco gris liso (captura v1-esc-como-40 del carril objeto). En el reposo la
+  // cupula los tapa: quedan dentro de su radio (0,84 + 0,042 < 0,90) y bajo su cuello.
   const total = i.porAnillo.reduce((a, b) => a + b, 0);
   const orif = new CylinderGeometry(i.rOrificio, i.rOrificio, i.hOrificio, i.ladosOrificio, 1);
   const orificios = new InstancedMesh(orif, mat.acento, total);
@@ -1013,7 +1063,7 @@ function construirInyector(mat: Materiales): Group {
     const n = i.porAnillo[a];
     for (let j = 0; j < n; j++) {
       const th = (j / n) * Math.PI * 2 + (a % 2) * (Math.PI / n);
-      orificios.setMatrixAt(k++, m.makeTranslation(rad * Math.cos(th), yPlaca + i.espesorPlaca / 2, rad * Math.sin(th)));
+      orificios.setMatrixAt(k++, m.makeTranslation(rad * Math.cos(th), i.espesorPlaca / 2, rad * Math.sin(th)));
     }
   }
   orificios.instanceMatrix.needsUpdate = true;
@@ -1060,7 +1110,7 @@ function construirTurbobomba(mat: Materiales): Group {
   const pasosVoluta = 26;
   for (let i = 0; i <= pasosVoluta; i++) {
     const u = i / pasosVoluta;
-    const a = u * vueltas * Math.PI * 2;
+    const a = u * vueltas * Math.PI * 2 + t.faseVoluta * GRA;   // el extremo ancho acaba en +X (fuera)
     const rad = t.rVoluta * (0.52 + 0.48 * u);
     puntosVoluta.push(new Vector3(rad * Math.cos(a), yV + u * t.rTuboVoluta * 0.55, rad * Math.sin(a)));
   }
@@ -1151,67 +1201,85 @@ function construirConductos(mat: Materiales): Group {
   const t = M.turbobomba;
   const c = M.conductos;
   const th = t.azimut * GRA;
-  const rC = M.camara.rCamara + M.camara.espesor;
   const pol = (rad: number, ang: number, y: number) => new Vector3(rad * Math.cos(ang), y, rad * Math.sin(ang));
 
   // CADA TUBO EMPIEZA Y ACABA EN UNA PIEZA (informe BRECHA, fila 10a y 10b). Los arranques van
   // dentro del cuerpo de la bomba; los finales llegan a una pared PERPENDICULARES a ella (los dos
   // ultimos puntos van por la normal de la superficie), asi la brida del extremo se apoya plana.
+  // Y PEGADOS AL CUERPO (fila 20): con la bomba a r 1,30 ninguno pasa de r 1,48 (antes 1,95) y la
+  // descarga rodea el convergente a 0,10 de la pared (medido vertice a vertice, sonda-holguras);
+  // las abrazaderas los atan al cuerpo. La linea al domo pasa a 0,28 del tirante mas cercano.
+  //
+  // Un tramo de CatmullRom entre dos puntos a radio r sobre un arco de A grados se mete hacia el
+  // eje una sagita de r·(1 − cos(A/2)): a r 0,98 y 35 grados son 0,045 u. Por eso los puntos de la
+  // descarga van cada ~35 grados y no cada 70 (0,18 de sagita: el tubo se hundia en el convergente).
 
-  // 0 - descarga principal: rodea la camara por detras y entra en el convergente, justo encima
-  //     del colector de la garganta (la pared se mide, ver paredCamaraEn).
+  // 0 - descarga principal: baja del cuerpo de la bomba, rodea el convergente por detras a y 0,58
+  //     (la pared exterior esta en r 0,83 ahi; el tubo, de radio 0,10, va con el eje a 0,98) y
+  //     entra en la pared justo encima del colector de la garganta (la pared se mide, ver
+  //     paredCamaraEn). Por encima de la cresta de la corona (y 0,42, r 0,835) y por debajo de la
+  //     brida moleteada (y 0,78, r 0,955-1,045): la parte alta del tubo llega a y 0,68.
   const fin0 = paredCamaraEn(0.60);
   const az0 = th - 3.55;
+  const rRodea = 0.98;
+  const yRodea = 0.58;
   const c0 = [
     pol(t.radio, th, t.altura - t.largoCuerpo * 0.2),
-    pol(rC + 0.34, th - 0.85, t.altura - 0.15),
-    pol(rC + 0.26, th - 2.10, t.altura - 0.75),
-    pol(rC + 0.14, th - 3.05, 0.85),
-    pol(fin0.r + fin0.nr * 0.26, az0, fin0.y + fin0.ny * 0.26),
+    pol(t.radio - 0.08, th - 0.40, 0.70),
+    pol(rRodea + 0.02, th - 0.90, yRodea + 0.02),
+    pol(rRodea, th - 1.50, yRodea),
+    pol(rRodea, th - 2.10, yRodea),
+    pol(rRodea, th - 2.70, yRodea),
+    pol(fin0.r + fin0.nr * 0.20, az0, fin0.y + fin0.ny * 0.20),
     pol(fin0.r + fin0.nr * 0.014, az0, fin0.y + fin0.ny * 0.014),
   ];
-  // 1 - linea al domo del inyector. Antes subia por delante y ATRAVESABA el tirante 5 de la
-  //     estructura de empuje (holgura medida -0,029 u). Ahora entra por el hueco en V que dejan los
-  //     pares de tirantes 0 y 1 (a y = 2,68 los tirantes estan en 48,7 y 71,3 grados; el tubo
-  //     pasa por 57 y deja 0,04-0,05 u de aire a cada lado, medido vertice a eje: prueba `rutas`),
-  //     por ENCIMA del panel radiador de 55 grados (esquina alta en y = 2,42; el tubo va a 2,45 o
-  //     mas) y llega a la cupula a y = 2,56 casi por su normal.
+  // 1 - linea al domo del inyector. Sale de la ENTRADA de la bomba (r 0,16, y 1,40-1,90) y sube
+  //     por el hueco en V que dejan los pares de tirantes 0 y 1 de la estructura de empuje. Medido
+  //     vertice a eje con la geometria de los tirantes (base 30 grados, tope 30 +- 25,5): a y 2,50
+  //     el tirante mas cercano esta a r 1,00 y 42,7 grados, el tubo a r 1,20 y 42 (0,07 de aire
+  //     entre superficies); a y 2,68 el tirante esta a r 1,05 y 46,9 grados y el tubo a r 1,09 y
+  //     58 (0,08). Llega a la cupula a y = 2,56 casi por su normal.
   const azDomo = 58 * GRA;
   const i = M.inyector;
   const yDomo = 2.56;
   const aDomo = Math.asin(Math.min(1, (yDomo - (perfilCamara()[perfilCamara().length - 1].y + i.espesorPlaca)) / i.altoCupula));
   const c1 = [
-    pol(t.radio, th, t.altura + t.largoCuerpo * 0.35),
-    pol(1.55, 30 * GRA, 2.15),
-    pol(1.32, 44 * GRA, 2.50),
-    pol(1.12, 57 * GRA, 2.68),
+    pol(t.radio, th, t.altura + t.largoCuerpo / 2 + t.largoEntrada * 0.6),
+    pol(1.27, 27 * GRA, 2.18),
+    pol(1.20, 42 * GRA, 2.50),
+    pol(1.09, 58 * GRA, 2.68),
     pol(i.rCupula * Math.cos(aDomo), azDomo, yDomo),
   ];
   // 2 - escape de la turbina: sale de la BOQUILLA del escape (antes nacia en el rotor y acababa en
   //     el aire, a r 2,02, con una bola: fila 10a) y baja a la corona de tubos, donde descarga en
   //     un colector de la campana como en un motor real. La brida se apoya en la cresta de los
-  //     tubos a esa altura (coronaEn).
+  //     tubos a esa altura (coronaEn). Con la bomba a r 1,30 la boquilla queda en y -0,08, justo
+  //     al lado del collar de la garganta (r <= 0,77): el tubo baja 0,66 pegado a la corona.
   const yEscape = t.altura - (t.largoCuerpo / 2 + t.largoTurbina / 2) - t.largoTurbina * 1.28;
   const yFin2 = -0.74;
   const azFin2 = th - 23 * GRA;
   const cresta2 = coronaEn(yFin2).ext;
   const c2 = [
     pol(t.radio, th, yEscape + 0.02),
-    pol(t.radio - 0.03, th - 3 * GRA, yEscape - 0.30),
-    pol(cresta2 + 0.30, th - 14 * GRA, -0.50),
-    pol(cresta2 + 0.24, azFin2, yFin2 + 0.05),
+    pol(t.radio - 0.02, th - 4 * GRA, yEscape - 0.22),
+    pol(cresta2 + 0.20, th - 14 * GRA, -0.48),
+    pol(cresta2 + 0.16, azFin2, yFin2 + 0.05),
     pol(cresta2 + 0.02, azFin2, yFin2),
   ];
   const rutas = [c0, c1, c2];
   // el tercero era `oscuro` y sobre fondo negro desaparecia: los tres van en tonos que se ven
   const materiales = [mat.medio, mat.blanco, mat.medio];
-  // BRIDAS. `TubeGeometry` con `closed = false` deja los dos extremos ABIERTOS, y un tubo abierto
-  // visto de frente es un AGUJERO NEGRO ELIPTICO. Cada extremo lleva un disco del radio de la brida
-  // orientado por la tangente del tubo en ese punto; las seis en UNA InstancedMesh (antes eran dos
-  // de bolitas, una por material).
+  // BRIDAS Y ABRAZADERAS. `TubeGeometry` con `closed = false` deja los dos extremos ABIERTOS, y un
+  // tubo abierto visto de frente es un AGUJERO NEGRO ELIPTICO. Cada extremo lleva un disco del
+  // radio de la brida orientado por la tangente del tubo en ese punto; y cada tubo lleva ademas
+  // sus abrazaderas (M.conductos.abrazaderas), el mismo disco con otras proporciones, en los u de
+  // la curva donde el tubo roza el cuerpo. Todo en UNA InstancedMesh (antes eran dos de bolitas,
+  // una por material).
   const br = c.brida;
+  const ab = c.abrazadera;
   const disco = new CylinderGeometry(1, 1, 1, 12, 1);
-  const bridas = new InstancedMesh(disco, mat.oscuro, rutas.length * 2);
+  const nCollares = c.abrazaderas.reduce((a, l) => a + l.length, 0);
+  const bridas = new InstancedMesh(disco, mat.oscuro, rutas.length * 2 + nCollares);
   const mBrida = new Matrix4();
   const qBrida = new Quaternion();
   const eBrida = new Vector3();
@@ -1223,12 +1291,14 @@ function construirConductos(mat: Materiales): Group {
     const tubo = nombrar(new Mesh(geo, materiales[k]), `conducto-${k}`);
     tubo.userData.radio = c.radios[k];   // lo leen las pruebas para medir holguras
     g.add(tubo);
-    for (const u of [0, 1]) {
+    const collar = (u: number, radio: number, alto: number): void => {
       const p = curva.getPointAt(u);
       const tg = curva.getTangentAt(u).normalize();
       qBrida.setFromUnitVectors(ejeY, tg);
-      bridas.setMatrixAt(nBrida++, mBrida.compose(p, qBrida, eBrida.set(c.radios[k] * br.radio, c.radios[k] * br.alto, c.radios[k] * br.radio)));
-    }
+      bridas.setMatrixAt(nBrida++, mBrida.compose(p, qBrida, eBrida.set(c.radios[k] * radio, c.radios[k] * alto, c.radios[k] * radio)));
+    };
+    for (const u of [0, 1]) collar(u, br.radio, br.alto);
+    for (const u of c.abrazaderas[k] ?? []) collar(u, ab.radio, ab.alto);
   });
   bridas.instanceMatrix.needsUpdate = true;
   g.add(nombrar(bridas, 'conducto-bridas'));
@@ -1340,55 +1410,40 @@ function construirBancada(mat: Materiales): Group {
   return g;
 }
 
-function construirRadiadores(mat: Materiales): Group {
-  const r = M.radiadores;
-  const g = nombrar(new Group(), 'radiadores');
-  // Seccion corrugada del panel (plano alto x espesor); se extruye a lo largo del panel.
-  // Luego se cizalla para que las aristas largas queden a 60,1 grados del corte del extremo:
-  // es la familia de aristas dominante del logo de Yoiber, metida en la propia chapa.
-  // CHAPA CORRUGADA DE VERDAD: la onda va en las DOS caras (ida por delante, vuelta por detras
-  // desplazada el espesor), no una cara ondulada sobre un dorso plano. Con el dorso plano, el panel
-  // que daba la espalda a la camara era una losa gris lisa -la "hoja de papel"- y de canto era una
-  // cuchilla; asi el relieve se ve venga de donde venga y el canto es un peine, no un filo.
-  // CANTO LISO EN LOS DOS EXTREMOS. El corrugado llegaba hasta el borde, asi que la SILUETA del
-  // panel era el propio zigzag: de canto se veia un dentado escalonado (recorte zoom-placa-reposo)
-  // y en el despiece los tres paneles eran dos parches de rayado que no se leian como nada. Con un
-  // marco liso el contorno del panel es recto y el relieve queda DENTRO, que es como se lee una
-  // chapa corrugada de verdad.
-  const s = new Shape();
-  const pasos = r.aletas * 2;
-  const borde = r.alto * 0.14;
-  const util = r.alto - borde * 2;
-  const px = (k: number): number => -r.alto / 2 + borde + (k * util) / pasos;
-  const onda = (k: number): number => (k % 2) * r.amplitud;
-  s.moveTo(-r.alto / 2, 0);
-  for (let k = 0; k <= pasos; k++) s.lineTo(px(k), onda(k));
-  s.lineTo(r.alto / 2, 0);
-  s.lineTo(r.alto / 2, -r.espesor);
-  for (let k = pasos; k >= 0; k--) s.lineTo(px(k), onda(k) - r.espesor);
-  s.lineTo(-r.alto / 2, -r.espesor);
-  s.closePath();
-  const geo = new ExtrudeGeometry(s, { depth: r.largo, bevelEnabled: false, curveSegments: 1 });
-  // Cizalla: x' = x + z / tan(sesgo). La extrusion va en +Z y el alto del panel en X.
-  const d = r.largo / Math.tan(r.sesgo * GRA);
-  const cz = new Matrix4().set(1, 0, d / r.largo, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-  geo.applyMatrix4(cz);
-  geo.translate(-d / 2, 0, -r.largo / 2);
-  geo.rotateY(Math.PI / 2); // el panel sale hacia +X
-  geo.rotateX(-Math.PI / 2);
-  geo.translate(r.largo / 2, 0, 0);
-
-  for (let i = 0; i < r.n; i++) {
-    const th = (r.azimut0 + (i * 360) / r.n) * GRA;
-    // LOS TRES CON EL MISMO MATERIAL. Repartir los tres grises del logo entre ellos era bonito
-    // sobre el papel: en pantalla el panel blanco, liso desde ese angulo, se leia como una hoja en
-    // blanco pegada al motor -o sea, como un fallo de carga- en cinco de las nueve capturas.
-    const p = nombrar(new Mesh(geo, mat.medio), `radiador-${i}`);
-    p.position.set(r.rInterior * Math.cos(th), r.y, r.rInterior * Math.sin(th));
-    p.rotation.set(0, -th, r.inclinacion * GRA);
-    p.userData.radial = new Vector3(Math.cos(th), 0, Math.sin(th));
-    g.add(p);
+/** El anillo de aletas (ver M.aletas): `n` ranuras alrededor del cilindro de la camara menos las
+ *  que caen sobre la turbobomba, cada una una placa radial. UNA InstancedMesh de una caja unitaria
+ *  (misma idea que los canales: la Z local de la caja mira hacia fuera y la escala pone las
+ *  medidas). El grupo tiene su origen EN EL EJE, a la altura del centro de la banda: asi el
+ *  despiece lo mueve por el eje como a cualquier otra pieza y la apertura radial es una escala en
+ *  X y Z del grupo (coreografia.ts), que separa todas las aletas de la pared a la vez sin tocar
+ *  las 29 matrices. En `medio`, como estaban los paneles: sobre la pared blanca la banda se lee
+ *  como el anillo nervado oscuro de la referencia. */
+function construirAletas(mat: Materiales): Group {
+  const a = M.aletas;
+  const g = nombrar(new Group(), 'aletas');
+  g.position.y = a.y;
+  const ranuras: number[] = [];
+  for (let i = 0; i < a.n; i++) {
+    const az = (i * 360) / a.n;
+    const d = Math.abs(((az - M.turbobomba.azimut + 540) % 360) - 180);   // 0..180 hasta la bomba
+    if (d >= a.hueco) ranuras.push(az);
   }
+  const caja = new BoxGeometry(1, 1, 1);
+  const aletas = new InstancedMesh(caja, mat.medio, ranuras.length);
+  const m = new Matrix4();
+  const q = new Quaternion();
+  const p = new Vector3();
+  const e = new Vector3(a.espesor, a.alto, a.largo);
+  const ejeY = new Vector3(0, 1, 0);
+  const rc = a.rInterior + a.largo / 2;
+  ranuras.forEach((az, i) => {
+    const th = az * GRA;
+    q.setFromAxisAngle(ejeY, Math.PI / 2 - th);
+    p.set(rc * Math.cos(th), 0, rc * Math.sin(th));
+    aletas.setMatrixAt(i, m.compose(p, q, e));
+  });
+  aletas.instanceMatrix.needsUpdate = true;
+  g.add(nombrar(aletas, 'aletas-placas'));
   return g;
 }
 
@@ -1462,183 +1517,29 @@ function construirPlaca(mat: Materiales): Group {
 }
 
 // ---------------------------------------------------------------------------
-// 6. CONTORNOS. Solo sobre las piezas con aristas de verdad.
+// 6. CONTORNOS: ya no viven aqui.
 // ---------------------------------------------------------------------------
-
-// Solo las piezas con aristas de verdad. Sobre una superficie de revolucion suave
-// EdgesGeometry con umbral bajo dibuja cada faceta (miles de lineas de ruido); con
-// umbral alto deja exactamente los pliegues: labio, borde de placa, corte del panel.
-// 'bancada-anillo' ocupa el sitio de 'turbobomba-turbina': el rotor gira ahora DENTRO de la carcasa
-// y sus aristas apenas asomaban por la ventana, mientras que la brida de empuje se ve entera desde
-// cualquier azimut. Cada entrada es una llamada de dibujo: se cambia una por otra, no se suma.
-const CON_ARISTAS = [
-  'campana-pared', 'campana-labio', 'camara-pared', 'inyector-placa', 'bancada-anillo',
-  'turbobomba-cuerpo', 'turbobomba-entrada', 'turbobomba-escape', 'cupula-domo',
-  'radiador-0', 'radiador-1', 'radiador-2', 'placa-0', 'placa-1', 'placa-2', 'placa-chapa',
-  'turbobomba-voluta',
-];
-
-/** Anade el contorno como HIJO de cada pieza: asi viaja con ella durante el despiece. */
-function anadirAristas(raiz: Group, mat: Materiales): void {
-  const objetivo: Mesh[] = [];
-  raiz.traverse((o) => { if (o instanceof Mesh && !(o instanceof InstancedMesh) && CON_ARISTAS.includes(o.name)) objetivo.push(o); });
-  for (const o of objetivo) {
-    const e = new EdgesGeometry(o.geometry, M.aristas.umbral);
-    o.add(nombrar(new LineSegments(e, mat.linea), `aristas-${o.name}`));
-  }
-}
-
-// CASCO DE SILUETA (el contorno de verdad).
-//
-// Las aristas de arriba son LineSegments y WebGL dibuja TODAS las lineas de 1 px: `linewidth` no
-// hace nada en ningun navegador de escritorio. Un contorno de 1 px sobre un objeto de 500 px es
-// justo lo que no se ve. La tecnica clasica que si funciona sin postprocesado es el casco
-// invertido: una COPIA de la malla con `side: BackSide` -o sea, solo se dibujan sus caras
-// traseras- y los vertices empujados hacia fuera por su normal. Como las caras delanteras del
-// casco no se dibujan, el objeto de verdad lo tapa entero salvo en el borde, donde asoma el
-// empuje: un reborde de tinta de grosor constante alrededor de la silueta y de cada pieza contra
-// la de detras.
-//
-// El detalle que lo hace o lo rompe: NO se puede empujar por la normal que trae la geometria.
-// Una caja, un cilindro o un ExtrudeGeometry repiten cada vertice de esquina una vez por cara,
-// cada copia con la normal de SU cara; al empujarlas cada una por su lado el casco se abre por
-// las esquinas y aparecen grietas por las que se ve el fondo. Hay que soldar por posicion y
-// empujar por la normal PROMEDIO de las caras que comparten esa posicion, que es lo que hace
-// `normalesSoldadas()`. Se conserva el indice y el numero de vertices del original: la copia no
-// lleva ni normales ni uv (el material es basico y no las mira), asi que son 12 bytes por vertice.
-
-function normalesSoldadas(geo: BufferGeometry): { nor: Float32Array; borde: Uint8Array } {
-  const pos = geo.attributes.position;
-  const n = pos.count;
-  const idx = geo.index;
-  const cuenta = idx ? idx.count : n;
-  const nor = new Float32Array(n * 3);
-  const borde = new Uint8Array(n);
-  // Clave = posicion redondeada a 1e-4 u (0,05 mm reales): junta las copias exactas de una esquina
-  // sin juntar dos vertices que de verdad son distintos (el detalle mas fino del motor es el
-  // espesor del panel radiador, 0,055 u, o sea 550 veces esta tolerancia).
-  const clave = new Map<string, number>();
-  const soldado = new Int32Array(n);       // vertice -> id soldado
-  const acum: Vector3[] = [];
-  for (let i = 0; i < n; i++) {
-    const k = `${Math.round(pos.getX(i) * 1e4)},${Math.round(pos.getY(i) * 1e4)},${Math.round(pos.getZ(i) * 1e4)}`;
-    let id = clave.get(k);
-    if (id === undefined) { id = acum.length; clave.set(k, id); acum.push(new Vector3()); }
-    soldado[i] = id;   // varias copias de una esquina comparten acumulador
-  }
-  // Suma de normales de cara SIN normalizar: el producto vectorial pesa por el area del
-  // triangulo, que es exactamente el promedio que quiere un casco (las caras grandes mandan).
-  const a = new Vector3(); const b = new Vector3(); const c = new Vector3();
-  const ab = new Vector3(); const ac = new Vector3(); const cr = new Vector3();
-  // Cuenta de caras por arista soldada: la que solo tiene UNA es un borde abierto (ver abajo).
-  const aristas = new Map<number, number>();
-  const cuentaArista = (u: number, v: number): void => {
-    const k = u < v ? u * acum.length + v : v * acum.length + u;
-    aristas.set(k, (aristas.get(k) ?? 0) + 1);
-  };
-  for (let f = 0; f < cuenta; f += 3) {
-    const i0 = idx ? idx.getX(f) : f;
-    const i1 = idx ? idx.getX(f + 1) : f + 1;
-    const i2 = idx ? idx.getX(f + 2) : f + 2;
-    a.fromBufferAttribute(pos, i0); b.fromBufferAttribute(pos, i1); c.fromBufferAttribute(pos, i2);
-    cr.crossVectors(ab.subVectors(b, a), ac.subVectors(c, a));
-    acum[soldado[i0]].add(cr); acum[soldado[i1]].add(cr); acum[soldado[i2]].add(cr);
-    cuentaArista(soldado[i0], soldado[i1]);
-    cuentaArista(soldado[i1], soldado[i2]);
-    cuentaArista(soldado[i2], soldado[i0]);
-  }
-  const abierto = new Uint8Array(acum.length);
-  for (const [k, veces] of aristas) {
-    if (veces !== 1) continue;
-    abierto[Math.floor(k / acum.length)] = 1;
-    abierto[k % acum.length] = 1;
-  }
-  for (let i = 0; i < n; i++) {
-    const g = acum[soldado[i]];
-    const l = g.length();
-    if (l > 1e-12) { nor[i * 3] = g.x / l; nor[i * 3 + 1] = g.y / l; nor[i * 3 + 2] = g.z / l; }
-    borde[i] = abierto[soldado[i]];
-  }
-  return { nor, borde };
-}
+// Hasta la Vuelta 2 eran 14 EdgesGeometry (LineSegments de 1 px, umbral 24 grados, solo sobre las
+// mallas grandes) y 7 cascos de silueta (copias en BackSide con los vertices empujados 0,028 u por
+// su normal soldada): 21 llamadas de dibujo y ~30 000 triangulos repetidos, y nada de lo instanciado
+// (tubos, tornillos, tirantes, alabes, canales, bridas) llevaba linea. La tinta es ahora un pase de
+// pantalla que sale de la profundidad y las normales del fotograma (motor/tinta.ts, informe BRECHA
+// fila 19): le sale a toda arista y a toda silueta sin tocar el grafo, y las piezas ya no llevan
+// hijos 'aristas-*' ni 'silueta-*'.
 
 /**
- * Copia de una geometria con los vertices empujados por su normal soldada.
- *
- * Los vertices de BORDE ABIERTO no se empujan. Casi todas las piezas son solidos cerrados, pero la
- * campana y la cupula son revoluciones de perfil abierto (la campana termina en un anillo en el
- * plano de la garganta) y un conducto es un tubo sin tapas. En un borde abierto la normal promedio
- * solo tiene caras de UN lado, asi que apunta hacia fuera Y hacia el borde: el casco se abria como
- * una trompeta por el filo y asomaba por delante de su propia pieza. Se veia en la captura como
- * dientes negros mordiendo el anillo ambar de la garganta (con-z5.png contra sin-z5.png). Dejando
- * el borde quieto, el casco termina EXACTAMENTE donde termina la pieza y la tinta se desvanece en
- * la ultima fila de triangulos, que es donde de todas formas la tapa otra pieza.
- */
-export function geometriaSilueta(geo: BufferGeometry, grosor: number): BufferGeometry {
-  const pos = geo.attributes.position;
-  const { nor, borde } = normalesSoldadas(geo);
-  const n = pos.count;
-  const fuera = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) {
-    const d = borde[i] ? 0 : grosor;
-    fuera[i * 3] = pos.getX(i) + nor[i * 3] * d;
-    fuera[i * 3 + 1] = pos.getY(i) + nor[i * 3 + 1] * d;
-    fuera[i * 3 + 2] = pos.getZ(i) + nor[i * 3 + 2] * d;
-  }
-  const g = new BufferGeometry();
-  g.setAttribute('position', new Float32BufferAttribute(fuera, 3));
-  if (geo.index) g.setIndex(Array.from(geo.index.array as ArrayLike<number>));
-  return g;
-}
-
-// SOLO LAS PIEZAS GRANDES, Y LA CORONA DE TUBOS NO ES UNA DE ELLAS.
-//
-// Cada casco es una llamada de dibujo mas y repite los triangulos de su pieza. Las piezas
-// pequenas (labio, cuello, zunchos, orificios, alabes, tirantes, anillo de bancada, placa) se
-// quedan fuera: son mas finas o casi tan finas como el propio grosor del casco, asi que el casco
-// se las comeria en vez de perfilarlas, y sumarian 12 llamadas mas para nada.
-//
-// LA CORONA SE PROBO Y SE DESHIZO (mirando la captura, no el codigo). Es la pieza mas grande que
-// hay, y su casco se hacia con UNA InstancedMesh que compartia `instanceMatrix` con los tubos: una
-// sola llamada para los 36. Pero los tubos van a `holgura` 0,88, o sea que el hueco entre dos
-// tubos vecinos mide ~0,02 u -el mismo numero que el grosor del casco-, asi que cada casco se
-// metia dentro de los dos tubos de al lado: en la captura la corona salia con la tinta rota a
-// trozos, como una pantalla mal impresa, y en la garganta, donde los tubos se juntan, los 36
-// cascos se sumaban en un borron negro ENCIMA del anillo ambar, que es justo el acento que la
-// paleta acababa de ganar. Deshecho: son 23 040 triangulos y 1 llamada que ademas estropeaban.
-// La corona ya se lee tubo a tubo por su propio sombreado (se ve en a0-z1.png).
-const CON_SILUETA = [
-  'campana-pared', 'camara-pared', 'cupula-domo', 'inyector-placa',
-  'radiador-0', 'radiador-1', 'radiador-2',
-  'turbobomba-cuerpo', 'conducto-0', 'conducto-1',
-];
-
-/** Cuelga el casco de cada pieza grande. Va como HIJO de la pieza y sin transformacion propia:
- *  asi viaja con ella en el despiece, en el abanico de los radiadores y en el momento de la marca
- *  sin que la coreografia se entere de que existe. */
-function anadirSiluetas(raiz: Group, mat: Materiales): void {
-  const objetivo: Mesh[] = [];
-  raiz.traverse((o) => { if (o instanceof Mesh && !(o instanceof InstancedMesh) && CON_SILUETA.includes(o.name)) objetivo.push(o); });
-  for (const o of objetivo) {
-    const casco = new Mesh(geometriaSilueta(o.geometry, M.aristas.grosor), mat.silueta);
-    // El casco se dibuja ANTES que su pieza (renderOrder mas bajo dentro de la lista opaca) para
-    // que el rechazo temprano por profundidad de la pieza tenga algo que rechazar.
-    casco.renderOrder = -1;
-    o.add(nombrar(casco, `silueta-${o.name}`));
-  }
-}
-
-/**
- * Cambia los dos colores de tinta al cambiar de tema. Medido sobre las capturas: sobre negro la
- * tinta casi negra separa una pieza de otra pero contra el FONDO no dibuja nada (negro sobre
- * negro), y sobre el crema del capitulo "como esta hecho" pasa justo lo contrario -ahi la tinta es
- * lo unico que separa la campana blanca (0xf4f4f2) del papel (#efe9df), que son el mismo color.
- * Por eso los dos pares viven en la paleta y no hay un solo color "de contorno".
+ * El tema en los MATERIALES (el color de la tinta lo cambia tinta.tema(), en el pase de pantalla,
+ * con M.paleta.linea / lineaClaro: sobre el crema del capitulo "como esta hecho" la tinta es lo
+ * unico que separa la campana blanca (0xf4f4f2) del papel (#efe9df), que son el mismo color).
  */
 export function aplicarTema(mat: Materiales, claro: boolean): void {
-  mat.linea.color.setHex(claro ? M.paleta.lineaClaro : M.paleta.linea);
-  mat.silueta.color.setHex(claro ? M.paleta.siluetaClaro : M.paleta.silueta);
-  // Y los TRES TONOS del toon, que tambien son por tema (PM.motor.toon): sobre el crema el tono
+  // Los tres grises, por tema (M.paleta.claro; el porque, alli). Son escrituras de color en tres
+  // materiales compartidos: los clones de la marca los copia el rig.
+  const c = M.paleta.claro;
+  (mat.medio as MeshToonMaterial).color.setHex(claro ? c.medio : M.paleta.medio);
+  (mat.oscuro as MeshToonMaterial).color.setHex(claro ? c.oscuro : M.paleta.oscuro);
+  (mat.chapa as MeshToonMaterial).color.setHex(claro ? c.chapa : M.paleta.chapa);
+  // Los TRES TONOS del toon, que son por tema (PM.motor.toon): sobre el crema el tono
   // que se funde con el fondo es el iluminado, no la sombra. Se reescriben los texels en sitio:
   // la textura es una para todos los materiales (los clones de la marca incluidos), asi que
   // cambia todo a la vez y sin recompilar ningun programa. Lo mismo con el filo, que va en un
@@ -1674,16 +1575,14 @@ export function crearMotor(): Motor {
   const propulsor = nombrar(new Group(), 'propulsor');
   propulsor.add(
     construirCampana(materiales), construirRefrigeracion(materiales),
-    construirCamara(materiales), construirInyector(materiales), construirCupula(materiales),
+    construirCamara(materiales), construirAletas(materiales), construirInyector(materiales), construirCupula(materiales),
   );
 
   const periferia = nombrar(new Group(), 'periferia');
-  periferia.add(construirTurbobomba(materiales), construirConductos(materiales), construirRadiadores(materiales), construirPlaca(materiales));
+  periferia.add(construirTurbobomba(materiales), construirConductos(materiales), construirPlaca(materiales));
 
   const bancada = construirBancada(materiales);
   grupo.add(propulsor, periferia, bancada);
-  anadirAristas(grupo, materiales);
-  anadirSiluetas(grupo, materiales);
 
   const piezas: Record<string, Object3D> = {};
   grupo.traverse((o) => { if (o.name) piezas[o.name] = o; });
@@ -1693,8 +1592,8 @@ export function crearMotor(): Motor {
     grupo,
     piezas,
     materiales,
-    ordenAxial: ['campana', 'refrigeracion', 'camara', 'inyector', 'cupula', 'bancada'],
-    ordenRadial: ['turbobomba', 'conductos', 'radiador-0', 'radiador-1', 'radiador-2', 'placa'],
+    ordenAxial: ['campana', 'refrigeracion', 'camara', 'aletas', 'inyector', 'cupula', 'bancada'],
+    ordenRadial: ['turbobomba', 'conductos', 'placa'],
     dispose() {
       grupo.traverse((o) => {
         const m = o as Mesh;

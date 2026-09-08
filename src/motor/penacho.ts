@@ -3,6 +3,7 @@ import {
   MeshBasicMaterial, OctahedronGeometry, Vector2, Vector3, type BufferGeometry, type Material,
 } from 'three';
 import { PM } from '../params-motor';
+import { salidaAlTarget } from './geometria';
 import type { Estado } from './coreografia';
 
 // EL PENACHO DEL ENCENDIDO
@@ -33,6 +34,13 @@ import type { Estado } from './coreografia';
 // sólido de revolución, nunca cruza la pared.
 //
 // Es función pura de (estado, tiempo): el parpadeo son senos del reloj del maestro, no ruido.
+//
+// Y EL PASE DE TINTA NO LO TOCA (motor/tinta.ts). Un chorro de gas no lleva contorno, y no lo
+// lleva por construcción, no por una máscara: las capas van con `depthWrite: false` (así que no
+// están en la textura de profundidad) y escriben vec4(0) en la textura de normales con mezcla
+// aditiva (SRC_ALPHA · 0 + DST · 1: la normal de lo que haya detrás se queda como estaba; ver
+// salidaAlTarget). Al pase no le llega ninguna arista del penacho que detectar. No hacen falta
+// `layers`: la escena se dibuja UNA vez (MRT), no hay un pase de normales del que excluirlo.
 
 export interface Penacho {
   obj: Group;
@@ -189,6 +197,8 @@ export function crearPenacho(yLabio: number, pocasCapas = false): Penacho {
     // conmutativa—, así que la pasada doble no aporta nada y cuesta una llamada por capa: medido,
     // 8 llamadas del penacho en vez de 4 (68 contra 64 en el fotograma del encendido).
     mat.forceSinglePass = true;
+    mat.onBeforeCompile = (shader) => salidaAlTarget(shader, 'nada');
+    mat.customProgramCacheKey = () => 'penacho-mrt';
     const malla = new Mesh(geo, mat);
     malla.frustumCulled = false;
     obj.add(malla);
@@ -205,6 +215,8 @@ export function crearPenacho(yLabio: number, pocasCapas = false): Penacho {
   const matDiamante = new MeshBasicMaterial({
     color: 0xfff1d2, blending: AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.3,
   });
+  matDiamante.onBeforeCompile = (shader) => salidaAlTarget(shader, 'nada');
+  matDiamante.customProgramCacheKey = () => 'penacho-mrt';
   materiales.push(matDiamante);
   // VAN EN LOS CUELLOS, no repartidos a ojo. El perfil estrangula donde el coseno de `celdas` vale
   // -1, o sea en u = (2m-1) / (2·celdas): ahí es donde el gas se comprime y donde brilla. Antes

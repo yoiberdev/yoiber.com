@@ -249,6 +249,28 @@ html.motor-on #stage { opacity: 0; }
 .tarjeta .acceso a:hover { border-bottom-width: 2px; }
 .tarjeta .acceso code { font-family: var(--mono); font-size: 0.85em; color: var(--muted); }
 .tarjeta .aviso { margin: 0; font-size: 0.8rem; line-height: 1.4; color: var(--muted-2); }
+/* LA CIFRA VIVA del detalle (esquemas.ts la cuenta de 0 a su valor con el scroll). inline-block con
+   un ancho mínimo en ch (lo escribe el módulo: tantos ch como dígitos) y números tabulares: la
+   línea no se recompone mientras cuenta de "0" a "571", que sería un reflujo del párrafo por
+   fotograma. En el color del texto y a 600: es el dato que la tarjeta quiere que se lea. */
+.tarjeta .cifra { display: inline-block; text-align: right; font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
+/* EL ESQUEMA VIVO (effects/esquemas.ts, fila 21): un dibujo pequeño en el acento del proyecto,
+   entre la pila y el detalle, que el scroll traza mientras la tarjeta está delante. viewBox
+   360x64 y `meet` alineado a la izquierda: el alto manda y el dibujo se escala entero (los
+   rótulos son <text> del SVG y escalan con él). 4,5 rem en escritorio: a 1440x900 la tarjeta
+   más larga medía 620 px y con el esquema y su margen 712, centrada de 94 a 806 (las ventanas
+   bajas y los teléfonos, más abajo). El trazo es 1,5 en unidades del viewBox (1,7 px aquí, 1,3
+   en ventanas bajas): con `non-scaling-stroke` el proxy de createDrawable tendría que leer el
+   CTM en cada escritura. Las formas empiezan sin trazar y los rótulos apagados (el maestro los
+   enciende; con movimiento reducido el módulo lo pone todo en su estado final). */
+.tarjeta .esquema { display: block; width: 100%; height: 4.5rem; margin: 0 0 1.25rem; overflow: visible; }
+.esquema rect, .esquema line, .esquema path, .esquema polyline, .esquema circle { fill: none; stroke: var(--acento); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.esquema .tapa { fill: var(--bg); }                           /* las cajas del flujo tapan la línea que pasa por debajo */
+.esquema .relleno { fill: var(--acento); stroke: none; opacity: 0; } /* el botón del formulario se rellena al final */
+.esquema .punto { fill: var(--acento); stroke: none; opacity: 0; }   /* el identificador que recorre la ruta */
+.esquema .ruta { stroke: none; }                              /* la polilínea que sigue el punto: no se ve */
+.esquema text { font-family: var(--mono); font-size: 10px; letter-spacing: 0.04em; fill: var(--muted); opacity: 0; }
+.esquema text.sobre { fill: var(--bg); }                      /* el rótulo del botón, sobre el relleno */
 
 /* Ventanas bajas (portátiles de 13 pulgadas, o el navegador con barras): el párrafo técnico es lo
    primero que sobra. Qué es, con qué está hecho y el enlace tienen que caber siempre. */
@@ -261,6 +283,9 @@ html.motor-on #stage { opacity: 0; }
   .tarjeta .pila { margin-bottom: 0.6rem; }
   .tarjeta .detalle { display: none; }
   .tarjeta .captura { margin-bottom: 0.6rem; }
+  /* 3,5 rem (0,875 aumentos, rótulos a 8,75 px): con el detalle fuera, la tarjeta más larga
+     (KUIDY-CORE, "qué" de tres líneas) mide 496 px y se centra de 62 a 558 en 620. */
+  .tarjeta .esquema { height: 3.5rem; margin-bottom: 0.6rem; }
 }
 
 /* EN VERTICAL no hay sitio a los lados y nunca lo habrá: la tarjeta va en DOS FILAS con el motor
@@ -282,16 +307,31 @@ html.motor-on #stage { opacity: 0; }
        la sub-nav acaba a 3,75 rem, quedan 12 px de aire. */
     top: 3.25rem; bottom: 4.5rem;
     display: grid; grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto auto auto;
     align-content: stretch; justify-content: stretch;
     padding: 0; background: none;
   }
   .tarjeta h2 { grid-row: 1; }
   .tarjeta .pila { grid-row: 2; }
   .tarjeta .captura { grid-row: 4; }
-  .tarjeta .que { grid-row: 5; }
-  .tarjeta .acceso { grid-row: 6; }
+  .tarjeta .que { grid-row: 6; }
+  .tarjeta .acceso { grid-row: 7; }
   .tarjeta .detalle, .tarjeta .aviso { display: none; }   /* lo esencial: qué es, con qué, y el enlace */
+  /* EL ESQUEMA EN VERTICAL: solo donde cabe. La banda del motor es fija en píxeles desde los
+     bordes (PM.coreo.galeria.vertical: 148 arriba y 280 abajo) y la fila de abajo ya empieza a
+     272 px del borde: quedan 8 px. Medido con el motor puesto (QA de la Vuelta 3): del motor a la
+     captura hay 13 px en un iPhone 13 (390x664) y 11 en 360x640; en un teléfono alto el motor
+     deja de crecer (338 px, su escala de galería) y en un Pixel 5 (393x851) sobran 47 en las
+     tarjetas 1-4 pero solo 36 en la 5, porque en el último 10 % de GALERIA el motor ya está
+     volviendo al centro (PM.coreo.galeria.vuelve) y su caja baja 10 px: con el esquema a 2,25 rem
+     la captura de la tarjeta 5 pisaba el motor 5,6 px. Así que en vertical va oculto y se enseña a
+     partir de 900 px de alto (Pixel 7 y 8 a 915, iPhone Pro Max a 932), en la fila 5 (bajo la
+     captura y antes del "qué") a 2,5 rem más 0,35 rem de margen: 45,6 px. El aire que sobra es
+     vh / 2 − 375 en las tarjetas 1-4 y unos 10 menos en la 5: a 900 px, 75 y 65, o sea 19 px de
+     margen en el peor caso; a 915, 34. A 0,625 aumentos los rótulos de 10 px serían de 6,25: se
+     esconden y quedan las formas. Encoger la captura (6 rem) para hacerle sitio en los teléfonos
+     bajos la dejaría en una tira de 56 px: en un teléfono la captura dice más que el esquema. */
+  .tarjeta .esquema { display: none; }
   /* El título comparte línea con el titular de capítulo ("Proyectos" a 1,5 rem mide 118 px y va
      a 1 rem del borde) y la pila con el contador y su arco (61 px): se les deja ese hueco a la
      derecha, con 10 px de aire. */
@@ -314,6 +354,10 @@ html.motor-on #stage { opacity: 0; }
      la captura se metía en la banda del motor. */
   .tarjeta .que { font-size: min(0.95rem, 3.9vw); line-height: 1.45; margin-bottom: 0.6rem; }
   .tarjeta .acceso { font-size: min(0.95rem, 3.9vw); margin-bottom: 0; }
+}
+@media (max-aspect-ratio: 1/1) and (min-height: 900px) {
+  .tarjeta .esquema { display: block; grid-row: 5; height: 2.5rem; margin: 0 0 0.35rem; }
+  .esquema text { display: none; }
 }
 
 /* EL TITULAR DE CAPÍTULO (effects/titulo.ts). Fijo arriba a la izquierda, el nombre grande y el
