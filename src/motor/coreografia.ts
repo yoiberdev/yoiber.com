@@ -51,6 +51,7 @@ export interface Estado {
   aparta: number;   // 0..1  el motor se desvía para dejar hueco en la galería (dirección: aplicar)
   abierto: number;  // 0..1  el despiece está abierto (COMO): en vertical le hace sitio entre las bandas de rótulos
   inclina: number;  // 0..1  la placa de inyectores se inclina hacia la cámara en el despiece
+  vuelco: number;   // 0..1  el arco del cabeceo manda: el encuadre se calcula de la POSE (aplicar 3d)
   vibra: number;    // 0..1  amplitud del temblor previo al despegue
   penacho: number;  // 0..1  crecimiento del penacho
   estira: number;   // 0..1  estirado del penacho al salir
@@ -104,7 +105,7 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
 
   const estado: Estado = {
     luz: C.heroOut.luz[0], apagado: 0, pulso: 0, brillo: 0, rpm: 0,
-    logo: 0, aparta: 0, abierto: 0, inclina: 0, vibra: 0, penacho: 0, estira: 0, salida: 0,
+    logo: 0, aparta: 0, abierto: 0, inclina: 0, vuelco: 0, vibra: 0, penacho: 0, estira: 0, salida: 0,
     rotulos: rig.piezas.map(() => ({ t: 0 })),
   };
 
@@ -140,7 +141,7 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
   const I = C.intro;
   tl.set(raiz, { x: 0, y: 0, rotateX: 0, rotateY: I.rotY[0], rotateZ: 0, scale: I.escala[0] }, 0)
     .set(cam, { zoom: I.zoom }, 0)
-    .set(estado, { luz: C.heroOut.luz[0], apagado: 0, pulso: 0, brillo: 0, rpm: 0, logo: 0, aparta: 0, abierto: 0, inclina: 0, vibra: 0, penacho: 0, estira: 0, salida: 0 }, 0)
+    .set(estado, { luz: C.heroOut.luz[0], apagado: 0, pulso: 0, brillo: 0, rpm: 0, logo: 0, aparta: 0, abierto: 0, inclina: 0, vuelco: 0, vibra: 0, penacho: 0, estira: 0, salida: 0 }, 0)
     .set(estado.rotulos, { t: 0 }, 0);
   for (const s of sitios) tl.set(s.p.obj, { x: s.entrada.x, y: s.entrada.y, z: s.entrada.z }, 0);
   if (aletas) tl.set(aletas, { scaleX: 1, scaleZ: 1 }, 0);
@@ -228,6 +229,21 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     .add(estado, { aparta: [1, 0], duration: dur('GALERIA', 0, G.vuelve), ease: 'inOut(2)' }, en('GALERIA', 1 - G.vuelve))
     .add(raiz, { scale: [G.escala, H.escala[1]], duration: dur('GALERIA', 0, G.vuelve), ease: 'inOut(2)' }, en('GALERIA', 1 - G.vuelve))
     .add(estado, { luz: [G.luz, H.luz[1]], duration: dur('GALERIA', 0, G.vuelve), ease: 'linear' }, en('GALERIA', 1 - G.vuelve));
+  // EL VUELCO: el eje entero se pone de cara a la cámara y vuelve (PM.coreo.galeria.vuelco).
+  // Cuatro tramos y una pausa: se recuesta montado sobre `aparta`, sube LINEAL mientras hablan las
+  // tarjetas 1 y 2, se queda quieto 700 unidades con la corona de frente y se endereza al doble de
+  // velocidad para estar de pie en el instante en que la quinta tarjeta se asienta. Entre
+  // `meseta[0]` y `meseta[1]` no hay ni un tween sobre `raiz`: eso ES la pausa, igual que `quieto`
+  // en COMO. Y el escalar `vuelco` es el que enciende el encuadre por pose (aplicar(), punto 3d):
+  // sin él la máquina se sale del cuadro en el bulto de +20° y encoge un cuarto en el ápice.
+  const U = G.vuelco;
+  tl.add(raiz, { rotateX: [H.rotX[1], U.apoyo], duration: dur('GALERIA', U.recostar[0], U.recostar[1]), ease: 'inOut(2)' }, en('GALERIA', U.recostar[0]))
+    .add(estado, { vuelco: [0, 1], duration: dur('GALERIA', U.recostar[0], U.recostar[1]), ease: 'inOut(2)' }, en('GALERIA', U.recostar[0]))
+    .add(raiz, { rotateX: [U.apoyo, U.cima], duration: dur('GALERIA', U.subir[0], U.subir[1]), ease: 'linear' }, en('GALERIA', U.subir[0]))
+    .add(raiz, { rotateX: [U.cima, H.rotX[1]], duration: dur('GALERIA', U.enderezar[0], U.enderezar[1]), ease: 'linear' }, en('GALERIA', U.enderezar[0]))
+    // el escalar se suelta con rotX ya en reposo, donde la corrección vale 1: no se ve apagarse
+    .add(estado, { vuelco: [1, 0], duration: dur('GALERIA', U.enderezar[1], U.suelta), ease: 'linear' }, en('GALERIA', U.enderezar[1]));
+
   // Ocho latidos del inyector, uno por demo, alineados con el contador "n / 8" del rótulo.
   // Cada latido son DOS tweens seguidos y no dos fotogramas clave dentro de uno: medido, con
   // keyframes el valor no era idéntico de ida y de vuelta justo en la junta.
@@ -491,6 +507,11 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     let dx = 0;
     let dy = 0;
     let escalaDesvio = 1;
+    // CUÁNTO ALTO HAY DE VERDAD para el objeto, en unidades de motor. Normalmente es el cuadro con
+    // el margen de la casa; mientras la composición vertical lo mete en la banda de la galería, es
+    // la banda (y se entra en ella con el mismo `aparta`, para que no haya escalón). Lo usa el
+    // encuadre por pose (3d), que es quien vigila que el vuelco no saque la máquina de su sitio.
+    let dispoAlto = altoVis * (1 - 2 * PM.motor.margen);
     if (A > 0.0005) {
       const g = PM.coreo.galeria;
       if (vertical) {
@@ -503,6 +524,7 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
         const k = Math.min(1, bandaAlto / altoMotor);
         dy += ((bandaIni + bandaFin) / 2) * A;
         escalaDesvio -= (1 - k) * A;
+        dispoAlto += (bandaAlto - dispoAlto) * A;
       } else {
         const semiX = PM.motor.medioAncho * g.escala + g.margenApartar;
         dx -= Math.min(g.apartar, Math.max(0, anchoVis / 2 - semiX)) * A;
@@ -524,6 +546,59 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
       dy += (0.5 - V.centro) * altoVis * B;
       escalaDesvio -= (1 - k) * B;
     }
+    // 3d. EL ENCUADRE POR POSE (el vuelco). El encuadre de rig.ts se calcula con el objeto EN
+    //     REPOSO y solo al redimensionar: `medioAlto` (3,35) describe una pose, no un objeto. Al
+    //     tumbar la máquina el alto proyectado se va a 7,43 u en el bulto de rotX +20 / -38,6
+    //     (+11,2 % sobre las 6,66 del reposo) y baja a 4,96 en el eje (-25,6 %), y además la caja
+    //     SE DESCENTRA hasta 0,556 u. Medido en el iPhone 13 sin corregir: a rotX +20, con la
+    //     tarjeta 1 viva, el motor se escribe encima de su `.captura`. Es la avería que arregló la
+    //     Vuelta 3, por otra puerta.
+    //
+    //     Se corrige en `desvio` y NO en el frustum a propósito: `pintar()` le pasa a la tinta
+    //     `camara.zoom · desvio.scale.x` como escala aparente (effects/motor3d.ts), así que
+    //     compensando aquí la pluma se afina y se engorda sola, y la marca también (`marcaAlta()`
+    //     divide por esa misma escala). Moviendo el frustum habría que tocar ese fichero.
+    //
+    //     DOS TÉRMINOS, con alcances distintos a propósito:
+    //       (1) SEGURIDAD, siempre encendido: a su escala nominal el objeto tiene que caber en
+    //           `dispoAlto`. Es un `min(1, …)`, así que solo puede ENCOGER. Y está encendido
+    //           también donde el arco no llega, así que hay que demostrar que ahí no toca nada:
+    //           barrido de la línea ENTERA cada 25 unidades (965 muestras, de la INTRO al final
+    //           del CIERRE) contra la build aprobada, en las cinco ventanas — difieren 303
+    //           muestras y TODAS caen dentro del arco (t 8125 a 15675), en tres canales y solo
+    //           tres: `rotX`, la escala del desvío y su `y`. CERO diferencias fuera. Incluye el
+    //           CIERRE, que era la duda: allí la coreografía agranda el objeto a propósito
+    //           (escala 1 → 1,14) mientras la cámara abre el cuadro (zoom 1 → 0,72), y el
+    //           producto de los dos nunca sube lo bastante para que la seguridad recorte.
+    //       (2) ESTATURA, solo mientras `vuelco` manda: la misma altura en pantalla que en reposo,
+    //           para que la máquina no encoja un cuarto justo en el fotograma en que se enseña.
+    //           Puede AGRANDAR (hasta 1,34 en el eje), y por eso lleva su propio techo de ancho:
+    //           el ancho proyectado no cambia nunca con rotX, pero sí con esta compensación.
+    //     El escalar `vuelco` existe porque el perfil describe el objeto MONTADO: en el despiece
+    //     (COMO) la pila mide 17,5 u y esta cuenta no vale, y el sitio se lo hace 3c. Y porque en
+    //     CIERRE la coreografía agranda el objeto A PROPÓSITO para que se vaya: eso no es un
+    //     desbordamiento que haya que corregir.
+    //
+    //     El ángulo se lee de `raiz` SIN la sacudida, y esto no es un descuido: el cabeceo de la
+    //     capa de vida son ±1,3°, y en la parte inclinada del arco eso mueve el alto proyectado un
+    //     1,3 %, así que el objeto respiraría ±0,65 % de tamaño con periodo de 13,1 s. Sigue siendo
+    //     función del reloj, pero es un temblor que nadie ha pedido.
+    const Vu = estado.vuelco;
+    const caja = rig.proyectar(raiz.rotation.x);
+    const ref = rig.reposoProyectado;
+    const escalaObjeto = raiz.scale.x * escalaDesvio;
+    const kSeguro = Math.min(1, dispoAlto / Math.max(1e-6, caja.alto * escalaObjeto));
+    const kEstatura = Math.min(
+      ref.alto / caja.alto,
+      (anchoVis * (1 - 2 * PM.motor.margen)) / Math.max(1e-6, 2 * rig.radioMax * escalaObjeto),
+    );
+    const kPose = kSeguro + Vu * (kEstatura - kSeguro);
+    escalaDesvio *= kPose;
+    // Y el DESCENTRADO, siempre relativo al reposo: así la composición que la Vuelta 3 midió a
+    // rotX -7 no se mueve. `centro` está en el eje vertical de la PANTALLA y `dy` es una y del
+    // mundo, y las dos no son la misma cosa: se dividen por el coseno de la elevación de la cámara.
+    dy -= (Vu * (caja.centro * kPose - ref.centro) * escalaObjeto) / Math.cos(rig.elevacion);
+
     rig.desvio.position.set(dx, dy, 0);
     rig.desvio.scale.setScalar(escalaDesvio);
 

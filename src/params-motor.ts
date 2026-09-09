@@ -46,6 +46,39 @@ export const PM = {
     // cámara], sonda A-cuerpo del QA) y ahí el listón es 80 %.
     medioAncho: 2.48,
     medioAlto: 3.35,
+    // EL PERFIL, para poder encuadrar el objeto TUMBADO. `medioAlto` describe una POSE, no un
+    // objeto: en cuanto `raiz.rotateX` deja de valer -7 esa medida deja de ser el alto que se ve.
+    // Y no vale con rotar la caja: el motor es un sólido de revolución y su caja gira como una
+    // caja, no como el objeto (7,4 u de alto proyectado frente a las 9,0 que daría la caja).
+    //
+    // La lista son los puntos (y, r) del CASCO CONVEXO SUPERIOR de la nube (y, radio) de los
+    // 56 266 vértices del grafo en el marco de `raiz` (el penacho fuera: cuelga del motor pero no
+    // cuenta para el encuadre, igual que hoy no cuenta en `medioAlto`). Con la cámara mirando
+    // desde PM.motor.camara, o sea `elev` = atan(3,4 / 20) = 9,648° por encima de la horizontal, y
+    // con `raiz` en Euler XYZ (M = Rx·Ry, y Rx no toca el eje X del mundo), la coordenada VERTICAL
+    // de pantalla de un punto (y, r) del perfil vale y·cos φ ± r·|sin φ| con φ = rotX + elev. O sea
+    // que el alto y el centro proyectados salen de este puñado de puntos con un coseno y un seno
+    // (rig.ts, `proyectar`). Verificado contra la caja de alfa del lienzo en 22 ángulos de +110 a
+    // -110 (1440x900, sonda P1): error del alto entre -0,32 % y +0,14 %, error del centro <= 0,006 u.
+    //
+    // Lo que dice la medida, y es la razón de que esto exista:
+    //   · el ANCHO proyectado NO cambia NUNCA con rotX: 4,9564 u en los 22 ángulos. Es aritmética
+    //     (Rx deja quieto el eje horizontal de la cámara), así que `medioAncho` sigue valiendo;
+    //   · el ALTO sí, y no de forma monótona: 6,678 u a -7 (la pose de hoy), un MÁXIMO de 7,426 a
+    //     -38,6 y a +20 (+11,2 %), y un mínimo de 4,956 en las dos poses por el eje (-25,8 %);
+    //   · y la caja proyectada SE DESCENTRA hasta 0,556 u (medido a ±70°), que a escala de galería
+    //     en un iPhone 13 son 20 px: justo lo que hace que el motor se escriba encima de la tarjeta.
+    //   · y en MÓVIL el perfil se REESCALA: la corona baja a 24 tubos más gordos y el radio del
+    //     conjunto pasa de 2,4802 a 2,6798 u (razón 1,0805), que rig.ts mide del TUBO BASE al
+    //     montar en vez de creerse este número. Comprobado en las cinco ventanas: el radio que
+    //     calcula el código coincide con el semiancho de la silueta en pantalla dentro del 0,5 %
+    //     (sonda R0), y con el perfil ya reescalado el modelo acierta el alto proyectado dentro
+    //     del -0,7 % en escritorio y del +1,9 % / -1,4 % en un Pixel 5 y un iPhone 13, contra la
+    //     caja de alfa del lienzo, en los 13 ángulos que el arco visita (sonda R1).
+    perfil: [
+      [-3.2576, 2.1525], [-3.2417, 2.3759], [-3.1058, 2.4802],
+      [3.1316, 1.3186], [3.165, 1.2912], [3.255, 1.195],
+    ] as [number, number][],
     centro: 0.09,     // el motor se sube esto para que su centro caiga en el centro del encuadre
     camara: [0, 3.4, 20] as [number, number, number], // ortográfica: solo fija la dirección de vista
     cerca: -60,
@@ -390,6 +423,64 @@ export const PM = {
       // scroll (0,23 de pantalla) con `inOut(2)`: se lee como un relevo, la tarjeta deja el sitio
       // y el motor lo ocupa. Si cambia `P.galeria.arranque` o el número de tarjetas, cambia aquí.
       vuelve: 0.023,
+      // EL VUELCO. El motor no solo gira sobre su eje: VUELCA el eje entero, se pone de cara a la
+      // cámara para que se le vea la corona, y vuelve. Va aquí, en GALERIA, porque aquí es donde
+      // falta: entre la unidad 1 800 y la 9 770 —8 alturas de pantalla, el 42 % del scroll de toda
+      // la página— lo ÚNICO que tocaba la geometría del objeto era un tween lineal de guiñada.
+      //
+      // POR QUÉ +80,3522 Y NO -99,6478, que es la otra pose por el eje. La cámara mira desde
+      // PM.motor.camara, o sea 9,648° por encima de la horizontal, y `raiz` es Euler XYZ
+      // (M = Rx·Ry), así que el eje del motor va a parar a (0, cos rotX, sin rotX): con
+      // rotX = 90 - 9,648 el eje apunta EXACTAMENTE a la cámara por la cabeza, y con -(90 + 9,648)
+      // por la campana. Las dos siluetas son el mismo círculo (medido: 4,956 x 4,956 u, relleno
+      // 0,779 contra el 0,785 de un disco), pero no enseñan lo mismo, y esto está medido con una
+      // transformada de Fourier angular de la luminancia sobre circunferencias a 0,70R, 0,88R y
+      // 0,95R de la caja de alfa (sonda P1b, decodificando el PNG con python fuera del navegador):
+      //   · POR ARRIBA el armónico del paso de la corona (k36-k37, los 36 tubos) llega a 57,6 / 51,0
+      //     / 43,5 sRGB en los tres radios, con su segundo armónico (k72) en 25,9 y 25,7 en los dos
+      //     de fuera: la roseta no es una metáfora, es un pico de Fourier. Luminancia media del
+      //     objeto 94,6, con el 26,5 % de sus píxeles por encima de 140.
+      //   · POR LA CAMPANA ese armónico NO APARECE (k36 entre 0,17 y 0,53): la corona queda detrás
+      //     de la pared de la tobera y lo que se ve es un disco oscuro con el anillo ámbar de la
+      //     garganta. Luminancia media 68,4, un 28 % menos, con el 41 % de los píxeles por debajo
+      //     de 40. Es una imagen bonita, pero no es la que justifica el objeto.
+      // Y por arriba el gesto además sigue VIVO, que era el riesgo (un disco girando sobre su eje
+      // no se ve girar): medido en el eje, 5° de guiñada cambian el 42,2 % de los píxeles —más que
+      // en reposo, 36,7 %— y el cabeceo de la capa de vida el 27,3 % (20,2 % en reposo). Lo que no
+      // se ve son los múltiplos del paso de tubo: 30° de guiñada (3 x 10°) cambian el 2,4 %. Con
+      // los 0,030°/unidad de la galería, la meseta de 700 unidades gira 21°, o sea 2,1 pasos: la
+      // roseta se ve girar. (El latido del inyector, en cambio, NO se ve desde el eje ni en reposo:
+      // medido, cambia el 0,000 % y el 0,001 % de los píxeles. Los aros están dentro.)
+      //
+      // LOS TIEMPOS, contra el reparto de las tarjetas (galeria.ts con cinco tarjetas en diez
+      // alturas: margen 1 800, paso 1 640, cruce 230, o sea que la tarjeta i entra en
+      // 1 800 + i·1 640 y se asienta 230 después):
+      //   · `recostar` monta sobre `aparta` (0,10 -> 0,18) y no cuesta ni una unidad propia: "me
+      //     aparto" y "me recuesto" son el mismo gesto. Acaba cuando entra la tarjeta 1.
+      //   · `subir` es el arco largo, LINEAL: 68,4° en 3,7 alturas mientras se leen las tarjetas 1
+      //     y 2 y entra la 3. Es el eje que se LEE: a rotX -7, 5° de guiñada cambian el 36,6 % de
+      //     los píxeles, o sea que la guiñada sola ya no cuenta nada nuevo después de la primera
+      //     vuelta; el cabeceo no tiene periodo.
+      //   · `meseta`: 700 unidades SIN un tween sobre rotX. Eso ES la pausa, igual que `quieto` en
+      //     COMO. Cae sobre la tarjeta 3 (su tramo va de 5 080 a 6 720) y dura lo mismo que la
+      //     pausa de la marca (450) más el margen que da tener la roseta girando.
+      //   · `enderezar`, al doble de velocidad que la subida —volver no es el gesto—, para estar
+      //     de pie en la unidad 8 590, que es EXACTAMENTE el instante en que la quinta tarjeta se
+      //     asienta (8 360 + el cruce de 230). De ahí al final del capítulo no cambia nada: el
+      //     relevo con la tarjeta 5 y la entrada en COMO están medidos y aprobados.
+      // El primer plano de la galería (0 -> 0,10, `espera`) no se toca: es el fotograma que compró
+      // la Vuelta 3, la máquina recién montada, entera y a tamaño. El vuelco empieza cuando acaba.
+      vuelco: {
+        cima: 80.3522,    // grados de rotX en el ápice: el eje del motor apuntando a la cámara
+        apoyo: 12,        // hasta dónde se recuesta mientras se aparta (va con `aparta`)
+        recostar: [0.1, 0.18] as [number, number],
+        subir: [0.18, 0.55] as [number, number],
+        meseta: [0.55, 0.62] as [number, number],
+        enderezar: [0.62, 0.859] as [number, number],
+        // Hasta dónde llega el escalar `vuelco` del encuadre por pose (aplicar 3d). Se apaga DESPUÉS
+        // de que rotX vuelva al reposo, donde la corrección vale 1 exacto: así el apagado no se ve.
+        suelta: 0.9,
+      },
       pulsos: 8,      // un latido del inyector por demo, alineado con el contador "n / 8"
       pulsoSube: 240,
       pulsoBaja: 560,

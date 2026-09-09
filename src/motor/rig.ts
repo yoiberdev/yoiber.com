@@ -99,8 +99,24 @@ export interface Rig {
    *  lo cambia el pase de pantalla (motor/tinta.ts, tema()): effects/motor3d.ts llama a los dos. */
   tema(claro: boolean): void;
   disponer(ancho: number, alto: number): void;
+  /** La caja PROYECTADA del objeto montado para un cabeceo dado, sobre el eje VERTICAL de la
+   *  pantalla y en unidades de motor a escala 1: `alto` y `centro` (+ = hacia arriba). Función pura
+   *  de `rotX` (ver PM.motor.perfil). Devuelve SIEMPRE el mismo objeto: se llama cada fotograma. */
+  proyectar(rotX: number): CajaPose;
+  /** Lo que devuelve `proyectar` en la pose de reposo (PM.coreo.heroOut.rotX[1]), ya copiado. */
+  reposoProyectado: CajaPose;
+  /** Elevación de la cámara sobre la horizontal, en radianes: atan(camara.y / camara.z). Es el
+   *  desfase entre `raiz.rotateX` y el ángulo que de verdad ve la cámara. */
+  elevacion: number;
+  /** Radio máximo REAL del grafo montado, en unidades de motor: es el SEMIANCHO proyectado con
+   *  cualquier pose (rotX no toca el eje horizontal de la cámara). Vale `PM.motor.medioAncho` con
+   *  los 36 tubos y 2,68 con los 24 de móvil, que son más gordos. */
+  radioMax: number;
   liberar(): void;
 }
+
+/** Alto y centro de la caja proyectada, en unidades de motor (ver Rig.proyectar). */
+export interface CajaPose { alto: number; centro: number }
 
 export function construirRig(nivel: Calidad): Rig {
   calidadGeometria(nivel);   // menos tubos y menos segmentos de revolución en móvil
@@ -281,6 +297,54 @@ export function construirRig(nivel: Calidad): Rig {
     for (const { clon, base } of clonesDe) { clon.color.copy(base.color); clon.emissive.copy(base.color); }
   }
 
+  // -------------------------------------------------------------------------------------------
+  // LA CAJA PROYECTADA CUANDO EL OBJETO SE TUMBA
+  // -------------------------------------------------------------------------------------------
+  // El encuadre de `disponer` se calcula con el objeto EN REPOSO y solo al redimensionar: no sabe
+  // nada de `rotX`. En cuanto el vuelco tumba la máquina esas medidas se intercambian y el objeto
+  // se sale del cuadro o encoge de golpe. Esto es lo que hace falta para que no pase, y es una
+  // función PURA de `rotX`: la coreografía la llama cada fotograma (aplicar(), punto 3d) y con lo
+  // que devuelve compone la escala y la posición de `desvio`.
+  //
+  // Por qué no se toca el frustum: `pintar()` (effects/motor3d.ts) le pasa a la tinta
+  // `camara.zoom · desvio.scale.x` como escala aparente para afinar la pluma. Compensando en
+  // `desvio` la pluma se entera sola; moviendo el frustum, no, y ese fichero no se toca.
+  //
+  // Y EL PERFIL HAY QUE REESCALARLO EN MÓVIL. `PM.motor.perfil` (y `medioAncho`) están medidos con
+  // los 36 tubos de la calidad alta; en móvil la corona baja a 24 y, como el anillo reparte el
+  // mismo hueco entre menos tubos, cada uno es más GORDO y el radio del conjunto sube. Medido en un
+  // Pixel 5: la silueta mide 5,366 u de ancho en vez de 4,956, o sea un 8,3 % más. Sin corregirlo,
+  // la ley de estatura creería que el objeto tumbado es más estrecho de lo que es y lo agrandaría
+  // de más justo en el ápice. El radio de verdad sale de la geometría del TUBO BASE (unos cientos
+  // de vértices, una sola vez al montar): las instancias son giros sobre Y, así que hypot(x, z) es
+  // el mismo en las 36. El resto del perfil se escala con esa razón, que por el lado de la cabeza
+  // sobreestima un poco —la brida de empuje no engorda— y eso deja la cuenta del lado seguro.
+  const radioPerfil = PM.motor.perfil.reduce((mx, [, r]) => Math.max(mx, r), 0);
+  const radioMax = radioDeLaCorona(malla, raiz) || radioPerfil;
+  const razonRadio = radioMax / radioPerfil;
+  const PERFIL: [number, number][] = PM.motor.perfil.map(([y, r]) => [y, r * razonRadio]);
+
+  const ELEVACION = Math.atan2(PM.motor.camara[1], PM.motor.camara[2]);
+  const cajaPose: CajaPose = { alto: 0, centro: 0 };
+  function proyectar(rotX: number): CajaPose {
+    const phi = rotX + ELEVACION;
+    const co = Math.cos(phi);
+    const se = Math.abs(Math.sin(phi));
+    let arriba = -Infinity;
+    let abajo = Infinity;
+    for (const [y, r] of PERFIL) {
+      const eje = y * co;
+      const radio = r * se;
+      if (eje + radio > arriba) arriba = eje + radio;
+      if (eje - radio < abajo) abajo = eje - radio;
+    }
+    cajaPose.alto = arriba - abajo;
+    cajaPose.centro = (arriba + abajo) / 2;
+    return cajaPose;
+  }
+  const enReposo = proyectar(PM.coreo.heroOut.rotX[1] * (Math.PI / 180));
+  const reposoProyectado: CajaPose = { alto: enReposo.alto, centro: enReposo.centro };
+
   const medida = { ancho: 1, alto: 1 };
   function disponer(ancho: number, alto: number): void {
     medida.ancho = Math.max(1, ancho);
@@ -318,7 +382,7 @@ export function construirRig(nivel: Calidad): Rig {
     escena, camara, desvio, medida, raiz, sacudida, motor, piezas, sueltas, tubos, azimutes, marca, materialesMarca,
     emisivosMarca, chapaMarca, turbina, luzClave, luzCamara, emisivos, caliente, cuerpos,
     yLabio: -M.tobera.largo,
-    escribirTubos, tema, disponer, liberar,
+    escribirTubos, tema, disponer, proyectar, reposoProyectado, elevacion: ELEVACION, radioMax, liberar,
   };
 }
 
@@ -343,6 +407,24 @@ export function construirRig(nivel: Calidad): Rig {
 function transparentar(mat: Material): Material {
   if (mat.side === DoubleSide) mat.forceSinglePass = true;
   return mat;
+}
+
+/** Radio máximo (hypot(x, z), marco de `raiz`) del tubo base de la corona, que es la pieza más
+ *  ancha del motor. Se recorre UNA vez, al montar: las 36 instancias son giros sobre Y y no cambian
+ *  ese radio. Devuelve 0 si la malla no tiene posiciones, y entonces se usa el número de PM. */
+function radioDeLaCorona(malla: InstancedMesh, raiz: Object3D): number {
+  const pos = malla.geometry?.attributes?.position;
+  if (!pos) return 0;
+  raiz.updateWorldMatrix(true, true);
+  const aRaiz = raiz.matrixWorld.clone().invert().multiply(malla.matrixWorld);
+  const v = new Vector3();
+  let mx = 0;
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i).applyMatrix4(aRaiz);
+    const r = Math.hypot(v.x, v.z);
+    if (r > mx) mx = r;
+  }
+  return mx;
 }
 
 /** Vector unitario radial de una pieza: por dónde sale en el despiece. Si la pieza está en el eje
