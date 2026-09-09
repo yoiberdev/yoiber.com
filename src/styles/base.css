@@ -271,6 +271,18 @@ html.motor-on #stage { opacity: 0; }
 .esquema .ruta { stroke: none; }                              /* la polilínea que sigue el punto: no se ve */
 .esquema text { font-family: var(--mono); font-size: 10px; letter-spacing: 0.04em; fill: var(--muted); opacity: 0; }
 .esquema text.sobre { fill: var(--bg); }                      /* el rótulo del botón, sobre el relleno */
+/* LA BARRA DE AVANCE de la captura (effects/esquemas.ts, la otra mitad de la fila 21). Donde el
+   esquema no cabe —en vertical y por debajo de 900 px de alto: iPhone 13, Pixel 5, 360x640— la
+   tarjeta se quedaba sin nada que avanzara con el scroll, y los teléfonos son objetivo desde la
+   Vuelta 1. Son 2 px en el acento del proyecto sobre el borde superior de la captura, en su MISMA
+   celda del grid (grid-row 4, align-self: start): la fila la sigue midiendo la captura, así que no
+   añade un píxel de alto a la tarjeta ni le quita sitio a la banda del motor. El módulo la lleva de
+   0 a 1 con scaleX (escala, no ancho: el ancho es layout y se recalcularía en cada fotograma) y por
+   eso el origen va a la izquierda. Aquí NO se declara el display: se enseña solo en la media query
+   de abajo, o sea exactamente donde el esquema está oculto; en escritorio, en ventanas bajas y en
+   teléfonos altos manda el esquema y la barra no existe. Sin transición: quien escribe es el
+   maestro, y una transición CSS encima haría que el valor medido llegara tarde. */
+.tarjeta .avance { display: none; height: 2px; background: var(--acento); transform-origin: left center; }
 
 /* Ventanas bajas (portátiles de 13 pulgadas, o el navegador con barras): el párrafo técnico es lo
    primero que sobra. Qué es, con qué está hecho y el enlace tienen que caber siempre. */
@@ -313,7 +325,13 @@ html.motor-on #stage { opacity: 0; }
   }
   .tarjeta h2 { grid-row: 1; }
   .tarjeta .pila { grid-row: 2; }
-  .tarjeta .captura { grid-row: 4; }
+  /* `grid-column: 1` EXPLÍCITO, y no por auto-colocación: la barra de avance comparte celda con la
+     captura (fila 4), y el algoritmo coloca primero lo que tiene fila Y columna fijas. Sin esta
+     línea la captura no cabía en la celda ya ocupada, se iba a una columna implícita 2 y la
+     tarjeta se partía en dos columnas: medido en un 360x640, el texto pasaba de 316,8 px de ancho
+     a 164,5 y la captura a 152,3, el "qué" doblaba de líneas y la captura subía 97 px hasta
+     meterse 79 px dentro de la banda del motor. */
+  .tarjeta .captura { grid-row: 4; grid-column: 1; }
   .tarjeta .que { grid-row: 6; }
   .tarjeta .acceso { grid-row: 7; }
   .tarjeta .detalle, .tarjeta .aviso { display: none; }   /* lo esencial: qué es, con qué, y el enlace */
@@ -332,6 +350,9 @@ html.motor-on #stage { opacity: 0; }
      esconden y quedan las formas. Encoger la captura (6 rem) para hacerle sitio en los teléfonos
      bajos la dejaría en una tira de 56 px: en un teléfono la captura dice más que el esquema. */
   .tarjeta .esquema { display: none; }
+  /* ...y en su lugar avanza la barra de la captura: misma celda que ella (fila 4) y pegada arriba,
+     así que la fila la sigue midiendo la captura y la tarjeta mide lo mismo que antes. */
+  .tarjeta .avance { display: block; grid-row: 4; grid-column: 1; align-self: start; }
   /* El título comparte línea con el titular de capítulo ("Proyectos" a 1,5 rem mide 118 px y va
      a 1 rem del borde) y la pila con el contador y su arco (61 px): se les deja ese hueco a la
      derecha, con 10 px de aire. */
@@ -354,10 +375,20 @@ html.motor-on #stage { opacity: 0; }
      la captura se metía en la banda del motor. */
   .tarjeta .que { font-size: min(0.95rem, 3.9vw); line-height: 1.45; margin-bottom: 0.6rem; }
   .tarjeta .acceso { font-size: min(0.95rem, 3.9vw); margin-bottom: 0; }
+  /* Y LOS OCHO PUNTOS DEL ESCENARIO CSS, FUERA. Cuelgan del panel con `bottom: -2.5rem`, o sea 40 px
+     POR DEBAJO de él, y en vertical ese hueco ya no está vacío: ahí empieza la fila de abajo de la
+     tarjeta y los puntos, sólidos y en el acento, caían sobre la segunda línea del "qué" (medido con
+     movimiento reducido en un iPhone 13: los ocho encima de "los sistemas instalados a bordo de").
+     En apaisado siguen puestos, que es donde el panel tiene sitio debajo. Se van con esta regla y no
+     tocando el fallback: quien decide si hay hueco es la hoja, no el módulo. */
+  .galeria-puntos { display: none; }
 }
 @media (max-aspect-ratio: 1/1) and (min-height: 900px) {
   .tarjeta .esquema { display: block; grid-row: 5; height: 2.5rem; margin: 0 0 0.35rem; }
   .esquema text { display: none; }
+  /* Con el esquema puesto la barra sobra: son dos formas de contar lo mismo y juntas se leen como
+     dos relojes. Manda el esquema, que dice ADEMÁS de qué va el proyecto. */
+  .tarjeta .avance { display: none; }
 }
 
 /* EL TITULAR DE CAPÍTULO (effects/titulo.ts). Fijo arriba a la izquierda, el nombre grande y el

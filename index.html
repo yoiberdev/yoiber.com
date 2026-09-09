@@ -181,11 +181,16 @@
          cuentan de 0 a su valor en el mismo tramo; el marcado lleva el valor final por si el
          módulo no llega. El viewBox es 360x64: a 4,5 rem de alto en escritorio se pinta a 1,125
          aumentos (los rótulos de 10 px salen a 11), a 3,5 rem en ventanas bajas (0,875) y a
-         2,5 rem en teléfonos altos (de 900 px), donde los rótulos se esconden (base.css). -->
+         2,5 rem en teléfonos altos (de 900 px), donde los rótulos se esconden (base.css).
+         Por debajo de esos 900 px en vertical el esquema no cabe y quien avanza con el scroll
+         es la BARRA (<span class="avance">): 2 px en el acento sobre el borde superior de la
+         captura, en su misma celda del grid, de 0 a 1 en el mismo tramo quieto. Va vacía y
+         aria-hidden: es un indicador, no contenido; sin el módulo no se ve y nada cambia. -->
     <div id="galeria-tarjetas" class="capa">
       <article class="tarjeta" data-slot="0">
         <h2>SysRRHH</h2>
         <img class="captura" src="/proyectos/sysrrhh.jpg" alt="Panel interno de SysRRHH con el módulo de vacantes" width="900" height="563" loading="lazy" decoding="async" />
+        <span class="avance" aria-hidden="true"></span>
         <p class="que">Sistema de recursos humanos completo: reclutamiento, contratos, asistencia, ausencias y portal de empleo.</p>
         <p class="pila">NestJS · Prisma · PostgreSQL · React</p>
         <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="flujo">
@@ -206,6 +211,7 @@
       <article class="tarjeta" data-slot="1">
         <h2>KUIDY-CORE</h2>
         <img class="captura" src="/proyectos/kuidy.jpg" alt="Pantalla de proyectos de KUIDY-CORE" width="900" height="563" loading="lazy" decoding="async" />
+        <span class="avance" aria-hidden="true"></span>
         <p class="que">Plataforma sin código: defines proyectos, módulos y campos, y un motor genérico dibuja los formularios y valida los registros.</p>
         <p class="pila">Hono · Drizzle · PostgreSQL con JSONB · React</p>
         <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="formulario">
@@ -227,6 +233,7 @@
       <article class="tarjeta" data-slot="2">
         <h2>TechDocAPI</h2>
         <img class="captura" src="/proyectos/techdoc.jpg" alt="Swagger de TechDocAPI con sus rutas" width="900" height="563" loading="lazy" decoding="async" />
+        <span class="avance" aria-hidden="true"></span>
         <p class="que">API REST para la documentación técnica de los sistemas instalados a bordo de embarcaciones.</p>
         <p class="pila">Java 21 · Spring Boot · JPA · PostgreSQL</p>
         <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="rutas">
@@ -248,6 +255,7 @@
       <article class="tarjeta" data-slot="3">
         <h2>API financiera reactiva</h2>
         <img class="captura" src="/proyectos/financial.jpg" alt="Página de la demo de la API financiera" width="900" height="563" loading="lazy" decoding="async" />
+        <span class="avance" aria-hidden="true"></span>
         <p class="que">Tres microservicios reactivos: uno descifra el código del cliente, llama a los otros dos en paralelo y compone la respuesta.</p>
         <p class="pila">Java 21 · WebFlux · R2DBC · Maven multi-módulo</p>
         <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="correlacion">
@@ -271,6 +279,7 @@
       <article class="tarjeta" data-slot="4">
         <h2>Kip-Up Comandas</h2>
         <img class="captura" src="/proyectos/comandas.jpg" alt="Entrada de Kip-Up Comandas" width="900" height="563" loading="lazy" decoding="async" />
+        <span class="avance" aria-hidden="true"></span>
         <p class="que">De la mesa a la cocina y a la caja, sincronizado en tiempo real: plano de mesas, pantalla de cocina e impresión de tickets.</p>
         <p class="pila">Next.js · Prisma · Socket.IO · ESC/POS</p>
         <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="comandas">

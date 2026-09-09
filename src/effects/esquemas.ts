@@ -38,9 +38,25 @@ import { P } from '../params';
 // el valor final por si el módulo no llega, y el módulo le da un ancho mínimo en ch (tantos como
 // dígitos) para que la línea no se recomponga mientras cuenta.
 //
+// LA BARRA DE AVANCE (<span class="avance">), lo que avanza EN LOS TELÉFONOS. El esquema y las
+// cifras viven en el detalle y en una fila propia, y ninguna de las dos cosas cabe en vertical por
+// debajo de 900 px de alto: base.css esconde el .detalle en toda la vertical y el .esquema por
+// debajo de esos 900 px, así que en un iPhone 13, un Pixel 5 o un 360x640 no quedaba NADA que se
+// moviera con el scroll dentro de la tarjeta, que es justo lo que promete la fila 21. La barra son
+// 2 px en el acento del proyecto sobre el borde superior de la captura, en su MISMA celda del grid
+// (base.css): no añade un píxel de alto a la tarjeta y no toca la banda del motor. Va de 0 a 1 en
+// el tramo quieto ENTERO (P.galeria.avance) y con el mismo `linear` que el resto: a la mitad del
+// tramo está a la mitad, medible como ancho contra el ancho de la captura.
+//   · scaleX y no width: el ancho es layout de la tarjeta y se recalcularía en cada fotograma;
+//     con la escala el navegador solo compone. transform-origin a la izquierda, en la hoja.
+//   · se monta SIEMPRE, también donde el esquema se ve, y quien decide cuál de los dos se enseña
+//     es la hoja (display): así girar el teléfono o cambiar el tamaño de la ventana no obliga a
+//     rearmar la timeline. Es un tween por tarjeta; el que no se ve escribe sobre un display:none.
+//   · su opacidad la lleva galeria.ts con la captura (entra y sale con ella: es su barra).
+//
 // CON MOVIMIENTO REDUCIDO todo va a su estado final de una vez (utils.set sobre los proxies, los
-// rótulos a 1, el punto al final de la ruta) y las cifras se quedan como vienen en el marcado:
-// nada se mueve dentro de la tarjeta.
+// rótulos a 1, el punto al final de la ruta, la barra entera) y las cifras se quedan como vienen
+// en el marcado: nada se mueve dentro de la tarjeta.
 //
 // COSTE. Los cinco esquemas se montan UNA vez (aquí, antes de tl.init()): 8-11 tweens por
 // tarjeta, todos hijos del maestro. En cada fotograma solo escriben los tweens cuyo instante toca,
@@ -153,6 +169,19 @@ export function montarEsquema(tl: Timeline, tarjeta: HTMLElement, t0: number, du
       // al volver desde más adelante.)
       if (trazables.length) tl.set(trazables, { draw: '0 0' }, 0);
       if (fundibles.length) tl.set(fundibles, { opacity: 0 }, 0);
+    }
+  }
+
+  // LA BARRA DE AVANCE de la captura: lo único que avanza con el scroll donde el esquema no cabe
+  // (ver la cabecera). El mismo tramo, el mismo `linear` y las dos puntas explícitas, como todo lo
+  // demás: al volver desde CIERRE de un salto el maestro repone el valor que toca.
+  const barra = tarjeta.querySelector<HTMLElement>('.avance');
+  if (barra) {
+    if (reduce) {
+      utils.set(barra, { scaleX: 1 });
+    } else {
+      const { pos, duration } = en(P.galeria.avance);
+      tl.set(barra, { scaleX: 0 }, 0).add(barra, { scaleX: [0, 1], duration, ease: 'linear' }, pos);
     }
   }
 

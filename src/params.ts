@@ -234,6 +234,15 @@ export const P = {
         ticket: [0.74, 0.86], rayas: [0.86, 0.94],
       },
     } as Record<string, Record<string, [number, number]>>,
+    // LA BARRA DE AVANCE de la captura (<span class="avance">, effects/esquemas.ts). Es la otra
+    // mitad de la fila 21: el esquema vive en una fila propia y el detalle con sus cifras está
+    // oculto en vertical, así que en los teléfonos por debajo de 900 px de alto no quedaba nada
+    // avanzando con el scroll dentro de la tarjeta. La barra ocupa el TRAMO QUIETO ENTERO, en las
+    // mismas fracciones que las ventanas de arriba: [0, 1] es "empieza cuando la tarjeta acaba de
+    // entrar y llega al final justo cuando empieza a irse", que es lo que se mide (al 20/50/80 %
+    // del tramo la barra vale 0,2/0,5/0,8). No es un paso del dibujo: no va en `esquemas`, que se
+    // busca por el data-esquema de cada svg.
+    avance: [0, 1] as [number, number],
     origen: 'propio',
   },
 

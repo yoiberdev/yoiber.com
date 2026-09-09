@@ -85,7 +85,11 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
     const desde = ini + paso * i;         // empieza a entrar
     const fin = desde + paso - cruce;     // empieza a salir
     const titulo = busca(el, ['h2']);
-    const captura = busca(el, ['.captura']);
+    // La BARRA DE AVANCE (.avance) entra y sale con la captura: es su barra, va pegada a su borde
+    // superior y en la misma celda del grid. Aquí solo se le da la opacidad y el destape; cuánto
+    // ha avanzado lo escribe esquemas.ts en el tramo quieto, con scaleX (otra propiedad: no se
+    // pisan). Donde el esquema se ve, base.css la deja en display:none y esto no pinta nada.
+    const captura = busca(el, ['.captura', '.avance']);
     const parrafos = busca(el, ['.que', '.pila', '.detalle']);
     const esquema = busca(el, ['.esquema']);
     const acceso = busca(el, ['.acceso', '.aviso']);
