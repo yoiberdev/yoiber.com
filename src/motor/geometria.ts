@@ -4,10 +4,11 @@
 // 6,52 u de alto (y de -3,35 en el labio a +3,17 en los tornillos de la brida de empuje) y 4,96 u
 // de ancho (la corona de tubos en el labio). Medido sobre los vertices del grafo (sonda19).
 // UNA SOLA FORMA (informe BRECHA, fila 20): por encima de la garganta nada cuelga fuera del cuerpo.
-// La cabeza es un cilindro de r ~1,2 (camara con su anillo de aletas, brida de empuje r 1,21) con
-// la turbobomba atada al costado (eje a r 1,30; su voluta es lo mas ancho, r 1,66) y los conductos
-// rodeando la pared con abrazaderas. Antes los paneles radiadores llegaban a r 2,0 y la bomba a
-// r 2,43, y la parte alta se leia como un aspa con accesorios colgados (par-reposo.png del informe).
+// La cabeza es un cilindro de r ~1,2 (camara con su anillo de aletas, brida de empuje r 1,29) con
+// la turbobomba atada al costado (eje a r 1,21; lo mas ancho es la carcasa de la turbina, r 1,44) y
+// los conductos rodeando la pared con abrazaderas (r <= 1,40). Antes los paneles radiadores
+// llegaban a r 2,0 y la bomba a 2,43, y la parte alta se leia como un aspa con accesorios colgados
+// (par-reposo.png del informe); en la ronda anterior la bomba seguia sacando 0,40 fuera (1,72).
 
 import {
   BoxGeometry, BufferGeometry, Color, CylinderGeometry, DataTexture, DoubleSide, DynamicDrawUsage,
@@ -125,55 +126,80 @@ export const M: Ajustes = {
     // material): ninguna llamada de dibujo mas. Entra `hundido` en el domo para no dejar rendija.
     cabezal: { r: 0.20, alto: 0.15, hundido: 0.05 },
   },
-  // Turbobomba, PEGADA al costado de la camara (informe BRECHA, fila 20). Estaba a r 1,78 y con la
-  // voluta llegaba a r 2,43 (medido: 2,34 en los vertices): un accesorio colgado en el aire fuera
-  // de la silueta del cuerpo. Ahora el eje de la bomba va a r 1,30, el cuerpo (r 0,30) arranca en
-  // r 1,00 contra la pared del cilindro (r 0,97) y lo mas ancho de la bomba es la carcasa, a
-  // r 1,72; dos apoyos (`apoyos`) la atan y en el despiece se quedan CON LA CAMARA. Todo un 15 %
-  // mas pequeno para que quepa: la carcasa de la turbina (r 0,36) baja a la altura del convergente
-  // (y 0,25-0,71, donde la pared exterior esta en r <= 0,92) y no muerde ni la pared ni la corona.
-  // Holguras medidas vertice a vertice (sonda-holguras del carril objeto): cuerpo-pared 0,10,
-  // carcasa-pared 0,09, carcasa-tubos 0,15, voluta-pared 0,37, aletas-bomba 0,24.
+  // Turbobomba, DENTRO de la silueta de la cabeza (informe BRECHA, fila 20).
+  //
+  // LA BANDA RADIAL QUE HAY, que es lo que fija todas las medidas de aqui. Lo de dentro es la
+  // pared EXTERIOR de la camara, medida sobre el perfil (exteriorPared): r 0,97 a lo largo del
+  // cilindro (y 0,80-2,16) y bajando por el convergente a 0,94 (y 0,75), 0,91 (y 0,71), 0,84
+  // (y 0,60), 0,77 (y 0,50) y 0,61 (y 0,25). Lo de fuera es la silueta de la cabeza: aletas 1,195,
+  // brida de empuje 1,29, chapa de la placa 1,32; el limite que se puso es 1,45, o sea 0,13 mas
+  // que la chapa. Contra el cilindro, pues, la bomba entera tiene que caber entre 0,97 y 1,45:
+  // 0,48 de banda, y por eso NINGUNA pieza suya pasa de 0,24 de radio y el eje va a 1,21.
+  // (El juez pedia el eje a 1,05: ahi el cuerpo, de cualquier radio util, entra en el cilindro.
+  // 1,05 seria el eje si la bomba fuese un tubo de 0,08.) La cabeza ya no crece: la caja de alfa
+  // del CONJUNTO la fija la campana, ver la nota del relleno en params-motor.ts.
+  //
+  // Estaba a r 1,78 y con la voluta llegaba a 2,43 (2,34 en los vertices): un accesorio colgado en
+  // el aire. Luego a 1,30 con la carcasa en 1,72, todavia 0,40 fuera de la silueta. Ahora el eje
+  // va a 1,21, el cuerpo (r 0,20) arranca en 1,01 contra la pared del cilindro y lo mas ancho es
+  // la carcasa de la turbina: 1,44. La bomba baja tambien 0,05 y se acorta un 17 % a lo largo
+  // (cuerpo 0,58, turbina 0,36, entrada 0,40) para no quedarse en un lapiz: 1,65 de alto por 0,47
+  // de ancho, 3,5:1, donde antes eran 2,4:1. Dos apoyos (`apoyos`) la atan y en el despiece se
+  // quedan CON LA CAMARA.
+  // El cuerpo cae en el hueco de +-18 grados que dejan las aletas (a 1,21 con r 0,20 la bomba
+  // ocupa +-9,5 grados y la aleta mas cercana queda a 0,38 de su eje, 0,18 de su piel).
   turbobomba: {
     azimut: 20,         // grados alrededor del eje
-    radio: 1.30,        // distancia del eje del motor al eje de la bomba
-    altura: 1.05,       // y del centro del cuerpo
+    radio: 1.21,        // distancia del eje del motor al eje de la bomba (cuerpo: 1,01-1,41)
+    altura: 1.00,       // y del centro del cuerpo
     // La voluta: espiral de seccion creciente (ver construirTurbobomba). `faseVoluta` gira la
     // espiral para que su extremo ANCHO apunte hacia fuera (local +X = radial): con el eje a
     // r 1,30 el lado ancho hacia la camara se hundia 0,18 en la pared. 1,35 vueltas son 486
-    // grados; con -126 el final cae en 360 = 0, o sea en +X.
-    rVoluta: 0.26,
-    rTuboVoluta: 0.11,
+    // grados; con -126 el final cae en 360 = 0, o sea en +X. Sale 0,225 del eje por fuera (1,435)
+    // y 0,186 por dentro (1,024, con la pared en 0,97): es la pieza que mas justa va por dentro.
+    rVoluta: 0.155,
+    rTuboVoluta: 0.070,
     faseVoluta: -126,
-    rCuerpo: 0.30,
-    largoCuerpo: 0.70,
-    rTurbina: 0.32,
-    largoTurbina: 0.44,
-    rEntrada: 0.16,
-    largoEntrada: 0.50,
+    rCuerpo: 0.20,
+    largoCuerpo: 0.58,
+    rTurbina: 0.18,
+    largoTurbina: 0.36,
+    rEntrada: 0.115,
+    largoEntrada: 0.40,
     segmentos: 24,
     // APOYOS (la brida contra la camara): dos tacos radiales en el azimut de la bomba, en el marco
     // del motor. `r0` entra en la pared y `r1` en la bomba: sin rendija por ningun lado. El de
-    // arriba une el cuerpo con el cilindro (pared r 0,97, cuerpo desde r 1,00); el de abajo, la
-    // carcasa con el convergente (pared r 0,77 a y 0,50, carcasa desde r 0,94). Van en la
-    // InstancedMesh de detalles de la camara (construirCamara): cero llamadas de dibujo mas.
+    // arriba une el cuerpo con el cilindro (pared r 0,97, cuerpo desde r 1,01) y cabe entero en el
+    // cuerpo (y 0,71-1,29); el de abajo, la carcasa con el convergente (pared r 0,77 a y 0,50,
+    // carcasa desde r 0,98, y 0,34-0,72). Van en la InstancedMesh de detalles de la camara
+    // (construirCamara): cero llamadas de dibujo mas.
     apoyos: [
-      { y: 1.175, alto: 0.35, ancho: 0.18, r0: 0.90, r1: 1.10 },
-      { y: 0.50, alto: 0.20, ancho: 0.14, r0: 0.70, r1: 0.98 },
+      { y: 1.10, alto: 0.30, ancho: 0.15, r0: 0.90, r1: 1.06 },
+      { y: 0.50, alto: 0.18, ancho: 0.12, r0: 0.70, r1: 1.00 },
     ],
     // CARCASA DE LA TURBINA. El rotor con sus 18 alabes iba al aire y a 200 px se leia como una
     // PIÑA (fila 10e, zoom-pegotes). Ahora gira dentro de un tambor cerrado con tapas y una VENTANA
     // de `ventana` grados cruzada por `barras` barras verticales; el rotor se ve girar detras.
     // `azimutVentana` es LOCAL a la bomba (mundo = M.turbobomba.azimut + esto): 88 + 20 = 108, que
     // es donde esta la camara en el reposo (rotY 18 => azimut de camara 90 + 18, ver coreografia).
-    carcasa: { r: 0.42, ventana: 100, azimutVentana: 88, barras: 4, barra: 0.03 },
+    // r 0,23 y no 0,42: es la pieza mas ancha de la bomba (1,44) y baja a la altura del convergente
+    // (y 0,34-0,72), donde la pared exterior esta en 0,91 como mucho: 0,07 de holgura por dentro.
+    // Sobresale 0,03 del cuerpo, que es el escalon que hace que se lea como otra pieza.
+    carcasa: { r: 0.23, ventana: 100, azimutVentana: 88, barras: 4, barra: 0.03 },
   },
   // Conductos: tubos sobre curvas suaves de la bomba al colector de la campana.
   conductos: {
-    // un 13 % mas finos que antes (0,115 / 0,095): van con una bomba un 15 % mas pequena
-    radios: [0.10, 0.085, 0.07] as number[],
+    // otro 15 % mas finos (0,10 / 0,085 / 0,07): van con una bomba cuyo cuerpo mide r 0,20 y cuya
+    // voluta es un tubo de 0,07, y una descarga mas gorda que la voluta se lee al reves de lo que es
+    radios: [0.085, 0.072, 0.058] as number[],
     segmentosU: 56,
     segmentosV: 8,
+    // DONDE NACEN, medido hacia dentro desde el EJE de la bomba. No en el eje: la brida del arranque
+    // (radio 1,7 · r del tubo) es un disco que queda enterrado en la bomba, no se ve nunca y sin
+    // embargo contaba en el radio maximo del conjunto (1,51 medido en la ronda anterior, con el
+    // limite en 1,40). Naciendo 0,04 hacia dentro el disco de la descarga llega a 1,17 + 0,14 = 1,31
+    // y el tubo sigue saliendo por la piel del cuerpo, que es lo que se ve.
+    nace: 0.04,
     // BRIDAS en los seis extremos, en vez de bolitas: un tubo tiene que ACABAR EN ALGO (fila 10a,
     // el conducto de escape terminaba en el aire con una bola). Un disco orientado por la tangente
     // del extremo, en multiplos del radio del tubo, todos en UNA InstancedMesh (antes dos).
@@ -182,9 +208,12 @@ export const M: Ajustes = {
     // atan el tubo al cuerpo donde lo roza. Un disco mas ancho y mas largo que la brida, orientado
     // por la tangente, en la MISMA InstancedMesh que las bridas. `abrazaderas[k]` son las
     // fracciones u de la curva del conducto k donde va cada una: en la descarga (0) dos, donde
-    // rodea el convergente; en la linea al domo (1) una, a media subida; en el escape (2) una.
+    // rodea el convergente; en la linea al domo (1) una, a media subida; en el escape (2) una,
+    // que pasa de 0,55 a 0,78: con el trazado de antes caia en el tramo que iba por el aire, a
+    // 0,40 de la campana, y ahora cae donde el tubo baja pegado a la corona (y -0,60, 0,06 de la
+    // cresta). `getPointAt` va por LONGITUD DE ARCO, asi que estas fracciones son de recorrido.
     abrazadera: { radio: 1.45, alto: 0.7 },
-    abrazaderas: [[0.45, 0.72], [0.5], [0.55]] as number[][],
+    abrazaderas: [[0.45, 0.72], [0.5], [0.78]] as number[][],
   },
   // Estructura de empuje: anillo + tirantes en A.
   // TORNILLERIA. Lo que hace que una maquina se lea como compleja no son mas piezas grandes, sino
@@ -338,7 +367,7 @@ type Ajustes = {
     carcasa: { r: number; ventana: number; azimutVentana: number; barras: number; barra: number };
     apoyos: { y: number; alto: number; ancho: number; r0: number; r1: number }[] };
   tornillos: { r: number; alto: number; nCamara: number; nBancada: number; nBomba: number; nGarganta: number };
-  conductos: { radios: number[]; segmentosU: number; segmentosV: number; brida: { radio: number; alto: number };
+  conductos: { radios: number[]; segmentosU: number; segmentosV: number; nace: number; brida: { radio: number; alto: number };
     abrazadera: { radio: number; alto: number }; abrazaderas: number[][] };
   bancada: { rAnillo: number; anillo: { ancho: number; alto: number };
     pies: { ancho: number; alto: number; saliente: number; empotrado: number }; altura: number; tirantes: number; rTirante: number;
@@ -1182,11 +1211,16 @@ function construirTurbobomba(mat: Materiales): Group {
     trozosCarcasa.push(barra);
   }
   g.add(nombrar(new Mesh(unirGeometrias(trozosCarcasa), mat.blanco), 'turbobomba-carcasa'));
-  // La brida de la bomba: sus tornillos, sobre la corona de la tapa de arriba del tambor (entre el
-  // cuerpo, r 0,33, y el borde del tambor, r 0,42). Antes iban alrededor del EJE DEL MOTOR a
-  // r 0,37, o sea enterrados dentro de la camara: no se veian.
+  // La brida de la bomba: sus tornillos, sobre la tapa de ARRIBA del cuerpo, en la corona que
+  // queda entre la entrada (r 0,115) y el borde del cuerpo (r 0,20). Antes iban alrededor del EJE
+  // DEL MOTOR a r 0,37, o sea enterrados dentro de la camara, y luego sobre la tapa del tambor de
+  // la turbina; ahi ya no caben: con la bomba dentro de la silueta el tambor solo sobresale 0,03
+  // del cuerpo y una cabeza mide 0,09 de ancho, asi que la corona (r 0,22 + 0,045) se salia a
+  // r 1,48, por delante de la propia carcasa. Aqui la corona llega a 0,2025 y no pasa del cuerpo,
+  // y ademas es lo que es: la brida de la aspiracion, que se ve entera desde arriba (rotX -7 en el
+  // reposo, -20 en el despiece).
   g.add(construirTornillos(mat, [
-    { y: yT + largoCarcasa / 2 + M.tornillos.alto * 0.5, radio: (t.rCuerpo + ca.r) / 2, n: M.tornillos.nBomba },
+    { y: t.largoCuerpo / 2 + M.tornillos.alto * 0.5, radio: (t.rEntrada + t.rCuerpo) / 2, n: M.tornillos.nBomba },
   ], 'turbobomba-tornillos'));
 
   const th = t.azimut * GRA;
@@ -1204,27 +1238,30 @@ function construirConductos(mat: Materiales): Group {
   const pol = (rad: number, ang: number, y: number) => new Vector3(rad * Math.cos(ang), y, rad * Math.sin(ang));
 
   // CADA TUBO EMPIEZA Y ACABA EN UNA PIEZA (informe BRECHA, fila 10a y 10b). Los arranques van
-  // dentro del cuerpo de la bomba; los finales llegan a una pared PERPENDICULARES a ella (los dos
-  // ultimos puntos van por la normal de la superficie), asi la brida del extremo se apoya plana.
-  // Y PEGADOS AL CUERPO (fila 20): con la bomba a r 1,30 ninguno pasa de r 1,48 (antes 1,95) y la
-  // descarga rodea el convergente a 0,10 de la pared (medido vertice a vertice, sonda-holguras);
-  // las abrazaderas los atan al cuerpo. La linea al domo pasa a 0,28 del tirante mas cercano.
+  // dentro del cuerpo de la bomba (`c.nace` hacia dentro de su eje: la brida del arranque no se ve
+  // y no tiene por que contar en el radio del conjunto); los finales llegan a una pared
+  // PERPENDICULARES a ella (los dos ultimos puntos van por la normal de la superficie), asi la
+  // brida del extremo se apoya plana.
+  // Y PEGADOS AL CUERPO (fila 20): con la bomba a r 1,21 ninguno pasa de r 1,40 (antes 1,51 por las
+  // bridas de arranque, y 1,95 en la Vuelta 2) y la descarga rodea el convergente a 0,10 de la
+  // pared (medido vertice a vertice, sonda-holguras); las abrazaderas los atan al cuerpo. La linea
+  // al domo pasa a 0,28 del tirante mas cercano.
   //
   // Un tramo de CatmullRom entre dos puntos a radio r sobre un arco de A grados se mete hacia el
   // eje una sagita de r·(1 − cos(A/2)): a r 0,98 y 35 grados son 0,045 u. Por eso los puntos de la
   // descarga van cada ~35 grados y no cada 70 (0,18 de sagita: el tubo se hundia en el convergente).
 
   // 0 - descarga principal: baja del cuerpo de la bomba, rodea el convergente por detras a y 0,58
-  //     (la pared exterior esta en r 0,83 ahi; el tubo, de radio 0,10, va con el eje a 0,98) y
+  //     (la pared exterior esta en r 0,83 ahi; el tubo, de radio 0,085, va con el eje a 0,98) y
   //     entra en la pared justo encima del colector de la garganta (la pared se mide, ver
   //     paredCamaraEn). Por encima de la cresta de la corona (y 0,42, r 0,835) y por debajo de la
-  //     brida moleteada (y 0,78, r 0,955-1,045): la parte alta del tubo llega a y 0,68.
+  //     brida moleteada (y 0,78, r 0,955-1,045): la parte alta del tubo llega a y 0,67.
   const fin0 = paredCamaraEn(0.60);
   const az0 = th - 3.55;
   const rRodea = 0.98;
   const yRodea = 0.58;
   const c0 = [
-    pol(t.radio, th, t.altura - t.largoCuerpo * 0.2),
+    pol(t.radio - c.nace, th, t.altura - t.largoCuerpo * 0.2),
     pol(t.radio - 0.08, th - 0.40, 0.70),
     pol(rRodea + 0.02, th - 0.90, yRodea + 0.02),
     pol(rRodea, th - 1.50, yRodea),
@@ -1233,19 +1270,21 @@ function construirConductos(mat: Materiales): Group {
     pol(fin0.r + fin0.nr * 0.20, az0, fin0.y + fin0.ny * 0.20),
     pol(fin0.r + fin0.nr * 0.014, az0, fin0.y + fin0.ny * 0.014),
   ];
-  // 1 - linea al domo del inyector. Sale de la ENTRADA de la bomba (r 0,16, y 1,40-1,90) y sube
+  // 1 - linea al domo del inyector. Sale de la ENTRADA de la bomba (r 0,115, y 1,29-1,69) y sube
   //     por el hueco en V que dejan los pares de tirantes 0 y 1 de la estructura de empuje. Medido
   //     vertice a eje con la geometria de los tirantes (base 30 grados, tope 30 +- 25,5): a y 2,50
   //     el tirante mas cercano esta a r 1,00 y 42,7 grados, el tubo a r 1,20 y 42 (0,07 de aire
   //     entre superficies); a y 2,68 el tirante esta a r 1,05 y 46,9 grados y el tubo a r 1,09 y
   //     58 (0,08). Llega a la cupula a y = 2,56 casi por su normal.
+  //     El primer punto intermedio bajo con la bomba (1,27 y 2,18 -> 1,22 y 2,15): con el arranque
+  //     0,22 mas abajo, a 1,27 la curva se abombaba hasta r 1,38 con el tubo, al filo del 1,40.
   const azDomo = 58 * GRA;
   const i = M.inyector;
   const yDomo = 2.56;
   const aDomo = Math.asin(Math.min(1, (yDomo - (perfilCamara()[perfilCamara().length - 1].y + i.espesorPlaca)) / i.altoCupula));
   const c1 = [
-    pol(t.radio, th, t.altura + t.largoCuerpo / 2 + t.largoEntrada * 0.6),
-    pol(1.27, 27 * GRA, 2.18),
+    pol(t.radio - c.nace, th, t.altura + t.largoCuerpo / 2 + t.largoEntrada * 0.6),
+    pol(1.22, 27 * GRA, 2.15),
     pol(1.20, 42 * GRA, 2.50),
     pol(1.09, 58 * GRA, 2.68),
     pol(i.rCupula * Math.cos(aDomo), azDomo, yDomo),
@@ -1253,17 +1292,26 @@ function construirConductos(mat: Materiales): Group {
   // 2 - escape de la turbina: sale de la BOQUILLA del escape (antes nacia en el rotor y acababa en
   //     el aire, a r 2,02, con una bola: fila 10a) y baja a la corona de tubos, donde descarga en
   //     un colector de la campana como en un motor real. La brida se apoya en la cresta de los
-  //     tubos a esa altura (coronaEn). Con la bomba a r 1,30 la boquilla queda en y -0,08, justo
-  //     al lado del collar de la garganta (r <= 0,77): el tubo baja 0,66 pegado a la corona.
+  //     tubos a esa altura (coronaEn). Con la bomba 0,05 mas abajo y mas corta la boquilla queda en
+  //     y 0,07, a la altura del arco de garganta.
+  //     VA POR LA CINTURA, no en linea recta. La cresta de la corona, medida por franjas de 0,1 en
+  //     el grafo (sonda perfil): 0,67 en la garganta, 0,74 en y -0,20, 0,81 en -0,30, 0,95 en
+  //     -0,40, 1,01 en -0,50, 1,08 en -0,60, 1,15 en -0,70 y 1,21 en -0,74. El trazado de antes
+  //     iba de la boquilla a un punto a `cresta2 + 0,20` (r 1,41) y de ahi a la brida: pasaba por
+  //     r 1,47 -por delante de la propia bomba- y su abrazadera se quedaba a 0,40 de la campana,
+  //     un collar atando el aire. Ahora el tubo se mete a r 1,04 en la cintura (0,06 de la cresta)
+  //     y sube con la campana hasta apoyarse: ninguna franja pasa de 1,37 con el tubo, y el collar
+  //     (`abrazaderas[2]`) cae donde el tubo roza de verdad.
   const yEscape = t.altura - (t.largoCuerpo / 2 + t.largoTurbina / 2) - t.largoTurbina * 1.28;
   const yFin2 = -0.74;
   const azFin2 = th - 23 * GRA;
   const cresta2 = coronaEn(yFin2).ext;
   const c2 = [
     pol(t.radio, th, yEscape + 0.02),
-    pol(t.radio - 0.02, th - 4 * GRA, yEscape - 0.22),
-    pol(cresta2 + 0.20, th - 14 * GRA, -0.48),
-    pol(cresta2 + 0.16, azFin2, yFin2 + 0.05),
+    pol(1.13, th - 6 * GRA, -0.14),
+    pol(1.04, th - 14 * GRA, -0.38),
+    pol(cresta2, th - 20 * GRA, -0.60),
+    pol(cresta2 + 0.10, azFin2, yFin2 + 0.035),
     pol(cresta2 + 0.02, azFin2, yFin2),
   ];
   const rutas = [c0, c1, c2];

@@ -221,6 +221,10 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     .add(estado, { aparta: [0, 1], duration: dur('GALERIA', 0, G.entra), ease: 'inOut(2)' }, en('GALERIA', G.espera))
     .add(raiz, { scale: [H.escala[1], G.escala], duration: dur('GALERIA', 0, G.entra), ease: 'inOut(2)' }, en('GALERIA', G.espera))
     .add(estado, { luz: [H.luz[1], G.luz], duration: dur('GALERIA', 0, G.entra), ease: 'linear' }, en('GALERIA', G.espera))
+    // El regreso al centro —desvío, escala y luz— va PEGADO AL FINAL del capítulo, en
+    // 1 − `vuelve` = 0,977, que es justo cuando la quinta tarjeta empieza a irse (la aritmética,
+    // en PM.coreo.galeria.vuelve): antes de eso el motor no puede volver al medio sin escribirse
+    // encima de ella, y la ronda anterior arrancaba en 0,90, a mitad de su tramo quieto.
     .add(estado, { aparta: [1, 0], duration: dur('GALERIA', 0, G.vuelve), ease: 'inOut(2)' }, en('GALERIA', 1 - G.vuelve))
     .add(raiz, { scale: [G.escala, H.escala[1]], duration: dur('GALERIA', 0, G.vuelve), ease: 'inOut(2)' }, en('GALERIA', 1 - G.vuelve))
     .add(estado, { luz: [G.luz, H.luz[1]], duration: dur('GALERIA', 0, G.vuelve), ease: 'linear' }, en('GALERIA', 1 - G.vuelve));

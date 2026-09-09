@@ -33,8 +33,17 @@ export const PM = {
     // Vueltas a medir en la Vuelta 3 (sonda del carril objeto, tras pegar la turbobomba y las
     // aletas al cuerpo): min (-2,48, -3,348) y max (2,48, 3,165), centro 0,091: no cambian, porque
     // los extremos siguen siendo los tubos en el labio y los tornillos de la brida de empuje. Lo
-    // que sí cambia es el radio de lo demás: turbobomba 1,72 (era 2,34), conductos 1,51 (1,95),
-    // aletas 1,20 (los paneles, 2,06).
+    // que sí cambia es el radio de lo demás: turbobomba 1,44 (era 2,34 en la Vuelta 2 y 1,72 en la
+    // primera ronda de la 3), conductos 1,40 (1,95 / 1,51), placa 1,32, brida de empuje 1,29,
+    // aletas 1,20 (los paneles, 2,06). Ninguna pieza de la cabeza pasa ya de 1,45.
+    //
+    // EL RELLENO DE LA CAJA DE ALFA: la meta del 80 % es de la CABEZA, no del CONJUNTO. Un motor
+    // de cohete es una campana, y una campana no llena su caja: la caja del objeto entero la fijan
+    // los tubos de la corona en el labio (r 2,48) y su mitad de abajo llena el 74,6 % —y no puede
+    // llenar más sin dejar de ser una tobera—, así que el conjunto se queda en el 60-64 % hagas lo
+    // que hagas con los accesorios. Lo que sí dice algo es la mitad de arriba, donde estaban los
+    // radiadores en aspa y la bomba colgada: ahí se mide (región [0, 0, W, y del fondo de la
+    // cámara], sonda A-cuerpo del QA) y ahí el listón es 80 %.
     medioAncho: 2.48,
     medioAlto: 3.35,
     centro: 0.09,     // el motor se sube esto para que su centro caiga en el centro del encuadre
@@ -170,15 +179,23 @@ export const PM = {
   //   y:     desplazamiento axial. SEPARACIONES IGUALES a lo largo del eje: cada pieza axial
   //          arranca G = 0,5 u por encima de donde acaba la anterior, con la extensión de cada una
   //          medida en el grafo (sonda del carril objeto, marco del motor, vértices con instancias):
-  //            campana [-3,35, 0,50]   refrigeracion [-3,35, 0,47]   camara [-0,15, 2,20]
+  //            campana [-3,35, 0,39]   refrigeracion [-3,33, 0,47]   camara [-0,15, 2,20]
   //            aletas [0,98, 1,60]     inyector inclinado 50° [1,46, 3,02]
   //            cupula [2,32, 3,09]     bancada [1,95, 3,17]
-  //          y la pila entera centrada en y = 0 (de -8,59 a +8,60, 17,2 u): d_campana = -5,24 y
+  //          y la pila entera centrada en y = 0 (de -8,48 a +8,60, 17,1 u): d_campana = -5,13 y
   //          hacia arriba d = d_anterior + (fin_anterior − inicio_siguiente) + G. Antes la corona
   //          subía solo 1,3 sobre la campana y los radiadores salían en T: piezas de 17:1 de
   //          tamaño y guías de 600 px. La turbobomba y los conductos van a la altura de la cámara
   //          (a la que están atados) y salen por su radio como UN conjunto; la placa, con la brida.
-  //   r:     desplazamiento radial (sale por su propio vector; 0 si va en el eje).
+  //          d_campana era -5,24 y ahí la separación campana→corona medía 0,628 contra una media
+  //          de 0,519 (21 %, con el listón en el 15): la cuenta usaba el 0,50 del PERFIL de la
+  //          campana como su techo, y el techo de verdad de la malla está en 0,39 (el labio del
+  //          convergente no llega tan arriba). Acortando el vector 0,11 la separación queda en
+  //          0,518 sobre una media de 0,501 (desviación máxima 10,4 %) y la pila sigue centrada.
+  //   r:     desplazamiento radial (sale por su propio vector; 0 si va en el eje). La bomba y sus
+  //          conductos salen hasta r 3,30, que es lo que compensa `desplazar` en PM.coreo.como: al
+  //          meter la bomba dentro de la silueta (eje 1,30 → 1,21) el vector sube lo mismo (2,0 →
+  //          2,09) para que la lámina no se mueva ni un píxel.
   //   ancla: punto LOCAL de la pieza donde engancha la guía. Los de la izquierda están en el
   //          azimut 215° del marco del motor y los de la derecha en el 35°: con la guiñada del
   //          despiece (20° a 54°) x_pantalla = r · cos(azimut − guiñada), o sea que cada ancla cae
@@ -189,11 +206,11 @@ export const PM = {
     { id: 'cupula',        y: 3.79,  r: 0,   ancla: [-0.64, 2.63, -0.45], lado: -1, titulo: 'Cúpula del colector', nota: 'se levanta y deja ver los inyectores' },
     { id: 'inyector',      y: 2.59,  r: 0,   ancla: [-0.78, 0, -0.55],    anclaMovil: [0.955, 0, 0], lado: -1, movil: true, titulo: 'Placa de inyectores', nota: '127 orificios en siete anillos' },
     { id: 'aletas',        y: 1.95,  r: 0,   ancla: [-0.98, 0, -0.69],    lado: -1, titulo: 'Anillo de aletas', nota: '29 aletas radiales sobre la cámara' },
-    { id: 'conductos',     y: 0.23,  r: 2.0, ancla: [0.44, 2.56, 0.70],   lado: 1,  titulo: 'Conductos', nota: 'descarga, línea al domo y escape' },
-    { id: 'turbobomba',    y: 0.23,  r: 2.0, ancla: [0.30, 0.20, 0],      lado: 1,  titulo: 'Turbobomba', nota: 'voluta, cuerpo, turbina y escape' },
+    { id: 'conductos',     y: 0.23,  r: 2.09, ancla: [0.44, 2.56, 0.70],  lado: 1,  titulo: 'Conductos', nota: 'descarga, línea al domo y escape' },
+    { id: 'turbobomba',    y: 0.23,  r: 2.09, ancla: [0.20, 0.18, 0],     lado: 1,  titulo: 'Turbobomba', nota: 'voluta, cuerpo, turbina y escape' },
     { id: 'camara',        y: 0.23,  r: 0,   ancla: [0.67, 0.55, 0.47],   lado: 1,  movil: true, titulo: 'Cámara de combustión', nota: 'relación de contracción 3,24' },
     { id: 'refrigeracion', y: -0.89, r: 0,   ancla: [0.74, 0.42, 0.52],   lado: 1,  titulo: 'Corona de refrigeración', nota: '36 tubos de radio variable' },
-    { id: 'campana',       y: -5.24, r: 0,   ancla: [1.60, -2.60, 1.12],  lado: 1,  movil: true, titulo: 'Campana de la tobera', nota: 'perfil de Rao, expansión 17,6' },
+    { id: 'campana',       y: -5.13, r: 0,   ancla: [1.60, -2.60, 1.12],  lado: 1,  movil: true, titulo: 'Campana de la tobera', nota: 'perfil de Rao, expansión 17,6' },
   ] as PiezaNum[],
 
   // Piezas que se mueven en el despiece pero NO llevan rótulo. La placa de identificación viaja
@@ -345,9 +362,13 @@ export const PM = {
       // llevaba un degradado detrás para leerse. Estos números y los de la tarjeta en base.css
       // son EL MISMO reparto: si se mueve uno, se mueve el otro. El 3 % de aire cubre el
       // cabeceo de la capa de vida (1,3° sobre 2,48 de radio: 2 px a esta escala).
+      // `abajo` subió de 280 a 282 en la Vuelta 3: la TINTA (motor/tinta.ts) dibuja el contorno por
+      // fuera de la silueta, y eso baja el borde de la caja de alfa ~1,1 px. Con 280 la .captura de
+      // la tarjeta 5 se comía ese píxel en el iPhone 13 (0,5 px sin la vida, 1,5 con ella): dos
+      // píxeles de banda lo devuelven sin tocar el reparto de la tarjeta en base.css.
       vertical: {
         arriba: 148,    // px CSS desde el borde superior en que acaba la fila de arriba
-        abajo: 280,     // px CSS desde el borde inferior en que empieza la fila de abajo
+        abajo: 282,     // px CSS desde el borde inferior en que empieza la fila de abajo
         margen: 0.03,   // aire dentro de la banda, en fracción de su alto, arriba y abajo
       },
       luz: 0.55,
@@ -356,7 +377,19 @@ export const PM = {
       // en todo el demo: el desvío empezaba en el mismo instante en que aterrizaba el último tubo.
       espera: 0.1,
       entra: 0.08,
-      vuelve: 0.1,
+      // Y VUELVE AL CENTRO CUANDO LA QUINTA TARJETA EMPIEZA A IRSE, ni un instante antes. Con 0,1
+      // el regreso arrancaba en GALERIA 0,90 y la tarjeta 5 aún estaba entera y a opacidad 1: del
+      // 75 % al 90 % de su tramo quieto el motor le pisaba la captura 96 px y el párrafo 23 en un
+      // iPhone 13 (medido, B-solape5 de la ronda anterior). La aritmética de la galería
+      // (effects/galeria.ts) con cinco tarjetas en diez alturas: margen 0,18 · 10 000 = 1 800,
+      // paso (10 000 − 1 800) / 5 = 1 640 y cruce min(500; 14 % del paso) = 230, así que la última
+      // tarjeta está QUIETA hasta 9 770 y se va entre 9 770 y 10 000. Este número es exactamente
+      // ese cruce (230 / 10 000): el regreso ocupa 0,977 → 1,0, o sea que el motor empieza a
+      // volver en el mismo fotograma en que la tarjeta empieza a desvanecerse y acaba centrado
+      // justo al entrar COMO, que es donde tiene que estar para abrirse. Son 230 unidades de
+      // scroll (0,23 de pantalla) con `inOut(2)`: se lee como un relevo, la tarjeta deja el sitio
+      // y el motor lo ocupa. Si cambia `P.galeria.arranque` o el número de tarjetas, cambia aquí.
+      vuelve: 0.023,
       pulsos: 8,      // un latido del inyector por demo, alineado con el contador "n / 8"
       pulsoSube: 240,
       pulsoBaja: 560,
@@ -386,7 +419,11 @@ export const PM = {
       // 9,6 de la propia cámara, la placa queda a 80° de la línea de vista: la retícula de 127
       // orificios se ve casi de frente y la pieza pasa de 0,16 u de alto proyectado a 1,9.
       inclinaInyector: 50,
-      bajar: 0,       // la pila del despiece ya está centrada en y = 0 (ver PM.piezas)
+      // La pila del despiece está centrada en y = 0 por construcción (ver PM.piezas), menos estos
+      // 0,06: al acortar 0,11 el vector de la campana para igualar las separaciones, la pila pasó
+      // a ir de -8,48 a +8,60 y su centro subió eso. Bajarla 0,06 devuelve el aire de arriba y el
+      // de abajo al mismo valor (39 y 38 px a 1440x900) sin tocar los nueve vectores.
+      bajar: -0.06,
       desplazar: -0.4, // el despiece crece hacia la derecha (turbobomba y conductos a r 3,3): se compensa
       // 0,43 y no 0,58: el despiece en un eje con separaciones iguales mide 17,2 u de pila (antes
       // 12,3), que con la inclinación y las elipses de la boca y la brida son 17,5 u proyectadas
