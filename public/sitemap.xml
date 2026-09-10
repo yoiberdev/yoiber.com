@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Una sola página: todo el sitio es esta portada y sus anclas (#galeria, #como, #pie), y las
+     anclas no son URLs propias, así que no van aquí. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://yoiber.com/</loc>
+    <lastmod>2026-09-10</lastmod>
+  </url>
+</urlset>

@@ -1,0 +1,8 @@
+# yoiber.com — web personal de Yoiber.
+# Todo abierto, incluidos los rastreadores de los asistentes de IA: la página existe para que la
+# encuentren. Si algún día hay que cerrarle la puerta a alguno, se añade aquí su token
+# (GPTBot, ClaudeBot, PerplexityBot, Google-Extended...), que es como se hace: por User-agent.
+User-agent: *
+Allow: /
+
+Sitemap: https://yoiber.com/sitemap.xml

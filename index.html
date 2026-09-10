@@ -19,6 +19,43 @@
     <meta property="og:image" content="https://yoiber.com/og.png" />
     <meta property="og:locale" content="es_PE" />
     <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- DATOS ESTRUCTURADOS. Para una búsqueda por nombre propio lo que decide no es la página,
+         es que el buscador entienda que "Yoiber" (la persona) y este dominio son la misma cosa.
+         `sameAs` es exactamente eso: los perfiles que ya existen y que el buscador ya conoce.
+         Va como bloque de datos (`type="application/ld+json"`), que el navegador no ejecuta, así
+         que la CSP de `script-src 'self'` no lo bloquea; comprobado en el navegador, sin avisos. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Person",
+          "@id": "https://yoiber.com/#yoiber",
+          "name": "Yoiber",
+          "alternateName": "yoiberdev",
+          "url": "https://yoiber.com/",
+          "jobTitle": "Desarrollador full-stack",
+          "description": "Desarrollador full-stack. Sistemas distribuidos, dispositivos en campo e interfaces para datos en vivo.",
+          "knowsAbout": ["Sistemas distribuidos", "IoT", "Streaming de vídeo", "React", "TypeScript", "Python", "Node.js", "PostgreSQL", "Docker"],
+          "address": { "@type": "PostalAddress", "addressLocality": "Lima", "addressCountry": "PE" },
+          "sameAs": [
+            "https://github.com/yoiberdev",
+            "https://linkedin.com/in/yoiberdev"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://yoiber.com/#sitio",
+          "url": "https://yoiber.com/",
+          "name": "Yoiber",
+          "alternateName": "yoiber.com",
+          "inLanguage": "es",
+          "publisher": { "@id": "https://yoiber.com/#yoiber" }
+        }
+      ]
+    }
+    </script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
   <body>
