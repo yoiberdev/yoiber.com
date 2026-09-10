@@ -93,7 +93,13 @@ export interface Rig {
   yLabio: number;
   /** Todo lo que se atenúa (apagado de la marca y fundido final). */
   cuerpos: Material[];
-  /** Escribe las matrices de la corona a partir de `tubos[i].z`. Función pura de esos valores. */
+  /** Desplazamiento radial EXTRA por tubo, en unidades de motor. Lo escribe SOLO la capa de vida
+   *  (el pulso de la corona, ver PM.vida.ondaAmp); la timeline no lo toca nunca. Existe para que
+   *  `tubos[i].z` siga teniendo un único escritor: la timeline pone dónde va el tubo y esto le
+   *  suma el temblor. */
+  onda: number[];
+  /** Escribe las matrices de la corona a partir de `tubos[i].z` + `onda[i]`. Función pura de esos
+   *  valores. */
   escribirTubos(): void;
   /** El tema en los materiales (tonos del toon, filo, piel de la campana). El color de la TINTA
    *  lo cambia el pase de pantalla (motor/tinta.ts, tema()): effects/motor3d.ts llama a los dos. */
@@ -244,10 +250,11 @@ export function construirRig(nivel: Calidad): Rig {
     const th = (i * 360) / n;
     azimutes.push((((Math.atan2(dirBase.z, dirBase.x) * 180) / Math.PI - th) % 360 + 360) % 360);
   }
+  const onda: number[] = new Array(n).fill(0);
   function escribirTubos(): void {
     for (let i = 0; i < n; i++) {
       const th = (i * Math.PI * 2) / n;
-      const d = tubos[i].z;
+      const d = tubos[i].z + onda[i];
       qTubo.setFromAxisAngle(ejeY, th);
       pTubo.copy(dirBase).multiplyScalar(d).applyQuaternion(qTubo);
       malla.setMatrixAt(i, mTubo.compose(pTubo, qTubo, eTubo));
@@ -382,7 +389,7 @@ export function construirRig(nivel: Calidad): Rig {
     escena, camara, desvio, medida, raiz, sacudida, motor, piezas, sueltas, tubos, azimutes, marca, materialesMarca,
     emisivosMarca, chapaMarca, turbina, luzClave, luzCamara, emisivos, caliente, cuerpos,
     yLabio: -M.tobera.largo,
-    escribirTubos, tema, disponer, proyectar, reposoProyectado, elevacion: ELEVACION, radioMax, liberar,
+    onda, escribirTubos, tema, disponer, proyectar, reposoProyectado, elevacion: ELEVACION, radioMax, liberar,
   };
 }
 

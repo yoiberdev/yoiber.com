@@ -435,7 +435,15 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
       pintarAcento();
     }
 
-    // 1. La corona. Las 36 matrices salen de los 36 escalares que mueve la timeline.
+    // 1. La corona. Las 36 matrices salen de los 36 escalares que mueve la timeline, más el pulso
+    //    de la capa de vida, que es lo único que mueve una PIEZA por su cuenta (ver PM.vida.ondaAmp).
+    //    Va con el reloj del NAVEGADOR, como la deriva: con el scroll quieto la corona sigue viva.
+    const V = PM.vida;
+    for (let i = 0; i < rig.onda.length; i++) {
+      const fase = ahora * V.ondaHz - (rig.azimutes[i] * Math.PI) / 180 * V.ondaCrestas;
+      const s = Math.sin(fase);
+      rig.onda[i] = s > 0 ? V.ondaAmp * s * s : 0;   // solo hacia fuera, y con la cresta estrecha
+    }
     rig.escribirTubos();
 
     // 2. Temblor. Va en `sacudida`, un grupo que NINGÚN tween toca, y se escribe en absoluto.

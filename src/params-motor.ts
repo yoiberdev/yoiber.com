@@ -283,6 +283,18 @@ export const PM = {
     // blanco: en el pico los aros siguen del color de la tarjeta.
     latidoAmp: 0.50,        // cuánto respira el acento sobre su valor de la coreografía
     latidoHz: 0.00110,      // ~5,7 s
+    // EL PULSO DE LA CORONA. Lo único de la capa de vida que mueve una PIEZA y no el conjunto.
+    // Sale de la comparación canal a canal con animejs.com (CANALES-ANIMEJS.md, tabla 2.3): su
+    // máquina tiene diez bucles independientes sobre piezas sueltas y la nuestra no tenía ninguno,
+    // así que el objeto se balanceaba entero pero por dentro estaba muerto.
+    // Una cresta recorre los 36 tubos separándolos un pelo de la pared. SOLO HACIA FUERA
+    // (`max(0, sin)` en coreografia.ts): hacia dentro el tubo se hundiría en la piel del forro, que
+    // está a 0,003 de la pared, y se vería atravesarla.
+    // El reparto va por el AZIMUT del tubo, no por su índice: el tubo i no está en i·360/n (misma
+    // razón por la que la entrada de la corona usa `rig.azimutes`, ver rig.ts).
+    ondaAmp: 0.022,         // unidades de motor: ~2,4 px a 1440x900, o sea dos veces la tinta
+    ondaHz: 0.00125,        // ~5,0 s por vuelta completa alrededor de la corona
+    ondaCrestas: 2,         // cuántas crestas hay a la vez repartidas por el anillo
     // EL ACENTO POR PROYECTO (informe BRECHA, fila 9). La página decide el acento vigente desde el
     // reloj del maestro (core/acento.ts) y avisa con el evento 'yoi:acento' SOLO cuando cambia; el
     // motor funde entonces el color de los aros, la luz de cámara y la garganta hacia el nuevo con
