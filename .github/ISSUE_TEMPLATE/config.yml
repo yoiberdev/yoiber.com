@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: La web en vivo
-    url: https://yoiber.com
-    about: Míralo primero ahí; muchas dudas se resuelven viendo el estado actual.
-  - name: Cómo se publica
-    url: https://docs.kipups.com/PUBLICAR.md
-    about: Dónde vive, cómo se despliega y cómo se trabaja con la IA.
+  - name: El demo en vivo
+    url: https://demo.yoiber.com
+    about: Añade ?debug a la dirección para ver el reloj, el capítulo y los fotogramas por segundo.
+  - name: Referencia de Anime.js 4.5
+    url: https://docs.kipups.com/ANIMEJS.md
+    about: Trampas, recetas y la API completa. Léelo antes de proponer un cambio de animación.

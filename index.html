@@ -1,27 +1,331 @@
 <!doctype html>
-<html lang="es" style="background:#000;color-scheme:dark">
+<html lang="es" style="background:#1f1e1d">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>yoiberdev · Desarrollador de software</title>
-    <meta name="description" content="Web personal de Yoiber (yoiberdev), desarrollador de software: proyectos, automatizaciones y experimentos." />
-    <meta name="theme-color" content="#000000" />
-    <link rel="icon" type="image/svg+xml" href="/yoi-icon.svg" />
+    <meta charset="utf-8" />
+    <script>document.documentElement.classList.add("js");setTimeout(function(){document.documentElement.classList.add("is-ready")},2500);</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f1e1d" />
+    <title>Yoiber · desarrollador full-stack</title>
+    <meta name="description" content="Desarrollador full-stack. Sistemas distribuidos, dispositivos en campo e interfaces para datos en vivo." />
+    <!-- CANÓNICA, y por eso ya no hace falta el `noindex` que llevaba mientras esto era un demo:
+         la misma página se sirve en yoiber.com y en demo.yoiber.com (el segundo es el ensayo), así
+         que sin canónica serían dos copias compitiendo por el mismo sitio en el buscador. Con ella,
+         lo que se indexa es yoiber.com aunque el rastreador entre por el subdominio. -->
     <link rel="canonical" href="https://yoiber.com/" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="yoiberdev" />
-    <meta property="og:title" content="yoiberdev · Desarrollador de software" />
-    <meta property="og:description" content="Web personal de Yoiber (yoiberdev), desarrollador de software." />
     <meta property="og:url" content="https://yoiber.com/" />
+    <meta property="og:title" content="Yoiber · desarrollador full-stack" />
+    <meta property="og:description" content="Sistemas distribuidos, dispositivos en campo e interfaces para datos en vivo." />
     <meta property="og:image" content="https://yoiber.com/og.png" />
-    <meta property="og:locale" content="es_ES" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="yoiberdev · Desarrollador de software" />
-    <meta name="twitter:description" content="Web personal de Yoiber (yoiberdev), desarrollador de software." />
-    <meta name="twitter:image" content="https://yoiber.com/og.png" />
+    <meta property="og:locale" content="es_PE" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
-  <body style="margin:0;background:#000">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body>
+    <!-- El lienzo del motor 3D. Vacío hasta que llega el trozo diferido; si no llega nunca,
+         se queda vacío y no se ve. aria-hidden: es decorado, no contenido. -->
+    <div id="motor" aria-hidden="true"></div>
+
+    <div id="stage" aria-hidden="true">
+      <div class="world">
+        <div id="panel">
+          <div class="placa placa-1"></div>
+          <div class="placa placa-2"></div>
+          <div class="placa placa-3"></div>
+          <div class="placa placa-4"></div>
+          <div class="placa placa-5"></div>
+          <div class="galeria-puntos">
+            <span class="galeria-punto"></span><span class="galeria-punto"></span><span class="galeria-punto"></span><span class="galeria-punto"></span>
+            <span class="galeria-punto"></span><span class="galeria-punto"></span><span class="galeria-punto"></span><span class="galeria-punto"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LA CABECERA (effects/cabecera.ts). Fija arriba: el monograma (los tres trazados del logo a
+         28 px) que vuelve al principio, y tres enlaces que llevan a la primera tarjeta, al despiece
+         y al pie. Los href son anclas de verdad por si el módulo no llega; con él, el clic calcula
+         el scroll desde el maestro (data-ir). Entra con el texto del hero y se queda toda la página. -->
+    <header id="cabecera">
+      <a class="cabecera-logo" href="#" data-ir="inicio" aria-label="Inicio">
+        <svg viewBox="0 0 439 523" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" style="overflow: visible">
+          <path class="mono-a" d="M204.77 0C235.539 0 254.787 33.2885 239.437 59.9551L141.891 229.411L8.98075 65.1621C-12.183 39.0082 6.43132 0.000141945 40.0755 0H204.77Z" />
+          <path class="mono-b" d="M218.56 324.158C236.233 345.998 270.324 343.292 284.33 318.938L287.17 314H287.248L178.507 502.841C171.367 515.239 158.15 522.881 143.844 522.881H41.9276C11.1516 522.881 -8.09548 489.579 7.26839 462.912L141.839 229.348L218.56 324.158Z" />
+          <path class="mono-c" d="M398.846 0.0380859C400.995 0.0380805 403.088 0.200518 405.117 0.511719C431.98 4.79989 447.501 35.2121 433.279 59.9414L284.33 318.938C270.324 343.292 236.234 345.998 218.561 324.158L141.84 229.347L262.418 20.0693C269.559 7.67596 282.774 0.0390986 297.077 0.0390625L398.846 0.0380859Z" />
+        </svg>
+      </a>
+      <nav aria-label="Secciones">
+        <a href="#galeria" data-ir="proyectos">Proyectos</a>
+        <a href="#como" data-ir="dentro">Por dentro</a>
+        <a href="#pie" data-ir="contacto">Contacto</a>
+      </nav>
+    </header>
+
+    <!-- EL HERO. Es <section> y no <header>: la cabecera de la página es #cabecera, y dos <header>
+         al nivel del body serían dos banners para un lector de pantalla. -->
+    <section id="hero" class="capa">
+      <div class="intro">
+        <!-- El único <h1>. El logo ES la marca y no lleva texto: este titular es para quien no lo ve
+             (lectores de pantalla y el índice de la página). -->
+        <h1 class="solo-lectores">Yoiber, desarrollador full-stack</h1>
+        <!-- EL VELO. Antes era el fondo de `.intro`, y ahora es un nodo propio porque el relevo
+             separó lo que se va con el texto de lo que se va con el logo: el velo se funde con el
+             texto (Anime.js, dentro del maestro) mientras el logo hace su gesto aparte (GSAP). Su
+             razón de ser no ha cambiado: el motor se ensambla POR DETRÁS y el gris del objeto y el
+             de la letra son el mismo. -->
+        <div id="velo" aria-hidden="true"></div>
+
+        <!-- EL FONDO VIVO (effects/fondo-intro.ts): el anillo de marcas detrás del logo, como el
+             bisel de un instrumento, y el barrido que le da la vuelta. Las 72 marcas las crea el
+             módulo; aquí van el lienzo, el degradado del barrido y los dos grupos que giran.
+             Es decorado: aria-hidden. Centrado en el logo por CSS (ver base.css). -->
+        <div id="fondo-intro" aria-hidden="true">
+          <svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="fondo-grad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="currentColor" stop-opacity="0" />
+                <stop offset="1" stop-color="currentColor" stop-opacity="1" />
+              </linearGradient>
+            </defs>
+            <g class="anillo"></g>
+            <g class="giro"><path class="barrido" d="" /></g>
+          </svg>
+        </div>
+
+        <!-- LA INTRO DEL LOGO (effects/logo-intro.ts). El SVG va en el marcado, como el resto del
+             decorado del demo, y las tres formas llevan `opacity: 0` en línea: main.ts monta dentro
+             de document.fonts.ready, es decir después de la primera pintura, y sin esa opacidad el
+             logo se vería montado un instante antes de saltar a su posición de salida. Los trazados
+             son los de /opt/yoiblog/src/public/yoi-icon.svg.
+
+             LOS TRES <g>: son la CAPA DE LA SALIDA (effects/logo-salida.ts). La entrada y la
+             flotación escriben en los <path> —eso es el port literal y no se toca—; la salida
+             escribe en el <g> que envuelve a cada uno. Dos capas de transformación distintas: se
+             componen solas (g ∘ path) y ninguna pisa a la otra, así que el logo puede seguir
+             flotando mientras se retira y el gesto de salida es reversible sin guardar estado.
+             Un <g> sin transform es transparente para el path que lleva dentro: no crea un
+             viewport nuevo, así que ni su caja ni su transform-origin cambian. -->
+        <div id="logo">
+          <svg class="logo-svg" viewBox="0 0 439 523" fill="none" xmlns="http://www.w3.org/2000/svg"
+               role="img" aria-label="Logo de yoiberdev"
+               style="width: clamp(170px, 42vmin, 320px); height: auto; transform-origin: center; overflow: visible">
+            <g class="g-forma g-triangulo"><path class="triangle" d="M204.77 0C235.539 0 254.787 33.2885 239.437 59.9551L141.891 229.411L8.98075 65.1621C-12.183 39.0082 6.43132 0.000141945 40.0755 0H204.77Z" fill="#8F8F8F" style="transform-origin: center; opacity: 0" /></g>
+            <g class="g-forma g-trapecio"><path class="trapezoid" d="M218.56 324.158C236.233 345.998 270.324 343.292 284.33 318.938L287.17 314H287.248L178.507 502.841C171.367 515.239 158.15 522.881 143.844 522.881H41.9276C11.1516 522.881 -8.09548 489.579 7.26839 462.912L141.839 229.348L218.56 324.158Z" fill="#626262" style="transform-origin: center; opacity: 0" /></g>
+            <g class="g-forma g-barra"><path class="diagonal-bar" d="M398.846 0.0380859C400.995 0.0380805 403.088 0.200518 405.117 0.511719C431.98 4.79989 447.501 35.2121 433.279 59.9414L284.33 318.938C270.324 343.292 236.234 345.998 218.561 324.158L141.84 229.347L262.418 20.0693C269.559 7.67596 282.774 0.0390986 297.077 0.0390625L398.846 0.0380859Z" fill="white" style="transform-origin: center; opacity: 0" /></g>
+          </svg>
+        </div>
+        <!-- Ya no hay titular de texto partido: el logo ES la marca, y el titular "yoiber." repetía
+             en letra lo que el logo acaba de dibujar (y se le montaba encima). Lo que queda debajo es
+             lo que dice algo que el logo no dice: el lema, una línea de qué hace Yoiber y adónde ir.
+             Los tres los anima effects/hero.ts (entran a INTRO_ON+2900, cuando el logo ya está
+             quieto, y se retiran en HERO_OUT). La flecha del enlace se mueve en bucle por CSS. -->
+        <p id="lema">Software que sigue funcionando cuando nadie lo mira.</p>
+        <p id="nota">Desarrollador full-stack. Sistemas distribuidos, dispositivos en campo e interfaces para datos en vivo.</p>
+        <a id="bajar" href="#galeria">Ver los proyectos <span class="flecha" aria-hidden="true">↓</span></a>
+      </div>
+    </section>
+
+    <div id="capitulos">
+      <section id="intro" data-label="HERO_OUT" data-chapter="intro"></section>
+      <section id="galeria" data-label="GALERIA" data-chapter="galeria"></section>
+      <section id="como" data-label="COMO" data-chapter="como" data-theme="light">
+        <!-- Las nueve piezas del despiece, en texto. Los rótulos del motor viven dentro de #motor,
+             que es aria-hidden porque es decorado; pero "Cámara de combustión · relación de
+             contracción 3,24" ES el contenido de este capítulo, no decoración. Esta lista vale
+             para las dos escenas (con 3D y con el escenario CSS) y no se ve nunca. -->
+        <h2 class="solo-lectores">Cómo está hecho: las piezas del motor</h2>
+        <ul class="solo-lectores">
+          <li>Estructura de empuje: anillo y 12 tirantes en A</li>
+          <li>Paneles radiadores: tres a 120°, aristas a 60,1°</li>
+          <li>Cúpula del colector: se levanta y deja ver los inyectores</li>
+          <li>Placa de inyectores: 127 orificios en siete anillos</li>
+          <li>Turbobomba: voluta, cuerpo, turbina y escape</li>
+          <li>Cámara de combustión: relación de contracción 3,24</li>
+          <li>Conductos: descarga, línea al domo y escape</li>
+          <li>Corona de refrigeración: 36 tubos de radio variable</li>
+          <li>Campana de la tobera: perfil de Rao, expansión 17,6</li>
+        </ul>
+      </section>
+      <section id="cierre" data-label="CIERRE" data-chapter="cierre"></section>
+    </div>
+
+    <!-- EL PIE. En flujo, después de los espaciadores: cuando el maestro se acaba (el motor ya se
+         ha fundido con el fondo al final de CIERRE) el pie sube por encima de todas las capas fijas
+         menos la cabecera, que se queda también aquí.
+         Sus bloques entran con el scroll desde effects/pie.ts, fuera del maestro. Los cinco
+         proyectos son los mismos que las tarjetas, con el mismo enlace de cada .acceso. -->
+    <footer id="pie">
+      <div class="pie-bloque pie-cabecera">
+        <h2>Yoiber</h2>
+        <p class="que">Backend en Python y Node, interfaces en React y TypeScript, y máquinas Linux muy lejos de cualquier teclado.</p>
+      </div>
+      <div class="pie-lado">
+        <div class="pie-bloque">
+          <h3>Contacto</h3>
+          <ul class="pie-lista">
+            <li><a href="https://github.com/yoiberdev" target="_blank" rel="noopener">GitHub</a></li>
+            <li><a href="https://linkedin.com/in/yoiberdev/" target="_blank" rel="noopener">LinkedIn</a></li>
+            <!-- correo: pendiente de Yoiber -->
+          </ul>
+        </div>
+        <div class="pie-bloque">
+          <h3>Proyectos</h3>
+          <ul class="pie-lista pie-proyectos">
+            <li><a href="https://sysrrhh-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">SysRRHH</a><span class="pila">NestJS · Prisma · PostgreSQL · React</span></li>
+            <li><a href="https://kuidy-core-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">KUIDY-CORE</a><span class="pila">Hono · Drizzle · PostgreSQL con JSONB · React</span></li>
+            <li><a href="https://techdoc-api-164532276262.us-central1.run.app/api/swagger-ui.html" target="_blank" rel="noopener">TechDocAPI</a><span class="pila">Java 21 · Spring Boot · JPA · PostgreSQL</span></li>
+            <li><a href="https://financial-api-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">API financiera reactiva</a><span class="pila">Java 21 · WebFlux · R2DBC · Maven multi-módulo</span></li>
+            <li><a href="https://comandas-dev.kipups.com" target="_blank" rel="noopener">Kip-Up Comandas</a><span class="pila">Next.js · Prisma · Socket.IO · ESC/POS</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="pie-bloque pie-final">© 2026 Yoiber · <a href="#" id="arriba">Volver arriba</a></p>
+    </footer>
+
+    <!-- LA GALERÍA. Cinco proyectos con demo viva. Las secciones de #capitulos son espaciadores:
+         lo que se ve vive aquí, en una capa fija, y el reloj del maestro decide cuál está delante.
+         Es contenido de verdad, no decoración, así que NO lleva aria-hidden.
+         Cada tarjeta lleva, entre la pila y el detalle, un ESQUEMA (<svg class="esquema">) que el
+         scroll traza mientras la tarjeta está delante (effects/esquemas.ts; las ventanas de cada
+         pieza, en P.galeria.esquemas por su data-paso). Es decorado: lo que dice ya lo dice el
+         texto, por eso va aria-hidden. Las cifras del detalle (<b class="cifra" data-hasta>)
+         cuentan de 0 a su valor en el mismo tramo; el marcado lleva el valor final por si el
+         módulo no llega. El viewBox es 360x64: a 4,5 rem de alto en escritorio se pinta a 1,125
+         aumentos (los rótulos de 10 px salen a 11), a 3,5 rem en ventanas bajas (0,875) y a
+         2,5 rem en teléfonos altos (de 900 px), donde los rótulos se esconden (base.css).
+         Por debajo de esos 900 px en vertical el esquema no cabe y quien avanza con el scroll
+         es la BARRA (<span class="avance">): 2 px en el acento sobre el borde superior de la
+         captura, en su misma celda del grid, de 0 a 1 en el mismo tramo quieto. Va vacía y
+         aria-hidden: es un indicador, no contenido; sin el módulo no se ve y nada cambia. -->
+    <div id="galeria-tarjetas" class="capa">
+      <article class="tarjeta" data-slot="0">
+        <h2>SysRRHH</h2>
+        <img class="captura" src="/proyectos/sysrrhh.jpg" alt="Panel interno de SysRRHH con el módulo de vacantes" width="900" height="563" loading="lazy" decoding="async" />
+        <span class="avance" aria-hidden="true"></span>
+        <p class="que">Sistema de recursos humanos completo: reclutamiento, contratos, asistencia, ausencias y portal de empleo.</p>
+        <p class="pila">NestJS · Prisma · PostgreSQL · React</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="flujo">
+          <line data-paso="linea" x1="1" y1="32" x2="326" y2="32" />
+          <rect class="tapa" data-paso="caja1" x="1" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja2" x="115" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja3" x="229" y="18" width="98" height="28" rx="3" />
+          <text data-paso="r1" x="50" y="35.5" text-anchor="middle">RECLUTAMIENTO</text>
+          <text data-paso="r2" x="164" y="35.5" text-anchor="middle">CONTRATO</text>
+          <text data-paso="r3" x="278" y="35.5" text-anchor="middle">ASISTENCIA</text>
+          <polyline data-paso="tic" points="337,33 344,40 358,24" />
+        </svg>
+        <p class="detalle">Las ausencias se cuadran con transacciones en nivel <em>serializable</em>, y un índice parcial garantiza un solo contrato vigente por empleado. <b class="cifra" data-hasta="571">571</b> pruebas en seis segundos y medio.</p>
+        <p class="acceso"><a href="https://sysrrhh-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir la demo</a> · <code>admin@demo.local</code> / <code>Demo1234!</code></p>
+        <p class="aviso">Demo pública y editable: lo que hagas ahí lo ve todo el mundo.</p>
+      </article>
+
+      <article class="tarjeta" data-slot="1">
+        <h2>KUIDY-CORE</h2>
+        <img class="captura" src="/proyectos/kuidy.jpg" alt="Pantalla de proyectos de KUIDY-CORE" width="900" height="563" loading="lazy" decoding="async" />
+        <span class="avance" aria-hidden="true"></span>
+        <p class="que">Plataforma sin código: defines proyectos, módulos y campos, y un motor genérico dibuja los formularios y valida los registros.</p>
+        <p class="pila">Hono · Drizzle · PostgreSQL con JSONB · React</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="formulario">
+          <rect data-paso="campo1" x="1" y="4" width="166" height="22" rx="3" />
+          <rect data-paso="campo2" x="185" y="4" width="166" height="22" rx="3" />
+          <rect data-paso="campo3" x="1" y="38" width="166" height="22" rx="3" />
+          <rect data-paso="boton" x="185" y="38" width="96" height="22" rx="3" />
+          <rect class="relleno" data-paso="relleno" data-fundido x="185" y="38" width="96" height="22" rx="3" />
+          <text data-paso="r1" x="10" y="18.5">NOMBRE DEL CAMPO</text>
+          <text data-paso="r2" x="194" y="18.5">TIPO · FECHA</text>
+          <text data-paso="r3" x="10" y="52.5">REGLA · OBLIGATORIO</text>
+          <text class="sobre" data-paso="r4" x="233" y="52.5" text-anchor="middle">GUARDAR</text>
+        </svg>
+        <p class="detalle">El validador se construye en tiempo de ejecución a partir de los metadatos y es el mismo en el navegador y en el servidor. Los registros viven en una sola tabla JSONB con índice GIN.</p>
+        <p class="acceso"><a href="https://kuidy-core-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir la demo</a> · <code>owner@kuidy.demo</code> / <code>Demo1234!</code></p>
+        <p class="aviso">Entra como propietario y crea un campo nuevo: el formulario se adapta solo.</p>
+      </article>
+
+      <article class="tarjeta" data-slot="2">
+        <h2>TechDocAPI</h2>
+        <img class="captura" src="/proyectos/techdoc.jpg" alt="Swagger de TechDocAPI con sus rutas" width="900" height="563" loading="lazy" decoding="async" />
+        <span class="avance" aria-hidden="true"></span>
+        <p class="que">API REST para la documentación técnica de los sistemas instalados a bordo de embarcaciones.</p>
+        <p class="pila">Java 21 · Spring Boot · JPA · PostgreSQL</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="rutas">
+          <circle data-paso="punto1" cx="6" cy="11" r="3.5" />
+          <text data-paso="r1"><tspan x="18" y="14.5">GET /api/sistemas</tspan><tspan x="306" y="14.5">200</tspan></text>
+          <line data-paso="linea1" x1="136" y1="11" x2="296" y2="11" />
+          <circle data-paso="punto2" cx="6" cy="32" r="3.5" />
+          <text data-paso="r2"><tspan x="18" y="35.5">GET /api/documentos</tspan><tspan x="306" y="35.5">200</tspan></text>
+          <line data-paso="linea2" x1="148" y1="32" x2="296" y2="32" />
+          <circle data-paso="punto3" cx="6" cy="53" r="3.5" />
+          <text data-paso="r3"><tspan x="18" y="56.5">GET /api/versiones</tspan><tspan x="306" y="56.5">200</tspan></text>
+          <line data-paso="linea3" x1="142" y1="53" x2="296" y2="53" />
+        </svg>
+        <p class="detalle">Ocho entidades relacionadas y <b class="cifra" data-hasta="47">47</b> rutas documentadas, con respuesta uniforme y paginada y filtros por estado, tipo, fechas y etiquetas. Se enseña sola desde Swagger.</p>
+        <p class="acceso"><a href="https://techdoc-api-164532276262.us-central1.run.app/api/swagger-ui.html" target="_blank" rel="noopener">Abrir Swagger</a> · sin contraseña</p>
+        <p class="aviso">Datos ficticios. La API no pide autenticación: cualquiera puede crear o borrar.</p>
+      </article>
+
+      <article class="tarjeta" data-slot="3">
+        <h2>API financiera reactiva</h2>
+        <img class="captura" src="/proyectos/financial.jpg" alt="Página de la demo de la API financiera" width="900" height="563" loading="lazy" decoding="async" />
+        <span class="avance" aria-hidden="true"></span>
+        <p class="que">Tres microservicios reactivos: uno descifra el código del cliente, llama a los otros dos en paralelo y compone la respuesta.</p>
+        <p class="pila">Java 21 · WebFlux · R2DBC · Maven multi-módulo</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="correlacion">
+          <rect data-paso="nodoA" x="1" y="20" width="64" height="24" rx="3" />
+          <text data-paso="rA" x="33" y="35.5" text-anchor="middle">BFF</text>
+          <path data-paso="flecha1" d="M65 24 H96 L190 9 L183.4 6.7 L190 9 L184.4 13.2" />
+          <path data-paso="flecha2" d="M65 40 H96 L190 55 L184.4 50.8 L190 55 L183.4 57.3" />
+          <rect data-paso="nodoB" x="190" y="1" width="112" height="18" rx="3" />
+          <rect data-paso="nodoC" x="190" y="45" width="112" height="18" rx="3" />
+          <text data-paso="rB" x="246" y="13.5" text-anchor="middle">CLIENTES</text>
+          <text data-paso="rC" x="246" y="57.5" text-anchor="middle">PRODUCTOS</text>
+          <path data-paso="vuelta" d="M190 19 V45 M190 32 H65 L71 28.5 L65 32 L71 35.5" />
+          <polyline class="ruta" points="65,24 96,24 190,9 190,32 65,32" />
+          <circle class="punto" data-paso="id" data-ruta cx="65" cy="24" r="3.2" />
+        </svg>
+        <p class="detalle">El identificador de correlación viaja por el contexto de Reactor y se puede comprobar en vivo: la cabecera coincide con el cuerpo de la respuesta. <b class="cifra" data-hasta="99">99</b> pruebas.</p>
+        <p class="acceso"><a href="https://financial-api-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir la demo</a> · sin contraseña</p>
+        <p class="aviso">Era un reto de entrevista. El cifrado del código es determinista a propósito.</p>
+      </article>
+
+      <article class="tarjeta" data-slot="4">
+        <h2>Kip-Up Comandas</h2>
+        <img class="captura" src="/proyectos/comandas.jpg" alt="Entrada de Kip-Up Comandas" width="900" height="563" loading="lazy" decoding="async" />
+        <span class="avance" aria-hidden="true"></span>
+        <p class="que">De la mesa a la cocina y a la caja, sincronizado en tiempo real: plano de mesas, pantalla de cocina e impresión de tickets.</p>
+        <p class="pila">Next.js · Prisma · Socket.IO · ESC/POS</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="comandas">
+          <rect data-paso="mesa" x="1" y="19" width="76" height="26" rx="3" />
+          <text data-paso="r1" x="39" y="35.5" text-anchor="middle">MESA</text>
+          <path data-paso="flecha1" d="M77 32 H109 L103 27.5 L109 32 L103 36.5" />
+          <rect data-paso="cocina" x="109" y="19" width="76" height="26" rx="3" />
+          <text data-paso="r2" x="147" y="35.5" text-anchor="middle">COCINA</text>
+          <path data-paso="flecha2" d="M185 32 H217 L211 27.5 L217 32 L211 36.5" />
+          <rect data-paso="caja" x="217" y="19" width="76" height="26" rx="3" />
+          <text data-paso="r3" x="255" y="35.5" text-anchor="middle">CAJA</text>
+          <path data-paso="ticket" d="M313 4 H353 V60 L348 56 L343 60 L338 56 L333 60 L328 56 L323 60 L318 56 L313 60 Z" />
+          <path data-paso="rayas" d="M321 18 H345 M321 28 H345 M321 38 H345" />
+        </svg>
+        <p class="detalle">La cuenta se divide por personas o por productos y el descuento de stock es idempotente dentro de una transacción. La imagen se publica por rama y el servidor se actualiza solo.</p>
+        <p class="acceso"><a href="https://comandas-dev.kipups.com" target="_blank" rel="noopener">Abrir el entorno de pruebas</a></p>
+        <p class="aviso">Producto de Kip-Up, no personal. El enlace es el de pruebas, no el de producción.</p>
+      </article>
+    </div>
+
+    <!-- El titular de capítulo (effects/titulo.ts): el nombre grande arriba a la izquierda y, en
+         la galería, el contador de tarjetas debajo con el arco de progreso de la tarjeta delante
+         (galeria.ts lo dibuja con createDrawable). Sin clics: es una capa fija encima de todo. -->
+    <div id="rotulo" class="capa" aria-live="polite">
+      <span id="capitulo-nombre"></span>
+      <span id="capitulo-contador">
+        <span id="capitulo-progreso"></span>
+        <svg id="capitulo-arco" viewBox="0 0 22 22" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="9" /></svg>
+      </span>
+    </div>
+
+    <nav id="subnav" aria-label="Progreso de la página">
+      <div class="barra"><div class="cursor" role="slider" aria-label="Posición en la página" tabindex="0"></div></div>
+    </nav>
+
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

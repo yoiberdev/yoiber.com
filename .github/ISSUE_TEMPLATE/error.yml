@@ -1,5 +1,5 @@
 name: Error
-description: Algo que no funciona como debería.
+description: Algo que no se mueve como debería.
 title: "[Error] "
 labels: ["tipo: error", "estado: por hacer"]
 body:
@@ -7,16 +7,18 @@ body:
     id: pasa
     attributes:
       label: Qué pasa
-      placeholder: "El nombre aparece antes de que carguen las fuentes y da un salto."
+      placeholder: "Al volver hacia arriba desde el cierre, el panel se queda girado y no vuelve a su sitio."
     validations:
       required: true
   - type: textarea
     id: reproducir
     attributes:
       label: Cómo reproducirlo
+      description: Si puedes, añade el capítulo y el tiempo del maestro que muestra ?debug.
       placeholder: |
-        1. Abrir yoiber.com en el móvil con la caché vacía.
-        2. El logo aparece y a los dos segundos el texto se desplaza.
+        1. Abrir demo.yoiber.com/?debug y bajar hasta el final.
+        2. Subir de golpe con la barra de progreso.
+        3. En COMO el panel se queda inclinado. Maestro en 15200.
     validations:
       required: true
   - type: textarea
@@ -29,16 +31,18 @@ body:
     id: navegador
     attributes:
       label: Navegador y dispositivo
-      placeholder: "Chrome 140 en Android 15, o Safari en iPhone 13"
+      placeholder: "Safari en iPhone 13, o Firefox 145 en escritorio"
     validations:
       required: true
   - type: dropdown
-    id: entorno
+    id: movimiento
     attributes:
-      label: Dónde lo viste
+      label: ¿Tenías activado el movimiento reducido?
       options:
-        - Producción (yoiber.com)
-        - Desarrollo local
+        - "No"
+        - "Sí"
+        - No lo sé
+      default: 0
     validations:
       required: true
   - type: dropdown

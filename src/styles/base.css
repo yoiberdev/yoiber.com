@@ -1,0 +1,565 @@
+:root {
+  /* FONDO CÁLIDO, NO NEGRO (fila 12 del informe). Sobre #000 la sombra del motor era contraste
+     máximo y el gris del texto, un gris sin temperatura. Los tres grises se han vuelto a medir
+     sobre el fondo nuevo (contraste.py): --muted 5,40:1, --muted-2 4,68:1 (AA en texto pequeño
+     exige 4,5), --line es decorativo (1,44:1, la misma distancia al fondo que tenía sobre negro). */
+  --bg: #1f1e1d;
+  --fg: #f4f4f2;
+  --muted: #93938f;
+  --muted-2: #888884;
+  --line: #3a3936;
+  /* EL ACENTO VIGENTE. El ámbar es el de la página (hero, HERO_OUT, COMO, CIERRE); en la galería
+     cada tarjeta trae el suyo (.tarjeta[data-slot], más abajo) y core/acento.ts lo sube a <html>
+     en línea cuando esa tarjeta manda, para que la sub-nav, el contador y el motor lo tomen. */
+  --acento: #ffd166;
+  --panel: min(400px, 78vw);
+  /* La monoespaciada de verdad (JetBrains Mono variable, importada en main.ts): pilas, credenciales,
+     contador, el enlace del hero, el pie y el overlay de depuración. Antes todo eso iba en
+     ui-monospace, que en cada máquina es una fuente distinta. */
+  --mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  color-scheme: dark;
+}
+html.is-light {
+  color-scheme: light;
+  --bg: #efe9df;
+  --fg: #141414;
+  --muted: #5f5a52;
+  --muted-2: #6a655c;
+  --line: #c9c1b2;
+}
+/* La transición de tema la hace el CSS sobre las propiedades que usan las variables. */
+html, body, .placa, #subnav, #debug { transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out, border-color 0.25s ease-in-out; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--fg); }
+body {
+  font-family: 'Space Grotesk Variable', system-ui, sans-serif;
+  scroll-behavior: smooth;
+}
+/* Oculto solo si hay JS (clase .js puesta por el script de cabecera) y las fuentes aún no están listas;
+   el mismo script destapa a los 2,5 s aunque el módulo falle. */
+html.js:not(.is-ready) .capa, html.js:not(.is-ready) #cabecera { visibility: hidden; }
+
+/* Capas fijas: el scroll solo mueve los espaciadores de #capitulos. */
+.capa { position: fixed; inset: 0; }
+#capitulos section { display: block; }
+#capitulos section:first-child { height: 200vh; height: 200lvh; }
+
+/* Hero */
+#hero { display: grid; place-items: center; pointer-events: none; }
+/* --intro-arriba es el padding de arriba de .intro Y el punto de partida del anillo (#fondo-intro
+   va centrado en el logo por geometría: este valor más media altura del SVG). Es una variable para
+   que las dos cosas se muevan juntas: en ventanas bajas (más abajo) sube a 4 rem. */
+#hero .intro { --intro-arriba: 2rem; --lema-arriba: 3.5rem; position: relative; text-align: center; padding: var(--intro-arriba) 2.5rem 3rem; pointer-events: auto; }
+/* VELO. El motor se ensambla POR DETRÁS del hero mientras este se va, y el gris del objeto y el
+   gris de la letra son el mismo: en la captura esc-02 el titular y las dos líneas de abajo caían
+   sobre la cámara de combustión y no se leían. Un velo del color del fondo, sin borde, devuelve el
+   contraste sin pintar una caja encima del objeto.
+   Es un nodo y no el fondo de `.intro` porque en el relevo el velo se va CON EL TEXTO (Anime.js,
+   dentro del maestro) y el logo se va por su cuenta (GSAP): si el velo siguiera siendo el fondo del
+   contenedor, fundirlo se llevaría también el logo por delante. */
+#velo {
+  position: absolute; inset: -2rem -1rem; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 78% 62% at 50% 42%,
+    color-mix(in srgb, var(--bg) 92%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 74%, transparent) 52%,
+    transparent 78%);
+}
+/* El logo animado (effects/logo-intro.ts). Sus formas salen a 15-20 aumentos y muy lejos del
+   centro: nada en su camino puede recortarlas, de ahí el overflow visible aquí y en el SVG. */
+#logo {
+  display: flex; align-items: center; justify-content: center;
+  overflow: visible; position: relative; z-index: 10; transform-origin: center;
+}
+/* Los tres <g> son la capa de la salida (effects/logo-salida.ts); en reposo no transforman nada, y
+   el origen de sus giros lo pone GSAP en cada gesto (aquí no, para no tener dos fuentes). */
+
+/* EL FONDO VIVO DE LA INTRO (effects/fondo-intro.ts): el anillo de marcas detrás del logo. Va
+   centrado en el logo POR GEOMETRÍA (el padding de arriba de .intro más media altura del SVG, que
+   es 523/439 de su ancho) y no dentro de #logo: el gesto de salida "colapso" escala y sube #logo
+   entero, y el anillo se va con el velo, no con el logo. z-index 1: por encima del velo (0) y por
+   debajo del logo (10). El ancho: 1,45 veces el del logo (170 x 1,45 = 247 px en un teléfono de
+   390). Era 1,9 y el anillo pisaba el lema en 1440x900 y en los teléfonos (juez de la Vuelta 2):
+   con 320 px de logo el anillo bajaba hasta 527 px del borde de .intro y el lema empezaba a 441.
+   Con 1,45 (radio 232) acaba a 455 y el lema, con su margen de 3,5 rem, empieza a 469: 14 px de
+   aire, y arriba queda a 123 px, lejos de la cabecera. El color es --muted; la opacidad la escribe
+   el maestro. */
+#fondo-intro {
+  --logo-ancho: clamp(170px, 42vmin, 320px);
+  --anillo: 1.45; /* diámetro del anillo en anchos de logo */
+  position: absolute; left: 50%; top: calc(var(--intro-arriba) + var(--logo-ancho) * 523 / 439 / 2);
+  width: calc(var(--logo-ancho) * var(--anillo)); height: calc(var(--logo-ancho) * var(--anillo));
+  translate: -50% -50%;
+  z-index: 1; pointer-events: none; color: var(--muted); overflow: visible;
+}
+#fondo-intro svg { display: block; width: 100%; height: 100%; overflow: visible; }
+/* Los dos grupos giran (Anime.js, transform CSS) alrededor del (0,0) del anillo. Con
+   `transform-box: view-box` la caja de referencia tiene el TAMAÑO del viewBox pero su esquina está
+   en el (0,0) del usuario, no en el (-100,-100) del viewBox: medido, con `50% 50%` el barrido
+   orbitaba la esquina inferior derecha (100,100) con 628 px de radio y se salía de la ventana.
+   `0 0` es el origen del usuario, que en este viewBox es el centro. */
+#fondo-intro .anillo, #fondo-intro .giro { transform-box: view-box; transform-origin: 0 0; }
+#fondo-intro line { stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; }
+#fondo-intro .barrido { fill: none; stroke: url(#fondo-grad); stroke-linecap: round; }
+/* VENTANAS BAJAS (1366x620, el portátil típico). Dos cosas, medidas en esa ventana:
+   1) La cabecera fija pinta un degradado en sus 56 px de arriba y el logo, con 2 rem de padding y
+      .intro centrada (606 px de contenido en 620), arrancaba a y = 39: sus 17 primeras filas salían
+      sombreadas (R de 150 a 255 en vez de 255) y las marcas del anillo, cortadas por el borde.
+      Del logo a "Ver los proyectos" hay 525 px de contenido fijo, y la caja solo se centra mientras
+      cabe (si crece por encima de 620 el grid la clava en y = 0 y el enlace se sale por abajo:
+      medido con 6 rem arriba, el enlace acababa en 621). Así que el padding no se añade, SE MUEVE:
+      2 rem menos abajo y 2 rem más arriba. La caja mide lo mismo, sigue centrada a y = 7, y todo
+      lo de dentro baja 32 px: el logo arranca a y = 71 (la flotación de logo-intro.ts lo sube como
+      mucho 5 unidades del viewBox, 3 px: nunca por encima de 68, 12 px bajo la banda de 56) y el
+      enlace acaba a 597, dentro de los 620.
+   2) Con 1,55 el anillo (403 px) se salía 7 px por arriba y pisaba 19 px del lema por abajo; con
+      1,4 (365 px, radio 182) va de y = 44 a 409 y el lema empieza a 410: entero y sin tocar el texto.
+   (A 1440x900 no entra: el logo empieza a y = 144 y no hay solape.) */
+@media (min-aspect-ratio: 1/1) and (max-height: 700px) {
+  #hero .intro { --intro-arriba: 4rem; padding-bottom: 1rem; }
+  #fondo-intro { --anillo: 1.4; }
+  /* El margen de 3,5 rem del lema (--lema-arriba) es para que el anillo no lo toque en ventanas
+     altas; aquí el anillo ya es más pequeño y los 28 px de más sacaban "Ver los proyectos" por
+     debajo de los 620 (medido: acababa en 617). */
+  #hero .intro { --lema-arriba: 1.75rem; }
+}
+
+/* El texto bajo el logo (effects/hero.ts). Tres voces: el lema en el color del texto y a peso 500,
+   la nota en gris, y el enlace en mono y mayúsculas. Los anchos en ch para que el lema no pase de
+   dos líneas ni la nota de tres en ninguna ventana. */
+#lema, #nota, #bajar { position: relative; z-index: 1; }
+#lema { margin: var(--lema-arriba) auto 0; max-width: 28ch; font-size: clamp(1.25rem, 2.6vw, 1.75rem); font-weight: 500; line-height: 1.25; letter-spacing: -0.01em; color: var(--fg); text-wrap: balance; }
+#nota { margin: 1rem auto 0; max-width: 46ch; font-size: 1rem; line-height: 1.5; color: var(--muted); }
+#bajar {
+  display: inline-block; margin-top: 2rem; padding-bottom: 0.2rem;
+  font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--line);
+}
+#bajar:hover, #bajar:focus-visible { border-bottom-color: var(--acento); }
+#bajar:focus-visible { outline: 2px solid var(--acento); outline-offset: 4px; }
+/* La flecha: un vaivén de 6 px en 1,6 s. Es el único bucle del hero aparte de la flotación del
+   logo, y va en CSS porque no depende del reloj de nada. inline-block: a un span en línea el
+   transform no le hace nada. */
+#bajar .flecha { display: inline-block; margin-left: 0.35em; animation: vaiven 1.6s ease-in-out infinite; }
+@keyframes vaiven { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+/* Cuando el hero ya se ha ido (hero.ts pone `se-fue` por tiempo del maestro), .intro sale del
+   hit-testing y del orden de tabulación: a opacidad 0 el enlace seguía siendo pinchable en el
+   centro de la galería. */
+#hero .intro.se-fue { visibility: hidden; }
+@media (prefers-reduced-motion: reduce) { #bajar .flecha { animation: none; } }
+/* En un teléfono los 2,5 rem de padding lateral dejaban 310 px al lema, que a 20 px partía en tres
+   líneas con "mira." huérfano en la última (captura mov-01). Con 1,5 rem y text-wrap: balance
+   son tres líneas equilibradas o dos. */
+@media (max-width: 899px) { #hero .intro { padding: var(--intro-arriba) 1.5rem 3rem; } }
+
+/* Motor 3D (WebGL) y relevo con el escenario CSS.
+   El cruce lo hace el CSS, no Anime.js: son dos opacidades y no tienen por qué pasar por el reloj
+   del maestro. Duración igual a P.motor.relevo (420 ms). */
+#motor {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.42s ease-in-out;
+  contain: strict;            /* el lienzo no puede provocar reflujo del resto de la página */
+}
+#motor .motor-lienzo { display: block; width: 100%; height: 100%; }
+html.motor-on #motor { opacity: 1; }
+html.motor-on #stage { opacity: 0; }
+#stage { transition: opacity 0.42s ease-in-out; }
+@media (prefers-reduced-motion: reduce) {
+  /* Cinturón y tirantes: aunque nunca se pide el trozo 3D con movimiento reducido, si alguien lo
+     fuerza con ?motor=3d el cruce no parpadea. */
+  #motor, #stage { transition: none; }
+}
+
+/* Escenario 3D */
+#stage { position: fixed; inset: 0; pointer-events: none; perspective: calc(100vh * 1.37); perspective: calc(100lvh * 1.37); overflow: hidden; }
+#stage .world { position: absolute; inset: 0; display: grid; place-items: center; transform-style: preserve-3d; }
+#panel { position: relative; width: var(--panel); height: var(--panel); transform-style: preserve-3d; will-change: transform, opacity; }
+.placa {
+  position: absolute; inset: 0;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background-color: color-mix(in srgb, var(--bg) 92%, var(--fg));
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+.placa-1 { inset: 8%; border-radius: 50%; }
+.placa-2 { background-image: radial-gradient(var(--line) 1px, transparent 1.5px); background-size: 16px 16px; }
+.placa-3 { inset: 18%; border-style: dashed; }
+.placa-4 { inset: 30%; border-radius: 12px; }
+.placa-5 { inset: 44%; border-radius: 50%; background-color: var(--acento); border-color: var(--acento); }
+.galeria-puntos { position: absolute; left: 50%; bottom: -2.5rem; transform: translateX(-50%); display: flex; gap: 0.6rem; }
+.galeria-punto { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--acento); display: block; }
+
+/* LA GALERÍA. El motor se aparta (a la izquierda en apaisado, arriba en vertical) y las tarjetas
+   ocupan ese hueco. Solo una está delante a la vez: la opacidad la escribe el reloj del maestro. */
+#galeria-tarjetas { pointer-events: none; }
+.tarjeta {
+  position: absolute;
+  right: 3vw;
+  /* Centrado por caja, NO por transform: la animación de entrada también escribe transform y
+     pisaba el translateY(-50%). Se veía como tarjetas que se salían por abajo. */
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: min(26rem, 34vw);
+  opacity: 0;
+  pointer-events: none;
+}
+/* Las PIEZAS entran una a una (la mini-secuencia de galeria.ts) y también empiezan apagadas. El
+   contenedor SIGUE a opacidad 0 en reposo y el maestro lo enciende en el primer 5 % del cruce:
+   en vertical la tarjeta pinta un fondo opaco (más abajo) y las cinco ocupan el mismo sitio, así
+   que con el contenedor siempre a 1 las cuatro que van después en el DOM tapaban a la que manda
+   (medido en el iPhone: el título se veía a través del degradado y nada más). */
+.tarjeta > * { opacity: 0; }
+.tarjeta.viva { pointer-events: auto; }
+/* EL ACENTO DE CADA PROYECTO (fila 9). Sobre #1f1e1d, como texto pequeño (.pila a 0,78 rem):
+   6,12 · 7,49 · 9,13 · 7,16 · 6,64 a 1, todos por encima del 4,5 de AA (contraste.py). El quinto es
+   el rojo de Kip-Up aclarado. core/acento.ts lee estos mismos valores del estilo computado. */
+.tarjeta[data-slot="0"] { --acento: #5c9dff; }
+.tarjeta[data-slot="1"] { --acento: #c39bff; }
+.tarjeta[data-slot="2"] { --acento: #4fd6a8; }
+.tarjeta[data-slot="3"] { --acento: #ff8a5b; }
+.tarjeta[data-slot="4"] { --acento: #ff7a85; }
+.tarjeta .captura {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 0 1rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  max-height: 34vh;
+  object-fit: cover;
+  object-position: top left;
+}
+/* JERARQUÍA DE LA TARJETA. Antes todo iba entre 12 y 15 px a peso 400-600 y el título no mandaba.
+   Ahora hay tres voces claras: el título a 3 rem y peso 700, el "qué" a 1,15 rem, y el resto (pila,
+   detalle, acceso, aviso) por debajo de 1 rem. Las medidas caben en 1440x900 con el detalle; en
+   ventanas bajas y en vertical hay dos media queries más abajo que recortan lo que sobra. */
+.tarjeta h2 { margin: 0 0 0.75rem; font-size: clamp(1.9rem, 3.6vw, 3rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.02; }
+.tarjeta .que { margin: 0 0 1rem; font-size: 1.15rem; line-height: 1.45; color: var(--fg); }
+/* La pila (tarjetas y pie): mono, mayúsculas y pequeña. Es la voz "de máquina" de la página. */
+.pila { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.tarjeta .pila { margin: 0 0 1rem; color: var(--acento); }
+.tarjeta .detalle { margin: 0 0 1.25rem; font-size: 0.95rem; line-height: 1.5; color: var(--muted); }
+.tarjeta .acceso { margin: 0 0 0.5rem; font-size: 0.95rem; }
+.tarjeta .acceso a { color: var(--fg); border-bottom: 1px solid var(--acento); text-decoration: none; }
+.tarjeta .acceso a:hover { border-bottom-width: 2px; }
+.tarjeta .acceso code { font-family: var(--mono); font-size: 0.85em; color: var(--muted); }
+.tarjeta .aviso { margin: 0; font-size: 0.8rem; line-height: 1.4; color: var(--muted-2); }
+/* LA CIFRA VIVA del detalle (esquemas.ts la cuenta de 0 a su valor con el scroll). inline-block con
+   un ancho mínimo en ch (lo escribe el módulo: tantos ch como dígitos) y números tabulares: la
+   línea no se recompone mientras cuenta de "0" a "571", que sería un reflujo del párrafo por
+   fotograma. En el color del texto y a 600: es el dato que la tarjeta quiere que se lea. */
+.tarjeta .cifra { display: inline-block; text-align: right; font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
+/* EL ESQUEMA VIVO (effects/esquemas.ts, fila 21): un dibujo pequeño en el acento del proyecto,
+   entre la pila y el detalle, que el scroll traza mientras la tarjeta está delante. viewBox
+   360x64 y `meet` alineado a la izquierda: el alto manda y el dibujo se escala entero (los
+   rótulos son <text> del SVG y escalan con él). 4,5 rem en escritorio: a 1440x900 la tarjeta
+   más larga medía 620 px y con el esquema y su margen 712, centrada de 94 a 806 (las ventanas
+   bajas y los teléfonos, más abajo). El trazo es 1,5 en unidades del viewBox (1,7 px aquí, 1,3
+   en ventanas bajas): con `non-scaling-stroke` el proxy de createDrawable tendría que leer el
+   CTM en cada escritura. Las formas empiezan sin trazar y los rótulos apagados (el maestro los
+   enciende; con movimiento reducido el módulo lo pone todo en su estado final). */
+.tarjeta .esquema { display: block; width: 100%; height: 4.5rem; margin: 0 0 1.25rem; overflow: visible; }
+.esquema rect, .esquema line, .esquema path, .esquema polyline, .esquema circle { fill: none; stroke: var(--acento); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.esquema .tapa { fill: var(--bg); }                           /* las cajas del flujo tapan la línea que pasa por debajo */
+.esquema .relleno { fill: var(--acento); stroke: none; opacity: 0; } /* el botón del formulario se rellena al final */
+.esquema .punto { fill: var(--acento); stroke: none; opacity: 0; }   /* el identificador que recorre la ruta */
+.esquema .ruta { stroke: none; }                              /* la polilínea que sigue el punto: no se ve */
+.esquema text { font-family: var(--mono); font-size: 10px; letter-spacing: 0.04em; fill: var(--muted); opacity: 0; }
+.esquema text.sobre { fill: var(--bg); }                      /* el rótulo del botón, sobre el relleno */
+/* LA BARRA DE AVANCE de la captura (effects/esquemas.ts, la otra mitad de la fila 21). Donde el
+   esquema no cabe —en vertical y por debajo de 900 px de alto: iPhone 13, Pixel 5, 360x640— la
+   tarjeta se quedaba sin nada que avanzara con el scroll, y los teléfonos son objetivo desde la
+   Vuelta 1. Son 2 px en el acento del proyecto sobre el borde superior de la captura, en su MISMA
+   celda del grid (grid-row 4, align-self: start): la fila la sigue midiendo la captura, así que no
+   añade un píxel de alto a la tarjeta ni le quita sitio a la banda del motor. El módulo la lleva de
+   0 a 1 con scaleX (escala, no ancho: el ancho es layout y se recalcularía en cada fotograma) y por
+   eso el origen va a la izquierda. Aquí NO se declara el display: se enseña solo en la media query
+   de abajo, o sea exactamente donde el esquema está oculto; en escritorio, en ventanas bajas y en
+   teléfonos altos manda el esquema y la barra no existe. Sin transición: quien escribe es el
+   maestro, y una transición CSS encima haría que el valor medido llegara tarde. */
+.tarjeta .avance { display: none; height: 2px; background: var(--acento); transform-origin: left center; }
+
+/* Ventanas bajas (portátiles de 13 pulgadas, o el navegador con barras): el párrafo técnico es lo
+   primero que sobra. Qué es, con qué está hecho y el enlace tienen que caber siempre. */
+@media (min-aspect-ratio: 1/1) and (max-height: 700px) {
+  .tarjeta { width: min(24rem, 32vw); }
+  /* 2 rem y no los 3 del clamp: a 620 px de alto el título a 48 px en dos líneas se llevaba 100 px
+     de los 588 útiles. Medido en la tarjeta 4 ("API financiera reactiva", dos líneas a 32 px). */
+  .tarjeta h2 { font-size: 2rem; margin-bottom: 0.5rem; }
+  .tarjeta .que { font-size: 1rem; margin-bottom: 0.6rem; }
+  .tarjeta .pila { margin-bottom: 0.6rem; }
+  .tarjeta .detalle { display: none; }
+  .tarjeta .captura { margin-bottom: 0.6rem; }
+  /* 3,5 rem (0,875 aumentos, rótulos a 8,75 px): con el detalle fuera, la tarjeta más larga
+     (KUIDY-CORE, "qué" de tres líneas) mide 496 px y se centra de 62 a 558 en 620. */
+  .tarjeta .esquema { height: 3.5rem; margin-bottom: 0.6rem; }
+}
+
+/* EN VERTICAL no hay sitio a los lados y nunca lo habrá: la tarjeta va en DOS FILAS con el motor
+   en medio (informe BRECHA, fila 16). Arriba, bajo la cabecera y al lado del titular de capítulo,
+   el título y la pila; en medio, la banda del motor (la coreografía lo centra ahí y lo encoge si
+   no cabe: PM.coreo.galeria.vertical); abajo, pegados a la sub-nav, la captura, el "qué" y el
+   enlace. Es un grid sobre el MISMO marcado (el orden del DOM no cambia: h2, captura, qué, pila,
+   detalle, acceso, aviso): cada pieza va a su fila y la fila 3, vacía, es la banda del motor y se
+   queda con el alto que sobra. Las dos filas de texto miden lo que miden en píxeles, por eso la
+   banda del motor se define en píxeles desde los bordes (148 arriba, 280 abajo): con la tarjeta
+   más larga la fila de arriba acaba a 140,5 px y la de abajo empieza a 272 px del borde inferior
+   (medido en 390x664, 393x851 y 360x640: la fila de abajo mide lo mismo en las tres).
+   Antes el título y la captura caían SOBRE el motor (28 y 53 px de solape en un iPhone 13) y el
+   título llevaba un degradado detrás para leerse: ya no hace falta y se quita. */
+@media (max-aspect-ratio: 1/1) {
+  .tarjeta {
+    right: auto; left: 6vw; width: 88vw;
+    /* De 3,25 rem (la línea del titular, bajo la cabecera de 2,75) a 4,5 rem del borde inferior:
+       la sub-nav acaba a 3,75 rem, quedan 12 px de aire. */
+    top: 3.25rem; bottom: 4.5rem;
+    display: grid; grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto auto auto;
+    align-content: stretch; justify-content: stretch;
+    padding: 0; background: none;
+  }
+  .tarjeta h2 { grid-row: 1; }
+  .tarjeta .pila { grid-row: 2; }
+  /* `grid-column: 1` EXPLÍCITO, y no por auto-colocación: la barra de avance comparte celda con la
+     captura (fila 4), y el algoritmo coloca primero lo que tiene fila Y columna fijas. Sin esta
+     línea la captura no cabía en la celda ya ocupada, se iba a una columna implícita 2 y la
+     tarjeta se partía en dos columnas: medido en un 360x640, el texto pasaba de 316,8 px de ancho
+     a 164,5 y la captura a 152,3, el "qué" doblaba de líneas y la captura subía 97 px hasta
+     meterse 79 px dentro de la banda del motor. */
+  .tarjeta .captura { grid-row: 4; grid-column: 1; }
+  .tarjeta .que { grid-row: 6; }
+  .tarjeta .acceso { grid-row: 7; }
+  .tarjeta .detalle, .tarjeta .aviso { display: none; }   /* lo esencial: qué es, con qué, y el enlace */
+  /* EL ESQUEMA EN VERTICAL: solo donde cabe. La banda del motor es fija en píxeles desde los
+     bordes (PM.coreo.galeria.vertical: 148 arriba y 280 abajo) y la fila de abajo ya empieza a
+     272 px del borde: quedan 8 px. Medido con el motor puesto (QA de la Vuelta 3): del motor a la
+     captura hay 13 px en un iPhone 13 (390x664) y 11 en 360x640; en un teléfono alto el motor
+     deja de crecer (338 px, su escala de galería) y en un Pixel 5 (393x851) sobran 47 en las
+     tarjetas 1-4 pero solo 36 en la 5, porque en el último 10 % de GALERIA el motor ya está
+     volviendo al centro (PM.coreo.galeria.vuelve) y su caja baja 10 px: con el esquema a 2,25 rem
+     la captura de la tarjeta 5 pisaba el motor 5,6 px. Así que en vertical va oculto y se enseña a
+     partir de 900 px de alto (Pixel 7 y 8 a 915, iPhone Pro Max a 932), en la fila 5 (bajo la
+     captura y antes del "qué") a 2,5 rem más 0,35 rem de margen: 45,6 px. El aire que sobra es
+     vh / 2 − 375 en las tarjetas 1-4 y unos 10 menos en la 5: a 900 px, 75 y 65, o sea 19 px de
+     margen en el peor caso; a 915, 34. A 0,625 aumentos los rótulos de 10 px serían de 6,25: se
+     esconden y quedan las formas. Encoger la captura (6 rem) para hacerle sitio en los teléfonos
+     bajos la dejaría en una tira de 56 px: en un teléfono la captura dice más que el esquema. */
+  .tarjeta .esquema { display: none; }
+  /* ...y en su lugar avanza la barra de la captura: misma celda que ella (fila 4) y pegada arriba,
+     así que la fila la sigue midiendo la captura y la tarjeta mide lo mismo que antes. */
+  .tarjeta .avance { display: block; grid-row: 4; grid-column: 1; align-self: start; }
+  /* El título comparte línea con el titular de capítulo ("Proyectos" a 1,5 rem mide 118 px y va
+     a 1 rem del borde) y la pila con el contador y su arco (61 px): se les deja ese hueco a la
+     derecha, con 10 px de aire. */
+  .tarjeta h2 { padding-right: 7.5rem; }
+  .tarjeta .pila { padding-right: 5rem; }
+  /* 1,5 rem y no 1,75: con 7,5 rem reservados al titular quedan ~200 px en un teléfono de 360, y
+     "API financiera reactiva" a 28 px partía en tres líneas (86 px) que se comían la banda del
+     motor; a 24 px son dos (49 px). Es el mismo cuerpo que el titular, pero a la izquierda y con
+     la pila debajo: la jerarquía la da el sitio, no el tamaño. */
+  .tarjeta h2 { font-size: 1.5rem; margin-bottom: 0.35rem; }
+  .tarjeta .pila { margin-bottom: 0; }
+  /* La captura a 6 rem (96 px) y no a 19vh: la fila de abajo tiene que caber en los 280 px que
+     le deja la banda del motor; con 19vh (126 px en el iPhone) empezaba 26 px dentro de ella. En
+     píxeles y no en vh a propósito: en un teléfono alto el sitio que sobra es del motor. */
+  .tarjeta .captura { max-height: 6rem; margin: 0 0 0.6rem; }
+  /* EL CUERPO BAJA CON EL ANCHO por debajo de 390 px (3,9vw = 15,2 px justo a 390): así el texto
+     parte en las MISMAS líneas en un teléfono de 360 que en uno de 390, y la fila de abajo mide
+     lo mismo (272 px con el "qué" de tres líneas y el enlace de una). Medido antes: a 360 px el
+     "qué" de KUIDY-CORE hacía cuatro líneas y el enlace de SysRRHH dos, 41 px más que a 390, y
+     la captura se metía en la banda del motor. */
+  .tarjeta .que { font-size: min(0.95rem, 3.9vw); line-height: 1.45; margin-bottom: 0.6rem; }
+  .tarjeta .acceso { font-size: min(0.95rem, 3.9vw); margin-bottom: 0; }
+  /* Y LOS OCHO PUNTOS DEL ESCENARIO CSS, FUERA. Cuelgan del panel con `bottom: -2.5rem`, o sea 40 px
+     POR DEBAJO de él, y en vertical ese hueco ya no está vacío: ahí empieza la fila de abajo de la
+     tarjeta y los puntos, sólidos y en el acento, caían sobre la segunda línea del "qué" (medido con
+     movimiento reducido en un iPhone 13: los ocho encima de "los sistemas instalados a bordo de").
+     En apaisado siguen puestos, que es donde el panel tiene sitio debajo. Se van con esta regla y no
+     tocando el fallback: quien decide si hay hueco es la hoja, no el módulo. */
+  .galeria-puntos { display: none; }
+}
+@media (max-aspect-ratio: 1/1) and (min-height: 900px) {
+  .tarjeta .esquema { display: block; grid-row: 5; height: 2.5rem; margin: 0 0 0.35rem; }
+  .esquema text { display: none; }
+  /* Con el esquema puesto la barra sobra: son dos formas de contar lo mismo y juntas se leen como
+     dos relojes. Manda el esquema, que dice ADEMÁS de qué va el proyecto. */
+  .tarjeta .avance { display: none; }
+}
+
+/* EL TITULAR DE CAPÍTULO (effects/titulo.ts). Fijo arriba a la izquierda, el nombre grande y el
+   contador de la galería debajo, en mono. Antes era un rótulo de 0,85 rem en mayúsculas abajo a
+   la izquierda que no se leía como parte de la página. Sin clics: es una capa fija encima de las
+   tarjetas y del pie. */
+#rotulo {
+  /* 4,5 rem y no 1,5: la cabecera fija ocupa los 3,5 rem de arriba. */
+  inset: 4.5rem auto auto 2rem; display: flex; flex-direction: column; align-items: flex-start; gap: 0.4rem;
+  pointer-events: none;
+}
+#capitulo-nombre { font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1; color: var(--fg); }
+/* El contador y, delante, el arco de progreso de la tarjeta (galeria.ts lo dibuja con
+   createDrawable a lo largo del tramo de cada tarjeta). Los dos en el acento vigente, que es el del
+   proyecto: el fundido de 400 ms es el mismo del cursor y de las paradas de la sub-nav. */
+#capitulo-contador { display: flex; align-items: center; gap: 0.5rem; }
+#capitulo-progreso { font-family: var(--mono); font-size: 0.85rem; font-variant-numeric: tabular-nums; color: var(--acento); transition: color 0.4s; }
+#capitulo-arco { order: -1; width: 22px; height: 22px; display: block; rotate: -90deg; }
+#capitulo-arco circle { fill: none; stroke: var(--acento); stroke-width: 2; transition: stroke 0.4s; }
+/* Sin contador (fuera de la galería) tampoco hay arco. */
+#capitulo-progreso:empty + #capitulo-arco { visibility: hidden; }
+
+/* LA CABECERA (effects/cabecera.ts): fija arriba, ancho completo, el monograma a la izquierda y
+   tres enlaces a la derecha. pointer-events solo en los enlaces: la banda no tapa el motor ni el
+   arrastre. El fondo es un degradado de --bg a nada en sus 3,5 rem, para que se lea sobre el
+   motor sin pintar una franja. z-index 4: por encima del pie (3), que es lo último que sube. La
+   opacidad la escribe el maestro (entra con el texto del hero) y `inert` la saca del foco y del
+   ratón mientras no está. */
+#cabecera {
+  position: fixed; inset: 0 0 auto 0; height: 3.5rem; z-index: 4;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 2rem;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--bg), transparent);
+  transition: background 0.25s ease-in-out;
+}
+#cabecera a { pointer-events: auto; color: var(--fg); text-decoration: none; }
+#cabecera .cabecera-logo { display: block; height: 28px; }
+#cabecera .cabecera-logo svg { display: block; height: 28px; width: auto; }
+/* Los tres grises del monograma salen de --fg y --bg, no de los del logo grande: sobre el tema
+   claro de COMO un blanco fijo desaparecería. Medido en oscuro: 244, 154 y 116 (el logo: 255, 143, 98). */
+#cabecera .mono-a { fill: color-mix(in srgb, var(--fg) 58%, var(--bg)); }
+#cabecera .mono-b { fill: color-mix(in srgb, var(--fg) 40%, var(--bg)); }
+#cabecera .mono-c { fill: var(--fg); }
+#cabecera nav { display: flex; gap: 1.5rem; }
+#cabecera nav a {
+  font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 0.35rem 0; border-bottom: 1px solid transparent;
+}
+#cabecera nav a:hover, #cabecera nav a:focus-visible { border-bottom-color: var(--acento); }
+#cabecera a:focus-visible { outline: 2px solid var(--acento); outline-offset: 4px; }
+
+/* Sub-nav */
+#subnav {
+  position: fixed; right: 1.25rem; bottom: 1.25rem;
+  width: min(20rem, calc(100vw - 2.5rem)); height: 2.5rem;
+  border-radius: 999px; background: color-mix(in srgb, var(--fg) 8%, var(--bg));
+  display: grid; align-items: center; padding: 0 1rem;
+  opacity: 0; transform: translateY(0.5rem); transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+}
+#subnav.is-visible { opacity: 1; transform: none; pointer-events: auto; }
+#subnav .barra {
+  position: relative; height: 1rem; cursor: pointer;
+  background-image: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px calc(100% / 32));
+}
+#subnav .cursor { position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 2px; background: var(--acento); cursor: grab; z-index: 1; transition: background-color 0.4s; }
+#subnav.is-grabbed .cursor { cursor: grabbing; transform-origin: center; }
+#subnav .cursor:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+/* LAS PARADAS (fila 11): un ancla por capítulo sobre la barra, en el `ini` de su tramo. El punto
+   de 6 px va en un ::before y el <a> mide 1 rem para que se pueda pulsar; el cursor pasa por
+   encima (z-index 1). subnav.ts las coloca con `left` a partir de scroller.tramos. */
+#subnav .parada {
+  position: absolute; top: 50%; width: 1rem; height: 1rem; translate: -50% -50%;
+  display: grid; place-items: center; text-decoration: none;
+}
+#subnav .parada::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--acento); opacity: 0.6; transition: background-color 0.4s; }
+#subnav .parada:hover::before, #subnav .parada:focus-visible::before { opacity: 1; }
+#subnav .parada:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; border-radius: 50%; }
+
+/* Overlay de depuración. A la derecha, no a la izquierda: ahí vive ahora el titular de capítulo. */
+#debug { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 10; font: 12px/1.4 var(--mono); color: var(--fg); background: color-mix(in srgb, var(--bg) 80%, transparent); padding: 0.5rem 0.75rem; border: 1px solid var(--line); border-radius: 8px; }
+#debug pre { margin: 0 0 0.5rem; }
+
+@media (max-width: 899px) {
+  /* En compacto el titular va a la DERECHA. La banda alta de rótulos del despiece (rotulos.ts con
+     PM.rotulos.bandaAlta = 4,5 % del alto, o sea centrada a ~30 px en un teléfono) está pegada a la
+     izquierda, y un titular de 1,5 rem a 1 rem del borde ocupa de 16 a 40 px: se escribían uno
+     encima del otro. Con 1 rem de margen y el nombre a 1,5 rem no cabe a la izquierda sin bajar
+     la banda a ~0,11; la esquina derecha está libre en todos los capítulos. */
+  /* 3,25 rem: debajo de la cabecera compacta (2,75 rem). */
+  #rotulo { inset: 3.25rem 1rem auto auto; align-items: flex-end; text-align: right; }
+  #capitulo-nombre { font-size: 1.5rem; }
+  #capitulo-progreso { font-size: 0.75rem; }
+  #capitulo-contador { flex-direction: row-reverse; }   /* a la derecha el arco va al final */
+  #capitulo-arco { width: 18px; height: 18px; }
+  #subnav { width: calc(100vw - 2.5rem); }
+  #cabecera { height: 2.75rem; padding: 0 1rem; }
+  #cabecera .cabecera-logo, #cabecera .cabecera-logo svg { height: 24px; }
+  #cabecera nav { gap: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body { scroll-behavior: auto; }
+  #panel { will-change: auto; }
+  #subnav, html, body, .placa, #debug, #cabecera { transition: none; }
+  /* El acento cambia de golpe: ni el cursor, ni las paradas, ni el contador funden. */
+  #subnav .cursor, #subnav .parada::before, #capitulo-progreso, #capitulo-arco circle { transition: none; }
+}
+
+/* Rótulos del despiece. Van DENTRO de #motor (mismo contenedor que el lienzo), así que heredan
+   su pointer-events: none y su cruce de opacidad. La capa se oculta con [hidden] cuando ningún
+   rótulo está abierto: cero trabajo de composición fuera del capítulo COMO. */
+.motor-rotulos { position: absolute; inset: 0; }
+/* Contenido que solo leen los lectores de pantalla (la lista de piezas del capítulo COMO). */
+.solo-lectores {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.motor-guias { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.motor-guias polyline { fill: none; stroke: var(--line); stroke-width: 1; }
+.motor-guias circle { fill: var(--acento); }
+.motor-rotulo {
+  position: absolute; top: 0; left: 0; max-width: 13rem; opacity: 0;
+  /* Sin letter-spacing: a estos cuerpos el ajuste extra rompía palabras ("radiad ores", "vo luta"). */
+  line-height: 1.3; letter-spacing: normal; font-kerning: normal;
+  will-change: transform, opacity;
+}
+.motor-rotulo.lado-der { text-align: right; }
+/* Título a 0,9 rem y nota a 0,8 rem (eran 0,78 los dos): una ranura de columna mide el 11,5 % del
+   alto (PM.rotulos.alto), 71 px a 620 px de ventana, y título más dos líneas de nota son 52 px. */
+.motor-rotulo b { display: block; font-size: 0.9rem; color: var(--fg); font-weight: 600; }
+.motor-rotulo span { display: block; font-size: 0.8rem; color: var(--muted-2); }
+@media (max-width: 899px) {
+  /* En compacto los rótulos van en dos bandas, arriba y abajo, no en columnas: hay ancho de sobra
+     para el título completo y ninguno se sale por el borde. */
+  .motor-rotulo { max-width: 60vw; }
+  .motor-rotulo b { font-size: 0.72rem; }
+  .motor-rotulo span { display: none; }
+  .motor-rotulos.compacto .motor-rotulo.lado-der { text-align: left; }
+}
+
+/* EL PIE (effects/pie.ts). En flujo después de #capitulos, y por encima de las capas fijas: todas
+   van con z-index auto y este bloque con 3, así que cuando el maestro se acaba el pie las tapa,
+   fondo incluido (el fondo opaco es lo que impide que un clic en un hueco caiga en .intro, que
+   sigue fija en el centro con pointer-events: auto). Solo la cabecera (z-index 4) queda por
+   encima. min-height 100lvh: el último tramo del scroll es el pie entero, no una franja. */
+#pie {
+  position: relative; z-index: 3;
+  min-height: 100vh; min-height: 100lvh;
+  padding: clamp(4rem, 12vh, 8rem) clamp(1.5rem, 6vw, 6rem) 2.5rem;
+  background: var(--bg); color: var(--fg);
+  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  column-gap: clamp(2rem, 6vw, 6rem); row-gap: 4rem;
+  align-content: space-between;
+}
+#pie .pie-cabecera { grid-column: 1; }
+#pie .pie-lado { grid-column: 2; display: grid; gap: 3rem; align-content: start; }
+#pie .pie-final { grid-column: 1 / -1; }
+#pie h2 { margin: 0 0 1.25rem; font-size: clamp(3rem, 8vw, 6rem); font-weight: 700; letter-spacing: -0.03em; line-height: 0.95; }
+#pie .que { margin: 0; max-width: 34ch; font-size: 1.15rem; line-height: 1.45; }
+/* Los rótulos de bloque, en la voz de máquina: mono, mayúsculas y gris. */
+#pie h3 { margin: 0 0 1rem; font-family: var(--mono); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+#pie ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+#pie a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 0.1rem; }
+#pie a:hover, #pie a:focus-visible { border-bottom-color: var(--acento); }
+#pie a:focus-visible { outline: 2px solid var(--acento); outline-offset: 4px; }
+#pie .pie-lista a { font-size: 1.05rem; font-weight: 500; }
+#pie .pie-proyectos li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 1rem; }
+#pie .pie-proyectos .pila { color: var(--muted); }
+#pie .pie-final { margin: 0; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.04em; color: var(--muted); }
+#pie .pie-final a { color: var(--muted); }
+@media (max-width: 899px) {
+  #pie { grid-template-columns: minmax(0, 1fr); row-gap: 3rem; padding-top: 5rem; }
+  #pie .pie-cabecera, #pie .pie-lado, #pie .pie-final { grid-column: 1; }
+}

@@ -1,0 +1,18 @@
+# Desarrollo dentro de Docker (no hay Node en el servidor). Uso, como usuario yoiber:
+#   printf "DEV_UID=%s\nDEV_GID=%s\nWEB_PORT=5174\n" "$(id -u)" "$(id -g)" > .env
+#   docker compose -f docker-compose.dev.yml up -d
+#   desde tu PC: ssh -L 5174:127.0.0.1:5174 yoiber@2.25.161.181  ->  http://localhost:5174
+# No va en la red proxy: solo se ve por el túnel.
+services:
+  dev:
+    image: node:22-alpine
+    container_name: yoi-demo-dev
+    user: "${DEV_UID:?DEV_UID sin definir}:${DEV_GID:?DEV_GID sin definir}"
+    working_dir: /app
+    environment:
+      HOME: /tmp
+    volumes:
+      - .:/app
+    command: sh -c "npm ci --no-audit --no-fund && npm run dev"
+    ports:
+      - "127.0.0.1:${WEB_PORT:-5174}:5174"

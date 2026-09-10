@@ -1,5 +1,5 @@
 name: Tarea
-description: Algo nuevo o una mejora. Escríbelo para que una persona o la IA pueda hacerlo sin preguntar.
+description: Un efecto nuevo o un ajuste. Escríbelo para que una persona o la IA pueda hacerlo sin preguntar.
 title: "[Tarea] "
 labels: ["tipo: tarea", "estado: por hacer"]
 body:
@@ -7,22 +7,25 @@ body:
     id: que
     attributes:
       label: Qué quiero
-      description: En una o dos frases, desde el punto de vista de quien visita la web. Qué aporta.
-      placeholder: "Que al bajar aparezca una sección con tres proyectos, cada uno con imagen y enlace."
+      description: En una o dos frases, desde el punto de vista de quien lo mira. Qué se ve que ahora no se ve.
+      placeholder: "Que en el capítulo de la galería el anillo de arcos se dibuje al ritmo del scroll."
     validations:
       required: true
   - type: dropdown
     id: donde
     attributes:
       label: Dónde
-      description: Parte de la web que toca.
+      description: Parte del demo que toca.
       multiple: true
       options:
-        - Intro y animaciones
-        - Secciones y contenido
-        - Estilos y tipografía
-        - Rendimiento y accesibilidad
-        - Despliegue e infraestructura
+        - Motor (timeline maestro, scroll)
+        - Escenario 3D
+        - Intro y texto
+        - Galería y efectos
+        - Tema y estilos
+        - Sub-nav y depuración
+        - Accesibilidad y rendimiento
+        - Despliegue
         - Documentación
     validations:
       required: true
@@ -30,19 +33,21 @@ body:
     id: comprobar
     attributes:
       label: Cómo se comprueba que está bien
-      description: Pasos concretos. Es lo que la IA usará para verificar antes de abrir el pull request.
+      description: Pasos concretos, mejor con ?debug para saltar al capítulo. Es lo que la IA usará para verificar.
       placeholder: |
-        1. Abrir yoiber.com y bajar hasta la segunda pantalla.
-        2. Aparecen tres tarjetas de proyecto, en fila en escritorio y en columna en el móvil.
-        3. Cada tarjeta lleva a su enlace y se ve bien con el movimiento reducido activado.
+        1. Abrir demo.yoiber.com/?debug y saltar a la etiqueta GALERIA.
+        2. Al arrastrar el scroll hacia delante y hacia atrás, el anillo se dibuja y se borra sin saltos.
+        3. Con movimiento reducido activado, el anillo aparece de golpe y no hay bucles.
     validations:
       required: true
   - type: textarea
     id: limites
     attributes:
       label: Límites y detalles
-      description: Lo que no debe cambiar, decisiones ya tomadas, enlaces a referencias o capturas.
-      placeholder: "No tocar la intro del logo. Mantener el fondo negro y la tipografía actual."
+      description: Lo que no debe cambiar y las reglas de la casa.
+      placeholder: |
+        Los números van en src/params.ts, nunca en la lógica.
+        Nada copiado de animejs.com: ni marcado, ni CSS, ni trazados de sus SVG, ni textos.
   - type: dropdown
     id: prioridad
     attributes:
