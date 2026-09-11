@@ -30,6 +30,25 @@ export interface Rotulos {
 
 const NS = 'http://www.w3.org/2000/svg';
 
+// LAS COTAS. Cada rótulo abre con una cifra que NO se escribe: cuenta desde cero mientras el texto
+// entra. Es el gesto que animejs.com hace con `utils.roundPad` durante su despiece (tabla 2.2 de
+// CANALES-ANIMEJS.md) y aquí sale gratis, porque la cifra es función pura de `t`: al arrastrar
+// hacia arriba descuenta sola y vuelve a cero sin estado propio que deshacer.
+//
+// El separador de millares y el relleno son U+2007 (ESPACIO DE CIFRA), que mide exactamente lo
+// mismo que un dígito. Con eso y `tabular-nums` la caja de la cifra mide LO MISMO en todos los
+// valores del recorrido: sin esto, "7" -> "36 000" empuja el texto de al lado seis veces por
+// segundo y la línea entera tiembla mientras cuenta. También hace que medirTextos() pueda medir el
+// rótulo con la cifra a cero y acertar el ancho final.
+const FIG = '\u2007';
+
+function cifra(v: number, dec: number): string {
+  const s = v.toFixed(dec).replace('.', ',');
+  const c = s.indexOf(',');
+  const ent = c < 0 ? s : s.slice(0, c);
+  return ent.replace(/\B(?=(\d{3})+(?!\d))/g, FIG) + (c < 0 ? '' : s.slice(c));
+}
+
 export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotulos {
   const capa = document.createElement('div');
   capa.className = 'motor-rotulos';
@@ -43,6 +62,7 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
 
   const cajas: HTMLElement[] = [];
   const titulos: HTMLElement[] = [];
+  const cotas: ({ el: HTMLElement; valor: number; dec: number; ancho: number } | null)[] = [];
   const lineas: SVGPolylineElement[] = [];
   const puntos: SVGCircleElement[] = [];
   // Dos repartos de ranuras: el completo (nueve rótulos, en DOS LISTAS: la de la izquierda cuelga
@@ -62,7 +82,17 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
     const t = document.createElement('b');
     t.textContent = pieza.titulo;
     const n = document.createElement('span');
-    n.textContent = pieza.nota;
+    if (pieza.cota) {
+      const c = document.createElement('i');
+      const [valor, dec] = pieza.cota;
+      const ancho = cifra(valor, dec).length;
+      c.textContent = FIG.repeat(Math.max(0, ancho - cifra(0, dec).length)) + cifra(0, dec);
+      n.append(c, ` ${pieza.nota}`);
+      cotas.push({ el: c, valor, dec, ancho });
+    } else {
+      n.textContent = pieza.nota;
+      cotas.push(null);
+    }
     caja.append(t, n);
     capa.append(caja);
     cajas.push(caja);
@@ -89,7 +119,7 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
   let visible = false;
   // Cachés: escribir en el DOM solo cuando el valor cambia de verdad ahorra la mitad de las
   // escrituras durante el parallax, donde muchos rótulos están quietos en su ranura.
-  const ultimo = rig.piezas.map(() => ({ pts: '', tr: '', op: '', r: '', og: '' }));
+  const ultimo = rig.piezas.map(() => ({ pts: '', tr: '', op: '', r: '', og: '', ct: '' }));
 
   // EL TEXTO MÁS ANCHO DE CADA GRUPO, en px: en compacto el <b> más ancho de cada banda (0 = alta,
   // 1 = baja); en columnas la caja más ancha (título y nota) de cada lista (0 = izquierda, 1 =
@@ -236,8 +266,21 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
       }
 
       // 5) el texto entra cuando la guía ya ha llegado a la columna
-      const op = Math.max(0, (t - PM.rotulos.dibujo) / (1 - PM.rotulos.dibujo)).toFixed(3);
+      const opN = Math.max(0, (t - PM.rotulos.dibujo) / (1 - PM.rotulos.dibujo));
+      const op = opN.toFixed(3);
       if (op !== u.op) cajas[i].style.opacity = u.op = op;
+
+      // 5b) la cifra cuenta con la misma entrada, frenando al final (1-(1-k)^3): sube deprisa y se
+      //     posa en el valor exacto, en vez de llegar a la meta a velocidad constante. Con la
+      //     opacidad a 1 el escalar es 1 clavado, así que el número que queda en pantalla es el
+      //     de la ficha y no un redondeo.
+      const cota = cotas[i];
+      if (cota) {
+        const k = 1 - (1 - opN) * (1 - opN) * (1 - opN);
+        const txt = cifra(cota.valor * k, cota.dec);
+        const pad = txt.length >= cota.ancho ? txt : FIG.repeat(cota.ancho - txt.length) + txt;
+        if (pad !== u.ct) cota.el.textContent = u.ct = pad;
+      }
       const tr = `translate(${lado < 0 ? '0' : '-100'}%, -50%) translate3d(${bx.toFixed(1)}px, ${by.toFixed(1)}px, 0)`;
       if (tr !== u.tr) cajas[i].style.transform = u.tr = tr;
     }

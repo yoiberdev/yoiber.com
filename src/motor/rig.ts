@@ -40,6 +40,8 @@ export interface PiezaRig {
   /** Conserva rótulo en pantalla estrecha. */
   movil: boolean;
   titulo: string;
+  /** [valor, decimales] de la cifra que cuenta en el rótulo; sin ella el rótulo no lleva cota. */
+  cota?: [number, number];
   nota: string;
 }
 
@@ -209,6 +211,7 @@ export function construirRig(nivel: Calidad): Rig {
         lado: p.lado,
         movil: p.movil === true,
         titulo: p.titulo,
+        cota: p.cota,
         nota: p.nota,
       });
     }

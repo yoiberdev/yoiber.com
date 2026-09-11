@@ -520,6 +520,9 @@ html.motor-on #stage { opacity: 0; }
    alto (PM.rotulos.alto), 71 px a 620 px de ventana, y título más dos líneas de nota son 52 px. */
 .motor-rotulo b { display: block; font-size: 0.9rem; color: var(--fg); font-weight: 600; }
 .motor-rotulo span { display: block; font-size: 0.8rem; color: var(--muted-2); }
+/* La cota: la cifra que cuenta al entrar el rótulo (motor/rotulos.ts). Va en el color del título,
+   no en el de la nota, porque es el dato; y en cifras tabulares para que no baile al contar. */
+.motor-rotulo i { font-style: normal; color: var(--fg); font-variant-numeric: tabular-nums; }
 @media (max-width: 899px) {
   /* En compacto los rótulos van en dos bandas, arriba y abajo, no en columnas: hay ancho de sobra
      para el título completo y ninguno se sale por el borde. */

@@ -235,15 +235,15 @@ export const PM = {
   //          en el flanco de su lista. El del inyector es local a su centro (geometria.ts).
   //   lado:  lista izquierda (-1, cuatro) o derecha (+1, cinco).
   piezas: [
-    { id: 'bancada',       y: 5.43,  r: 0,   ancla: [-0.94, 3.05, -0.66], anclaMovil: [1.15, 3.05, 0], lado: -1, movil: true, titulo: 'Estructura de empuje', nota: 'anillo y 12 tirantes en A' },
-    { id: 'cupula',        y: 3.79,  r: 0,   ancla: [-0.64, 2.63, -0.45], lado: -1, titulo: 'Cúpula del colector', nota: 'se levanta y deja ver los inyectores' },
-    { id: 'inyector',      y: 2.59,  r: 0,   ancla: [-0.78, 0, -0.55],    anclaMovil: [0.955, 0, 0], lado: -1, movil: true, titulo: 'Placa de inyectores', nota: '127 orificios en siete anillos' },
-    { id: 'aletas',        y: 1.95,  r: 0,   ancla: [-0.98, 0, -0.69],    lado: -1, titulo: 'Anillo de aletas', nota: '29 aletas radiales sobre la cámara' },
-    { id: 'conductos',     y: 0.23,  r: 2.09, ancla: [0.44, 2.56, 0.70],  lado: 1,  titulo: 'Conductos', nota: 'descarga, línea al domo y escape' },
-    { id: 'turbobomba',    y: 0.23,  r: 2.09, ancla: [0.20, 0.18, 0],     lado: 1,  titulo: 'Turbobomba', nota: 'voluta, cuerpo, turbina y escape' },
-    { id: 'camara',        y: 0.23,  r: 0,   ancla: [0.67, 0.55, 0.47],   lado: 1,  movil: true, titulo: 'Cámara de combustión', nota: 'relación de contracción 3,24' },
-    { id: 'refrigeracion', y: -0.89, r: 0,   ancla: [0.74, 0.42, 0.52],   lado: 1,  titulo: 'Corona de refrigeración', nota: '36 tubos de radio variable' },
-    { id: 'campana',       y: -5.13, r: 0,   ancla: [1.60, -2.60, 1.12],  lado: 1,  movil: true, titulo: 'Campana de la tobera', nota: 'perfil de Rao, expansión 17,6' },
+    { id: 'bancada',       y: 5.43,  r: 0,   ancla: [-0.94, 3.05, -0.66], anclaMovil: [1.15, 3.05, 0], lado: -1, movil: true, titulo: 'Estructura de empuje', cota: [12, 0], nota: 'tirantes en A sobre el anillo' },
+    { id: 'cupula',        y: 3.79,  r: 0,   ancla: [-0.64, 2.63, -0.45], lado: -1, titulo: 'Cúpula del colector', cota: [980, 0], nota: 'mm de domo; se levanta y deja ver los inyectores' },
+    { id: 'inyector',      y: 2.59,  r: 0,   ancla: [-0.78, 0, -0.55],    anclaMovil: [0.955, 0, 0], lado: -1, movil: true, titulo: 'Placa de inyectores', cota: [127, 0], nota: 'orificios en siete anillos' },
+    { id: 'aletas',        y: 1.95,  r: 0,   ancla: [-0.98, 0, -0.69],    lado: -1, titulo: 'Anillo de aletas', cota: [29, 0], nota: 'aletas radiales sobre la cámara' },
+    { id: 'conductos',     y: 0.23,  r: 2.09, ancla: [0.44, 2.56, 0.70],  lado: 1,  titulo: 'Conductos', cota: [3, 0], nota: 'líneas: descarga, domo y escape' },
+    { id: 'turbobomba',    y: 0.23,  r: 2.09, ancla: [0.20, 0.18, 0],     lado: 1,  titulo: 'Turbobomba', cota: [36000, 0], nota: 'rpm: voluta, cuerpo, turbina y escape' },
+    { id: 'camara',        y: 0.23,  r: 0,   ancla: [0.67, 0.55, 0.47],   lado: 1,  movil: true, titulo: 'Cámara de combustión', cota: [3.24, 2], nota: 'de relación de contracción' },
+    { id: 'refrigeracion', y: -0.89, r: 0,   ancla: [0.74, 0.42, 0.52],   lado: 1,  titulo: 'Corona de refrigeración', cota: [36, 0], nota: 'tubos de radio variable' },
+    { id: 'campana',       y: -5.13, r: 0,   ancla: [1.60, -2.60, 1.12],  lado: 1,  movil: true, titulo: 'Campana de la tobera', cota: [17.6, 1], nota: 'de expansión, perfil de Rao' },
   ] as PiezaNum[],
 
   // Piezas que se mueven en el despiece pero NO llevan rótulo. La placa de identificación viaja
@@ -716,5 +716,9 @@ export interface PiezaNum {
   /** Si es true, la pieza conserva rótulo en pantalla estrecha. Nueve rótulos no caben en un móvil. */
   movil?: boolean;
   titulo: string;
+  /** LA COTA del rótulo: [valor final, decimales]. No se escribe, se CUENTA desde cero mientras el
+   *  texto entra en el despiece (rotulos.ts), que es el gesto de `utils.roundPad` de animejs.com.
+   *  La cifra va delante y `nota` empieza por su unidad: "127" + "orificios en siete anillos". */
+  cota?: [number, number];
   nota: string;
 }
