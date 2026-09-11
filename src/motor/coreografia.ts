@@ -51,6 +51,7 @@ export interface Estado {
   aparta: number;   // 0..1  el motor se desvía para dejar hueco en la galería (dirección: aplicar)
   abierto: number;  // 0..1  el despiece está abierto (COMO): en vertical le hace sitio entre las bandas de rótulos
   inclina: number;  // 0..1  la placa de inyectores se inclina hacia la cámara en el despiece
+  aletas: number;   // 0..1  apertura del anillo de aletas, escalonada por azimut (aplicar 1b)
   vuelco: number;   // 0..1  el arco del cabeceo manda: el encuadre se calcula de la POSE (aplicar 3d)
   vibra: number;    // 0..1  amplitud del temblor previo al despegue
   penacho: number;  // 0..1  crecimiento del penacho
@@ -105,7 +106,7 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
 
   const estado: Estado = {
     luz: C.heroOut.luz[0], apagado: 0, pulso: 0, brillo: 0, rpm: 0,
-    logo: 0, aparta: 0, abierto: 0, inclina: 0, vuelco: 0, vibra: 0, penacho: 0, estira: 0, salida: 0,
+    logo: 0, aparta: 0, abierto: 0, inclina: 0, aletas: 0, vuelco: 0, vibra: 0, penacho: 0, estira: 0, salida: 0,
     rotulos: rig.piezas.map(() => ({ t: 0 })),
   };
 
@@ -141,7 +142,7 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
   const I = C.intro;
   tl.set(raiz, { x: 0, y: 0, rotateX: 0, rotateY: I.rotY[0], rotateZ: 0, scale: I.escala[0] }, 0)
     .set(cam, { zoom: I.zoom }, 0)
-    .set(estado, { luz: C.heroOut.luz[0], apagado: 0, pulso: 0, brillo: 0, rpm: 0, logo: 0, aparta: 0, abierto: 0, inclina: 0, vuelco: 0, vibra: 0, penacho: 0, estira: 0, salida: 0 }, 0)
+    .set(estado, { luz: C.heroOut.luz[0], apagado: 0, pulso: 0, brillo: 0, rpm: 0, logo: 0, aparta: 0, abierto: 0, inclina: 0, aletas: 0, vuelco: 0, vibra: 0, penacho: 0, estira: 0, salida: 0 }, 0)
     .set(estado.rotulos, { t: 0 }, 0);
   for (const s of sitios) tl.set(s.p.obj, { x: s.entrada.x, y: s.entrada.y, z: s.entrada.z }, 0);
   if (aletas) tl.set(aletas, { scaleX: 1, scaleZ: 1 }, 0);
@@ -283,6 +284,10 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
       scaleX: [1, PM.aletasAbrir], scaleZ: [1, PM.aletasAbrir],
       duration: K.dur, ease: 'outQuint',
     }, en('COMO', K.separar[0], iAletas * K.paso));
+    // Y cada aleta gira sobre su propio eje radial, escalonada (ver PM.aletasGiro). Es UN escalar
+    // en la timeline y 29 matrices por fotograma: el reparto se calcula en `aplicar`, no con
+    // `stagger`, porque el retardo va por AZIMUT y no por índice.
+    tl.add(estado, { aletas: [0, 1], duration: K.dur * 1.35, ease: 'out(3)' }, en('COMO', K.separar[0], iAletas * K.paso));
   }
   if (inyector) tl.add(estado, { inclina: [0, 1], duration: K.dur, ease: 'outQuint' }, en('COMO', K.separar[0], iInyector * K.paso));
   // y la corona florece: cada tubo se separa de la campana hacia fuera, desde el centro
@@ -328,6 +333,7 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
       scaleX: [PM.aletasAbrir, 1], scaleZ: [PM.aletasAbrir, 1],
       duration: dur('COMO', K.recomponer[0], 0.93), ease: 'inOut(3)',
     }, en('COMO', K.recomponer[0], (sitios.length - 1 - iAletas) * 40));
+    tl.add(estado, { aletas: [1, 0], duration: dur('COMO', K.recomponer[0], 0.93), ease: 'inOut(3)' }, en('COMO', K.recomponer[0], (sitios.length - 1 - iAletas) * 40));
   }
   if (inyector) {
     tl.add(estado, { inclina: [1, 0], duration: dur('COMO', K.recomponer[0], 0.93), ease: 'inOut(3)' }, en('COMO', K.recomponer[0], (sitios.length - 1 - iInyector) * 40));
@@ -445,6 +451,20 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
       rig.onda[i] = s > 0 ? V.ondaAmp * s * s : 0;   // solo hacia fuera, y con la cresta estrecha
     }
     rig.escribirTubos();
+
+    // 1b. EL ANILLO DE ALETAS. Cada lama se abre sobre su propio eje radial y el retardo va por
+    //     AZIMUT, no por índice: la aleta i no está en i·360/n porque faltan las del hueco de la
+    //     turbobomba, así que un `stagger` por índice abriría el anillo a saltos. `from: 'last'`
+    //     como en la referencia: la ola arranca por el azimut más alto y da la vuelta.
+    if (rig.aletas.length) {
+      const R = PM.aletasReparto;
+      for (let i = 0; i < rig.aletas.length; i++) {
+        const fase = 1 - rig.azimutesAletas[i] / 360;
+        const k = Math.min(1, Math.max(0, (estado.aletas - R * fase) / (1 - R)));
+        rig.aletas[i] = k * PM.aletasGiro;
+      }
+      rig.escribirAletas();
+    }
 
     // 2. Temblor. Va en `sacudida`, un grupo que NINGÚN tween toca, y se escribe en absoluto.
     const v = estado.vibra * PM.coreo.cierre.vibra;

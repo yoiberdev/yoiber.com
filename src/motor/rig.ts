@@ -101,6 +101,14 @@ export interface Rig {
   /** Escribe las matrices de la corona a partir de `tubos[i].z` + `onda[i]`. Función pura de esos
    *  valores. */
   escribirTubos(): void;
+  /** Apertura de cada aleta en RADIANES, sobre su propio eje radial (como una lama de persiana).
+   *  Lo escribe la coreografía en `aplicar()`; la timeline solo mueve el escalar `estado.aletas`. */
+  aletas: number[];
+  /** Recompone las matrices del anillo de aletas a partir de `aletas[i]`. Función pura de eso. */
+  escribirAletas(): void;
+  /** Azimut de cada aleta en GRADOS. El retardo del gesto se reparte por AQUÍ y no por el índice:
+   *  faltan las aletas del hueco de la turbobomba, así que la aleta i no está en i·360/n. */
+  azimutesAletas: number[];
   /** El tema en los materiales (tonos del toon, filo, piel de la campana). El color de la TINTA
    *  lo cambia el pase de pantalla (motor/tinta.ts, tema()): effects/motor3d.ts llama a los dos. */
   tema(claro: boolean): void;
@@ -263,6 +271,39 @@ export function construirRig(nivel: Calidad): Rig {
   }
   escribirTubos();
 
+  // ------------------------------------------------------------------------------------------
+  // EL ANILLO DE ALETAS. Mismo patrón que la corona: un escalar por aleta y una función que
+  // recompone las matrices. Los azimutes y las medidas los deja la geometría en `userData` y NO se
+  // recalculan aquí: el filtro del hueco de la turbobomba vive allí y duplicarlo se rompería solo
+  // el día que cambie. Si la malla no existe (calidad baja que la quite, o un renombrado), el
+  // gesto desaparece y nada revienta.
+  const mallaAletas = motor.piezas['aletas-placas'] as InstancedMesh | undefined;
+  const azAletas = (mallaAletas?.userData.azimutes as number[] | undefined) ?? [];
+  const aletas: number[] = new Array(azAletas.length).fill(0);
+  const mAleta = new Matrix4();
+  const qAleta = new Quaternion();
+  const qLama = new Quaternion();
+  const pAleta = new Vector3();
+  const eAleta = new Vector3(1, 1, 1);
+  const ejeZ = new Vector3(0, 0, 1);
+  if (mallaAletas) mallaAletas.frustumCulled = false;
+  function escribirAletas(): void {
+    if (!mallaAletas) return;
+    const rc = mallaAletas.userData.radio as number;
+    const [ex, ey, ez] = mallaAletas.userData.escala as [number, number, number];
+    for (let i = 0; i < azAletas.length; i++) {
+      const th = azAletas[i] * Math.PI / 180;
+      // La orientación base es la que puso la geometría; el giro de lama se compone DESPUÉS, así
+      // que es sobre el eje LOCAL Z, que tras esa base apunta radialmente hacia fuera.
+      qAleta.setFromAxisAngle(ejeY, Math.PI / 2 - th);
+      qLama.setFromAxisAngle(ejeZ, aletas[i]);
+      qAleta.multiply(qLama);
+      pAleta.set(rc * Math.cos(th), 0, rc * Math.sin(th));
+      mallaAletas.setMatrixAt(i, mAleta.compose(pAleta, qAleta, eAleta.set(ex, ey, ez)));
+    }
+    mallaAletas.instanceMatrix.needsUpdate = true;
+  }
+
   // -------------------------------------------------------------------------------------------
   // LA MARCA. La placa comparte materiales con el resto del motor (blanco, medio, oscuro, chapa),
   // así que bajarle la opacidad al motor se la bajaba también a ella y el momento de la marca no
@@ -389,7 +430,7 @@ export function construirRig(nivel: Calidad): Rig {
     escena, camara, desvio, medida, raiz, sacudida, motor, piezas, sueltas, tubos, azimutes, marca, materialesMarca,
     emisivosMarca, chapaMarca, turbina, luzClave, luzCamara, emisivos, caliente, cuerpos,
     yLabio: -M.tobera.largo,
-    onda, escribirTubos, tema, disponer, proyectar, reposoProyectado, elevacion: ELEVACION, radioMax, liberar,
+    onda, escribirTubos, aletas, escribirAletas, azimutesAletas: azAletas, tema, disponer, proyectar, reposoProyectado, elevacion: ELEVACION, radioMax, liberar,
   };
 }
 

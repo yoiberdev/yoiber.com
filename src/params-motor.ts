@@ -307,6 +307,14 @@ export const PM = {
   // en el eje del motor, geometria.ts), o sea que las 29 aletas se separan de la pared a la vez,
   // 0,3 · r = 0,29-0,36 u, sin tocar ninguna matriz. Sustituye al abanico de los tres paneles.
   aletasAbrir: 1.3,
+  // EL GIRO ESCALONADO DE LAS ALETAS. La referencia (animejs.com) abre las aletas de su carcasa con
+  // `rotateZ -200` y `stagger from:'last'`, y era el unico gesto suyo que no teniamos: aqui las 29
+  // se abrian a la vez, que es lo que hace que un anillo parezca una pieza y no un mecanismo.
+  // Cada aleta gira sobre su PROPIO eje radial (como una lama de persiana), y el retardo se reparte
+  // por el AZIMUT y no por el indice, igual que la entrada de la corona: la aleta i no esta en
+  // i*360/n porque faltan las del hueco de la turbobomba.
+  aletasGiro: 0.62,      // radianes (35 grados) de apertura de cada lama
+  aletasReparto: 0.55,   // que fraccion del gesto se va en el escalonado: 0 = todas a la vez
 
   coreo: {
     // EL MONTAJE. Ocurre en HERO_OUT, no en INTRO. Dos razones medidas, no de gusto:

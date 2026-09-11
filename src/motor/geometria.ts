@@ -1491,6 +1491,13 @@ function construirAletas(mat: Materiales): Group {
     aletas.setMatrixAt(i, m.compose(p, q, e));
   });
   aletas.instanceMatrix.needsUpdate = true;
+  // Los datos que hacen falta para RECOMPONER las matrices desde fuera (rig.ts, escribirAletas):
+  // el azimut de cada aleta y las medidas de la caja. Van en userData y no se recalculan en el rig
+  // a proposito: el filtro del hueco de la turbobomba vive aqui, y duplicarlo seria una bomba de
+  // relojeria el dia que cambie `M.aletas.hueco`.
+  aletas.userData.azimutes = ranuras;
+  aletas.userData.radio = rc;
+  aletas.userData.escala = [a.espesor, a.alto, a.largo];
   g.add(nombrar(aletas, 'aletas-placas'));
   return g;
 }
