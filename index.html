@@ -12,6 +12,11 @@
          que sin canónica serían dos copias compitiendo por el mismo sitio en el buscador. Con ella,
          lo que se indexa es yoiber.com aunque el rastreador entre por el subdominio. -->
     <link rel="canonical" href="https://yoiber.com/" />
+    <!-- Verificación del dominio ante Meta (Business > Configuración > Dominios). Tiene que estar
+         en el <head> del HTML ESTÁTICO: si la pintara JavaScript, el rastreador de Meta no la ve y
+         la verificación falla sin decir por qué. Una vez verificado el dominio se puede dejar: es
+         lo que permite controlar quién publica enlaces a yoiber.com desde anuncios y páginas. -->
+    <meta name="facebook-domain-verification" content="6ymq39u0lmch6heogrun8dmoyfz8ew" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://yoiber.com/" />
     <meta property="og:title" content="Yoiber · desarrollador full-stack" />
