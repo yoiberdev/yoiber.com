@@ -62,6 +62,12 @@
     }
     </script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Analítica propia (Umami), servida desde este mismo dominio: nginx hace de
+         pasarela hacia el contenedor, así la CSP sigue con script-src 'self' y
+         connect-src 'self' sin abrir nada. No usa cookies ni guarda datos
+         personales, por eso no hace falta aviso de consentimiento. -->
+    <script defer src="/stats.js" data-website-id="e6fa5fba-eca9-4a8c-86c0-3d2f4f4f61cc" data-host-url="https://yoiber.com/stats"></script>
   </head>
   <body>
     <!-- El lienzo del motor 3D. Vacío hasta que llega el trozo diferido; si no llega nunca,

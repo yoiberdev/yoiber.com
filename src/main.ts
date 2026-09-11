@@ -10,6 +10,7 @@ import { montarTema } from './core/tema';
 import { montarAcento } from './core/acento';
 import { montarSubnav, type Parada } from './core/subnav';
 import { montarDebug } from './core/debug';
+import { limpiarUrl } from './core/url-limpia';
 import { montarHero } from './effects/hero';
 import { montarFondoIntro } from './effects/fondo-intro';
 import { montarCabecera, tiempoPrimeraTarjeta } from './effects/cabecera';
@@ -242,6 +243,9 @@ function montar(self?: Scope): () => void {
     m.tl.revert();
   };
 }
+
+// La dirección se limpia antes que nada: no depende de las fuentes ni de la escena.
+limpiarUrl();
 
 document.fonts.ready.then(() => {
   ajustarAlturas();
