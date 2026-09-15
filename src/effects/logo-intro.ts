@@ -4,7 +4,7 @@ import type { Scope } from 'animejs';
 // INTRO DEL LOGO — el original de yoiber.com, sin React
 // ================================================================================================
 // Port literal de la coreografía de `src/components/AnimatedLogo.tsx` de yoiber.com (solo lectura;
-// ver /opt/yoiblog/src/CLAUDE.md). Las tres formas del logo entran enormes desde fuera de pantalla,
+// ver /opt/yoiber.com/src/CLAUDE.md). Las tres formas del logo entran enormes desde fuera de pantalla,
 // se ensamblan y después flotan.
 //
 // POR QUÉ GSAP Y NO ANIME.JS, que es el motor del resto del demo:
