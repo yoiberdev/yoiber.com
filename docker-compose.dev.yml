@@ -6,7 +6,7 @@
 services:
   dev:
     image: node:22-alpine
-    container_name: yoi-demo-dev
+    container_name: yoiber-com-vite
     user: "${DEV_UID:?DEV_UID sin definir}:${DEV_GID:?DEV_GID sin definir}"
     working_dir: /app
     environment:

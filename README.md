@@ -1,11 +1,10 @@
-# yoiber.com · rama `v2`
+# yoiber.com
 
-La próxima versión de mi web personal: una sola página dirigida por el scroll, con un motor cohete
-construido por código (sin modelos descargados) que se monta, se aparta para dejar ver los
-proyectos, se despieza y se enciende.
+Mi web personal: una sola página dirigida por el scroll, con un motor cohete construido por código
+(sin modelos descargados) que se monta, se aparta para dejar ver los proyectos, se despieza y se
+enciende.
 
-**En vivo mientras se construye: https://demo.yoiber.com** · La versión que hoy está en
-[yoiber.com](https://yoiber.com) vive en la rama `main` de este mismo repositorio.
+**En vivo: https://yoiber.com** (rama `main`) · Pruebas: https://demo.yoiber.dev (rama `develop`).
 
 Hecho con [Anime.js](https://animejs.com) 4.5 (MIT), [GSAP](https://gsap.com) 3.15 para la intro del
 logo y [Three.js](https://threejs.org) 0.185 para el motor. Es una recreación técnica inspirada en la
@@ -18,7 +17,7 @@ assets ni textos de ese sitio.
 |---|---|
 | Reloj maestro | Un solo `createTimeline` con etiquetas por capítulo. Nada se anima por su cuenta: todo es función del reloj, así que el scroll hacia atrás lo deshace exacto. |
 | Scroll | El scroll no mueve nada: mueve el reloj. Cada sección traduce su paso por la pantalla a un tramo, y un `createTimer` propio persigue ese objetivo con suavizado por tiempo. |
-| Intro | La entrada del logo corre por tiempo (GSAP, la misma de yoiber.com) sobre un anillo de marcas que respira, y cede el mando en cuanto el visitante baja. |
+| Intro | La entrada del logo corre por tiempo (GSAP, la misma de la versión anterior) sobre un anillo de marcas que respira, y cede el mando en cuanto el visitante baja. |
 | Motor 3D | Geometría procedimental: campana de perfil de Rao, 36 tubos de refrigeración instanciados, turbobomba, celosía y tornillería. Llega en un trozo diferido y solo si la máquina lo aguanta. |
 | Dibujo | Material *toon* de tres tonos con una luz y un filo cálido por shader; la tinta de los contornos es un pase de pantalla propio (profundidad y normales con cruz de Roberts) y FXAA. |
 | Galería | Cinco proyectos con demo viva. Cada tarjeta entra por piezas y traza un esquema con el scroll; el color de la página cambia con cada proyecto. |
@@ -49,8 +48,8 @@ docker compose -f docker-compose.dev.yml up -d      # recarga en caliente en 127
 
 ## Publicación
 
-Estáticos servidos con nginx en Docker. En el servidor, `/opt/yoi-demo` tiene un clon de esta rama
-en `src/` y se actualiza con `sudo /opt/yoi-demo/actualizar.sh`.
+Estáticos servidos con nginx en Docker. Se trabaja en `develop`, que se despliega en
+demo.yoiber.dev para probar; cuando está bien, se fusiona en `main` y se publica en yoiber.com.
 
 ## Licencia
 
