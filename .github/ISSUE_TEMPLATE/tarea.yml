@@ -35,7 +35,7 @@ body:
       label: Cómo se comprueba que está bien
       description: Pasos concretos, mejor con ?debug para saltar al capítulo. Es lo que la IA usará para verificar.
       placeholder: |
-        1. Abrir demo.yoiber.com/?debug y saltar a la etiqueta GALERIA.
+        1. Abrir demo.yoiber.dev/?debug y saltar a la etiqueta GALERIA.
         2. Al arrastrar el scroll hacia delante y hacia atrás, el anillo se dibuja y se borra sin saltos.
         3. Con movimiento reducido activado, el anillo aparece de golpe y no hay bucles.
     validations:

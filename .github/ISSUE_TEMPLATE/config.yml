@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
-  - name: El demo en vivo
-    url: https://demo.yoiber.com
+  - name: Las pruebas en vivo (rama develop)
+    url: https://demo.yoiber.dev
     about: Añade ?debug a la dirección para ver el reloj, el capítulo y los fotogramas por segundo.
   - name: Referencia de Anime.js 4.5
     url: https://docs.kipups.com/ANIMEJS.md

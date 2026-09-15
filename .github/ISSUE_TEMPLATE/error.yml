@@ -16,7 +16,7 @@ body:
       label: Cómo reproducirlo
       description: Si puedes, añade el capítulo y el tiempo del maestro que muestra ?debug.
       placeholder: |
-        1. Abrir demo.yoiber.com/?debug y bajar hasta el final.
+        1. Abrir demo.yoiber.dev/?debug y bajar hasta el final.
         2. Subir de golpe con la barra de progreso.
         3. En COMO el panel se queda inclinado. Maestro en 15200.
     validations:
