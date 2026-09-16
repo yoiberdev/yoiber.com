@@ -240,6 +240,31 @@ export function montarMotor(ctx: ContextoMotor): Escena {
       if (mainLoopAnterior) engine.wake();
     });
 
+    // ¿SE VE EL LIENZO? (tanda 2, «pintar-sin-motor»). Hay dos momentos en que el motor dibujaba cada
+    // fotograma para nadie: con el telón bajado (la intro, antes de que escena.ts ponga .motor-on) y
+    // con el pie encima, que es opaco, va por encima de las capas fijas y mide al menos una pantalla,
+    // así que en cuanto su borde de arriba llega al de la ventana lo tapa entero. En esos momentos se
+    // sigue calculando la pose (Anime.js, la coreografía, los rótulos), pero no se dibuja: en un
+    // móvil es batería, y el vigilante dejaba de ver fotogramas lentos que no existían.
+    // `gracia`: tras ocultarse se sigue dibujando un rato, lo que dura el fundido CSS del telón; si
+    // no, el motor se congelaría a mitad de desvanecerse.
+    const htmlRaiz = document.documentElement;
+    const pie = document.querySelector<HTMLElement>('#pie');
+    let pieArriba = Number.POSITIVE_INFINITY;
+    const medirPie = (): void => { if (pie) pieArriba = pie.getBoundingClientRect().top + window.scrollY; };
+    medirPie();
+    const observadorPie = new ResizeObserver(medirPie);
+    observadorPie.observe(document.body);
+    deshacer.push(() => observadorPie.disconnect());
+    let ocultoDesde = -1;
+    const seVe = (ahora: number): boolean => {
+      const oculto = !htmlRaiz.classList.contains('motor-on') || window.scrollY >= pieArriba - 1;
+      if (!oculto) { ocultoDesde = -1; return true; }
+      if (ocultoDesde < 0) ocultoDesde = ahora;
+      return ahora - ocultoDesde < PM.motor.gracia;
+    };
+    let dibujados = 0;
+
     let vivo = true;
     let anterior = 0;
     let suma = 0;
@@ -268,8 +293,14 @@ export function montarMotor(ctx: ContextoMotor): Escena {
         }
         penacho.aplicar(coreo.estado, t);
         rotulos.aplicar();
-        pintar();
         fotogramas++;
+        if (!seVe(ahora)) {
+          // sin dibujar no hay tiempo de fotograma que medir: el siguiente dibujado arranca de cero
+          anterior = 0;
+          return;
+        }
+        pintar();
+        dibujados++;
       } catch (e) {
         // OBLIGATORIO. En three.module.js (WebGLAnimation) el requestAnimationFrame del siguiente
         // fotograma se pide DESPUÉS de llamar al callback: si el callback lanza, el bucle no se
@@ -416,6 +447,7 @@ export function montarMotor(ctx: ContextoMotor): Escena {
         llamadas: render.info.render.calls,
         dpr: render.getPixelRatio(),
         escalon,
+        dibujados,
         fxaa: tinta.estado().fxaa,
         reduccion: tinta.estado().reduce,
         densidad: +tinta.estado().densidad.toFixed(2),

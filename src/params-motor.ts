@@ -15,6 +15,9 @@ export const PM = {
     // que tarda en alcanzar el destino y con qué curva, y cuánto se acerca la quietud a su objetivo
     // en cada fotograma (0,08 ≈ medio segundo en volver a mandar tras parar la rueda).
     cursor: { max: [2, 3] as [number, number], ms: 600, ease: 'out(3)', quietud: 0.08 },
+    // ms que se sigue dibujando después de que el lienzo deje de verse: lo que dura el fundido CSS del
+    // telón (base.css, #motor, 0,42 s) con un poco de aire.
+    gracia: 500,
     // El objeto tiene que LLENAR el cuadro: es media parte del efecto de animejs.com. Con 9,8
     // sobre un motor de 7,6 de alto quedaba un tercio de aire arriba y abajo (visto en captura).
     encuadre: 8.2,    // alto del frustum ortográfico (unidades de motor) con zoom = 1
