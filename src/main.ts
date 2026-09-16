@@ -15,6 +15,7 @@ import { montarHero } from './effects/hero';
 import { montarFondoIntro } from './effects/fondo-intro';
 import { montarCabecera, tiempoPrimeraTarjeta } from './effects/cabecera';
 import { montarGaleria } from './effects/galeria';
+import { montarVidaEsquemas } from './effects/vida-esquemas';
 import { montarLogoIntro } from './effects/logo-intro';
 import { montarLogoSalida } from './effects/logo-salida';
 import { montarTitulo } from './effects/titulo';
@@ -56,6 +57,7 @@ function montar(self?: Scope): () => void {
   const cabecera = montarCabecera(m, reduce, (t) => scroller.pxParaTiempo(t));
   // Antes de tl.init(): la galería añade sus tweens al maestro y init() los tiene que ver.
   const galeria = montarGaleria(m, reduce);
+  const vidaEsquemas = montarVidaEsquemas(reduce);
   // El acento vigente (core/acento.ts) se decide desde el reloj con el reparto de la galería.
   const acento = montarAcento(galeria);
   // El escenario: CSS siempre, y el motor 3D por encima si la máquina lo aguanta. Ver core/escena.ts.
@@ -156,6 +158,7 @@ function montar(self?: Scope): () => void {
     tema.actualizar(proxy.currentTime);
     acento.actualizar(proxy.currentTime);
     galeria.actualizar(proxy.currentTime);
+    vidaEsquemas.actualizar(galeria.dibujado(proxy.currentTime));   // tras galeria: lee la clase `viva` que acaba de poner
     hero.actualizar(proxy.currentTime);
     cabecera.actualizar(proxy.currentTime);
     fondo.actualizar(proxy.currentTime);
@@ -230,6 +233,7 @@ function montar(self?: Scope): () => void {
     quitarPie();
     titulo.revertir();
     escena.revertir();
+    vidaEsquemas.revertir();
     galeria.revertir();
     acento.revertir();
     cabecera.revertir();

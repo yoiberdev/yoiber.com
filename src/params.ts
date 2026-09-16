@@ -188,6 +188,29 @@ export const P = {
     // se solapan a propósito (la línea del flujo avanza mientras aparecen las cajas): lo que se ve
     // es una secuencia, no cinco cosas apareciendo de golpe. El nombre de cada clave es el
     // data-paso del elemento en index.html; una clave sin elemento no hace nada, y al revés igual.
+    // LA VIDA DEL ESQUEMA (effects/vida-esquemas.ts): lo único de la galería que corre con el
+    // reloj del NAVEGADOR y no con el del scroll. Sin esto, con el scroll parado la tarjeta
+    // cambiaba el 0 % de sus píxeles por segundo mientras el motor cambiaba el 9,5 %.
+    vida: {
+      salto: 420,      // ms que tarda el foco en pasar de una caja a la siguiente
+      espera: 900,     // ms que se queda en cada caja; por debajo de ~700 parece nervioso
+      aire: 3,         // unidades del viewBox que el foco se infla sobre la caja, para no tapar el rótulo
+      opacidad: 0.55,  // el foco acompaña, no compite con el dibujo que traza el scroll
+      viaje: 820,      // ms que tarda la chispa en recorrer 100 unidades de línea
+      respiro: 500,    // ms apagado entre una vuelta y la siguiente
+      chispa: 34,      // unidades del viewBox que mide el trazo encendido; con 3,2 (un punto) no se veía
+      escalon: 420,    // ms entre la chispa de una ruta y la de la siguiente
+      // A partir de qué fracción del tramo quieto arranca la vida. El dibujo ocupa `dibujo` (0,38)
+      // y su última pieza acaba en el 0,90 de ese trozo, o sea en el 0,342 del tramo: con 0,42 la
+      // vida entra con el esquema ya entero y aún le queda el 58 % del tramo por delante.
+      entra: 0.42,
+    },
+    // Qué fracción del tramo quieto de la tarjeta ocupa el DIBUJO del esquema. El resto queda para
+    // la capa de vida. Con 1 (como estaba) el dibujo acababa cuando la tarjeta ya se iba, y no
+    // había ni un instante con el esquema entero delante; con 0,38 el dibujo sigue durando ~410
+    // unidades del maestro (unos 370 px de rueda) y la vida se queda con el 58 % del tramo.
+    dibujo: 0.38,
+
     esquemas: {
       // 1) SysRRHH: tres cajas en fila unidas por una línea, y un tic al final. La línea va por
       //    DEBAJO de las cajas (que tapan con el color del fondo): se dibuja de un tirón y se ve

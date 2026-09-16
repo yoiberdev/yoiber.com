@@ -45,6 +45,9 @@ export interface Galeria {
   indice(tiempo: number): number;
   revertir(): void;
   total: number;
+  /** Lo que lleva trazado el esquema de la tarjeta al mando, de 0 a 1 sobre su tramo quieto;
+   *  -1 si ninguna manda o si está entrando o saliendo. */
+  dibujado(tiempo: number): number;
 }
 
 const S = P.galeria.secuencia;
@@ -57,7 +60,7 @@ const CLIP = { cerrado: 'inset(0px 0px 100% 0px round 6px)', abierto: 'inset(0px
 export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
   const { tl } = m;
   const tarjetas = Array.from(document.querySelectorAll<HTMLElement>('#galeria-tarjetas .tarjeta'));
-  if (!tarjetas.length) return { actualizar: () => undefined, indice: () => -1, revertir: () => undefined, total: 0 };
+  if (!tarjetas.length) return { actualizar: () => undefined, indice: () => -1, dibujado: () => -1, revertir: () => undefined, total: 0 };
 
   // El motor necesita apartarse antes de que entre nada: ese margen es `arranque`.
   const margen = m.duracion('GALERIA') * P.galeria.arranque;
@@ -155,10 +158,26 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
     return Math.min(tarjetas.length - 1, Math.floor(rel / paso));
   };
 
+  // CUÁNTO LLEVA DIBUJADO el esquema de la tarjeta que manda, de 0 a 1 sobre su TRAMO QUIETO (el
+  // mismo que recibe montarEsquema). Fuera de la galería, o mientras la tarjeta entra o sale,
+  // devuelve -1. Lo usa la capa de vida: sus bucles no pueden arrancar antes de que el scroll
+  // termine de trazar, porque el foco saltaría a una caja que todavía no está dibujada y se vería
+  // un recuadro suelto en medio del esquema (visto en captura).
+  const dibujado = (tiempo: number): number => {
+    const i = indice(tiempo);
+    if (i < 0) return -1;
+    const desde = ini + paso * i + cruce;
+    const largo = paso - cruce * 2;
+    if (largo <= 0) return -1;
+    const f = (tiempo - desde) / largo;
+    return f < 0 || f > 1 ? -1 : f;
+  };
+
   let viva = -1;
   return {
     total: tarjetas.length,
     indice,
+    dibujado,
     actualizar(tiempo: number): void {
       // Qué tarjeta manda ahora. Fuera del capítulo, ninguna.
       // La ventana de `viva` es la de VISIBILIDAD, no la del tramo: durante el cruce de salida la

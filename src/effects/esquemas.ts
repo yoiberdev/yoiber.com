@@ -107,7 +107,15 @@ export function montarEsquema(tl: Timeline, tarjeta: HTMLElement, t0: number, du
   const ventanas = svg ? P.galeria.esquemas[svg.dataset.esquema ?? ''] : undefined;
   // Posición y duración de una ventana en el maestro. La duración nunca baja de 1: un tween de
   // duración 0 es un `set`, y el `from` explícito dejaría de contar.
-  const en = (v: Ventana): { pos: number; duration: number } => ({ pos: t0 + dur * v[0], duration: Math.max(1, dur * (v[1] - v[0])) });
+  // EL DIBUJO NO OCUPA YA TODO EL TRAMO QUIETO, solo su primera parte (`P.galeria.dibujo`). Antes
+  // sí, y entonces el esquema terminaba de trazarse justo cuando la tarjeta empezaba a irse: no
+  // quedaba ni un instante con el dibujo entero delante. Comprimiéndolo, el esquema se traza, se
+  // completa, y el resto del tramo lo ocupa la capa de vida (effects/vida-esquemas.ts), que es el
+  // orden de animejs.com: la sección dibuja al entrar y después se queda funcionando.
+  const D = P.galeria.dibujo;
+  const en = (v: Ventana): { pos: number; duration: number } => ({ pos: t0 + dur * D * v[0], duration: Math.max(1, dur * D * (v[1] - v[0])) });
+  // La barra de avance del móvil NO se comprime: es un indicador de progreso del tramo, no dibujo.
+  const enLargo = (v: Ventana): { pos: number; duration: number } => ({ pos: t0 + dur * v[0], duration: Math.max(1, dur * (v[1] - v[0])) });
 
   if (svg && ventanas) {
     const trazables: DrawableSVGGeometry[] = [];
@@ -180,7 +188,7 @@ export function montarEsquema(tl: Timeline, tarjeta: HTMLElement, t0: number, du
     if (reduce) {
       utils.set(barra, { scaleX: 1 });
     } else {
-      const { pos, duration } = en(P.galeria.avance);
+      const { pos, duration } = enLargo(P.galeria.avance);
       tl.set(barra, { scaleX: 0 }, 0).add(barra, { scaleX: [0, 1], duration, ease: 'linear' }, pos);
     }
   }

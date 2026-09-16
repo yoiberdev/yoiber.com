@@ -269,6 +269,15 @@ html.motor-on #stage { opacity: 0; }
 .esquema .relleno { fill: var(--acento); stroke: none; opacity: 0; } /* el botón del formulario se rellena al final */
 .esquema .punto { fill: var(--acento); stroke: none; opacity: 0; }   /* el identificador que recorre la ruta */
 .esquema .ruta { stroke: none; }                              /* la polilínea que sigue el punto: no se ve */
+/* LA VIDA DEL ESQUEMA (effects/vida-esquemas.ts). El grupo entero se enciende cuando la tarjeta
+   manda y se apaga cuando deja de mandar; el fundido es una transición CSS a propósito, porque
+   esta capa NO la mueve el scroll y por tanto no tiene que deshacerse hacia atrás. */
+.esquema .vida { opacity: 0; transition: opacity 240ms linear; }
+.esquema .vida .foco { fill: none; stroke: var(--acento); stroke-width: 1.5; opacity: 0; }
+/* La chispa va en el color del TEXTO y no en el acento: recorre líneas que ya están pintadas del
+   acento, así que del mismo color no cambiaba ni un píxel donde más importa (medido: 0,25 %/s en
+   la correlación, cuyo recorrido pisa las dos flechas). En claro sobre el acento sí se lee. */
+.esquema .vida .chispa { fill: none; stroke: var(--fg); stroke-width: 3; stroke-linecap: round; }
 .esquema text { font-family: var(--mono); font-size: 10px; letter-spacing: 0.04em; fill: var(--muted); opacity: 0; }
 .esquema text.sobre { fill: var(--bg); }                      /* el rótulo del botón, sobre el relleno */
 /* LA BARRA DE AVANCE de la captura (effects/esquemas.ts, la otra mitad de la fila 21). Donde el
