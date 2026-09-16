@@ -1,6 +1,7 @@
 import { utils, type JSAnimation } from 'animejs';
 import { P } from '../params';
 import type { Maestro } from '../core/maestro';
+import { tiempoConVida } from './galeria';
 
 // LA CABECERA — #cabecera, fija arriba (fila 11 del informe)
 // ================================================================================================
@@ -27,11 +28,10 @@ import type { Maestro } from '../core/maestro';
 // está abierto. "Contacto" es el pie, que está fuera del maestro: scrollIntoView, que respeta el
 // scroll-behavior del body (suave, y sin suavizar con reduce).
 
-/** El tiempo del maestro en que aterrizan "Ver los proyectos" (#bajar) y el enlace Proyectos:
- *  pasado el arranque que se le regala al motor y pasado el cruce de entrada, con la primera
- *  tarjeta ya entera (el porqué de cada sumando, en P.galeria). */
+/** El tiempo del maestro en que aterrizan "Ver los proyectos" (#bajar), el enlace Proyectos y la
+ *  parada de la sub-nav: la primera tarjeta entera, con su esquema trazado y funcionando. */
 export function tiempoPrimeraTarjeta(m: Maestro): number {
-  return m.L.GALERIA + m.duracion('GALERIA') * P.galeria.arranque + P.galeria.margenBajar;
+  return tiempoConVida(m, document.querySelectorAll('#galeria-tarjetas .tarjeta').length, 0);
 }
 
 export interface Cabecera {

@@ -82,7 +82,15 @@ export function montarHero(m: Maestro, reduce: boolean): Hero {
       .add(texto, {
         opacity: 1, y: 0, duration: T.duration, ease: 'out(3)', delay: stagger(T.stagger),
       }, `INTRO_ON+=${T.delay}`)
-      .add(texto, { y: -120, opacity: 0, duration: dur, ease: 'in(2)' }, 'HERO_OUT');
+      // Se van en el mismo orden en que llegaron, uno tras otro. El escalón se RESTA de la duración
+      // para que el último siga acabando en `dur`: si no, la clase `se-fue` (que quita el texto del
+      // árbol de accesibilidad) llegaría con #bajar todavía a la vista.
+      .add(texto, {
+        y: -120, opacity: 0,
+        duration: Math.max(1, dur - T.stagger * (texto.length - 1)),
+        ease: 'in(2)',
+        delay: stagger(T.stagger),
+      }, 'HERO_OUT');
   }
 
   // Nada más que soltar: no hay nodos creados ni escuchadores, y los hijos del maestro los deshace

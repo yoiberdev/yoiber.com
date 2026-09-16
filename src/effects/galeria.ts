@@ -39,15 +39,74 @@ import { montarEsquema } from './esquemas';
 // como a un párrafo más (S.esquema, con tweens propios para no mover el stagger de los párrafos) y
 // se le pasa el tramo; qué se traza y cuándo lo decide el módulo con P.galeria.esquemas.
 
+/** Qué esquema está en pantalla (`i`, o -1) y en qué punto (`f`): -1 mientras la tarjeta entra,
+ *  de 0 a 1 a lo largo de su tramo quieto, y 1 mientras el esquema se va (la vida se queda
+ *  encendida y se funde CON él, porque es hija suya y hereda su opacidad del maestro). */
+export interface EstadoEsquema { i: number; f: number }
+
+/** LA GEOMETRÍA DE LA GALERÍA, en unidades del maestro. Función pura y exportada porque la
+ *  necesitan tres sitios que deben coincidir al milímetro: el montaje de las tarjetas, la capa de
+ *  vida y los tres enlaces que aterrizan en la primera tarjeta. Antes cada uno echaba su cuenta, y
+ *  la de los enlaces caía con el esquema sin trazar y la vida apagada (medido: 0 %/s al llegar). */
+export function geometriaGaleria(m: Maestro, n: number) {
+  // El motor necesita apartarse antes de que entre nada: ese margen es `arranque`.
+  const margen = m.duracion('GALERIA') * P.galeria.arranque;
+  const ini = m.L.GALERIA + margen;
+  const dur = m.duracion('GALERIA') - margen;
+  const paso = dur / Math.max(1, n);
+  // Cruce corto respecto al tramo: la tarjeta entra, se queda MUCHO rato quieta y se va.
+  // Con un cruce largo el texto pasa media vida a media opacidad y no se puede leer.
+  const cruce = Math.min(500, paso * 0.14);
+  // LA SALIDA SE APOYA EN EL FINAL DEL CRUCE, NO EN SU PRINCIPIO. La salida es más corta que la
+  // entrada a propósito (acaba en el 0,70 del cruce, P.galeria.secuencia.salida), pero empezaba en
+  // `fin`, así que terminaba al 70 % y la tarjeta siguiente no entraba hasta el 100 %: quedaba un
+  // 30 % del cruce con TODAS las tarjetas apagadas (cuatro huecos de 65 px, medido). Ahora arranca
+  // `retrasoSalida` más tarde y termina justo cuando la siguiente empieza a entrar.
+  const X0 = S.salida;
+  const finSalida = Math.max(
+    X0.titulo.ini + X0.titulo.dur,
+    X0.captura.ini + X0.captura.dur,
+    X0.parrafos.ini + X0.parrafos.dur + X0.parrafos.stagger * 2,
+    X0.acceso.ini + X0.acceso.dur + X0.acceso.stagger,
+    S.esquema.salida.ini + S.esquema.salida.dur,
+  );
+  const retrasoSalida = cruce * Math.max(0, 1 - finSalida);
+  const desde = (i: number): number => ini + paso * i;                      // empieza a entrar
+  const fin = (i: number): number => desde(i) + paso - cruce + retrasoSalida; // empieza a salir
+  const quieto = (i: number): [number, number] => [desde(i) + cruce, fin(i)];  // el tramo que dibuja el esquema
+  const esquemaFuera = (i: number): number => fin(i) + cruce * (S.esquema.salida.ini + S.esquema.salida.dur);
+  return { ini, dur, paso, cruce, retrasoSalida, desde, fin, quieto, esquemaFuera };
+}
+
+/** Fracción del tramo quieto en que termina de trazarse la última pieza de CUALQUIER esquema.
+ *  Se calcula de la tabla (P.galeria.esquemas) y de la compresión (P.galeria.dibujo), no se copia:
+ *  si alguien alarga una ventana, la vida se sigue encendiendo cuando toca. Hoy: 0,38 × 0,90. */
+export function finDelDibujo(): number {
+  let ultima = 0;
+  for (const ventanas of Object.values(P.galeria.esquemas)) {
+    for (const v of Object.values(ventanas) as number[][]) ultima = Math.max(ultima, v[1]);
+  }
+  return P.galeria.dibujo * ultima;
+}
+
+/** El instante en que la vida de la tarjeta `i` ya está entera: su esquema trazado y el bucle a
+ *  opacidad 1. Es donde aterrizan "Ver los proyectos", el enlace Proyectos y la parada de la
+ *  sub-nav: llegar y ver la tarjeta funcionando, no un esquema a medio empezar. */
+export function tiempoConVida(m: Maestro, n: number, i = 0): number {
+  const G = geometriaGaleria(m, n);
+  const [a, b] = G.quieto(i);
+  const V = P.galeria.vida;
+  return a + (b - a) * Math.min(1, finDelDibujo() + V.entraLargo + V.aterrizaAire);
+}
+
 export interface Galeria {
   actualizar(tiempo: number): void;
   /** Tarjeta cuyo tramo toca en ese instante (0..total-1), o -1 antes de la primera y fuera del capítulo. */
   indice(tiempo: number): number;
   revertir(): void;
   total: number;
-  /** Lo que lleva trazado el esquema de la tarjeta al mando, de 0 a 1 sobre su tramo quieto;
-   *  -1 si ninguna manda o si está entrando o saliendo. */
-  dibujado(tiempo: number): number;
+  /** El esquema que está en pantalla y cuánto lleva: ver `EstadoEsquema`. */
+  esquemaDe(tiempo: number): EstadoEsquema;
 }
 
 const S = P.galeria.secuencia;
@@ -60,34 +119,11 @@ const CLIP = { cerrado: 'inset(0px 0px 100% 0px round 6px)', abierto: 'inset(0px
 export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
   const { tl } = m;
   const tarjetas = Array.from(document.querySelectorAll<HTMLElement>('#galeria-tarjetas .tarjeta'));
-  if (!tarjetas.length) return { actualizar: () => undefined, indice: () => -1, dibujado: () => -1, revertir: () => undefined, total: 0 };
+  if (!tarjetas.length) return { actualizar: () => undefined, indice: () => -1, esquemaDe: () => ({ i: -1, f: -1 }), revertir: () => undefined, total: 0 };
 
-  // El motor necesita apartarse antes de que entre nada: ese margen es `arranque`.
-  const margen = m.duracion('GALERIA') * P.galeria.arranque;
-  const ini = m.L.GALERIA + margen;
-  const dur = m.duracion('GALERIA') - margen;
-  const paso = dur / tarjetas.length;
-  // La tarjeta ocupa su tramo entero menos los cruces: entra, se queda quieta y se va.
-  // Cruce corto respecto al tramo: la tarjeta entra, se queda MUCHO rato quieta y se va.
-  // Con un cruce largo el texto pasa media vida a media opacidad y no se puede leer.
-  const cruce = Math.min(500, paso * 0.14);
+  const G = geometriaGaleria(m, tarjetas.length);
+  const { ini, dur, paso, cruce, retrasoSalida } = G;
   const u = (fraccion: number): number => cruce * fraccion; // fracción del cruce -> unidades del maestro
-  // LA SALIDA SE APOYA EN EL FINAL DEL CRUCE, NO EN SU PRINCIPIO. La salida es más corta que la
-  // entrada a propósito (acaba en el 0,70 del cruce, P.galeria.secuencia.salida), pero empezaba en
-  // `fin`, así que terminaba al 70 % y la tarjeta siguiente no entraba hasta el 100 %: quedaba un
-  // 30 % del cruce con TODAS las tarjetas apagadas. Medido: cuatro huecos de 65 px de rueda con la
-  // galería vacía, y 79 px con el título más visible por debajo de 0,15. Ahora la salida arranca
-  // `retrasoSalida` más tarde y termina justo cuando la siguiente empieza a entrar: mismo gesto,
-  // misma duración, sin agujero.
-  const X0 = S.salida;
-  const finSalida = Math.max(
-    X0.titulo.ini + X0.titulo.dur,
-    X0.captura.ini + X0.captura.dur,
-    X0.parrafos.ini + X0.parrafos.dur + X0.parrafos.stagger * 2,
-    X0.acceso.ini + X0.acceso.dur + X0.acceso.stagger,
-    S.esquema.salida.ini + S.esquema.salida.dur,
-  );
-  const retrasoSalida = u(Math.max(0, 1 - finSalida));
 
   const busca = (el: HTMLElement, sels: string[]): HTMLElement[] =>
     sels.map((s) => el.querySelector<HTMLElement>(s)).filter((e): e is HTMLElement => e !== null);
@@ -101,8 +137,8 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
 
   const piezas: HTMLElement[] = [];
   tarjetas.forEach((el, i) => {
-    const desde = ini + paso * i;         // empieza a entrar
-    const fin = desde + paso - cruce + retrasoSalida; // empieza a salir (ver `retrasoSalida`)
+    const desde = G.desde(i);   // empieza a entrar
+    const fin = G.fin(i);       // empieza a salir (ver `retrasoSalida` en geometriaGaleria)
     const titulo = busca(el, ['h2']);
     // La BARRA DE AVANCE (.avance) entra y sale con la captura: es su barra, va pegada a su borde
     // superior y en la misma celda del grid. Aquí solo se le da la opacidad y el destape; cuánto
@@ -174,26 +210,23 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
     return Math.min(tarjetas.length - 1, Math.floor(rel / paso));
   };
 
-  // CUÁNTO LLEVA DIBUJADO el esquema de la tarjeta que manda, de 0 a 1 sobre su TRAMO QUIETO (el
-  // mismo que recibe montarEsquema). Fuera de la galería, o mientras la tarjeta entra o sale,
-  // devuelve -1. Lo usa la capa de vida: sus bucles no pueden arrancar antes de que el scroll
-  // termine de trazar, porque el foco saltaría a una caja que todavía no está dibujada y se vería
-  // un recuadro suelto en medio del esquema (visto en captura).
-  const dibujado = (tiempo: number): number => {
+  // QUÉ ESQUEMA ESTÁ EN PANTALLA Y EN QUÉ PUNTO (ver EstadoEsquema). La capa de vida lo lee por
+  // fotograma: se enciende en proporción a lo trazado y, al irse la tarjeta, se queda a 1 hasta que
+  // el esquema termina de fundirse, porque hereda su opacidad y se va con él sin un tween propio.
+  const esquemaDe = (tiempo: number): EstadoEsquema => {
     const i = indice(tiempo);
-    if (i < 0) return -1;
-    const desde = ini + paso * i + cruce;
-    const largo = paso - cruce * 2 + retrasoSalida;   // el mismo tramo que recibe montarEsquema
-    if (largo <= 0) return -1;
-    const f = (tiempo - desde) / largo;
-    return f < 0 || f > 1 ? -1 : f;
+    if (i < 0) return { i: -1, f: -1 };
+    const [a, b] = G.quieto(i);
+    if (tiempo < a || b <= a) return { i, f: -1 };
+    if (tiempo <= b) return { i, f: (tiempo - a) / (b - a) };
+    return tiempo <= G.esquemaFuera(i) ? { i, f: 1 } : { i: -1, f: -1 };
   };
 
   let viva = -1;
   return {
     total: tarjetas.length,
     indice,
-    dibujado,
+    esquemaDe,
     actualizar(tiempo: number): void {
       // Qué tarjeta manda ahora. Fuera del capítulo, ninguna.
       // La ventana de `viva` es la de VISIBILIDAD, no la del tramo: durante el cruce de salida la

@@ -158,7 +158,7 @@ function montar(self?: Scope): () => void {
     tema.actualizar(proxy.currentTime);
     acento.actualizar(proxy.currentTime);
     galeria.actualizar(proxy.currentTime);
-    vidaEsquemas.actualizar(galeria.dibujado(proxy.currentTime));   // tras galeria: lee la clase `viva` que acaba de poner
+    vidaEsquemas.actualizar(galeria.esquemaDe(proxy.currentTime));
     hero.actualizar(proxy.currentTime);
     cabecera.actualizar(proxy.currentTime);
     fondo.actualizar(proxy.currentTime);

@@ -37,8 +37,25 @@ html.is-light {
   --muted-2: #6a655c;
   --line: #c9c1b2;
 }
-/* La transición de tema la hace el CSS sobre las propiedades que usan las variables. */
-html, body, .placa, #subnav, #debug { transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out, border-color 0.25s ease-in-out; }
+/* EL TEMA CRUZA ENTERO, Y A LA VEZ. Antes la transición se declaraba propiedad a propiedad en
+   html, body, .placa, #subnav y #debug, y todo lo demás que pinta con estas variables saltaba de
+   color en un fotograma: la cabecera, el monograma (sus rellenos son color-mix de --fg y --bg), el
+   titular del capítulo y la trama de la barra de la sub-nav, que es un degradado y un degradado no
+   se puede transicionar. Mientras, el fondo y el motor fundían en 250 ms (commit aa8ebd1).
+   Ahora se registran las VARIABLES como colores y se anima la variable en <html>: todo lo que la
+   usa, venga de donde venga, recibe el valor intermedio en cada fotograma. Por eso las reglas de
+   abajo ya no llevan su propia transición de color: una transición sobre un valor que ya se mueve
+   solo arranca de nuevo en cada fotograma y se queda persiguiéndolo con retraso.
+   Sin soporte de @property (navegadores de antes de 2023) el tema cambia de golpe, como antes. */
+@property --bg { syntax: '<color>'; inherits: true; initial-value: #1f1e1d; }
+@property --fg { syntax: '<color>'; inherits: true; initial-value: #f4f4f2; }
+@property --muted { syntax: '<color>'; inherits: true; initial-value: #93938f; }
+@property --muted-2 { syntax: '<color>'; inherits: true; initial-value: #888884; }
+@property --line { syntax: '<color>'; inherits: true; initial-value: #3a3936; }
+html {
+  transition: --bg 0.25s ease-in-out, --fg 0.25s ease-in-out, --muted 0.25s ease-in-out,
+    --muted-2 0.25s ease-in-out, --line 0.25s ease-in-out;
+}
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--fg); }
 body {
@@ -279,10 +296,10 @@ html.motor-on #stage { opacity: 0; }
 .esquema .relleno { fill: var(--acento); stroke: none; opacity: 0; } /* el botón del formulario se rellena al final */
 .esquema .punto { fill: var(--acento); stroke: none; opacity: 0; }   /* el identificador que recorre la ruta */
 .esquema .ruta { stroke: none; }                              /* la polilínea que sigue el punto: no se ve */
-/* LA VIDA DEL ESQUEMA (effects/vida-esquemas.ts). El grupo entero se enciende cuando la tarjeta
-   manda y se apaga cuando deja de mandar; el fundido es una transición CSS a propósito, porque
-   esta capa NO la mueve el scroll y por tanto no tiene que deshacerse hacia atrás. */
-.esquema .vida { opacity: 0; transition: opacity 240ms linear; }
+/* LA VIDA DEL ESQUEMA (effects/vida-esquemas.ts). Su opacidad la escribe el módulo en proporción a
+   lo que ha trazado el scroll, así que NO lleva transición: una transición aquí haría que el valor
+   dependiera de cuánto tiempo ha pasado y no de dónde está la rueda. */
+.esquema .vida { opacity: 0; }
 .esquema .vida .foco { fill: none; stroke: var(--acento); stroke-width: 1.5; opacity: 0; }
 /* La chispa va en el color del TEXTO y no en el acento: recorre líneas que ya están pintadas del
    acento, así que del mismo color no cambiaba ni un píxel donde más importa (medido: 0,25 %/s en

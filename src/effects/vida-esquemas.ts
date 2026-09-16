@@ -1,5 +1,6 @@
 import { animate, type JSAnimation } from 'animejs';
 import { P } from '../params';
+import { finDelDibujo, type EstadoEsquema } from './galeria';
 
 // LA VIDA DE LOS ESQUEMAS — lo que se mueve en la galería con el scroll PARADO
 // ================================================================================================
@@ -32,21 +33,33 @@ import { P } from '../params';
 //     por segundo, o sea nada. El esquema es una tira de 416×72 px y un punto de 3,7 px en pantalla
 //     no se ve moverse; un trazo encendido de 26 unidades sí. Misma idea, veinte veces más señal.
 //
-// CUÁNDO CORRE. Solo el de la tarjeta que manda (`.tarjeta.viva`, que pone galeria.ts), y solo si
-// el esquema está visible: por debajo de cierta ventana `base.css` lo esconde con `display: none` y
-// entonces animar es gastar batería para nadie. Con `prefers-reduced-motion` no se crea nada.
+// CUÁNDO CORRE Y CUÁNTO SE VE. Lo decide galeria.esquemaDe(), que dice qué esquema está en
+// pantalla y cuánto lleva trazado. Tres tramos:
+//   · mientras el scroll traza, apagada (el foco saltaría a cajas sin dibujar: visto en captura);
+//   · en cuanto acaba la última pieza, se ENCIENDE EN PROPORCIÓN a lo que avanza el scroll durante
+//     `entraLargo` del tramo: es función del reloj, así que al subir se apaga por el mismo camino.
+//     Antes era un umbral más una transición CSS de 240 ms: saltaba de 0 a 1 y el resultado
+//     dependía de cuánto tiempo pasara después del salto;
+//   · cuando la tarjeta se va, se queda a 1 y se funde CON el esquema, porque es hija suya y hereda
+//     la opacidad que le pone el maestro. Antes se cortaba en seco en `fin`, 87 unidades antes de
+//     que el esquema terminara de irse.
+// Al encenderse, restart() y no play(): el foco empieza en la primera caja, no a medio salto.
+// Y solo si el esquema está visible: por debajo de cierta ventana `base.css` lo esconde con
+// `display: none` y animar sería gastar batería para nadie. Con movimiento reducido no se crea nada.
 
 const NS = 'http://www.w3.org/2000/svg';
 
 export interface VidaEsquemas {
-  /** Arranca el bucle de la tarjeta que manda y pausa los demás. Se llama por fotograma.
-   *  `dibujado` es lo que lleva trazado su esquema (0..1, o -1 si no hay tarjeta al mando). */
-  actualizar(dibujado: number): void;
+  /** Enciende el bucle del esquema que está en pantalla, en proporción a lo trazado, y apaga los
+   *  demás. Se llama por fotograma con lo que devuelve galeria.esquemaDe(). */
+  actualizar(estado: EstadoEsquema): void;
   revertir(): void;
 }
 
 interface Vivo {
+  indice: number;       // posición de su tarjeta en la galería, la misma que usa esquemaDe()
   tarjeta: Element;
+  opacidad: string;     // la última escrita, para no ensuciar el estilo en cada fotograma
   svg: SVGSVGElement;
   grupo: SVGGElement;
   bucles: JSAnimation[];
@@ -145,7 +158,8 @@ export function montarVidaEsquemas(reduce: boolean): VidaEsquemas {
   const vivos: Vivo[] = [];
   if (reduce) return { actualizar() {}, revertir() {} };
 
-  for (const tarjeta of document.querySelectorAll('.tarjeta')) {
+  const tarjetas = Array.from(document.querySelectorAll('#galeria-tarjetas .tarjeta'));
+  for (const [indice, tarjeta] of tarjetas.entries()) {
     const svg = tarjeta.querySelector('svg.esquema') as SVGSVGElement | null;
     if (!svg) continue;
     const nombre = svg.dataset.esquema ?? '';
@@ -169,22 +183,25 @@ export function montarVidaEsquemas(reduce: boolean): VidaEsquemas {
       case 'correlacion': empujar(chispa(grupo, verticesDeRuta(svg), 0)); break;
     }
     if (!bucles.length) { grupo.remove(); continue; }
-    vivos.push({ tarjeta, svg, grupo, bucles, corriendo: false });
+    vivos.push({ indice, tarjeta, svg, grupo, bucles, corriendo: false, opacidad: '' });
   }
 
   return {
-    actualizar(dibujado: number): void {
-      // La vida espera a que el scroll termine de trazar. Sin esto el foco salta a una caja que
-      // el maestro no ha dibujado y aparece un recuadro suelto: el dibujo es del scroll, y esta
-      // capa solo entra cuando el scroll ya ha dicho todo lo que tenía que decir.
-      const trazado = dibujado >= P.galeria.vida.entra;
+    actualizar({ i, f }: EstadoEsquema): void {
+      const desde = finDelDibujo();
+      const largo = P.galeria.vida.entraLargo;
       for (const v of vivos) {
-        // `display: none` en móvil no da caja: animar ahí es gastar batería sin que se vea nada.
-        const debe = trazado && v.tarjeta.classList.contains('viva') && v.svg.getClientRects().length > 0;
+        let k = 0;
+        // `display: none` en móvil no da caja: ahí no se enciende nada.
+        if (v.indice === i && f >= 0 && v.svg.getClientRects().length > 0) {
+          k = Math.min(1, Math.max(0, (f - desde) / largo));
+        }
+        const op = k.toFixed(3);
+        if (op !== v.opacidad) { v.grupo.style.opacity = op; v.opacidad = op; }
+        const debe = k > 0;
         if (debe === v.corriendo) continue;
         v.corriendo = debe;
-        v.grupo.style.opacity = debe ? '1' : '0';
-        for (const b of v.bucles) (debe ? b.play() : b.pause());
+        for (const b of v.bucles) (debe ? b.restart() : b.pause());
       }
     },
     revertir(): void {

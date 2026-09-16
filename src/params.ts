@@ -51,6 +51,11 @@ export const P = {
       // después de la anterior, en el sentido de las agujas. 72 x 12 + 500 = 1 364 ms, y acaba a
       // 4 564 < 5 100 (INTRO_END): se enciende entero antes de que la intro por tiempo termine.
       encendido: { duration: 500, stagger: 12 },
+      // El apagado en HERO_OUT, de la última marca a la primera. `duration` es lo que tarda CADA
+      // marca; el escalón entre ellas no va aquí, se calcula para que la última acabe con el velo
+      // (1 200 unidades hoy: 71 escalones de 10 más 480). `barrido`: fracción del velo que tarda
+      // en irse el barrido, que va solo y sin escalón.
+      apagado: { duration: 480, barrido: 0.5 },
       // Los dos bucles FUERA del maestro (reloj del navegador, no del scroll). El barrido es el que
       // pone píxeles en movimiento: un arco de 60° que da una vuelta cada 12 s (30°/s). El anillo
       // de marcas gira en sentido contrario y muy despacio: una vuelta cada 4 min (1,5°/s), lo justo
@@ -137,13 +142,12 @@ export const P = {
   // LA GALERÍA. `arranque` es la fracción del capítulo que se le regala al motor para que se
   // aparte ANTES de que entre la primera tarjeta. Sin él, la tarjeta aparece encima de la campana:
   // el desvío del motor empieza al 10 % del tramo y las tarjetas empezaban al 0 %.
-  // `margenBajar`: "Ver los proyectos" (#bajar) aterriza en la PRIMERA TARJETA, no al principio de
-  // GALERIA. Estas unidades por encima de `arranque` caen justo PASADO el cruce de entrada, que dura
-  // min(500, 14 % del paso) = 230 unidades (galeria.ts): así se llega con la tarjeta ya entera. Con
-  // 60 se caía al 26 % del cruce y, con su `out(3)`, la tarjeta se quedaba a opacidad 0,6 (medido).
+  // Dónde aterrizan "Ver los proyectos", el enlace Proyectos y la parada de la sub-nav ya no es un
+  // número de aquí: lo calcula galeria.ts (tiempoConVida), en la primera tarjeta con su esquema
+  // trazado y la vida encendida. Antes era `margenBajar: 250`, que caía con el esquema al 1,6 % y
+  // la tarjeta muerta al llegar (medido: 0 %/s).
   galeria: {
     arranque: 0.18,
-    margenBajar: 250,
     // LA MINI-SECUENCIA DE CADA TARJETA (effects/galeria.ts). Antes la tarjeta entraba en bloque
     // (opacidad + 26 px); ahora cada pieza entra por su turno: título, captura destapándose de
     // arriba abajo, los tres párrafos escalonados, y el acceso y el aviso al final.
@@ -204,10 +208,14 @@ export const P = {
       respiro: 500,    // ms apagado entre una vuelta y la siguiente
       chispa: 34,      // unidades del viewBox que mide el trazo encendido; con 3,2 (un punto) no se veía
       escalon: 420,    // ms entre la chispa de una ruta y la de la siguiente
-      // A partir de qué fracción del tramo quieto arranca la vida. El dibujo ocupa `dibujo` (0,38)
-      // y su última pieza acaba en el 0,90 de ese trozo, o sea en el 0,342 del tramo: con 0,42 la
-      // vida entra con el esquema ya entero y aún le queda el 58 % del tramo por delante.
-      entra: 0.42,
+      // EL ENCENDIDO. La vida arranca donde acaba de trazarse la última pieza (galeria.ts,
+      // finDelDibujo(): hoy 0,342 del tramo quieto) y llega a opacidad 1 tras `entraLargo` más de
+      // tramo, siguiendo al scroll. Con 0,05 son ~62 unidades del maestro, unos 55 px de rueda:
+      // se ve encenderse sin que parezca un parpadeo.
+      entraLargo: 0.05,
+      // Cuánto más allá del encendido completo aterrizan los enlaces a Proyectos: un margen para
+      // que el suavizado del scroll no deje la vida a medio encender al llegar.
+      aterrizaAire: 0.03,
     },
     // Qué fracción del tramo quieto de la tarjeta ocupa el DIBUJO del esquema. El resto queda para
     // la capa de vida. Con 1 (como estaba) el dibujo acababa cuando la tarjeta ya se iba, y no

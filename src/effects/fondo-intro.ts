@@ -93,7 +93,18 @@ export function montarFondoIntro(m: Maestro, reduce: boolean): FondoIntro {
       .add(marcas, { opacity: [0, F.opacidad], duration: E.duration, ease: 'out(2)', delay: stagger(E.stagger) }, `INTRO_ON+=${T.delay}`)
       // El barrido aparece cuando la última marca ya se está encendiendo.
       .add(barrido, { opacity: [0, F.opacidad], duration: E.duration * 2, ease: 'linear' }, `INTRO_ON+=${T.delay + F.marcas * E.stagger}`)
-      .add(caja, { opacity: [1, 0], duration: durVelo, ease: 'in(2)' }, 'HERO_OUT');
+      // LA SALIDA, AL REVÉS QUE LA ENTRADA. Antes la caja entera se fundía de un golpe mientras el
+      // encendido iba marca a marca: la entrada contaba algo y la salida no. Ahora las 72 marcas se
+      // apagan de la última a la primera y el barrido se va solo, sin escalón. La caja se queda a 1.
+      // El escalón se CALCULA para que la última marca acabe justo en `fuera` (el fin del velo),
+      // que es donde se pausan los dos bucles: si acabara más tarde, se congelarían a medio apagar.
+      .add(marcas, {
+        opacity: [F.opacidad, 0],
+        duration: F.apagado.duration,
+        ease: 'in(2)',
+        delay: stagger(Math.max(0, (durVelo - F.apagado.duration) / Math.max(1, F.marcas - 1)), { from: 'last' }),
+      }, 'HERO_OUT')
+      .add(barrido, { opacity: [F.opacidad, 0], duration: durVelo * F.apagado.barrido, ease: 'in(2)' }, 'HERO_OUT');
 
     bucles.push(
       animate(giro, { rotate: [0, 360], duration: F.barrido.vuelta, ease: 'linear', loop: true }),
