@@ -456,12 +456,18 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     //     AZIMUT, no por índice: la aleta i no está en i·360/n porque faltan las del hueco de la
     //     turbobomba, así que un `stagger` por índice abriría el anillo a saltos. `from: 'last'`
     //     como en la referencia: la ola arranca por el azimut más alto y da la vuelta.
+    //     Y EL ALETEO (capa de vida, PM.vida.aleteoAmp): se SUMA a la apertura y se apaga con ella,
+    //     así que el anillo ondula en reposo y queda quieto mientras el despiece lo abre. Es el
+    //     segundo bucle que mueve una pieza por su cuenta, después del pulso de la corona.
     if (rig.aletas.length) {
       const R = PM.aletasReparto;
+      const vivoAletas = 1 - MathUtils.clamp(estado.aletas, 0, 1);
       for (let i = 0; i < rig.aletas.length; i++) {
+        const azimut = (rig.azimutesAletas[i] * Math.PI) / 180;
         const fase = 1 - rig.azimutesAletas[i] / 360;
         const k = Math.min(1, Math.max(0, (estado.aletas - R * fase) / (1 - R)));
-        rig.aletas[i] = k * PM.aletasGiro;
+        const aleteo = V.aleteoAmp * vivoAletas * Math.sin(ahora * V.aleteoHz - azimut * V.aleteoCrestas);
+        rig.aletas[i] = k * PM.aletasGiro + aleteo;
       }
       rig.escribirAletas();
     }
@@ -484,7 +490,14 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     rig.sacudida.rotation.x = PM.vida.cabeceoAmp * Math.sin(ahora * PM.vida.cabeceoHz);
 
     // 3. La turbobomba coge vueltas. Ángulo = f(tiempo), no un contador que se incrementa.
-    rig.turbina.rotation.y = estado.rpm * tiempo * PM.coreo.cierre.rpm + ahora * PM.vida.turbinaIdle;
+    //    EL RALENTÍ RESPIRA (PM.vida.ralentiAmp): la velocidad angular del ralentí es
+    //    w0·(1 + a·sen(Ω·ahora)) y lo que se escribe aquí es su INTEGRAL EXACTA,
+    //    w0·ahora + (w0·a/Ω)·(1 − cos(Ω·ahora)). Integrada así, el ángulo sigue siendo función pura
+    //    de `ahora`: no acumula deriva, no pega un salto al volver de otra pestaña y, como a < 1, la
+    //    velocidad nunca cambia de signo y el rotor no se ve girar hacia atrás.
+    const w0 = V.turbinaIdle;
+    const ralenti = ahora * w0 + (w0 * V.ralentiAmp / V.ralentiHz) * (1 - Math.cos(ahora * V.ralentiHz));
+    rig.turbina.rotation.y = estado.rpm * tiempo * PM.coreo.cierre.rpm + ralenti;
 
     // 3a. LA PLACA DE INYECTORES SE INCLINA hacia la cámara (fila 22). Un cuaternión, no un
     //     tween de rotateX: el eje del giro es el HORIZONTAL DE LA PANTALLA, y en el marco del

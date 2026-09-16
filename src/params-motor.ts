@@ -295,6 +295,28 @@ export const PM = {
     ondaAmp: 0.022,         // unidades de motor: ~2,4 px a 1440x900, o sea dos veces la tinta
     ondaHz: 0.00125,        // ~5,0 s por vuelta completa alrededor de la corona
     ondaCrestas: 2,         // cuántas crestas hay a la vez repartidas por el anillo
+    // EL ALETEO DEL ANILLO. Segundo bucle que mueve una PIEZA y no el conjunto (CANALES-ANIMEJS.md,
+    // punto 1 de "lo siguiente"). Cada lama oscila sobre SU PROPIO eje radial, el mismo que abre el
+    // despiece, así que no hace falta ninguna matriz nueva: se suma al escalar que ya compone
+    // `escribirAletas()` y no añade ni una llamada de dibujo.
+    // Se apaga a medida que el anillo se abre (factor 1 - estado.aletas en coreografia.ts): mientras
+    // dura el gesto del despiece manda la coreografía, y el aleteo solo vive en reposo, que es
+    // cuando hace falta que algo respire.
+    // 0,026 rad son 1,5°: la mitad de la deriva del conjunto y un catorceavo de la apertura del
+    // despiece (0,62). En la punta de una lama eso es menos de un píxel a 1440x900, pero el anillo
+    // tiene 29 y la ola las recorre: lo que se ve no es una aleta moviéndose, es el filo del anillo
+    // ondulando. Reparto por AZIMUT, no por índice, por la misma razón que la corona y la apertura.
+    aleteoAmp: 0.026,       // radianes (1,5°) de oscilación de cada lama
+    aleteoHz: 0.00092,      // ~6,8 s por vuelta; no es múltiplo del de la corona (5,0 s)
+    aleteoCrestas: 3,       // tres ondas a la vez en el anillo: con una sola parece un abanico
+    // EL RALENTÍ DE LA TURBOBOMBA RESPIRA. El rotor giraba a velocidad constante y por la ventana de
+    // la carcasa eso se lee como una rueda de molino. Un ralentí de verdad sube y baja: la velocidad
+    // angular se modula ±18 % con periodo de 11,2 s (tampoco múltiplo de los otros dos ciclos).
+    // Sigue sin cruzar el umbral del estroboscopio a 60 fps: el pico son 1,48 vueltas/s = 8,9° por
+    // fotograma, por debajo de la media separación entre álabes (10°), así que el giro se sigue
+    // leyendo hacia delante (ver el comentario de turbinaIdle).
+    ralentiAmp: 0.18,       // fracción de la velocidad de ralentí que sube y baja
+    ralentiHz: 0.00056,     // periodo 11,2 s
     // EL ACENTO POR PROYECTO (informe BRECHA, fila 9). La página decide el acento vigente desde el
     // reloj del maestro (core/acento.ts) y avisa con el evento 'yoi:acento' SOLO cuando cambia; el
     // motor funde entonces el color de los aros, la luz de cámara y la garganta hacia el nuevo con
