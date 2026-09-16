@@ -17,6 +17,23 @@ export function montarEscenario(m: Maestro, reduce: boolean): Escena {
 
   tl.set(puntos, { opacity: 0.15, scale: 0.5 }, 0);
 
+  // LA LISTA DE PIEZAS (index.html, .lista-piezas). Se anima en los dos caminos, con y sin reduce,
+  // y también cuando luego llega el 3D: allí la lista va recortada para lectores de pantalla y la
+  // opacidad no se ve, así que no estorba. Entra escalonada al empezar COMO y sale antes de CIERRE.
+  // Con reduce, solo opacidad.
+  const lista = '.lista-piezas li';
+  const dC = m.duracion('COMO');
+  const LP = P.panel.lista;
+  tl.set(lista, { opacity: 0, ...(reduce ? {} : { x: LP.x }) }, 0)
+    .add(lista, {
+      opacity: [0, 1], ...(reduce ? {} : { x: [LP.x, 0] }),
+      duration: dC * LP.entra, ease: 'out(3)', delay: stagger(dC * LP.escalon),
+    }, `COMO+=${dC * LP.desde}`)
+    .add(lista, {
+      opacity: [1, 0],
+      duration: dC * LP.sale, ease: 'in(2)', delay: stagger(dC * LP.escalonSalida, { reversed: true }),
+    }, `COMO+=${dC * LP.hasta}`);
+
   // LAS OPACIDADES VAN CON [desde, hasta] EXPLÍCITO, igual que en motor/coreografia.ts y por el
   // mismo motivo: el `from` implícito se captura EN EL `.add()`, leyendo el nodo vivo, no del
   // `set()` de t=0. Con solo `{ opacity: 1 }` el panel se quedaba asomando durante toda la INTRO

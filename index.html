@@ -184,19 +184,22 @@
       <section id="como" data-label="COMO" data-chapter="como" data-theme="light">
         <!-- Las nueve piezas del despiece, en texto. Los rótulos del motor viven dentro de #motor,
              que es aria-hidden porque es decorado; pero "Cámara de combustión · relación de
-             contracción 3,24" ES el contenido de este capítulo, no decoración. Esta lista vale
-             para las dos escenas (con 3D y con el escenario CSS) y no se ve nunca. -->
+             contracción 3,24" ES el contenido de este capítulo, no decoración. Con el motor 3D la
+             lista no se ve (la dicen los rótulos). SIN él —navegador sin WebGL, máquina justa o
+             movimiento reducido, que también apaga el 3D— se VE: el escenario CSS no tiene rótulos
+             y el capítulo se quedaba en cinco placas grises sin una palabra (base.css, .lista-piezas;
+             la entrada la pone core/escenario.ts). -->
         <h2 class="solo-lectores">Cómo está hecho: las piezas del motor</h2>
-        <ul class="solo-lectores">
-          <li>Estructura de empuje: 12 tirantes en A sobre el anillo</li>
-          <li>Cúpula del colector: 980 mm de domo; se levanta y deja ver los inyectores</li>
-          <li>Placa de inyectores: 127 orificios en siete anillos</li>
-          <li>Anillo de aletas: 29 aletas radiales sobre la cámara</li>
-          <li>Conductos: 3 líneas: descarga, domo y escape</li>
-          <li>Turbobomba: 36 000 rpm: voluta, cuerpo, turbina y escape</li>
-          <li>Cámara de combustión: 3,24 de relación de contracción</li>
-          <li>Corona de refrigeración: 36 tubos de radio variable</li>
-          <li>Campana de la tobera: 17,6 de expansión, perfil de Rao</li>
+        <ul class="solo-lectores lista-piezas">
+          <li><b>Estructura de empuje</b><span class="dos-puntos">: </span>12 tirantes en A sobre el anillo</li>
+          <li><b>Cúpula del colector</b><span class="dos-puntos">: </span>980 mm de domo; se levanta y deja ver los inyectores</li>
+          <li><b>Placa de inyectores</b><span class="dos-puntos">: </span>127 orificios en siete anillos</li>
+          <li><b>Anillo de aletas</b><span class="dos-puntos">: </span>29 aletas radiales sobre la cámara</li>
+          <li><b>Conductos</b><span class="dos-puntos">: </span>3 líneas: descarga, domo y escape</li>
+          <li><b>Turbobomba</b><span class="dos-puntos">: </span>36 000 rpm: voluta, cuerpo, turbina y escape</li>
+          <li><b>Cámara de combustión</b><span class="dos-puntos">: </span>3,24 de relación de contracción</li>
+          <li><b>Corona de refrigeración</b><span class="dos-puntos">: </span>36 tubos de radio variable</li>
+          <li><b>Campana de la tobera</b><span class="dos-puntos">: </span>17,6 de expansión, perfil de Rao</li>
         </ul>
       </section>
       <section id="cierre" data-label="CIERRE" data-chapter="cierre"></section>

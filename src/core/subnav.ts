@@ -7,8 +7,11 @@ import type { Scroller } from './scroller';
 // de su tramo, que lleva ahí de un clic.
 export interface Subnav { actualizar(progreso: number): void; revertir(): void }
 
-/** Una parada: la etiqueta del tramo (HERO_OUT, GALERIA...) y el nombre que se lee (aria-label). */
-export interface Parada { X: string; nombre: string }
+/** Una parada: la etiqueta del tramo (HERO_OUT, GALERIA...) y el nombre que se lee (aria-label).
+ *  `destino`, si lo trae, es el scroll EN PÍXELES donde tiene que aterrizar; sin él, el `ini` del
+ *  tramo. Hace falta porque el borde de un tramo no siempre es donde empieza lo que se ve: la
+ *  galería regala un arranque al motor para apartarse, y en ese borde no hay ni una tarjeta. */
+export interface Parada { X: string; nombre: string; destino?: () => number }
 
 export function montarSubnav(scroller: Scroller, paradas: Parada[] = []): Subnav {
   const nav = document.querySelector<HTMLElement>('#subnav');
@@ -33,7 +36,12 @@ export function montarSubnav(scroller: Scroller, paradas: Parada[] = []): Subnav
   // LAS PARADAS. El href es el id de la sección del tramo (un ancla de verdad, por si no hay
   // módulo); con módulo, el clic va al `ini` del tramo en píxeles, que es donde empieza el capítulo
   // en el maestro. stopPropagation: la barra también escucha el clic y lo traduciría a su posición.
-  const anclas = paradas.map(({ X, nombre }) => {
+  // El sitio de cada parada, en píxeles: el suyo si lo trae, el borde del tramo si no.
+  const dondeVa = (X: string, destino?: () => number): number | null => {
+    if (destino) return destino();
+    return scroller.tramos.find((t) => t.X === X)?.ini ?? null;
+  };
+  const anclas = paradas.map(({ X, nombre, destino }) => {
     const a = document.createElement('a');
     a.className = 'parada';
     a.href = `#${document.querySelector<HTMLElement>(`section[data-label="${X}"]`)?.id ?? ''}`;
@@ -42,11 +50,11 @@ export function montarSubnav(scroller: Scroller, paradas: Parada[] = []): Subnav
     a.addEventListener('click', (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
-      const tramo = scroller.tramos.find((t) => t.X === X);
-      if (tramo) window.scrollTo({ top: tramo.ini });
+      const top = dondeVa(X, destino);
+      if (top !== null) window.scrollTo({ top });
     });
     barra.append(a);
-    return { a, X };
+    return { a, X, destino };
   });
   // Dónde cae cada una: en la misma escala que el cursor, cuyo centro va de cursor/2 a
   // ancho - cursor/2. Se recalcula solo cuando los tramos cambian (resize): `maxScroll` lo delata.
@@ -55,9 +63,11 @@ export function montarSubnav(scroller: Scroller, paradas: Parada[] = []): Subnav
     if (scroller.maxScroll === maxColocado) return;
     maxColocado = scroller.maxScroll;
     const ancho = cursor.offsetWidth;
-    for (const { a, X } of anclas) {
-      const tramo = scroller.tramos.find((t) => t.X === X);
-      const p = tramo ? utils.clamp(tramo.ini / scroller.maxScroll, 0, 1) : 0;
+    // El punto va donde ATERRIZA el clic, no en el borde del tramo: si no, se pulsa un punto y el
+    // cursor acaba en otro sitio de la barra.
+    for (const { a, X, destino } of anclas) {
+      const top = dondeVa(X, destino);
+      const p = top !== null ? utils.clamp(top / scroller.maxScroll, 0, 1) : 0;
       a.style.left = `calc(${p} * (100% - ${ancho}px) + ${ancho / 2}px)`;
     }
   };

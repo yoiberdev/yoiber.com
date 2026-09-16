@@ -170,7 +170,15 @@ function montar(self?: Scope): () => void {
     introTemporal.pause(); // el usuario hizo scroll durante la intro: el scroll toma el mando
     return true;
   });
-  const subnav = montarSubnav(scroller, PARADAS);
+  // LAS PARADAS ATERRIZAN DONDE LOS ENLACES DE LA CABECERA. Antes iban al borde de su tramo, y
+  // "Proyectos" caía en 900 px, 1,8 pantallas antes de la primera tarjeta (el motor todavía
+  // apartándose), y "Por dentro" antes de que el despiece se abriera. Mismo cálculo que
+  // cabecera.ts, para que los dos caminos al mismo sitio lleven al mismo sitio.
+  const destinos: Record<string, () => number> = {
+    GALERIA: () => scroller.pxParaTiempo(tiempoPrimeraTarjeta(m)),
+    COMO: () => scroller.pxParaTiempo(m.L.COMO + m.duracion('COMO') * P.cabecera.dentro),
+  };
+  const subnav = montarSubnav(scroller, PARADAS.map((p) => ({ ...p, destino: destinos[p.X] })));
   const quitarDebug = location.search.includes('debug') ? montarDebug(m, scroller, proxy, escena, salidaLogo) : null;
 
   // "Ver los proyectos": el enlace del hero. preventDefault porque el href="#galeria" apuntaría al

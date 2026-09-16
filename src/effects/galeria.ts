@@ -72,6 +72,22 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
   // Con un cruce largo el texto pasa media vida a media opacidad y no se puede leer.
   const cruce = Math.min(500, paso * 0.14);
   const u = (fraccion: number): number => cruce * fraccion; // fracción del cruce -> unidades del maestro
+  // LA SALIDA SE APOYA EN EL FINAL DEL CRUCE, NO EN SU PRINCIPIO. La salida es más corta que la
+  // entrada a propósito (acaba en el 0,70 del cruce, P.galeria.secuencia.salida), pero empezaba en
+  // `fin`, así que terminaba al 70 % y la tarjeta siguiente no entraba hasta el 100 %: quedaba un
+  // 30 % del cruce con TODAS las tarjetas apagadas. Medido: cuatro huecos de 65 px de rueda con la
+  // galería vacía, y 79 px con el título más visible por debajo de 0,15. Ahora la salida arranca
+  // `retrasoSalida` más tarde y termina justo cuando la siguiente empieza a entrar: mismo gesto,
+  // misma duración, sin agujero.
+  const X0 = S.salida;
+  const finSalida = Math.max(
+    X0.titulo.ini + X0.titulo.dur,
+    X0.captura.ini + X0.captura.dur,
+    X0.parrafos.ini + X0.parrafos.dur + X0.parrafos.stagger * 2,
+    X0.acceso.ini + X0.acceso.dur + X0.acceso.stagger,
+    S.esquema.salida.ini + S.esquema.salida.dur,
+  );
+  const retrasoSalida = u(Math.max(0, 1 - finSalida));
 
   const busca = (el: HTMLElement, sels: string[]): HTMLElement[] =>
     sels.map((s) => el.querySelector<HTMLElement>(s)).filter((e): e is HTMLElement => e !== null);
@@ -86,7 +102,7 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
   const piezas: HTMLElement[] = [];
   tarjetas.forEach((el, i) => {
     const desde = ini + paso * i;         // empieza a entrar
-    const fin = desde + paso - cruce;     // empieza a salir
+    const fin = desde + paso - cruce + retrasoSalida; // empieza a salir (ver `retrasoSalida`)
     const titulo = busca(el, ['h2']);
     // La BARRA DE AVANCE (.avance) entra y sale con la captura: es su barra, va pegada a su borde
     // superior y en la misma celda del grid. Aquí solo se le da la opacidad y el destape; cuánto
@@ -167,7 +183,7 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
     const i = indice(tiempo);
     if (i < 0) return -1;
     const desde = ini + paso * i + cruce;
-    const largo = paso - cruce * 2;
+    const largo = paso - cruce * 2 + retrasoSalida;   // el mismo tramo que recibe montarEsquema
     if (largo <= 0) return -1;
     const f = (tiempo - desde) / largo;
     return f < 0 || f > 1 ? -1 : f;
@@ -184,7 +200,7 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
       // tarjeta ya se ha desvanecido y sus enlaces no deben seguir siendo pinchables. El contador,
       // en cambio, usa el tramo entero (`indice`): si se vaciara en cada cruce parpadearía.
       const rel = tiempo - ini;
-      const k = (rel % paso) >= paso - cruce ? -1 : indice(tiempo);
+      const k = (rel % paso) >= paso - cruce + retrasoSalida ? -1 : indice(tiempo);
       if (k === viva) return;
       if (viva >= 0) tarjetas[viva].classList.remove('viva');
       if (k >= 0) tarjetas[k].classList.add('viva');

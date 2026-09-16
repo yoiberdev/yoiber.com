@@ -71,6 +71,10 @@ export const P = {
     entrada: { rotateX: 70, y: '70vh', scale: 0.6 },
     galeria: { rotateY: 18 },
     como: { rotateX: 45, z: 160, giro: -180 },
+    // La lista de piezas del escenario CSS (core/escenario.ts), en fracciones de COMO. Las nueve
+    // entradas acaban en 0,05 + 8 × 0,03 + 0,08 = 0,37, con el panel ya abierto; la salida empieza
+    // en 0,84 y la última acaba en 0,84 + 8 × 0,01 + 0,06 = 0,98, antes de CIERRE.
+    lista: { x: -16, desde: 0.05, entra: 0.08, escalon: 0.03, hasta: 0.84, sale: 0.06, escalonSalida: 0.01 },
     cierre: { rotateX: 100, y: '35vh' },
     origen: 'propio',
   },
