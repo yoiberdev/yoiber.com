@@ -172,8 +172,9 @@ export interface Tinta {
   dimensionar(): void;
   /** Enciende o apaga la última pasada (el vigilante de fotogramas la apaga en el segundo peldaño). */
   fxaa(on: boolean): void;
-  /** Color y fuerza de la tinta, y el fondo que ve el FXAA, por tema. */
-  tema(claro: boolean): void;
+  /** Color y fuerza de la tinta, y el fondo que ve el FXAA, por tema. `mezcla` es 0 en el oscuro y
+   *  1 en el claro; los intermedios son el fundido de PM.motor.temaMs (lo lleva effects/motor3d.ts). */
+  tema(mezcla: number): void;
   /** Los números del pase en caliente (solo desde ?debug: para MEDIR umbrales sin recompilar). Los
    *  que valen viven en PM.motor.tinta; esto no los cambia ahí. */
   ajustar(a: Partial<{ grosor: number; umbralProfundidad: number; umbralNormal: number; fuerza: number }>): void;
@@ -270,14 +271,22 @@ export function crearTinta(render: WebGLRenderer, fxaaInicial: boolean): Tinta {
     if (a.fuerza !== undefined) matTinta.uniforms.fuerza.value = a.fuerza;
   }
 
-  function tema(claro: boolean): void {
+  // Colores de trabajo del fundido de tema: se reutilizan en cada fotograma del cambio para no
+  // crear basura en el bucle.
+  const tintaOscura = new Color().setHex(M.paleta.linea, LinearSRGBColorSpace);
+  const tintaClara = new Color().setHex(M.paleta.lineaClaro, LinearSRGBColorSpace);
+  const fondoOscuro = new Color().setHex(T.fondo, LinearSRGBColorSpace);
+  const fondoClaro = new Color().setHex(T.fondoClaro, LinearSRGBColorSpace);
+
+  function tema(mezcla: number): void {
     // Sin conversión de espacio de color (LinearSRGBColorSpace = "déjalo como está"): el compositor
-    // trabaja sobre la imagen ya codificada y estos son valores sRGB de 8 bits, no albedos.
-    (matTinta.uniforms.tinta.value as Color).setHex(claro ? M.paleta.lineaClaro : M.paleta.linea, LinearSRGBColorSpace);
-    matTinta.uniforms.fuerza.value = claro ? T.fuerzaClaro : T.fuerza;
-    (matFxaa.uniforms.fondo.value as Color).setHex(claro ? T.fondoClaro : T.fondo, LinearSRGBColorSpace);
+    // trabaja sobre la imagen ya codificada y estos son valores sRGB de 8 bits, no albedos. Por eso
+    // la mezcla también se hace aquí y no en el espacio de trabajo de three.
+    (matTinta.uniforms.tinta.value as Color).lerpColors(tintaOscura, tintaClara, mezcla);
+    matTinta.uniforms.fuerza.value = T.fuerza + (T.fuerzaClaro - T.fuerza) * mezcla;
+    (matFxaa.uniforms.fondo.value as Color).lerpColors(fondoOscuro, fondoClaro, mezcla);
   }
-  tema(false);
+  tema(0);
 
   function pintar(escena: Scene, camara: OrthographicCamera | PerspectiveCamera, escala = 1): void {
     render.info.reset();

@@ -712,20 +712,28 @@ function crearDegradado(): DataTexture {
   tex.minFilter = NearestFilter;
   tex.generateMipmaps = false;
   tex.colorSpace = NoColorSpace;
-  escribirDegradado(tex, false);
+  escribirDegradado(tex, 0);
   return tex;
 }
 
 /** Reescribe los texels del gradiente con los tres valores del tema. El shader lee el texel en
- *  dot(n, L) · 0,5 + 0,5, asi que el texel j cubre dot(n, L) en [2j/n - 1, 2(j+1)/n - 1). */
-function escribirDegradado(tex: DataTexture, claro: boolean): void {
-  const valores = claro ? PM.motor.toon.claro : PM.motor.toon.oscuro;
-  const [c1, c2] = PM.motor.toon.cortes;
+ *  dot(n, L) · 0,5 + 0,5, asi que el texel j cubre dot(n, L) en [2j/n - 1, 2(j+1)/n - 1).
+ *
+ *  `mezcla` es 0 en el tema oscuro y 1 en el claro, y los valores intermedios EXISTEN: el cambio de
+ *  tema se funde en PM.motor.temaMs (ver aplicarTema). Interpolar la RESPUESTA A LA LUZ y no un
+ *  color es lo correcto aqui: los tres valores son lineales y multiplican a la clave, asi que la
+ *  mezcla de dos temas es el tono que de verdad hay a medio camino. */
+function escribirDegradado(tex: DataTexture, mezcla: number): void {
+  const t = PM.motor.toon;
+  const [c1, c2] = t.cortes;
   const datos = tex.image.data as Float32Array;
   const n = datos.length;
+  const v0 = t.oscuro[0] + (t.claro[0] - t.oscuro[0]) * mezcla;
+  const v1 = t.oscuro[1] + (t.claro[1] - t.oscuro[1]) * mezcla;
+  const v2 = t.oscuro[2] + (t.claro[2] - t.oscuro[2]) * mezcla;
   for (let j = 0; j < n; j++) {
     const dotNL = ((j + 0.5) / n) * 2 - 1;
-    datos[j] = dotNL < c1 ? valores[0] : dotNL < c2 ? valores[1] : valores[2];
+    datos[j] = dotNL < c1 ? v0 : dotNL < c2 ? v1 : v2;
   }
   tex.needsUpdate = true;
 }
@@ -1587,25 +1595,43 @@ function construirPlaca(mat: Materiales): Group {
  * con M.paleta.linea / lineaClaro: sobre el crema del capitulo "como esta hecho" la tinta es lo
  * unico que separa la campana blanca (0xf4f4f2) del papel (#efe9df), que son el mismo color).
  */
-export function aplicarTema(mat: Materiales, claro: boolean): void {
+const colorTema = new Color();
+
+export function aplicarTema(mat: Materiales, mezcla: number): void {
+  // `mezcla` es 0 en el tema oscuro y 1 en el claro. Los valores intermedios son el FUNDIDO del
+  // cambio de capitulo (PM.motor.temaMs, lo lleva effects/motor3d.ts llamando aqui una vez por
+  // fotograma mientras dura): hasta el 2026-09-16 esto conmutaba de golpe mientras el fondo de la
+  // pagina se fundia en 0,25 s por CSS, y el motor pegaba un salto en mitad de la transicion.
+  //
   // Los tres grises, por tema (M.paleta.claro; el porque, alli). Son escrituras de color en tres
   // materiales compartidos: los clones de la marca los copia el rig.
   const c = M.paleta.claro;
-  (mat.medio as MeshToonMaterial).color.setHex(claro ? c.medio : M.paleta.medio);
-  (mat.oscuro as MeshToonMaterial).color.setHex(claro ? c.oscuro : M.paleta.oscuro);
-  (mat.chapa as MeshToonMaterial).color.setHex(claro ? c.chapa : M.paleta.chapa);
+  const mezclar = (destino: Color, oscuro: number, claro: number): void => {
+    destino.setHex(oscuro);
+    if (mezcla > 0) destino.lerp(colorTema.setHex(claro), mezcla);
+  };
+  mezclar((mat.medio as MeshToonMaterial).color, M.paleta.medio, c.medio);
+  mezclar((mat.oscuro as MeshToonMaterial).color, M.paleta.oscuro, c.oscuro);
+  mezclar((mat.chapa as MeshToonMaterial).color, M.paleta.chapa, c.chapa);
   // Los TRES TONOS del toon, que son por tema (PM.motor.toon): sobre el crema el tono
   // que se funde con el fondo es el iluminado, no la sombra. Se reescriben los texels en sitio:
   // la textura es una para todos los materiales (los clones de la marca incluidos), asi que
   // cambia todo a la vez y sin recompilar ningun programa. Lo mismo con el filo, que va en un
   // uniforme compartido.
-  escribirDegradado(mat.degradado, claro);
-  filo.value.setHex(PM.motor.rim.color).multiplyScalar(claro ? PM.motor.rim.fuerzaClaro : PM.motor.rim.fuerza);
+  escribirDegradado(mat.degradado, mezcla);
+  const rim = PM.motor.rim;
+  filo.value.setHex(rim.color).multiplyScalar(rim.fuerza + (rim.fuerzaClaro - rim.fuerza) * mezcla);
   // Y las mallas que cambian de MATERIAL con el tema (la piel de la campana: `medio` para la
   // costura entre tubos sobre el fondo oscuro, `blanco` para la pared a la vista en el despiece
   // claro; el porque con medidas, en construirCampana). Los dos materiales ya estan en la lista
   // que el rig atenua, asi que el apagado y el fundido no se enteran del cambio.
-  for (const p of mat.porTema ?? []) p.malla.material = claro ? p.claro : p.oscuro;
+  // Un MATERIAL no se puede fundir: se conmuta a mitad del cruce, que es donde menos se nota
+  // (los dos temas estan a medio camino y los grises casi coinciden ahi).
+  const yaClaro = mezcla >= 0.5;
+  for (const p of mat.porTema ?? []) {
+    const toca = yaClaro ? p.claro : p.oscuro;
+    if (p.malla.material !== toca) p.malla.material = toca;
+  }
 }
 
 // ---------------------------------------------------------------------------

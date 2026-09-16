@@ -94,16 +94,37 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     // geometria.ts / aplicarTema y tinta.ts / tema), y el lienzo es `alpha: true`, así que nadie
     // más se entera del cambio: aquí se escucha la clase del <html> y se repintan. Es una sola
     // escritura de color por cambio de capítulo, no trabajo por fotograma.
+    // Y NO SE CONMUTA, SE FUNDE. El fondo de la página ya se fundía en 0,25 s (la transición de
+    // `html, body` en base.css) mientras el objeto cambiaba de golpe en un fotograma: la página se
+    // aclaraba y el motor daba un salto en mitad. Aquí se le da la misma duración
+    // (PM.motor.temaMs) y la misma curva (ease-in-out ≈ smoothstep), con el reloj del NAVEGADOR,
+    // que es el del CSS. Mientras dura, cada fotograma reescribe tres colores, los 64 texels del
+    // gradiente y dos uniformes: nada en el presupuesto, y solo durante el cuarto de segundo.
     const raizHtml = document.documentElement;
+    const ponerTema = (k: number): void => { rig.tema(k); tinta.tema(k); };
+    let temaObjetivo = raizHtml.classList.contains('is-light') ? 1 : 0;
+    let temaActual = temaObjetivo;
+    let temaDesde = temaObjetivo;
+    let temaT0 = -1;          // performance.now() del inicio del fundido; -1 = nada en marcha
+    ponerTema(temaActual);    // al montar, el tema que toque y sin fundido
     const mirarTema = (): void => {
-      const claro = raizHtml.classList.contains('is-light');
-      rig.tema(claro);
-      tinta.tema(claro);
+      const objetivo = raizHtml.classList.contains('is-light') ? 1 : 0;
+      if (objetivo === temaObjetivo) return;
+      temaObjetivo = objetivo;
+      temaDesde = temaActual;   // desde donde esté AHORA: si el visitante cruza el límite a medio
+      temaT0 = performance.now();   // fundido, se da la vuelta sin saltar
     };
-    mirarTema();
     const observadorTema = new MutationObserver(mirarTema);
     observadorTema.observe(raizHtml, { attributes: true, attributeFilter: ['class'] });
     deshacer.push(() => observadorTema.disconnect());
+    /** Avanza el fundido del tema. Lo llama el bucle, con su mismo reloj. */
+    function avanzarTema(ahora: number): void {
+      if (temaT0 < 0) return;
+      const k = Math.min(1, Math.max(0, (ahora - temaT0) / PM.motor.temaMs));
+      temaActual = temaDesde + (temaObjetivo - temaDesde) * (k * k * (3 - 2 * k));
+      ponerTema(temaActual);
+      if (k >= 1) { temaActual = temaObjetivo; temaT0 = -1; }
+    }
     // El penacho ligero (dos capas y una sola cara) es lo PRIMERO que se degrada en móvil: mide
     // 9,5 u en un encuadre de 8,8, o sea que ocupa la pantalla entera con mezcla aditiva.
     const penacho = crearPenacho(rig.yLabio, calidad === 'baja');   // cuelga del labio
@@ -205,6 +226,7 @@ export function montarMotor(ctx: ContextoMotor): Escena {
         // proyectan -> Three dibuja. Nunca al revés.
         engine.update();
         const t = tiempo();
+        avanzarTema(ahora);
         coreo.aplicar(t, ahora);
         penacho.aplicar(coreo.estado, t);
         rotulos.aplicar();

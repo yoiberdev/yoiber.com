@@ -111,9 +111,10 @@ export interface Rig {
   /** Azimut de cada aleta en GRADOS. El retardo del gesto se reparte por AQUÍ y no por el índice:
    *  faltan las aletas del hueco de la turbobomba, así que la aleta i no está en i·360/n. */
   azimutesAletas: number[];
-  /** El tema en los materiales (tonos del toon, filo, piel de la campana). El color de la TINTA
-   *  lo cambia el pase de pantalla (motor/tinta.ts, tema()): effects/motor3d.ts llama a los dos. */
-  tema(claro: boolean): void;
+  /** El tema en los materiales (tonos del toon, filo, piel de la campana). `mezcla` es 0 en el tema
+   *  oscuro y 1 en el claro, con los intermedios a medio fundir: el cambio dura PM.motor.temaMs y lo
+   *  lleva effects/motor3d.ts, que llama a este y al del pase de pantalla (motor/tinta.ts, tema()). */
+  tema(mezcla: number): void;
   disponer(ancho: number, alto: number): void;
   /** La caja PROYECTADA del objeto montado para un cabeceo dado, sobre el eje VERTICAL de la
    *  pantalla y en unidades de motor a escala 1: `alto` y `centro` (+ = hacia arriba). Función pura
@@ -343,8 +344,8 @@ export function construirRig(nivel: Calidad): Rig {
 
   const turbina = motor.piezas['turbobomba-turbina'] ?? new Group();
 
-  function tema(claro: boolean): void {
-    aplicarTema(motor.materiales, claro);
+  function tema(mezcla: number): void {
+    aplicarTema(motor.materiales, mezcla);
     for (const { clon, base } of clonesDe) { clon.color.copy(base.color); clon.emissive.copy(base.color); }
   }
 

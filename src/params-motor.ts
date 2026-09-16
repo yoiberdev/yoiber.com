@@ -154,6 +154,15 @@ export const PM = {
     // en el borde. La fuerza sube a la vez (0,35 -> 0,8) porque ahora solo pinta el borde y tiene
     // que verse: en el píxel del borde exacto vale (232, 162, 127) antes del suavizado.
     rim: { color: 0xffb38a, fuerza: 0.8, fuerzaClaro: 0.4, potencia: 8 },
+    // CUÁNTO TARDA EL OBJETO EN CAMBIAR DE TEMA. Hasta el 2026-09-16 el fondo de la página se fundía
+    // en 0,25 s (la transición de `html, body` en base.css) mientras el objeto —los tres grises, los
+    // tonos del toon, el filo y la fuerza de la tinta— conmutaba de GOLPE en el mismo fotograma: la
+    // página se aclaraba y el motor daba un salto. La referencia hace justo lo contrario, fundir los
+    // uniformes de su pase de contornos al entrar y salir del capítulo claro (analisis.json,
+    // to-light-theme / to-dark-theme, 250 ms inOutQuad), y de ahí sale este número: EL MISMO que el
+    // del CSS, para que el objeto y el papel lleguen juntos. Corre con el reloj del NAVEGADOR, como
+    // el acento y la capa de vida: no es una animación del recorrido, es una transición de interfaz.
+    temaMs: 250,
     // LA TINTA (informe BRECHA, fila 19) y el FXAA (fila 25): un pase de pantalla (motor/tinta.ts)
     // que dibuja la línea donde la PROFUNDIDAD o la NORMAL saltan entre píxeles vecinos. Sustituye
     // a los 14 EdgesGeometry y los 7 cascos de silueta (21 llamadas de dibujo y ~30 000 triángulos
