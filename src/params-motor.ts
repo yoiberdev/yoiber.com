@@ -204,6 +204,13 @@ export const PM = {
       umbralNormal: 0.55,
       fuerza: 1,          // opacidad de la tinta sobre el color, tema oscuro
       fuerzaClaro: 1,     // ...y tema claro: sobre el crema la tinta es lo que dibuja el objeto
+      // LA LÁMINA del tema claro (tinta.ts): cuánto se aplana el relleno gris hacia el papel. 1 es
+      // lámina pura, como la sección clara de animejs.com; con 0 volvían los blancos y grises del
+      // sombreado sobre el crema, que era lo que Yoiber veía "sin la calidad de animejs".
+      lamina: 1,
+      // El tono del relleno respecto al papel: un pelo más oscuro que el fondo para que el interior
+      // del objeto no sea exactamente el mismo color que el hueco entre piezas.
+      laminaTono: 0.985,
       // El fondo de la página por tema (base.css, --bg): el FXAA calcula la luminancia como se VE
       // (el lienzo es alfa y el borde exterior del objeto es un borde de alfa, no de color).
       fondo: 0x1f1e1d,
@@ -218,6 +225,15 @@ export const PM = {
       // en pantallas táctiles grandes; en escritorio la GPU dedicada o integrada va sobrada con
       // 4 MP · 3 pasadas y el vigilante de fotogramas degrada si no.
       relleno: { alta: 1, media: 1, baja: 1.5 } as Record<'alta' | 'media' | 'baja', number>,
+      // LA REDUCCIÓN (tinta.ts): a qué densidad se dibujan la escena y la tinta antes de reducirlas
+      // al lienzo. 2 es lo de animejs.com en una pantalla de densidad 1. 0 = sin reducción (FXAA).
+      // En una pantalla de densidad 2 el lienzo ya va a ~1,76 (presupuesto de capacidad.ts) y la
+      // reducción apenas compra nada: tinta.ts no la hace si no supera la del lienzo en un 15 %.
+      densidad: { alta: 2, media: 1.5, baja: 0 } as Record<'alta' | 'media' | 'baja', number>,
+      // Píxeles de dibujo como mucho en los targets de la reducción. 1440x900 a densidad 2 son
+      // 5,2 MP: cabe en el de escritorio. Un teléfono de 390x664 a 2 es 1 MP.
+      presupuestoReduccion: 6_000_000,
+      presupuestoReduccionTactil: 2_500_000,
     },
     origen: 'propio',
   },

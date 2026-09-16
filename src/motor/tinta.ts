@@ -32,11 +32,19 @@ import { M } from './geometria';
 //   2. Tinta -> `c` (o el lienzo si no hay FXAA): un triángulo a pantalla completa lee las tres
 //      texturas, hace la cruz de Roberts sobre la profundidad y sobre las normales y pinta la línea
 //      del color del tema (M.paleta.linea / lineaClaro) ENCIMA del color. Ver el GLSL de abajo.
-//   3. FXAA -> lienzo (fila 25): el suavizado de bordes, como ÚLTIMA pasada y sobre el compuesto,
-//      tinta incluida. Es el FXAA de "consola" de NVIDIA (3.11, la variante corta), escrito aquí a
-//      mano: ~40 líneas. El renderizador va con `antialias: false`: el MSAA del lienzo no se aplica
-//      a los targets y en el lienzo ya solo se dibuja un triángulo. NO hay supersample (2x serían
-//      5,2 MP a 1440x900: fuera del presupuesto de capacidad.ts) ni bloom.
+//   3. Al lienzo, de una de dos maneras:
+//      · REDUCCIÓN (lo normal desde el 2026-09-16): `g` y `c` se dibujan a MÁS densidad que el
+//        lienzo (`densidad` píxeles por píxel CSS, 2 en calidad alta) y la última pasada los
+//        reduce con un filtro de caja. Es lo que hace animejs.com (composer a x2/x3 con
+//        pixelRatio 1, y su FXAA se quedó sin usar): la línea de tinta de 1 px sale con el borde
+//        suavizado de verdad, no con la escalera que el FXAA solo disimula. Antes se descartó por
+//        presupuesto (5,2 MP a 1440x900), pero un portátil de densidad 2 ya dibujaba 4 MP, y la
+//        queja era justo esa: "detalles muy pequeños que se ven pixelados" en pantallas de 1x.
+//      · FXAA (el camino de antes, y el respaldo): si la densidad no supera la del lienzo —calidad
+//        baja, o el vigilante de fotogramas ha quitado la reducción—, el suavizado lo hace el FXAA
+//        de "consola" de NVIDIA (3.11, variante corta), escrito aquí a mano.
+//      El renderizador va con `antialias: false`: el MSAA del lienzo no se aplica a los targets y
+//      en el lienzo solo se dibuja un triángulo.
 //
 // EL COLOR VA CODIFICADO EN sRGB DENTRO DE LOS TARGETS, a propósito. Three no codifica al escribir
 // en un target (WebGLPrograms fuerza la salida lineal, `outputColorSpace = working`), y guardar
@@ -93,6 +101,8 @@ uniform float umbralZ;
 uniform float umbralN;
 uniform vec3 tinta;
 uniform float fuerza;
+uniform vec3 papel;
+uniform float lamina;
 varying vec2 vUv;
 #include <packing>
 float z( vec2 uv ) {
@@ -113,6 +123,15 @@ void main() {
   float dn = sqrt( dot( d1, d1 ) + dot( d2, d2 ) );
   float e = max( smoothstep( umbralZ, umbralZ * 2.0, dz ), smoothstep( umbralN, umbralN * 2.0, dn ) );
   vec4 c0 = texture2D( tColor, vUv );
+  // LA LÁMINA (tema claro). Lo que es GRIS pasa a ser papel y el objeto lo dibuja solo la tinta,
+  // como en la sección clara de animejs.com (relleno beige, contorno oscuro, sin sombrear). Lo que
+  // tiene COLOR —los aros del acento, el penacho, el filo— se respeta: se mide la saturación del
+  // color real (des-premultiplicado) y solo se aplana lo que está por debajo de 0,10.
+  float alto = max( c0.r, max( c0.g, c0.b ) );
+  float bajo = min( c0.r, min( c0.g, c0.b ) );
+  float sat = c0.a > 0.001 ? ( alto - bajo ) / c0.a : 0.0;
+  float plano = lamina * ( 1.0 - smoothstep( 0.10, 0.28, sat ) );
+  c0.rgb = mix( c0.rgb, papel * c0.a, plano );
   float cobertura = max( max( c0.a, texture2D( tColor, u1 ).a ), max( max( texture2D( tColor, u2 ).a, texture2D( tColor, u3 ).a ), texture2D( tColor, u4 ).a ) );
   e *= fuerza * cobertura;
   gl_FragColor = vec4( c0.rgb * ( 1.0 - e ) + tinta * e, c0.a * ( 1.0 - e ) + e );
@@ -161,15 +180,32 @@ void main() {
 }
 `;
 
+// LA REDUCCIÓN: cuatro tomas bilineales a ±1/4 de píxel de LIENZO alrededor del centro de cada
+// píxel. Con densidad doble el centro del píxel cae en la esquina común de cuatro texels, así que
+// cada toma, desplazada medio texel, cae exactamente en el centro de uno de ellos: las cuatro son el
+// bloque 2x2 entero, un filtro de caja exacto. Con otras densidades (1,5; 3) es una aproximación
+// buena de lo mismo. Promediar valores premultiplicados es lo correcto para el alfa del lienzo.
+const REDUCIR = /* glsl */`
+uniform sampler2D tImagen;
+uniform vec2 paso;
+varying vec2 vUv;
+void main() {
+  gl_FragColor = 0.25 * (
+    texture2D( tImagen, vUv + vec2( -paso.x, -paso.y ) ) + texture2D( tImagen, vUv + vec2( paso.x, -paso.y ) ) +
+    texture2D( tImagen, vUv + vec2( -paso.x, paso.y ) ) + texture2D( tImagen, vUv + vec2( paso.x, paso.y ) ) );
+}
+`;
+
 export interface Tinta {
   /** Pinta el fotograma ENTERO: escena -> g -> tinta -> (FXAA ->) lienzo. Sustituye a
    *  `render.render(escena, camara)`: la escena ya no se dibuja nunca directamente en el lienzo.
    *  `escala` es la escala APARENTE del objeto (zoom de la cámara por la escala del desvío, 1 en
    *  el reposo): la pluma se afina con su raíz cuando el dibujo es pequeño (PM.motor.tinta). */
   pintar(escena: Scene, camara: OrthographicCamera | PerspectiveCamera, escala?: number): void;
-  /** Ajusta los targets al tamaño del búfer de dibujo del renderizador. Llamar tras setSize /
-   *  setPixelRatio; también recalcula el radio de la cruz, que va en píxeles CSS. */
-  dimensionar(): void;
+  /** Ajusta los targets. `densidad` son los píxeles de dibujo por píxel CSS de los targets; si no
+   *  supera la del lienzo (render.getPixelRatio()) se dibuja a la del lienzo y suaviza el FXAA.
+   *  Llamar tras setSize / setPixelRatio; también recalcula el radio de la cruz. */
+  dimensionar(densidad?: number): void;
   /** Enciende o apaga la última pasada (el vigilante de fotogramas la apaga en el segundo peldaño). */
   fxaa(on: boolean): void;
   /** Color y fuerza de la tinta, y el fondo que ve el FXAA, por tema. `mezcla` es 0 en el oscuro y
@@ -178,7 +214,7 @@ export interface Tinta {
   /** Los números del pase en caliente (solo desde ?debug: para MEDIR umbrales sin recompilar). Los
    *  que valen viven en PM.motor.tinta; esto no los cambia ahí. */
   ajustar(a: Partial<{ grosor: number; umbralProfundidad: number; umbralNormal: number; fuerza: number }>): void;
-  estado(): { fxaa: boolean; ancho: number; alto: number; radio: number; grosor: number; umbralProfundidad: number; umbralNormal: number };
+  estado(): { fxaa: boolean; reduce: boolean; densidad: number; ancho: number; alto: number; radio: number; grosor: number; umbralProfundidad: number; umbralNormal: number };
   liberar(): void;
 }
 
@@ -222,6 +258,8 @@ export function crearTinta(render: WebGLRenderer, fxaaInicial: boolean): Tinta {
       umbralN: { value: T.umbralNormal },
       tinta: { value: new Color() },
       fuerza: { value: T.fuerza },
+      papel: { value: new Color().setHex(T.fondoClaro, LinearSRGBColorSpace).multiplyScalar(T.laminaTono) },
+      lamina: { value: 0 },
     },
     blending: NoBlending, depthTest: false, depthWrite: false, transparent: false,
   });
@@ -231,12 +269,27 @@ export function crearTinta(render: WebGLRenderer, fxaaInicial: boolean): Tinta {
     uniforms: { tImagen: { value: c.texture }, texel: { value: texel }, fondo: { value: new Color() } },
     blending: NoBlending, depthTest: false, depthWrite: false, transparent: false,
   });
+  const paso = new Vector2(1, 1);
+  const matReducir = new ShaderMaterial({
+    vertexShader: VERTICE,
+    fragmentShader: REDUCIR,
+    uniforms: { tImagen: { value: c.texture }, paso: { value: paso } },
+    blending: NoBlending, depthTest: false, depthWrite: false, transparent: false,
+  });
+  const mallaReducir = new Mesh(triangulo, matReducir);
+  mallaReducir.frustumCulled = false;
   const mallaTinta = new Mesh(triangulo, matTinta);
   const mallaFxaa = new Mesh(triangulo, matFxaa);
   mallaTinta.frustumCulled = false;
   mallaFxaa.frustumCulled = false;
 
   let conFxaa = fxaaInicial;
+  // Densidad de los targets (px de dibujo por px CSS) y si hay reducción al lienzo. Hay reducción
+  // solo si la densidad supera a la del lienzo en más de un 15 %: por debajo, el coste de las
+  // pasadas extra no compra nada que se vea.
+  let densidad = 1;
+  let reduce = false;
+  const tamCss = new Vector2();
   let grosor = T.grosor;
   let escalaAparente = 1;
   const tam = new Vector2();
@@ -245,22 +298,34 @@ export function crearTinta(render: WebGLRenderer, fxaaInicial: boolean): Tinta {
   // menos, las cuatro muestras caen en el texel del centro y no hay diferencia que detectar).
   function radio(): number {
     const g = Math.max(T.grosorMin, grosor * Math.sqrt(Math.max(0.01, escalaAparente)));
-    return Math.max(0.6, (g * render.getPixelRatio()) / 2);
+    return Math.max(0.6, (g * densidad) / 2);
   }
   // Los contadores de render.info se reinician en CADA render(): con tres por fotograma, `info`
   // solo contaba el triángulo de la última pasada. Se reinician aquí, una vez por fotograma, y así
   // `llamadas` y `triangulos` son los del fotograma entero (escena + pasadas de pantalla).
   render.info.autoReset = false;
 
-  function dimensionar(): void {
+  function dimensionar(pedida = 0): void {
+    render.getSize(tamCss);
     render.getDrawingBufferSize(tam);
-    const w = Math.max(1, Math.floor(tam.x));
-    const h = Math.max(1, Math.floor(tam.y));
+    const lienzo = render.getPixelRatio();
+    // Tope por el tamaño máximo de textura de la GPU: un target mayor no da error, sale EN BLANCO
+    // (visto en el renderizador por software de las pruebas, con 5760x3600). El presupuesto de
+    // motor3d.ts ya lo evita en la práctica; esto es la red.
+    const maxTex = render.capabilities.maxTextureSize || 4096;
+    const tope = Math.min(maxTex / Math.max(1, tamCss.x), maxTex / Math.max(1, tamCss.y));
+    const deseada = Math.min(pedida, tope);
+    reduce = deseada > lienzo * 1.15;
+    densidad = reduce ? deseada : lienzo;
+    const w = reduce ? Math.max(1, Math.round(tamCss.x * densidad)) : Math.max(1, Math.floor(tam.x));
+    const h = reduce ? Math.max(1, Math.round(tamCss.y * densidad)) : Math.max(1, Math.floor(tam.y));
     g.setSize(w, h);
     c.setSize(w, h);
     texel.set(1 / w, 1 / h);
-    // El grosor se pide en píxeles CSS y la cruz trabaja en texels: con muestras a ±radio la línea
-    // mide ~2·radio texels, así que radio = grosor · dpr / 2 (a dpr 2 y grosor 1,4: ±1,4 texels).
+    // Un cuarto de píxel de LIENZO, en coordenadas de textura (ver REDUCIR).
+    paso.set(0.25 / Math.max(1, tam.x), 0.25 / Math.max(1, tam.y));
+    // El grosor se pide en píxeles CSS y la cruz trabaja en texels de los targets: con muestras a
+    // ±radio la línea mide ~2·radio texels, así que radio = grosor · densidad / 2.
     matTinta.uniforms.radio.value = radio();
   }
 
@@ -284,6 +349,7 @@ export function crearTinta(render: WebGLRenderer, fxaaInicial: boolean): Tinta {
     // la mezcla también se hace aquí y no en el espacio de trabajo de three.
     (matTinta.uniforms.tinta.value as Color).lerpColors(tintaOscura, tintaClara, mezcla);
     matTinta.uniforms.fuerza.value = T.fuerza + (T.fuerzaClaro - T.fuerza) * mezcla;
+    matTinta.uniforms.lamina.value = T.lamina * mezcla;
     (matFxaa.uniforms.fondo.value as Color).lerpColors(fondoOscuro, fondoClaro, mezcla);
   }
   tema(0);
@@ -296,6 +362,14 @@ export function crearTinta(render: WebGLRenderer, fxaaInicial: boolean): Tinta {
     matTinta.uniforms.perspectiva.value = (camara as PerspectiveCamera).isPerspectiveCamera ? 1 : 0;
     render.setRenderTarget(g);
     render.render(escena, camara);
+    if (reduce) {
+      // escena -> g -> tinta -> c -> reducción -> lienzo. El FXAA sobra: la escalera ya no existe.
+      render.setRenderTarget(c);
+      render.render(mallaTinta, camaraPlana);
+      render.setRenderTarget(null);
+      render.render(mallaReducir, camaraPlana);
+      return;
+    }
     render.setRenderTarget(conFxaa ? c : null);
     render.render(mallaTinta, camaraPlana);
     if (conFxaa) {
@@ -316,12 +390,13 @@ export function crearTinta(render: WebGLRenderer, fxaaInicial: boolean): Tinta {
     triangulo.dispose();
     matTinta.dispose();
     matFxaa.dispose();
+    matReducir.dispose();
   }
 
   return {
     pintar, dimensionar, fxaa, tema, ajustar, liberar,
     estado: () => ({
-      fxaa: conFxaa, ancho: g.width, alto: g.height, radio: matTinta.uniforms.radio.value as number, grosor,
+      fxaa: conFxaa && !reduce, reduce, densidad, ancho: g.width, alto: g.height, radio: matTinta.uniforms.radio.value as number, grosor,
       umbralProfundidad: matTinta.uniforms.umbralZ.value as number, umbralNormal: matTinta.uniforms.umbralN.value as number,
     }),
   };

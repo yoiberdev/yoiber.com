@@ -150,6 +150,19 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     // 3. TAMAÑO
     // -------------------------------------------------------------------------------------
     let escalaExtra = 1;   // lo que recorta el vigilante de fotogramas
+    let conReduccion = true; // el primer peldaño del vigilante la quita (ver peldano())
+
+    // LA DENSIDAD DE DIBUJO de la tinta (motor/tinta.ts): el objetivo de su calidad, recortado para
+    // que los targets no pasen del presupuesto de supersample. Si el resultado no supera la densidad
+    // del lienzo, tinta.ts dibuja a la del lienzo y suaviza con FXAA, como antes.
+    function densidadPedida(ancho: number, alto: number): number {
+      const T = PM.motor.tinta;
+      const objetivo = conReduccion ? T.densidad[calidad] : 0;
+      if (objetivo <= 0) return 0;
+      const presupuesto = tactil ? T.presupuestoReduccionTactil : T.presupuestoReduccion;
+      const porPresupuesto = Math.sqrt(presupuesto / Math.max(1, ancho * alto));
+      return Math.min(objetivo, porPresupuesto) * escalaExtra;
+    }
 
     function dimensionar(): void {
       const r = anfitrion.getBoundingClientRect();
@@ -157,7 +170,7 @@ export function montarMotor(ctx: ContextoMotor): Escena {
       const alto = Math.max(1, Math.round(r.height));
       render.setPixelRatio(escalaLienzo(ancho, alto, tactil, PM.motor.tinta.relleno[calidad]) * escalaExtra);
       render.setSize(ancho, alto, false);   // false: el tamaño CSS lo pone la hoja de estilos
-      tinta.dimensionar();                  // los targets, al tamaño del búfer de dibujo
+      tinta.dimensionar(densidadPedida(ancho, alto));   // los targets, a la densidad de dibujo
       rig.disponer(ancho, alto);            // ortográfica: solo cambia el encuadre, no deforma
       rotulos.medir();
     }
@@ -271,6 +284,9 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     function peldano(k: number): void {
       escalon = k;
       tinta.fxaa(k < 2 && PM.motor.tinta.fxaa[calidad]);
+      // Lo primero que se sacrifica es la reducción: es la pasada más cara (cuatro veces los píxeles
+      // de un lienzo de densidad 1) y sin ella vuelve el FXAA, que es lo que había antes.
+      conReduccion = k === 0;
       penacho.ligero(k >= 2);
       escalaExtra = k >= 3 ? 0.62 : k >= 1 ? 0.8 : 1;
       dimensionar();
@@ -376,6 +392,8 @@ export function montarMotor(ctx: ContextoMotor): Escena {
         dpr: render.getPixelRatio(),
         escalon,
         fxaa: tinta.estado().fxaa,
+        reduccion: tinta.estado().reduce,
+        densidad: +tinta.estado().densidad.toFixed(2),
         tintaRadio: +tinta.estado().radio.toFixed(2),
         fotogramas,
         contexto: !render.getContext().isContextLost(),
