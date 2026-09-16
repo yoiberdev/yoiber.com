@@ -34,6 +34,12 @@ const PARADAS: Parada[] = [
 ];
 
 // Las secciones son espaciadores: su altura fija cuánto scroll dura cada tramo.
+// Sin @property el tema no puede fundirse animando sus variables (base.css): se marca <html> para
+// que vuelvan las transiciones de color de siempre. Una vez, al cargar el módulo.
+if (typeof CSS === 'undefined' || !('registerProperty' in CSS)) {
+  document.documentElement.classList.add('sin-property');
+}
+
 function ajustarAlturas(): void {
   for (const s of document.querySelectorAll<HTMLElement>('section[data-label]')) {
     const alturas = P.scroll.alturas[s.dataset.label ?? ''] ?? 1;

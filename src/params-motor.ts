@@ -482,6 +482,9 @@ export const PM = {
       // justo al entrar COMO, que es donde tiene que estar para abrirse. Son 230 unidades de
       // scroll (0,23 de pantalla) con `inOut(2)`: se lee como un relevo, la tarjeta deja el sitio
       // y el motor lo ocupa. Si cambia `P.galeria.arranque` o el número de tarjetas, cambia aquí.
+      // YA NO MANDA: el instante del regreso lo calcula core/geometria-galeria.ts
+      // (tiempoRegresoMotor) con la geometría real de la galería. Se queda solo como respaldo si
+      // la página no tiene tarjetas en el marcado.
       vuelve: 0.023,
       // EL VUELCO. El motor no solo gira sobre su eje: VUELCA el eje entero, se pone de cara a la
       // cámara para que se le vea la corona, y vuelve. Va aquí, en GALERIA, porque aquí es donde

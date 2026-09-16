@@ -3,6 +3,7 @@ import { PM } from '../params-motor';
 import { emisivoDelAcento, M } from './geometria';
 
 import type { Maestro, Tramo } from '../core/maestro';
+import { tiempoRegresoMotor } from '../core/geometria-galeria';
 import type { Rig } from './rig';
 
 const GRA = Math.PI / 180;
@@ -219,6 +220,12 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
   // 7,4 u de ancho y 16 de alto. La timeline mueve un escalar 0..1 y `aplicar()` lo convierte en
   // desplazamiento mirando la cámara de verdad: a un lado si hay sitio, arriba si no lo hay.
   // La ESCALA sí se queda aquí: no depende del encuadre.
+  // El regreso empieza cuando la captura de la última tarjeta empieza a irse (core/geometria-galeria)
+  // y acaba justo al entrar COMO. Sin tarjetas en el marcado, se queda en el último `vuelve` de PM.
+  const nTarjetas = document.querySelectorAll('#galeria-tarjetas .tarjeta').length;
+  const finGaleria = m.L.GALERIA + m.duracion('GALERIA');
+  const iniRegreso = Math.round(nTarjetas ? Math.min(finGaleria - 1, tiempoRegresoMotor(m, nTarjetas)) : en('GALERIA', 1 - G.vuelve));
+  const durRegreso = Math.max(1, finGaleria - iniRegreso);
   tl.add(raiz, { rotateY: [H.rotY[1], yGal], duration: dG, ease: 'linear' }, 'GALERIA')
     .add(estado, { aparta: [0, 1], duration: dur('GALERIA', 0, G.entra), ease: 'inOut(2)' }, en('GALERIA', G.espera))
     .add(raiz, { scale: [H.escala[1], G.escala], duration: dur('GALERIA', 0, G.entra), ease: 'inOut(2)' }, en('GALERIA', G.espera))
@@ -227,9 +234,9 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     // 1 − `vuelve` = 0,977, que es justo cuando la quinta tarjeta empieza a irse (la aritmética,
     // en PM.coreo.galeria.vuelve): antes de eso el motor no puede volver al medio sin escribirse
     // encima de ella, y la ronda anterior arrancaba en 0,90, a mitad de su tramo quieto.
-    .add(estado, { aparta: [1, 0], duration: dur('GALERIA', 0, G.vuelve), ease: 'inOut(2)' }, en('GALERIA', 1 - G.vuelve))
-    .add(raiz, { scale: [G.escala, H.escala[1]], duration: dur('GALERIA', 0, G.vuelve), ease: 'inOut(2)' }, en('GALERIA', 1 - G.vuelve))
-    .add(estado, { luz: [G.luz, H.luz[1]], duration: dur('GALERIA', 0, G.vuelve), ease: 'linear' }, en('GALERIA', 1 - G.vuelve));
+    .add(estado, { aparta: [1, 0], duration: durRegreso, ease: 'inOut(2)' }, iniRegreso)
+    .add(raiz, { scale: [G.escala, H.escala[1]], duration: durRegreso, ease: 'inOut(2)' }, iniRegreso)
+    .add(estado, { luz: [G.luz, H.luz[1]], duration: durRegreso, ease: 'linear' }, iniRegreso);
   // EL VUELCO: el eje entero se pone de cara a la cámara y vuelve (PM.coreo.galeria.vuelco).
   // Cuatro tramos y una pausa: se recuesta montado sobre `aparta`, sube LINEAL mientras hablan las
   // tarjetas 1 y 2, se queda quieto 700 unidades con la corona de frente y se endereza al doble de

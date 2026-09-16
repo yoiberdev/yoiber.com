@@ -56,6 +56,12 @@ html {
   transition: --bg 0.25s ease-in-out, --fg 0.25s ease-in-out, --muted 0.25s ease-in-out,
     --muted-2 0.25s ease-in-out, --line 0.25s ease-in-out;
 }
+/* RESPALDO SIN @property (Firefox antes de 128, Safari antes de 16.4). Ahí la variable no se puede
+   animar y cambia de golpe; para no perder lo que ya fundía antes (el fondo, el texto y las placas
+   del escenario), main.ts marca <html> con .sin-property y vuelven las transiciones de siempre. */
+html.sin-property, html.sin-property body, html.sin-property .placa, html.sin-property #debug {
+  transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out, border-color 0.25s ease-in-out;
+}
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--fg); }
 body {
@@ -531,7 +537,8 @@ html.is-light #subnav .parada::before { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   body { scroll-behavior: auto; }
   #panel { will-change: auto; }
-  #subnav, html, body, .placa, #debug, #cabecera { transition: none; }
+  #subnav, html, body, .placa, #debug, #cabecera,
+  html.sin-property, html.sin-property body, html.sin-property .placa, html.sin-property #debug { transition: none; }
   /* El acento cambia de golpe: ni el cursor, ni las paradas, ni el contador funden. */
   #subnav .cursor, #subnav .parada::before, #capitulo-progreso, #capitulo-arco circle { transition: none; }
 }
@@ -563,9 +570,19 @@ html:not(.motor-on) .lista-piezas li b { display: block; font-size: 0.9rem; font
 /* Los dos puntos entre el título y la nota son para el lector de pantalla ("Conductos: 3 líneas...").
    En pantalla el título ya va en su línea y en negrita: sobran. */
 html:not(.motor-on) .lista-piezas .dos-puntos { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-@media (max-height: 720px) and (min-width: 900px) {
+/* SI NO CABE, SOLO LOS TÍTULOS. La lista completa mide unos 27 rem desde los 10,5 rem de arriba, y
+   es `fixed`: lo que se sale por abajo no se alcanza con ningún scroll (medido: en 1024x520, en
+   900x600 con la columna estrecha, y en 1280x720 con la letra del navegador en 20 px, la última
+   pieza quedaba fuera). El corte va en REM a propósito: en una consulta de medios el rem es la
+   letra POR DEFECTO del navegador, así que quien la agranda cae antes en la versión compacta.
+   Y como red, si aun así no cabe, la lista se puede recorrer: sin eso, contenido invisible. */
+@media (max-height: 42rem) and (min-width: 900px), (max-width: 1060px) and (min-width: 900px) {
   html:not(.motor-on) .lista-piezas { top: 9.5rem; }
-  html:not(.motor-on) .lista-piezas li { margin-bottom: 0.45rem; }
+  html:not(.motor-on) .lista-piezas li { margin-bottom: 0.3rem; font-size: 0; }
+  html:not(.motor-on) .lista-piezas li b { font-size: 0.85rem; }
+}
+@media (min-width: 900px) {
+  html:not(.motor-on) .lista-piezas { max-height: calc(100vh - 11.5rem); overflow-y: auto; overscroll-behavior: contain; pointer-events: auto; }
 }
 @media (max-width: 899px) {
   /* En estrecho, solo los títulos y en dos columnas, entre el objeto y la sub-nav: nueve títulos
