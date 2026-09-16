@@ -9,6 +9,7 @@ import { construirRig } from '../motor/rig';
 import { revelarFilo } from '../motor/geometria';
 import { montarCoreografia } from '../motor/coreografia';
 import { montarRotulos } from '../motor/rotulos';
+import { montarCursor } from '../motor/cursor';
 import { crearPenacho } from '../motor/penacho';
 import { crearTinta } from '../motor/tinta';
 
@@ -137,6 +138,15 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     deshacer.push(() => utils.remove(coreo.objetivos, m.tl));
     const rotulos = montarRotulos(rig, coreo.estado, anfitrion);
     deshacer.push(() => rotulos.revertir());
+    // El 3D no se monta con movimiento reducido (capacidad.ts), pero se pregunta igual: el cursor
+    // es lo único de este trozo que responde a algo que no es el scroll.
+    const reduceMov = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const cursor = montarCursor(rig, reduceMov);
+    deshacer.push(() => cursor.revertir());
+    // QUIETUD: 1 con el reloj del maestro parado, 0 mientras el visitante baja. Suavizada, para que
+    // el motor no vuelva de frente de golpe con cada muesca de la rueda.
+    let quietud = 0;
+    let tAnterior = -1;
 
     // La coreografía se añade a un maestro que YA está inicializado y en marcha:
     //   (a) todos los valores van como [desde, hasta] explícitos (ver coreografia.ts);
@@ -249,6 +259,13 @@ export function montarMotor(ctx: ContextoMotor): Escena {
         const t = tiempo();
         avanzarTema(ahora);
         coreo.aplicar(t, ahora);
+        {
+          const E = coreo.estado;
+          const parado = tAnterior >= 0 && Math.abs(t - tAnterior) < 0.5 ? 1 : 0;
+          tAnterior = t;
+          quietud += (parado - quietud) * PM.motor.cursor.quietud;
+          cursor.aplicar(quietud * Math.max(E.abierto, E.dentro) * (1 - E.logo) * (1 - E.vibra));
+        }
         penacho.aplicar(coreo.estado, t);
         rotulos.aplicar();
         pintar();

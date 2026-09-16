@@ -11,6 +11,10 @@
 // la que debe serlo, la brida de empuje.
 export const PM = {
   motor: {
+    // EL CURSOR (motor/cursor.ts): grados como mucho de inclinación hacia el ratón [en X, en Y], lo
+    // que tarda en alcanzar el destino y con qué curva, y cuánto se acerca la quietud a su objetivo
+    // en cada fotograma (0,08 ≈ medio segundo en volver a mandar tras parar la rueda).
+    cursor: { max: [2, 3] as [number, number], ms: 600, ease: 'out(3)', quietud: 0.08 },
     // El objeto tiene que LLENAR el cuadro: es media parte del efecto de animejs.com. Con 9,8
     // sobre un motor de 7,6 de alto quedaba un tercio de aire arriba y abajo (visto en captura).
     encuadre: 8.2,    // alto del frustum ortográfico (unidades de motor) con zoom = 1
@@ -357,6 +361,15 @@ export const PM = {
     // el reloj del NAVEGADOR. Los mismos 400 ms que la transición CSS de la sub-nav y el contador
     // (base.css): así todo lo que lleva el acento cambia de color a la vez.
     acentoMs: 400,
+    // LA FLOTACIÓN (coreografia.ts, 3e). Con un despiece abierto —el de arriba en la galería o el de
+    // lado en COMO— cada pieza flota por su cuenta: sube y baja por el eje y describe un círculo
+    // pequeño, cada una con su periodo (`periodo` + i·`paso` ms) y su fase, para que nunca se muevan
+    // juntas. Es la «máquina encendida» de animejs.com con el scroll quieto. La bancada y la campana,
+    // que son los extremos de la pila, flotan a la mitad: son las que tocarían el borde en un móvil.
+    // 0,10 y 0,04 y no los 0,06 y 0,025 del diseño: con esos, en COMO a 1440x900 la pieza subía y
+    // bajaba 3 px y el cambio con el scroll quieto solo pasaba de 9,5 a 10,3 %/s. Con estos son unos
+    // 5 px: se nota que flota sin que la pila se desordene (bordes y guías, medidos).
+    flota: { eje: 0.10, giro: 0.04, periodo: 4200, paso: 370, fase: 0.9, lento: 0.7, desfase: 1.3, medias: ['bancada', 'campana'] },
   },
 
   // El anillo de aletas además se ABRE en el despiece: escala en X y Z de su grupo (el origen está

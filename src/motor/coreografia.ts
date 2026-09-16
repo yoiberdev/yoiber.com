@@ -448,6 +448,7 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
   const dirMundo = new Vector3();
   const centroFlota = new Vector3();
   const giradoFlota = new Vector3();
+  const flotaOff = new Vector3();
   const EJE_Y = new Vector3(0, 1, 0);
   const qDestino = new Quaternion();
   const ejeInclina = new Vector3();
@@ -755,21 +756,33 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     //     La dirección de pantalla se lleva al marco del padre con los ejes derecha y arriba de la
     //     cámara y la inversa del cuaternión de mundo del padre, igual que la marca en el bloque 4.
     //     Las que no traen dirección (turbobomba y conductos) salen por la proyección de su radial.
+    //     Y LA FLOTACIÓN (PM.vida.flota) se SUMA en el mismo grupo, con el reloj del navegador: con un
+    //     despiece abierto cada pieza flota por su cuenta. Se apaga con la marca y con el apagado, y
+    //     encoge con la pieza que huye.
     {
       const K1 = PM.coreo.galeria.capas;
+      const FL = PM.vida.flota;
+      const ganancia = Math.max(estado.abierto, estado.dentro) * (1 - estado.logo) * (1 - estado.apagado);
       let ejes = false;
       for (let i = 0; i < sitios.length; i++) {
         const pz = sitios[i].p;
         const fl = pz.flota;
         const f = MathUtils.clamp(estado.fuga[i].f, 0, 1);
         const h = K1.huyen[pz.id];
+        // la flotación de esta pieza, en el marco del padre (y = eje del motor)
+        flotaOff.set(0, 0, 0);
+        if (ganancia > 0.0005) {
+          const w = (2 * Math.PI) / (FL.periodo + FL.paso * i);
+          const fase = FL.fase * i;
+          const lado = FL.lento * ahora * w + fase + FL.desfase;
+          const a = ganancia * (FL.medias.includes(pz.id) ? 0.5 : 1);
+          flotaOff.set(FL.giro * a * Math.sin(lado), FL.eje * a * Math.sin(ahora * w + fase), FL.giro * a * Math.cos(lado));
+        }
         if (!h || f <= 0.0005) {
-          if (fl.scale.x !== 1 || fl.position.lengthSq() > 0 || !fl.visible) {
-            fl.position.set(0, 0, 0);
-            fl.quaternion.identity();
-            fl.scale.setScalar(1);
-            fl.visible = true;
-          }
+          fl.position.copy(flotaOff);
+          fl.quaternion.identity();
+          fl.scale.setScalar(1);
+          fl.visible = true;
           continue;
         }
         if (!ejes) {
@@ -803,7 +816,8 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
         qFlota.setFromAxisAngle(EJE_Y, h.giro * GRA * f * f);
         centroFlota.copy(pz.centroide).multiply(pz.obj.scale).applyQuaternion(pz.obj.quaternion).add(pz.obj.position);
         giradoFlota.copy(centroFlota).applyQuaternion(qFlota).multiplyScalar(esc);
-        fl.position.copy(dirMundo).multiplyScalar(dist * avance).add(centroFlota).sub(giradoFlota);
+        fl.position.copy(dirMundo).multiplyScalar(dist * avance).add(centroFlota).sub(giradoFlota)
+          .addScaledVector(flotaOff, esc);
         fl.quaternion.copy(qFlota);
         fl.scale.setScalar(esc);
         fl.visible = esc > K1.visible;
