@@ -44,7 +44,9 @@ export function montarCursor(rig: Rig, reduce: boolean): Cursor {
     sigue.ry(nx * C.max[1]).rx(ny * C.max[0]);
   };
   // Al salir de la ventana, vuelve de frente: si no, se quedaría mirando al último sitio.
-  const salir = (): void => { sigue.rx(0).ry(0); };
+  // Solo con ratón o lápiz: un toque con el dedo en un portátil táctil dispara pointerleave de tipo
+  // touch en <html> y devolvía el motor de frente con el ratón quieto en una esquina.
+  const salir = (e: PointerEvent): void => { if (e.pointerType === 'touch') return; sigue.rx(0).ry(0); };
   window.addEventListener('pointermove', mover, { passive: true });
   document.documentElement.addEventListener('pointerleave', salir);
 

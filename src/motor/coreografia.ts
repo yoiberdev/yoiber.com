@@ -320,7 +320,10 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     tl.add(rig.tubos, { z: [0, CO.fuera], duration: CO.duracion, ease: `outBack(${CO.rebote})`, delay: espiral(CO.espiral, false) }, Math.round(dentroT.T3))
       .add(estado, { flor: [0, 1], duration: CO.flor, ease: 'linear' }, Math.round(dentroT.T3))
       .add(rig.tubos, { z: [CO.fuera, 0], duration: CO.vuelve, ease: 'inOut(3)', delay: espiral(CO.espiralVuelta, true) }, Math.round(dentroT.R))
-      .add(estado, { flor: [1, 0], duration: CO.florVuelve, ease: 'linear' }, Math.round(dentroT.R));
+      // `flor` baja con la curva exacta del ÚLTIMO tubo que se cierra (el de más retardo), no antes:
+      // cerrándose a su aire, el encuadre daba la corona por cerrada con los tubos todavía abiertos
+      // y dejaba crecer el motor fuera de su banda (900x1000: 2 108 px sobre la captura).
+      .add(estado, { flor: [1, 0], duration: CO.vuelve, ease: 'inOut(3)' }, Math.round(dentroT.R + CO.espiralVuelta));
   }
 
   // ============================================================ COMO: el despiece
@@ -646,13 +649,18 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     // la banda (y se entra en ella con el mismo `aparta`, para que no haya escalón). Lo usa el
     // encuadre por pose (3d), que es quien vigila que el vuelco no saque la máquina de su sitio.
     let dispoAlto = altoVis * (1 - 2 * PM.motor.margen);
+    let apartaLado = false;
+    let holguraIzq = Number.POSITIVE_INFINITY;   // sitio a la izquierda del objeto, en unidades locales (3e)
     if (A > 0.0005) {
       const g = PM.coreo.galeria;
       if (vertical) {
         const V = g.vertical;
         const uPorPx = altoVis / rig.medida.alto;
-        const bandaIni = altoVis / 2 - V.arriba * uPorPx;            // borde alto de la banda (y hacia arriba)
-        const bandaFin = -altoVis / 2 + V.abajo * uPorPx;            // borde bajo
+        const med = rig.medida;
+        const arriba = med.filaArriba >= 0 ? Math.max(V.arriba, med.filaArriba + V.aire) : V.arriba;
+        const abajo = med.filaAbajo >= 0 ? Math.max(V.abajo, med.filaAbajo + V.aire) : V.abajo;
+        const bandaIni = altoVis / 2 - arriba * uPorPx;              // borde alto de la banda (y hacia arriba)
+        const bandaFin = -altoVis / 2 + abajo * uPorPx;              // borde bajo
         const bandaAlto = Math.max(0.1, (bandaIni - bandaFin) * (1 - 2 * V.margen));
         const altoMotor = 2 * PM.motor.medioAlto * g.escala;
         const k = Math.min(1, bandaAlto / altoMotor);
@@ -660,8 +668,11 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
         escalaDesvio -= (1 - k) * A;
         dispoAlto += (bandaAlto - dispoAlto) * A;
       } else {
-        const semiX = PM.motor.medioAncho * g.escala + g.margenApartar;
-        dx -= Math.min(g.apartar, Math.max(0, anchoVis / 2 - semiX)) * A;
+        // El desvío apaisado se decide en 3d, cuando ya se sabe el TAMAÑO REAL del objeto: con el
+        // semiancho nominal (el de antes) no contaba ni la estatura del vuelco (hasta x1,34) ni la
+        // corona abierta, y en una ventana de 1000x950 el motor se salía por la izquierda durante
+        // media galería y la corona rozaba la tarjeta (revisión del 2026-09-17).
+        apartaLado = true;
       }
     }
     // 3c. EL DESPIECE EN VERTICAL. En compacto los rótulos van en dos bandas, arriba y abajo
@@ -722,7 +733,8 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     // cuenta (proyectar con el radio extra, y ANTES de que los tubos lleguen: `flor` va por delante)
     // y el techo de ancho también; la ESTATURA no, para que el motor no encoja al abrirse.
     // `proyectar` devuelve siempre el mismo objeto: se copia el alto antes de volver a llamarlo.
-    const extraFlor = PM.coreo.galeria.capas.corona.fuera * MathUtils.clamp(estado.flor, 0, 1);
+    // (x1,05: el `outBack` de la apertura se pasa un poco de `fuera` antes de asentarse)
+    const extraFlor = PM.coreo.galeria.capas.corona.fuera * 1.05 * MathUtils.clamp(estado.flor, 0, 1);
     const altoConFlor = rig.proyectar(raiz.rotation.x, extraFlor).alto;
     const caja = rig.proyectar(raiz.rotation.x);
     const ref = rig.reposoProyectado;
@@ -738,7 +750,27 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     // hasta pisar la tarjeta (3 222 px, medido). `kCabe` es la seguridad SIN su tope de 1: la
     // estatura puede seguir agrandando, pero nunca más allá de lo que cabe.
     const kCabe = dispoAlto / Math.max(1e-6, altoConFlor * escalaObjeto);
-    const kPose = Math.min(kCabe, kSeguro + Vu * (kEstatura - kSeguro));
+    let kPose = Math.min(kCabe, kSeguro + Vu * (kEstatura - kSeguro));
+    // EL DESVÍO APAISADO, con el tamaño de verdad. El objeto vive en la columna de la izquierda,
+    // entre el margen y el principio de la columna de las tarjetas (medida en el DOM). La estatura
+    // no puede ensancharlo más allá de esa columna (`kAncho`, que se relaja con `aparta`), y el
+    // desvío se elige entre dos topes: el borde izquierdo a la vista y el derecho antes de la
+    // tarjeta, prefiriendo el `apartar` de siempre, que es lo que sale en una pantalla ancha.
+    if (apartaLado) {
+      const g = PM.coreo.galeria;
+      const m0 = g.margenApartar;
+      const W = anchoVis;
+      const colX = rig.medida.tarjeta > 0 ? -W / 2 + (rig.medida.tarjeta / rig.medida.ancho) * W : W / 2;
+      const radioReal = (rig.radioMax + extraFlor) * escalaObjeto;
+      const semiDispo = Math.max(0.1, (colX + W / 2) / 2 - m0);
+      const kAncho = semiDispo / Math.max(1e-6, radioReal);
+      kPose = Math.min(kPose, kAncho + (1 - A) * 10);
+      const semi = radioReal * kPose;
+      const dxMin = -W / 2 + m0 + semi;
+      const dxMax = colX - m0 - semi;
+      dx += Math.min(Math.max(-g.apartar, dxMin), Math.max(dxMin, dxMax)) * A;
+      holguraIzq = (W / 2 + dx) / Math.max(1e-6, escalaObjeto * kPose) - (rig.radioMax + extraFlor);
+    }
     escalaDesvio *= kPose;
     // Y el DESCENTRADO, siempre relativo al reposo: así la composición que la Vuelta 3 midió a
     // rotX -7 no se mueve. `centro` está en el eje vertical de la PANTALLA y `dy` es una y del
@@ -803,6 +835,12 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
         }
         let dist = h.dist;
         if (vertical) { sx = Math.sign(sx) || -1; sy = 0; dist *= K1.vertical; }
+        // Hacia la izquierda, como mucho el sitio que queda hasta el borde (más lo que la pieza está
+        // metida dentro del contorno): la turbobomba tocaba el borde justo antes de desaparecer.
+        else if (sx < 0 && Number.isFinite(holguraIzq)) {
+          const largoDir = Math.hypot(sx, sy) || 1;
+          dist = Math.min(dist, Math.max(dist * 0.5, (holguraIzq + K1.dentroDelContorno) / (-sx / largoDir)));
+        }
         const largo = Math.hypot(sx, sy) || 1;
         const avance = 1 - (1 - f) ** 3;
         dirMundo.copy(camDerecha).multiplyScalar(sx / largo).addScaledVector(camArriba, sy / largo);
@@ -814,7 +852,13 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
         }
         const esc = Math.max(0.001, 1 - MathUtils.smoothstep(f, K1.encoge[0], K1.encoge[1]));
         qFlota.setFromAxisAngle(EJE_Y, h.giro * GRA * f * f);
-        centroFlota.copy(pz.centroide).multiply(pz.obj.scale).applyQuaternion(pz.obj.quaternion).add(pz.obj.position);
+        // La placa ES la marca y el bloque 4 le reescribe la pose MÁS ABAJO en este mismo aplicar():
+        // leer su pose viva daría la del fotograma anterior, que tras un salto hacia atrás desde la
+        // marca de COMO es la de la marca al frente. Para ella se usa su pose de reposo, que es la que
+        // tiene de verdad en la galería.
+        const esMarca = pz.obj === rig.marca;
+        centroFlota.copy(pz.centroide).multiply(esMarca ? eMarca : pz.obj.scale)
+          .applyQuaternion(esMarca ? qMarca : pz.obj.quaternion).add(esMarca ? pMarca : pz.obj.position);
         giradoFlota.copy(centroFlota).applyQuaternion(qFlota).multiplyScalar(esc);
         fl.position.copy(dirMundo).multiplyScalar(dist * avance).add(centroFlota).sub(giradoFlota)
           .addScaledVector(flotaOff, esc);

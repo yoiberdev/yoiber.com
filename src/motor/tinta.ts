@@ -214,6 +214,8 @@ export interface Tinta {
   tema(mezcla: number): void;
   /** Cuánta tinta hay, de 0 a 1: el entintado del montaje (coreografia.ts, `estado.entinta`). */
   revelar(k: number): void;
+  /** Cuánto de la lámina del tema se aplica, de 0 a 1 (la marca la retira mientras manda). */
+  aplanar(k: number): void;
   /** Los números del pase en caliente (solo desde ?debug: para MEDIR umbrales sin recompilar). Los
    *  que valen viven en PM.motor.tinta; esto no los cambia ahí. */
   ajustar(a: Partial<{ grosor: number; umbralProfundidad: number; umbralNormal: number; fuerza: number }>): void;
@@ -347,13 +349,17 @@ export function crearTinta(render: WebGLRenderer, fxaaInicial: boolean): Tinta {
   const fondoOscuro = new Color().setHex(T.fondo, LinearSRGBColorSpace);
   const fondoClaro = new Color().setHex(T.fondoClaro, LinearSRGBColorSpace);
 
+  // La lámina es el tema por un factor de fuera (la marca la retira): los dos se combinan aquí.
+  let laminaTema = 0;
+  let laminaFactor = 1;
   function tema(mezcla: number): void {
     // Sin conversión de espacio de color (LinearSRGBColorSpace = "déjalo como está"): el compositor
     // trabaja sobre la imagen ya codificada y estos son valores sRGB de 8 bits, no albedos. Por eso
     // la mezcla también se hace aquí y no en el espacio de trabajo de three.
     (matTinta.uniforms.tinta.value as Color).lerpColors(tintaOscura, tintaClara, mezcla);
     matTinta.uniforms.fuerza.value = T.fuerza + (T.fuerzaClaro - T.fuerza) * mezcla;
-    matTinta.uniforms.lamina.value = T.lamina * mezcla;
+    laminaTema = T.lamina * mezcla;
+    matTinta.uniforms.lamina.value = laminaTema * laminaFactor;
     (matFxaa.uniforms.fondo.value as Color).lerpColors(fondoOscuro, fondoClaro, mezcla);
   }
   tema(0);
@@ -400,6 +406,7 @@ export function crearTinta(render: WebGLRenderer, fxaaInicial: boolean): Tinta {
   return {
     pintar, dimensionar, fxaa, tema, ajustar, liberar,
     revelar: (k: number) => { matTinta.uniforms.revela.value = k; },
+    aplanar: (k: number) => { laminaFactor = k; matTinta.uniforms.lamina.value = laminaTema * k; },
     estado: () => ({
       fxaa: conFxaa && !reduce, reduce, densidad, ancho: g.width, alto: g.height, radio: matTinta.uniforms.radio.value as number, grosor,
       umbralProfundidad: matTinta.uniforms.umbralZ.value as number, umbralNormal: matTinta.uniforms.umbralN.value as number,

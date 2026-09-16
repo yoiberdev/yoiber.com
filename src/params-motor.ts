@@ -495,9 +495,16 @@ export const PM = {
       // fuera de la silueta, y eso baja el borde de la caja de alfa ~1,1 px. Con 280 la .captura de
       // la tarjeta 5 se comía ese píxel en el iPhone 13 (0,5 px sin la vida, 1,5 con ella): dos
       // píxeles de banda lo devuelven sin tocar el reparto de la tarjeta en base.css.
+      // Y SON UN MÍNIMO, no la banda: las filas se miden en la página (effects/motor3d.ts) y manda
+      // la medida más `aire` cuando es mayor. Hacía falta en cuanto el cuadro de pie es ANCHO: en
+      // una ventana de 900x1000 (y en un iPad de pie) sale el esquema bajo la captura, la fila de
+      // abajo empieza a 296 px y no a 272, y el motor, que ahí ya no está limitado a los 338 px de
+      // un teléfono, llenaba la banda fija y se metía 11 px en la captura (revisión 2026-09-17).
+      // Con aire 7 los teléfonos dan 147,5 y 279: siguen mandando los 148 y 282 de siempre.
       vertical: {
-        arriba: 148,    // px CSS desde el borde superior en que acaba la fila de arriba
-        abajo: 282,     // px CSS desde el borde inferior en que empieza la fila de abajo
+        arriba: 148,    // px CSS desde el borde superior en que acaba la fila de arriba (mínimo)
+        abajo: 282,     // px CSS desde el borde inferior en que empieza la fila de abajo (mínimo)
+        aire: 7,        // px que se suman a las filas medidas
         margen: 0.03,   // aire dentro de la banda, en fracción de su alto, arriba y abajo
       },
       luz: 0.55,
@@ -608,6 +615,9 @@ export const PM = {
         vertical: 0.6,
         encoge: [0.15, 0.65] as [number, number],   // tramo de la huida en que pasa de tamaño 1 a nada
         visible: 0.05,          // por debajo de esta escala la pieza se oculta: la pluma de la tinta no se afina con ella
+        // unidades que una pieza de la periferia está metida dentro del contorno del objeto: se suma
+        // al sitio libre a la izquierda para acotar su huida (aplicar 3e)
+        dentroDelContorno: 0.6,
         huyen: {
           bancada:    { estacion: 'T1', desfase: 0,   dir: [-0.6, 0.8] as [number, number],  dist: 3.2, giro: -120, vuelve: 450 },
           placa:      { estacion: 'T1', desfase: 150, dir: [-1, 0.25] as [number, number],   dist: 3.0, giro: 0,    vuelve: 350 },

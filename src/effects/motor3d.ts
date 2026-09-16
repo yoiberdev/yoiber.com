@@ -162,6 +162,7 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     // -------------------------------------------------------------------------------------
     let escalaExtra = 1;   // lo que recorta el vigilante de fotogramas
     let conReduccion = true; // el primer peldaño del vigilante la quita (ver peldano())
+    let reduccionVetada = false;
 
     // LA DENSIDAD DE DIBUJO de la tinta (motor/tinta.ts): el objetivo de su calidad, recortado para
     // que los targets no pasen del presupuesto de supersample. Si el resultado no supera la densidad
@@ -183,7 +184,51 @@ export function montarMotor(ctx: ContextoMotor): Escena {
       render.setSize(ancho, alto, false);   // false: el tamaño CSS lo pone la hoja de estilos
       tinta.dimensionar(densidadPedida(ancho, alto));   // los targets, a la densidad de dibujo
       rig.disponer(ancho, alto);            // ortográfica: solo cambia el encuadre, no deforma
+      medirTarjetas(r);
       rotulos.medir();
+    }
+
+    // LAS TARJETAS, medidas en el DOM para la composición (coreografia.ts, 3b y 3d): dónde empieza
+    // su columna en apaisado y, en la tarjeta de dos filas de un cuadro de pie, dónde acaba la fila
+    // de arriba (título y pila) y dónde empieza la de abajo (la captura y lo que va debajo). El
+    // peor caso de las cinco, porque el motor pasa por delante de todas sin cambiar de banda. Son
+    // lecturas de layout: se hacen al redimensionar y cuando cambia el alto de alguna fila (una
+    // fuente que llega tarde parte el título en otras líneas), nunca por fotograma.
+    // Las filas se leen con `offsetTop` dentro de la tarjeta y NO con getBoundingClientRect: la
+    // galería desplaza el título, los párrafos y el enlace con `y` al entrar y al salir, y la caja
+    // en pantalla lleva ese desplazamiento; la tarjeta en sí no se transforma nunca (base.css).
+    // Si la capa está oculta todo mide 0 y se queda en -1: manda PM.coreo.galeria.vertical.
+    const tarjetas = Array.from(document.querySelectorAll<HTMLElement>('#galeria-tarjetas .tarjeta'));
+    const FILA_ARRIBA = 'h2, .pila';
+    const FILA_ABAJO = '.captura, .avance, .que, .acceso';   // el esquema va siempre bajo la captura
+    const filas = (t: HTMLElement, sel: string): HTMLElement[] => Array.from(t.querySelectorAll<HTMLElement>(sel));
+    function enTarjeta(el: HTMLElement, t: HTMLElement): number {
+      let y = 0;
+      let n: HTMLElement | null = el;
+      while (n && n !== t) { y += n.offsetTop; n = n.offsetParent as HTMLElement | null; }
+      return n === t ? y : Number.NaN;
+    }
+    function medirTarjetas(r = anfitrion.getBoundingClientRect()): void {
+      rig.medida.tarjeta = tarjetas.length ? tarjetas[0].getBoundingClientRect().left - r.left : -1;
+      let arriba = -1;
+      let abajo = -1;
+      for (const t of tarjetas) {
+        const caja = t.getBoundingClientRect();
+        if (caja.height <= 0) continue;
+        const base = caja.top + t.clientTop;
+        for (const el of filas(t, FILA_ARRIBA)) {
+          const y = enTarjeta(el, t);
+          if (el.offsetHeight > 0 && Number.isFinite(y)) arriba = Math.max(arriba, base + y + el.offsetHeight - r.top);
+        }
+        let empieza = Number.POSITIVE_INFINITY;
+        for (const el of filas(t, FILA_ABAJO)) {
+          const y = enTarjeta(el, t);
+          if (el.offsetHeight > 0 && Number.isFinite(y)) empieza = Math.min(empieza, base + y);
+        }
+        if (Number.isFinite(empieza)) abajo = Math.max(abajo, r.bottom - empieza);
+      }
+      rig.medida.filaArriba = arriba;
+      rig.medida.filaAbajo = abajo;
     }
     dimensionar();
 
@@ -193,6 +238,13 @@ export function montarMotor(ctx: ContextoMotor): Escena {
       idRaf = requestAnimationFrame(dimensionar);
     });
     observadorTam.observe(anfitrion);
+    let idFilas = 0;
+    const observadorFilas = new ResizeObserver(() => {
+      cancelAnimationFrame(idFilas);
+      idFilas = requestAnimationFrame(() => medirTarjetas());
+    });
+    for (const t of tarjetas) for (const el of filas(t, `${FILA_ARRIBA}, ${FILA_ABAJO}`)) observadorFilas.observe(el);
+    deshacer.push(() => { observadorFilas.disconnect(); cancelAnimationFrame(idFilas); });
     deshacer.push(() => { observadorTam.disconnect(); cancelAnimationFrame(idRaf); });
 
     // Cambio de densidad de píxeles (mover la ventana entre dos monitores). Se escucha con una
@@ -220,6 +272,10 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     // los materiales) y así los dos salen del mismo escalar en el mismo fotograma.
     const pintar = (): void => {
       tinta.revelar(coreo.estado.entinta);
+      // La lámina (tema claro) se retira mientras la marca viene al frente: aplanaba a papel los tres
+      // grises del monograma y, como sus divisiones son coplanares, la tinta no las dibujaba y la
+      // marca quedaba en una Y vacía (revisión del 2026-09-17).
+      tinta.aplanar(1 - coreo.estado.logo);
       revelarFilo(coreo.estado.entinta);
       tinta.pintar(rig.escena, rig.camara, rig.camara.zoom * rig.desvio.scale.x);
     };
@@ -338,11 +394,16 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     // así que el peldaño 2 solo aligera el penacho). Nada de esto recrea el renderizador ni el
     // target: `dimensionar()` los ajusta al nuevo búfer de dibujo.
     function peldano(k: number): void {
-      escalon = k;
-      tinta.fxaa(k < 2 && PM.motor.tinta.fxaa[calidad]);
+      tinta.fxaa(k < 2 && PM.motor.tinta.fxaa[calidad]);   // con reducción, tinta.ts no lo usa
       // Lo primero que se sacrifica es la reducción: es la pasada más cara (cuatro veces los píxeles
       // de un lienzo de densidad 1) y sin ella vuelve el FXAA, que es lo que había antes.
-      conReduccion = k === 0;
+      // Y UNA VEZ QUITADA POR LENTITUD, NO VUELVE en esta visita: el peldaño 0 con reducción cuesta
+      // varias veces más que el 1 (6 MP de escena y tinta contra 1,2), así que una máquina que va
+      // holgada en el 1 y justa en el 0 subía y bajaba cada pocos segundos con un tirón en cada
+      // subida. Sin histéresis, el vigilante no tenía forma de saber que el 0 ya se había probado.
+      if (k > 0 && escalon === 0 && conReduccion) reduccionVetada = true;
+      conReduccion = k === 0 && !reduccionVetada;
+      escalon = k;
       penacho.ligero(k >= 2);
       escalaExtra = k >= 3 ? 0.62 : k >= 1 ? 0.8 : 1;
       dimensionar();
@@ -392,6 +453,10 @@ export function montarMotor(ctx: ContextoMotor): Escena {
 
       observadorTam.disconnect();
       observadorTema.disconnect();
+      // Estos dos estaban solo en `deshacer`, que solo se recorre si el MONTAJE falla: al rendirse en
+      // marcha quedaban vivos el pointermove del cursor y el observador del pie, reteniendo el rig.
+      cursor.revertir();
+      observadorPie.disconnect();
       cancelAnimationFrame(idRaf);
       mqDpr?.removeEventListener('change', alCambiarDpr);
       lienzo.removeEventListener('webglcontextlost', alPerder);

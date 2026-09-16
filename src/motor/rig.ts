@@ -67,8 +67,13 @@ export interface Rig {
    *  escribe `aplicar()` en absoluto, nunca la timeline. */
   desvio: Group;
   /** Tamaño CSS del lienzo, el de la última llamada a `disponer()`: la composición vertical mide
-   *  sus filas de texto en píxeles y necesita pasarlos a unidades de motor. */
-  medida: { ancho: number; alto: number };
+   *  sus filas de texto en píxeles y necesita pasarlos a unidades de motor. `tarjeta`: dónde empieza
+   *  la columna de las tarjetas, en px CSS desde el borde izquierdo del lienzo (-1 si no se sabe);
+   *  lo mide effects/motor3d.ts al redimensionar, y la composición apaisada lo usa como tope.
+   *  `filaArriba` / `filaAbajo`: en la tarjeta de dos filas (cuadro de pie), dónde acaba la de
+   *  arriba y dónde empieza la de abajo, en px CSS desde el borde superior y el inferior del lienzo,
+   *  el peor caso de las cinco tarjetas (-1 si no se sabe). */
+  medida: { ancho: number; alto: number; tarjeta: number; filaArriba: number; filaAbajo: number };
   /** Entre `desvio` y `raiz`: la inclinación hacia el cursor (motor/cursor.ts). Nadie más la toca. */
   inclinacion: Group;
   raiz: Group;
@@ -437,7 +442,7 @@ export function construirRig(nivel: Calidad): Rig {
   const enReposo = proyectar(PM.coreo.heroOut.rotX[1] * (Math.PI / 180));
   const reposoProyectado: CajaPose = { alto: enReposo.alto, centro: enReposo.centro };
 
-  const medida = { ancho: 1, alto: 1 };
+  const medida = { ancho: 1, alto: 1, tarjeta: -1, filaArriba: -1, filaAbajo: -1 };
   function disponer(ancho: number, alto: number): void {
     medida.ancho = Math.max(1, ancho);
     medida.alto = Math.max(1, alto);
