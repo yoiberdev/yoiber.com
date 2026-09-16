@@ -102,6 +102,15 @@ export const PM = {
     // cuarto izquierdo, que es donde va el filo. Con (5, 8, 6), la posición de antes, la sombra
     // era una tira del 9 % pegada al borde.
     luzDesde: [7, 6, 3.5] as [number, number, number],
+    // EL BARRIDO DE LA LUZ EN EL MONTAJE (HERO_OUT). La referencia enciende su intro barriendo la
+    // luz de un lado al otro (analisis.json, webgl: `lights x` de 100 a -200 en 3 s). Aquí la clave
+    // entra por el lado CONTRARIO al suyo y cruza mientras las piezas se ensamblan: el lado
+    // iluminado viaja por el objeto y el montaje deja de verse con la luz ya colocada.
+    // Mismo sitio que `luzDesde` salvo la X, que es la que decide qué flanco se ve: así al terminar
+    // el montaje la luz está EXACTAMENTE donde estaban medidos los tres tonos del toon.
+    // No es un tween ni un escalar de `estado`: `aplicar()` lo saca del reloj del maestro (fracción
+    // de HERO_OUT), así que se deshace exacto al subir, como todo lo demás del recorrido.
+    luzBarrido: [-7, 6, 3.5] as [number, number, number],
     // Ambiente: CERO. El escalón de sombra del gradiente ya evita el negro; un ambiente de 0,06
     // pondría por sí solo el blanco en sombra en 36 sRGB, por encima de la meta.
     ambiente: 0,

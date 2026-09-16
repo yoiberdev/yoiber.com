@@ -430,6 +430,13 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
   const chapaMarca = new Set<Material>(rig.chapaMarca);
   let alfa = false;   // ¿están los cuerpos en la pasada transparente ahora mismo?
 
+  // EL TRAMO DEL MONTAJE, leído UNA vez: lo usa el barrido de la luz (aplicar, punto 5b). Se lee
+  // aquí y no en cada fotograma porque las etiquetas del maestro no cambian después del init.
+  const tMontaje = m.L.HERO_OUT;
+  const dMontaje = Math.max(1, m.duracion('HERO_OUT'));
+  const LUZ_FIN = PM.motor.luzDesde;
+  const LUZ_INI = PM.motor.luzBarrido;
+
   function aplicar(tiempo: number, ahora: number): void {
     // 0. El acento, si está a mitad de fundido. `ahora` es el sello del rAF, que puede ir unos ms
     //    por detrás del performance.now() del evento: por eso el clamp por abajo. out(2), como
@@ -682,6 +689,19 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     const apaga = 1 - estado.apagado * (1 - PM.coreo.como.apagado);
     const fuera = 1 - estado.salida;
     rig.luzClave.intensity = PM.motor.luzClave * estado.luz * apaga * fuera;
+    // 5b. EL BARRIDO DE LA LUZ (PM.motor.luzBarrido). La clave entra por el flanco contrario y cruza
+    //     hasta su sitio mientras las piezas se ensamblan, como la referencia barre la suya en la
+    //     intro. Es función PURA del reloj del maestro y no un escalar de `estado`: `estado.luz` no
+    //     sirve —la galería lo baja a 0,55 y lo vuelve a subir, y la luz se iría a media página— y
+    //     un escalar nuevo serían tres sitios más que mantener para un valor que ya está en el
+    //     reloj. Al acabar el montaje queda clavada en `luzDesde`, que es donde se midieron los
+    //     tres tonos del toon.
+    const kBarrido = MathUtils.clamp((tiempo - tMontaje) / dMontaje, 0, 1);
+    rig.luzClave.position.set(
+      LUZ_INI[0] + (LUZ_FIN[0] - LUZ_INI[0]) * kBarrido,
+      LUZ_INI[1] + (LUZ_FIN[1] - LUZ_INI[1]) * kBarrido,
+      LUZ_INI[2] + (LUZ_FIN[2] - LUZ_INI[2]) * kBarrido,
+    );
     rig.luzCamara.intensity = estado.brillo * PM.coreo.cierre.luzCamara * fuera;
 
     // 6. Emisivos: el latido de la galería y el rojo del encendido, sobre la misma propiedad.
