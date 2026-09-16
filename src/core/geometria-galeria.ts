@@ -72,3 +72,19 @@ export function tiempoRegresoMotor(m: Maestro, n: number): number {
   const G = geometriaGaleria(m, n);
   return G.fin(n - 1) + G.cruce * S.salida.captura.ini;
 }
+
+/** LAS ESTACIONES DEL PRIMER DESPIECE (el de la galería, visto desde arriba). Cada tarjeta es una
+ *  estación: el instante en que se ASIENTA (su tramo quieto empieza) es donde late el acento y
+ *  donde arranca la capa del motor que le toca. `T1`, `T2`, `T3`: las capas de las tarjetas 2, 3 y
+ *  4 (tapa, periferia y corazón), cien unidades después de asentarse para que el texto mande
+ *  primero. `R`: el cierre, cuando la tarjeta 4 empieza a irse. Con menos de cinco tarjetas el
+ *  despiece no tiene estaciones suficientes y devuelve null: la coreografía se queda sin él. */
+export function tiemposDentro(m: Maestro, n: number): {
+  estaciones: number[]; T1: number; T2: number; T3: number; R: number;
+} | null {
+  const G = geometriaGaleria(m, n);
+  const estaciones = Array.from({ length: n }, (_, k) => G.quieto(k)[0]);
+  if (n < 5) return null;
+  const aire = 100;
+  return { estaciones, T1: estaciones[1] + aire, T2: estaciones[2] + aire, T3: estaciones[3] + aire, R: G.fin(3) };
+}

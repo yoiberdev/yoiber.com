@@ -392,6 +392,10 @@ export const PM = {
     // llegando sobre una campana ya quieta. El montaje escalonado se ve entero igual: al 50 % del
     // tramo la campana acaba de arrancar (6 020) y la corona aún no (6 120), como antes.
     intro: {
+      // EL ENTINTADO (coreografia.ts): unidades desde HERO_OUT en que la tinta y el filo empiezan a
+      // aparecer y en que están enteros. El montaje arranca en `base` y la corona aterriza hacia
+      // las 1 860: la tinta está entera antes de que la máquina acabe de cerrarse.
+      entinta: [600, 1500] as [number, number],
       base: 120,   // ms tras HERO_OUT en que entra la primera pieza
       paso: 100,   // ms entre pieza y pieza (115 dejaba la corona acabando dentro de GALERIA)
       dur: 560,
@@ -553,14 +557,58 @@ export const PM = {
         cima: 80.3522,    // grados de rotX en el ápice: el eje del motor apuntando a la cámara
         apoyo: 12,        // hasta dónde se recuesta mientras se aparta (va con `aparta`)
         recostar: [0.1, 0.18] as [number, number],
-        subir: [0.18, 0.55] as [number, number],
-        meseta: [0.55, 0.62] as [number, number],
-        enderezar: [0.62, 0.859] as [number, number],
+        // EL PRIMER DESPIECE (2026-09-17, diseño «dos preguntas al motor»). El motor ya no se asoma
+        // al eje un momento y vuelve: se queda MIRADO DESDE ARRIBA casi toda la galería, porque es
+        // desde ahí donde se ve lo que sale de él capa a capa (coreografia.ts, GALERIA). Sube
+        // mientras se lee la primera tarjeta (hasta justo antes de que se asiente la segunda, que
+        // trae la primera capa), se queda en la cima de 0,36 a 0,86 —en esa meseta no hay ni un
+        // tween sobre raiz.rotateX y el objeto gira unos 150° con la guiñada— y se endereza cuando
+        // se asienta la quinta. Con cinco tarjetas en diez alturas: 1 800-3 600, 3 600-8 600 y
+        // 8 600-9 500 unidades.
+        subir: [0.18, 0.36] as [number, number],
+        meseta: [0.36, 0.86] as [number, number],
+        enderezar: [0.86, 0.95] as [number, number],
         // Hasta dónde llega el escalar `vuelco` del encuadre por pose (aplicar 3d). Se apaga DESPUÉS
         // de que rotX vuelva al reposo, donde la corrección vale 1 exacto: así el apagado no se ve.
-        suelta: 0.9,
+        suelta: 0.97,
+        // `dentro`: la pose cenital MANDA (enciende la flotación y el cursor). Sube justo al llegar a
+        // la cima y baja cuando el cierre de las capas ya ha empezado.
+        dentro: [0.34, 0.37] as [number, number],
+        fuera: [0.85, 0.87] as [number, number],
       },
-      pulsos: 8,      // un latido del inyector por demo, alineado con el contador "n / 8"
+      // LAS CAPAS DEL PRIMER DESPIECE (coreografia.ts, GALERIA y aplicar 3e). Cada tarjeta quita una.
+      // Los instantes salen de las ESTACIONES (core/geometria-galeria, tiemposDentro: T1, T2, T3 y R,
+      // el instante en que se asientan las tarjetas 2, 3 y 4, y en que la 4 empieza a irse); aquí
+      // solo van los desfases y las duraciones, en unidades del maestro, y los gestos.
+      //
+      // HUIDA: cada pieza sale en su dirección DE PANTALLA (x a la derecha, y arriba), siempre hacia
+      // la izquierda, lejos de las tarjetas; gira alrededor del eje del motor y encoge sobre su propio
+      // centro hasta desaparecer. `dist` en unidades de motor, `giro` en grados, `desfase` desde su
+      // estación. En un cuadro de pie la dirección se aplasta a horizontal y la distancia se multiplica
+      // por `vertical`, porque encima y debajo del motor están las dos filas de la tarjeta.
+      capas: {
+        duracion: 600,          // lo que tarda cada pieza en irse
+        vuelta: 400,            // lo que tarda cada pieza en volver (tarjeta 5)
+        vertical: 0.6,
+        encoge: [0.15, 0.65] as [number, number],   // tramo de la huida en que pasa de tamaño 1 a nada
+        visible: 0.05,          // por debajo de esta escala la pieza se oculta: la pluma de la tinta no se afina con ella
+        huyen: {
+          bancada:    { estacion: 'T1', desfase: 0,   dir: [-0.6, 0.8] as [number, number],  dist: 3.2, giro: -120, vuelve: 450 },
+          placa:      { estacion: 'T1', desfase: 150, dir: [-1, 0.25] as [number, number],   dist: 3.0, giro: 0,    vuelve: 350 },
+          cupula:     { estacion: 'T1', desfase: 300, dir: [-0.6, -0.8] as [number, number], dist: 2.8, giro: 150,  vuelve: 250 },
+          turbobomba: { estacion: 'T2', desfase: 0,   dir: null,                             dist: 3.4, giro: 0,    vuelve: 250 },
+          conductos:  { estacion: 'T2', desfase: 150, dir: null,                             dist: 3.4, giro: 0,    vuelve: 150 },
+        } as Record<string, { estacion: 'T1' | 'T2' | 'T3'; desfase: number; dir: [number, number] | null; dist: number; giro: number; vuelve: number }>,
+        // LAS LAMAS (tarjeta 3): las 29 aletas giran 200° sobre su propio eje radial en ola, desde la
+        // última como las rejillas de animejs.com, y encogen en la segunda mitad de su giro. El anillo
+        // entero gira `anillo` grados a la vez, para que la ola se lea girando.
+        lamas: { desfase: 290, duracion: 750, giro: 200, reparto: 0.55, encoge: 0.55, anillo: -25, vuelve: [100, 600] as [number, number] },
+        // EL CORAZÓN (tarjeta 4): los tubos se separan en espiral. `fuera` es el desplazamiento radial,
+        // `espiral` el retardo máximo repartido por azimut; `flor` es lo que el encuadre suma al radio
+        // mientras la corona está abierta (proyectar(rotX, flor · fuera)).
+        corona: { fuera: 0.9, duracion: 600, rebote: 0.6, espiral: 400, flor: 280, vuelve: 500, espiralVuelta: 250, florVuelve: 750 },
+      },
+      pulsos: 8,      // RESPALDO: sin cinco tarjetas en el marcado; con ellas, un latido por tarjeta (tiemposDentro)
       pulsoSube: 240,
       pulsoBaja: 560,
       emisivo: 1.05,  // emissiveIntensity en el pico del latido (ver el emisivo del acento en geometria.ts)

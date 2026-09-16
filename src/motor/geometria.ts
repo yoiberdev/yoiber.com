@@ -641,6 +641,20 @@ export function emisivoDelAcento(acento: Color, salida = new Color()): Color {
 
 /** Uniforme COMPARTIDO del filo: `aplicarTema()` lo baja en el tema claro sin recompilar nada. */
 const filo = { value: new Color() };
+// El filo es color · fuerza del tema · revelado. Los dos factores tienen escritores distintos
+// (aplicarTema y el entintado del montaje) y se combinan AQUÍ, en un solo sitio.
+let filoTema = 0;
+let filoRevela = 1;
+function escribirFilo(): void {
+  const rim = PM.motor.rim;
+  filo.value.setHex(rim.color).multiplyScalar((rim.fuerza + (rim.fuerzaClaro - rim.fuerza) * filoTema) * filoRevela);
+}
+/** El filo aparece con la tinta durante el montaje (coreografia.ts, `estado.entinta`). */
+export function revelarFilo(k: number): void {
+  if (k === filoRevela) return;
+  filoRevela = k;
+  escribirFilo();
+}
 
 /**
  * LA SALIDA AL TARGET DE LA TINTA (motor/tinta.ts). La escena ya no se dibuja en el lienzo sino
@@ -1619,8 +1633,8 @@ export function aplicarTema(mat: Materiales, mezcla: number): void {
   // cambia todo a la vez y sin recompilar ningun programa. Lo mismo con el filo, que va en un
   // uniforme compartido.
   escribirDegradado(mat.degradado, mezcla);
-  const rim = PM.motor.rim;
-  filo.value.setHex(rim.color).multiplyScalar(rim.fuerza + (rim.fuerzaClaro - rim.fuerza) * mezcla);
+  filoTema = mezcla;
+  escribirFilo();
   // Y las mallas que cambian de MATERIAL con el tema (la piel de la campana: `medio` para la
   // costura entre tubos sobre el fondo oscuro, `blanco` para la pared a la vista en el despiece
   // claro; el porque con medidas, en construirCampana). Los dos materiales ya estan en la lista

@@ -103,6 +103,7 @@ uniform vec3 tinta;
 uniform float fuerza;
 uniform vec3 papel;
 uniform float lamina;
+uniform float revela;
 varying vec2 vUv;
 #include <packing>
 float z( vec2 uv ) {
@@ -133,7 +134,7 @@ void main() {
   float plano = lamina * ( 1.0 - smoothstep( 0.10, 0.28, sat ) );
   c0.rgb = mix( c0.rgb, papel * c0.a, plano );
   float cobertura = max( max( c0.a, texture2D( tColor, u1 ).a ), max( max( texture2D( tColor, u2 ).a, texture2D( tColor, u3 ).a ), texture2D( tColor, u4 ).a ) );
-  e *= fuerza * cobertura;
+  e *= fuerza * revela * cobertura;
   gl_FragColor = vec4( c0.rgb * ( 1.0 - e ) + tinta * e, c0.a * ( 1.0 - e ) + e );
 }
 `;
@@ -211,6 +212,8 @@ export interface Tinta {
   /** Color y fuerza de la tinta, y el fondo que ve el FXAA, por tema. `mezcla` es 0 en el oscuro y
    *  1 en el claro; los intermedios son el fundido de PM.motor.temaMs (lo lleva effects/motor3d.ts). */
   tema(mezcla: number): void;
+  /** Cuánta tinta hay, de 0 a 1: el entintado del montaje (coreografia.ts, `estado.entinta`). */
+  revelar(k: number): void;
   /** Los números del pase en caliente (solo desde ?debug: para MEDIR umbrales sin recompilar). Los
    *  que valen viven en PM.motor.tinta; esto no los cambia ahí. */
   ajustar(a: Partial<{ grosor: number; umbralProfundidad: number; umbralNormal: number; fuerza: number }>): void;
@@ -260,6 +263,7 @@ export function crearTinta(render: WebGLRenderer, fxaaInicial: boolean): Tinta {
       fuerza: { value: T.fuerza },
       papel: { value: new Color().setHex(T.fondoClaro, LinearSRGBColorSpace).multiplyScalar(T.laminaTono) },
       lamina: { value: 0 },
+      revela: { value: 1 },
     },
     blending: NoBlending, depthTest: false, depthWrite: false, transparent: false,
   });
@@ -395,6 +399,7 @@ export function crearTinta(render: WebGLRenderer, fxaaInicial: boolean): Tinta {
 
   return {
     pintar, dimensionar, fxaa, tema, ajustar, liberar,
+    revelar: (k: number) => { matTinta.uniforms.revela.value = k; },
     estado: () => ({
       fxaa: conFxaa && !reduce, reduce, densidad, ancho: g.width, alto: g.height, radio: matTinta.uniforms.radio.value as number, grosor,
       umbralProfundidad: matTinta.uniforms.umbralZ.value as number, umbralNormal: matTinta.uniforms.umbralN.value as number,

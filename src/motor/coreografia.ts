@@ -3,7 +3,7 @@ import { PM } from '../params-motor';
 import { emisivoDelAcento, M } from './geometria';
 
 import type { Maestro, Tramo } from '../core/maestro';
-import { tiempoRegresoMotor } from '../core/geometria-galeria';
+import { tiempoRegresoMotor, tiemposDentro } from '../core/geometria-galeria';
 import type { Rig } from './rig';
 
 const GRA = Math.PI / 180;
@@ -54,6 +54,12 @@ export interface Estado {
   inclina: number;  // 0..1  la placa de inyectores se inclina hacia la cámara en el despiece
   aletas: number;   // 0..1  apertura del anillo de aletas, escalonada por azimut (aplicar 1b)
   vuelco: number;   // 0..1  el arco del cabeceo manda: el encuadre se calcula de la POSE (aplicar 3d)
+  entinta: number;  // 0..1  la tinta y el filo aparecen mientras el motor se monta (motor3d.ts los aplica)
+  // EL PRIMER DESPIECE (galería, visto desde arriba). Ver el bloque GALERIA y aplicar(), 3e.
+  dentro: number;   // 0..1  la pose cenital manda: enciende la flotación y el cursor
+  flor: number;     // 0..1  la corona abierta en espiral (lo usa el encuadre, 3d)
+  lamas: number;    // 0..1  las aletas giran en ola y encogen hasta desaparecer (1b)
+  fuga: { f: number }[];  // 0..1 por pieza de `sitios`: huye girando y encoge (3e)
   vibra: number;    // 0..1  amplitud del temblor previo al despegue
   penacho: number;  // 0..1  crecimiento del penacho
   estira: number;   // 0..1  estirado del penacho al salir
@@ -108,6 +114,8 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
   const estado: Estado = {
     luz: C.heroOut.luz[0], apagado: 0, pulso: 0, brillo: 0, rpm: 0,
     logo: 0, aparta: 0, abierto: 0, inclina: 0, aletas: 0, vuelco: 0, vibra: 0, penacho: 0, estira: 0, salida: 0,
+    entinta: 1, dentro: 0, flor: 0, lamas: 0,
+    fuga: [...rig.piezas, ...rig.sueltas].map(() => ({ f: 0 })),
     rotulos: rig.piezas.map(() => ({ t: 0 })),
   };
 
@@ -143,10 +151,11 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
   const I = C.intro;
   tl.set(raiz, { x: 0, y: 0, rotateX: 0, rotateY: I.rotY[0], rotateZ: 0, scale: I.escala[0] }, 0)
     .set(cam, { zoom: I.zoom }, 0)
-    .set(estado, { luz: C.heroOut.luz[0], apagado: 0, pulso: 0, brillo: 0, rpm: 0, logo: 0, aparta: 0, abierto: 0, inclina: 0, aletas: 0, vuelco: 0, vibra: 0, penacho: 0, estira: 0, salida: 0 }, 0)
-    .set(estado.rotulos, { t: 0 }, 0);
+    .set(estado, { luz: C.heroOut.luz[0], apagado: 0, pulso: 0, brillo: 0, rpm: 0, logo: 0, aparta: 0, abierto: 0, inclina: 0, aletas: 0, vuelco: 0, vibra: 0, penacho: 0, estira: 0, salida: 0, entinta: 0, dentro: 0, flor: 0, lamas: 0 }, 0)
+    .set(estado.rotulos, { t: 0 }, 0)
+    .set(estado.fuga, { f: 0 }, 0);
   for (const s of sitios) tl.set(s.p.obj, { x: s.entrada.x, y: s.entrada.y, z: s.entrada.z }, 0);
-  if (aletas) tl.set(aletas, { scaleX: 1, scaleZ: 1 }, 0);
+  if (aletas) tl.set(aletas, { scaleX: 1, scaleZ: 1, rotateY: 0 }, 0);
   tl.set(rig.tubos, { z: I.coronaFuera }, 0);
 
   // ============================================================ HERO_OUT: montaje y centro
@@ -198,6 +207,11 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
   if (import.meta.env.DEV && tCorona + I.coronaReparto + I.coronaDur > m.L.GALERIA) {
     console.warn(`[motor] la corona acaba en ${tCorona + I.coronaReparto + I.coronaDur}, después de GALERIA (${m.L.GALERIA})`);
   }
+
+  // EL ENTINTADO DEL MONTAJE (tanda 2). La tinta y el filo no están desde el primer fotograma:
+  // aparecen mientras las piezas encajan, como en la intro de animejs.com, donde el contorno y la luz
+  // melocotón emergen desde negro. Lineal, con el reloj del maestro: al subir se borran igual.
+  tl.add(estado, { entinta: [0, 1], duration: I.entinta[1] - I.entinta[0], ease: 'linear' }, m.L.HERO_OUT + I.entinta[0]);
 
   // ============================================================ HERO_OUT: toma el centro
   const H = C.heroOut;
@@ -251,13 +265,62 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     .add(raiz, { rotateX: [U.cima, H.rotX[1]], duration: dur('GALERIA', U.enderezar[0], U.enderezar[1]), ease: 'linear' }, en('GALERIA', U.enderezar[0]))
     // el escalar se suelta con rotX ya en reposo, donde la corrección vale 1: no se ve apagarse
     .add(estado, { vuelco: [1, 0], duration: dur('GALERIA', U.enderezar[1], U.suelta), ease: 'linear' }, en('GALERIA', U.enderezar[1]));
+  tl.add(estado, { dentro: [0, 1], duration: dur('GALERIA', U.dentro[0], U.dentro[1]), ease: 'inOut(2)' }, en('GALERIA', U.dentro[0]))
+    .add(estado, { dentro: [1, 0], duration: dur('GALERIA', U.fuera[0], U.fuera[1]), ease: 'inOut(2)' }, en('GALERIA', U.fuera[0]));
 
-  // Ocho latidos del inyector, uno por demo, alineados con el contador "n / 8" del rótulo.
+  // UN LATIDO POR TARJETA, en el instante en que se asienta (core/geometria-galeria, estaciones).
+  // Eran ocho repartidos a ojo por el capítulo, alineados con un contador "n / 8" que ya no existe:
+  // cinco proyectos, cinco latidos, y cada uno anuncia la capa del motor que viene con su tarjeta.
   // Cada latido son DOS tweens seguidos y no dos fotogramas clave dentro de uno: medido, con
   // keyframes el valor no era idéntico de ida y de vuelta justo en la junta.
-  for (let i = 0; i < G.pulsos; i++) {
-    tl.add(estado, { pulso: [0, 1], duration: G.pulsoSube, ease: 'out(3)' }, en('GALERIA', (i + 0.5) / G.pulsos))
-      .add(estado, { pulso: [1, 0], duration: G.pulsoBaja, ease: 'in(2)' }, en('GALERIA', (i + 0.5) / G.pulsos, G.pulsoSube));
+  const dentroT = nTarjetas ? tiemposDentro(m, nTarjetas) : null;
+  const latidos = dentroT ? dentroT.estaciones
+    : Array.from({ length: G.pulsos }, (_, i) => en('GALERIA', (i + 0.5) / G.pulsos));
+  for (const tl0 of latidos) {
+    const t0 = Math.round(tl0);
+    tl.add(estado, { pulso: [0, 1], duration: G.pulsoSube, ease: 'out(3)' }, t0)
+      .add(estado, { pulso: [1, 0], duration: G.pulsoBaja, ease: 'in(2)' }, t0 + G.pulsoSube);
+  }
+
+  // ============================================================ GALERIA: EL PRIMER DESPIECE
+  // «¿Qué lleva dentro?». Visto desde arriba (el vuelco ya lo ha tumbado), cada tarjeta le quita
+  // una capa al motor, y la quinta lo vuelve a cerrar (PM.coreo.galeria.capas). Los instantes son
+  // las estaciones de la galería: la capa llega cuando su tarjeta se asienta, no a una fracción
+  // fija del capítulo. Sin cinco tarjetas en el marcado no hay estaciones y no hay despiece.
+  //   · TAPA (tarjeta 2) y PERIFERIA (tarjeta 3): cada pieza huye por su escalar `fuga` (lineal) y
+  //     aplicar() 3e la mueve, la gira y la encoge sobre su grupo `flota`.
+  //   · LAMAS (tarjeta 3): un escalar y 29 matrices (aplicar 1b), en ola por azimut.
+  //   · CORAZÓN (tarjeta 4): los 36 tubos se abren en espiral, directo en la timeline.
+  if (dentroT) {
+    const K1 = G.capas;
+    const estacion = { T1: dentroT.T1, T2: dentroT.T2, T3: dentroT.T3 };
+    sitios.forEach((s, i) => {
+      const h = K1.huyen[s.p.id];
+      if (!h) return;
+      tl.add(estado.fuga[i], { f: [0, 1], duration: K1.duracion, ease: 'linear' }, Math.round(estacion[h.estacion] + h.desfase))
+        .add(estado.fuga[i], { f: [1, 0], duration: K1.vuelta, ease: 'linear' }, Math.round(dentroT.R + h.vuelve));
+    });
+    const LA = K1.lamas;
+    const lamasIda = Math.round(dentroT.T2 + LA.desfase);
+    const lamasVuelta = Math.round(dentroT.R + LA.vuelve[0]);
+    const lamasDur = LA.vuelve[1] - LA.vuelve[0];
+    tl.add(estado, { lamas: [0, 1], duration: LA.duracion, ease: 'linear' }, lamasIda)
+      .add(estado, { lamas: [1, 0], duration: lamasDur, ease: 'linear' }, lamasVuelta);
+    if (aletas) {
+      tl.add(aletas, { rotateY: [0, LA.anillo], duration: LA.duracion, ease: 'out(3)' }, lamasIda)
+        .add(aletas, { rotateY: [LA.anillo, 0], duration: lamasDur, ease: 'inOut(3)' }, lamasVuelta);
+    }
+    // La espiral reparte el retardo por AZIMUT (el índice del tubo no es su ángulo, ver `reparto`):
+    // al abrirse arranca por el azimut más alto; al cerrarse, al revés.
+    const CO = K1.corona;
+    const espiral = (span: number, inversa: boolean) => (_o: unknown, i = 0): number => {
+      const k = (rig.azimutes[i] ?? 0) / 360;
+      return (inversa ? k : 1 - k) * span;
+    };
+    tl.add(rig.tubos, { z: [0, CO.fuera], duration: CO.duracion, ease: `outBack(${CO.rebote})`, delay: espiral(CO.espiral, false) }, Math.round(dentroT.T3))
+      .add(estado, { flor: [0, 1], duration: CO.flor, ease: 'linear' }, Math.round(dentroT.T3))
+      .add(rig.tubos, { z: [CO.fuera, 0], duration: CO.vuelve, ease: 'inOut(3)', delay: espiral(CO.espiralVuelta, true) }, Math.round(dentroT.R))
+      .add(estado, { flor: [1, 0], duration: CO.florVuelve, ease: 'linear' }, Math.round(dentroT.R));
   }
 
   // ============================================================ COMO: el despiece
@@ -378,6 +441,14 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
   // ni un `performance.now()`: si el visitante arrastra hacia atrás, el mismo tiempo da el mismo
   // fotograma.
   const qPadre = new Quaternion();
+  const qMundo = new Quaternion();
+  const qFlota = new Quaternion();
+  const camDerecha = new Vector3();
+  const camArriba = new Vector3();
+  const dirMundo = new Vector3();
+  const centroFlota = new Vector3();
+  const giradoFlota = new Vector3();
+  const EJE_Y = new Vector3(0, 1, 0);
   const qDestino = new Quaternion();
   const ejeInclina = new Vector3();
   const dirCam = new Vector3();
@@ -473,15 +544,22 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     //     Y EL ALETEO (capa de vida, PM.vida.aleteoAmp): se SUMA a la apertura y se apaga con ella,
     //     así que el anillo ondula en reposo y queda quieto mientras el despiece lo abre. Es el
     //     segundo bucle que mueve una pieza por su cuenta, después del pulso de la corona.
+    //     LAS LAMAS DEL PRIMER DESPIECE (galería, tarjeta 3) van por el mismo canal: cada aleta gira
+    //     hasta 200° más, en ola con el mismo reparto por azimut, y encoge en la segunda mitad de su
+    //     propio giro (su escala por instancia; ver Rig.aletasEscala). El aleteo se apaga con ellas.
     if (rig.aletas.length) {
       const R = PM.aletasReparto;
-      const vivoAletas = 1 - MathUtils.clamp(estado.aletas, 0, 1);
+      const LA = PM.coreo.galeria.capas.lamas;
+      const lamas = MathUtils.clamp(estado.lamas, 0, 1);
+      const vivoAletas = (1 - MathUtils.clamp(estado.aletas, 0, 1)) * (1 - lamas);
       for (let i = 0; i < rig.aletas.length; i++) {
         const azimut = (rig.azimutesAletas[i] * Math.PI) / 180;
         const fase = 1 - rig.azimutesAletas[i] / 360;
         const k = Math.min(1, Math.max(0, (estado.aletas - R * fase) / (1 - R)));
         const aleteo = V.aleteoAmp * vivoAletas * Math.sin(ahora * V.aleteoHz - azimut * V.aleteoCrestas);
-        rig.aletas[i] = k * PM.aletasGiro + aleteo;
+        const kl = Math.min(1, Math.max(0, (lamas - LA.reparto * fase) / (1 - LA.reparto)));
+        rig.aletas[i] = k * PM.aletasGiro + aleteo + LA.giro * GRA * (1 - (1 - kl) ** 3);
+        rig.aletasEscala[i] = 1 - MathUtils.smoothstep(kl, LA.encoge, 1);
       }
       rig.escribirAletas();
     }
@@ -639,15 +717,27 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     //     1,3 %, así que el objeto respiraría ±0,65 % de tamaño con periodo de 13,1 s. Sigue siendo
     //     función del reloj, pero es un temblor que nadie ha pedido.
     const Vu = estado.vuelco;
+    // LA CORONA ABIERTA (primer despiece, tarjeta 4) ensancha el objeto por abajo. La SEGURIDAD la
+    // cuenta (proyectar con el radio extra, y ANTES de que los tubos lleguen: `flor` va por delante)
+    // y el techo de ancho también; la ESTATURA no, para que el motor no encoja al abrirse.
+    // `proyectar` devuelve siempre el mismo objeto: se copia el alto antes de volver a llamarlo.
+    const extraFlor = PM.coreo.galeria.capas.corona.fuera * MathUtils.clamp(estado.flor, 0, 1);
+    const altoConFlor = rig.proyectar(raiz.rotation.x, extraFlor).alto;
     const caja = rig.proyectar(raiz.rotation.x);
     const ref = rig.reposoProyectado;
     const escalaObjeto = raiz.scale.x * escalaDesvio;
-    const kSeguro = Math.min(1, dispoAlto / Math.max(1e-6, caja.alto * escalaObjeto));
+    const kSeguro = Math.min(1, dispoAlto / Math.max(1e-6, altoConFlor * escalaObjeto));
     const kEstatura = Math.min(
       ref.alto / caja.alto,
-      (anchoVis * (1 - 2 * PM.motor.margen)) / Math.max(1e-6, 2 * rig.radioMax * escalaObjeto),
+      (anchoVis * (1 - 2 * PM.motor.margen)) / Math.max(1e-6, 2 * (rig.radioMax + extraFlor) * escalaObjeto),
     );
-    const kPose = kSeguro + Vu * (kEstatura - kSeguro);
+    // Y POR ENCIMA DE TODO, QUE QUEPA. Con `vuelco` a 1 la estatura manda sola, y la estatura no
+    // sabe nada de la corona abierta: en el primer despiece el motor se miraba desde arriba con la
+    // corona en espiral, la estatura lo agrandaba 1,24 veces y se salía de la banda de un iPhone 13
+    // hasta pisar la tarjeta (3 222 px, medido). `kCabe` es la seguridad SIN su tope de 1: la
+    // estatura puede seguir agrandando, pero nunca más allá de lo que cabe.
+    const kCabe = dispoAlto / Math.max(1e-6, altoConFlor * escalaObjeto);
+    const kPose = Math.min(kCabe, kSeguro + Vu * (kEstatura - kSeguro));
     escalaDesvio *= kPose;
     // Y el DESCENTRADO, siempre relativo al reposo: así la composición que la Vuelta 3 midió a
     // rotX -7 no se mueve. `centro` está en el eje vertical de la PANTALLA y `dy` es una y del
@@ -656,6 +746,69 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
 
     rig.desvio.position.set(dx, dy, 0);
     rig.desvio.scale.setScalar(escalaDesvio);
+
+    // 3e. LA HUIDA DE LAS PIEZAS (primer despiece). Cada pieza sale en su dirección de PANTALLA, gira
+    //     alrededor del eje del motor y encoge sobre su PROPIO centro, todo escrito en su grupo
+    //     `flota` y en absoluto: con `fuga` a 0 el grupo vuelve a la identidad. El pivote: un punto
+    //     x del marco del padre acaba en p + R·s·x, y para que el centro c de la pieza solo se
+    //     traslade (c → c + d) hace falta p = d + c − s·R·c.
+    //     La dirección de pantalla se lleva al marco del padre con los ejes derecha y arriba de la
+    //     cámara y la inversa del cuaternión de mundo del padre, igual que la marca en el bloque 4.
+    //     Las que no traen dirección (turbobomba y conductos) salen por la proyección de su radial.
+    {
+      const K1 = PM.coreo.galeria.capas;
+      let ejes = false;
+      for (let i = 0; i < sitios.length; i++) {
+        const pz = sitios[i].p;
+        const fl = pz.flota;
+        const f = MathUtils.clamp(estado.fuga[i].f, 0, 1);
+        const h = K1.huyen[pz.id];
+        if (!h || f <= 0.0005) {
+          if (fl.scale.x !== 1 || fl.position.lengthSq() > 0 || !fl.visible) {
+            fl.position.set(0, 0, 0);
+            fl.quaternion.identity();
+            fl.scale.setScalar(1);
+            fl.visible = true;
+          }
+          continue;
+        }
+        if (!ejes) {
+          ejes = true;
+          camDerecha.setFromMatrixColumn(cam.matrixWorld, 0).normalize();
+          camArriba.setFromMatrixColumn(cam.matrixWorld, 1).normalize();
+        }
+        let sx: number;
+        let sy: number;
+        if (h.dir) {
+          [sx, sy] = h.dir;
+        } else {
+          // el radial de la pieza, del marco del motor al mundo, proyectado en la pantalla
+          rig.motor.grupo.getWorldQuaternion(qMundo);
+          dirMundo.copy(pz.abierto).setY(0).normalize().applyQuaternion(qMundo);
+          sx = dirMundo.dot(camDerecha);
+          sy = dirMundo.dot(camArriba);
+        }
+        let dist = h.dist;
+        if (vertical) { sx = Math.sign(sx) || -1; sy = 0; dist *= K1.vertical; }
+        const largo = Math.hypot(sx, sy) || 1;
+        const avance = 1 - (1 - f) ** 3;
+        dirMundo.copy(camDerecha).multiplyScalar(sx / largo).addScaledVector(camArriba, sy / largo);
+        const padre = fl.parent;
+        if (padre) {
+          padre.updateWorldMatrix(true, false);
+          padre.getWorldQuaternion(qMundo).invert();
+          dirMundo.applyQuaternion(qMundo);
+        }
+        const esc = Math.max(0.001, 1 - MathUtils.smoothstep(f, K1.encoge[0], K1.encoge[1]));
+        qFlota.setFromAxisAngle(EJE_Y, h.giro * GRA * f * f);
+        centroFlota.copy(pz.centroide).multiply(pz.obj.scale).applyQuaternion(pz.obj.quaternion).add(pz.obj.position);
+        giradoFlota.copy(centroFlota).applyQuaternion(qFlota).multiplyScalar(esc);
+        fl.position.copy(dirMundo).multiplyScalar(dist * avance).add(centroFlota).sub(giradoFlota);
+        fl.quaternion.copy(qFlota);
+        fl.scale.setScalar(esc);
+        fl.visible = esc > K1.visible;
+      }
+    }
 
     // 4. La marca. Se lleva al espacio de la cámara: se toma el centro del conjunto en MUNDO, se
     //    adelanta hacia la cámara y se trae al espacio del padre de la placa. Definida en el
@@ -782,10 +935,19 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     rig.sacudida.rotation.set(0, 0, 0);
     rig.desvio.position.set(0, 0, 0);
     rig.desvio.scale.setScalar(1);
+    rig.inclinacion.rotation.set(0, 0, 0);
+    for (const pz of [...rig.piezas, ...rig.sueltas]) {
+      pz.flota.position.set(0, 0, 0);
+      pz.flota.quaternion.identity();
+      pz.flota.scale.setScalar(1);
+      pz.flota.visible = true;
+    }
+    rig.aletasEscala.fill(1);
+    rig.escribirAletas();
   }
 
   const objetivos: object[] = [
-    raiz, cam, estado, ...estado.rotulos, ...rig.tubos,
+    raiz, cam, estado, ...estado.rotulos, ...estado.fuga, ...rig.tubos,
     ...sitios.map((s) => s.p.obj as Object3D),
   ];
 

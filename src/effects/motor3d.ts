@@ -6,6 +6,7 @@ import { PM } from '../params-motor';
 import type { ContextoMotor, Escena } from '../core/escena';
 import { escalaLienzo } from '../core/capacidad';
 import { construirRig } from '../motor/rig';
+import { revelarFilo } from '../motor/geometria';
 import { montarCoreografia } from '../motor/coreografia';
 import { montarRotulos } from '../motor/rotulos';
 import { crearPenacho } from '../motor/penacho';
@@ -204,7 +205,14 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     render.setRenderTarget(null);
     // La escala aparente del objeto, para afinar la pluma (tinta.ts): el zoom de la cámara (lo
     // anima la coreografía) por la escala del desvío (la composición vertical en un móvil).
-    const pintar = (): void => tinta.pintar(rig.escena, rig.camara, rig.camara.zoom * rig.desvio.scale.x);
+    // El entintado del montaje (coreografia.ts, `estado.entinta`) se aplica justo antes de dibujar:
+    // la tinta y el filo tienen escritores fuera del grafo (un uniform del pase y uno compartido de
+    // los materiales) y así los dos salen del mismo escalar en el mismo fotograma.
+    const pintar = (): void => {
+      tinta.revelar(coreo.estado.entinta);
+      revelarFilo(coreo.estado.entinta);
+      tinta.pintar(rig.escena, rig.camara, rig.camara.zoom * rig.desvio.scale.x);
+    };
     pintar();
 
     // -------------------------------------------------------------------------------------
@@ -423,14 +431,16 @@ export function montarMotor(ctx: ContextoMotor): Escena {
         tinta,
         pintar,
         info,
-        /** Coloca el reloj del maestro donde se le diga y pinta ese fotograma, sin tocar el scroll. */
-        seek(t: number): void {
+        /** Coloca el reloj del maestro donde se le diga y pinta ese fotograma, sin tocar el scroll.
+         *  `dibujar = false` deja la pose calculada sin pintarla: los barridos de la línea entera
+         *  solo leen el grafo, y pintar cinco megapíxeles por muestra los hacía eternos. */
+        seek(t: number, dibujar = true): void {
           m.tl.seek(t);
           // Pintado suelto desde las pruebas: la capa de vida usa el reloj real del momento.
           coreo.aplicar(t, performance.now());
           penacho.aplicar(coreo.estado, t);
           rotulos.aplicar();
-          pintar();
+          if (dibujar) pintar();
         },
         /** Cuenta de verdad lo que hay en el grafo, no lo que se dibujó en el último fotograma. */
         contar(): Record<string, number> {

@@ -1,5 +1,5 @@
 import {
-  AmbientLight, Color, DirectionalLight, DoubleSide, Group, InstancedMesh, Matrix4,
+  AmbientLight, Box3, Color, DirectionalLight, DoubleSide, Group, InstancedMesh, Matrix4,
   MeshBasicMaterial, MeshToonMaterial, Object3D, OrthographicCamera, PointLight,
   Quaternion, Scene, Vector3, type Material,
 } from 'three';
@@ -40,6 +40,14 @@ export interface PiezaRig {
   /** Conserva rótulo en pantalla estrecha. */
   movil: boolean;
   titulo: string;
+  /** Grupo PADRE de la pieza, en identidad en reposo. Lo escribe SOLO `aplicar()` (la huida del
+   *  primer despiece y la flotación): la timeline sigue moviendo `obj` y nadie más toca este, así
+   *  que cada propiedad conserva un único escritor. Existe porque la placa ES la marca y `aplicar()`
+   *  ya le reescribe posición, escala y cuaternión en cada fotograma: un tween encima se pisaría. */
+  flota: Group;
+  /** Centro de la caja de la pieza en SU marco local, medido al montar. Para encogerla sobre sí
+   *  misma y no hacia el origen del motor (coreografia.ts, 3e). */
+  centroide: Vector3;
   /** [valor, decimales] de la cifra que cuenta en el rótulo; sin ella el rótulo no lleva cota. */
   cota?: [number, number];
   nota: string;
@@ -61,6 +69,8 @@ export interface Rig {
   /** Tamaño CSS del lienzo, el de la última llamada a `disponer()`: la composición vertical mide
    *  sus filas de texto en píxeles y necesita pasarlos a unidades de motor. */
   medida: { ancho: number; alto: number };
+  /** Entre `desvio` y `raiz`: la inclinación hacia el cursor (motor/cursor.ts). Nadie más la toca. */
+  inclinacion: Group;
   raiz: Group;
   sacudida: Group;
   motor: Motor;
@@ -106,6 +116,10 @@ export interface Rig {
   /** Apertura de cada aleta en RADIANES, sobre su propio eje radial (como una lama de persiana).
    *  Lo escribe la coreografía en `aplicar()`; la timeline solo mueve el escalar `estado.aletas`. */
   aletas: number[];
+  /** Escala de cada aleta (1 = entera). La escribe la coreografía: en el primer despiece las aletas
+   *  giran en ola y encogen hasta desaparecer (el sustituto de la opacidad escalonada de animejs.com,
+   *  que aquí no existe porque las 29 comparten material). */
+  aletasEscala: number[];
   /** Recompone las matrices del anillo de aletas a partir de `aletas[i]`. Función pura de eso. */
   escribirAletas(): void;
   /** Azimut de cada aleta en GRADOS. El retardo del gesto se reparte por AQUÍ y no por el índice:
@@ -119,7 +133,7 @@ export interface Rig {
   /** La caja PROYECTADA del objeto montado para un cabeceo dado, sobre el eje VERTICAL de la
    *  pantalla y en unidades de motor a escala 1: `alto` y `centro` (+ = hacia arriba). Función pura
    *  de `rotX` (ver PM.motor.perfil). Devuelve SIEMPRE el mismo objeto: se llama cada fotograma. */
-  proyectar(rotX: number): CajaPose;
+  proyectar(rotX: number, extra?: number): CajaPose;
   /** Lo que devuelve `proyectar` en la pose de reposo (PM.coreo.heroOut.rotX[1]), ya copiado. */
   reposoProyectado: CajaPose;
   /** Elevación de la cámara sobre la horizontal, en radianes: atan(camara.y / camara.z). Es el
@@ -145,6 +159,8 @@ export function construirRig(nivel: Calidad): Rig {
 
   const desvio = new Group();
   desvio.name = 'desvio';
+  const inclinacion = new Group();
+  inclinacion.name = 'inclinacion';
   const raiz = new Group();
   raiz.name = 'raiz';
   const sacudida = new Group();
@@ -154,7 +170,8 @@ export function construirRig(nivel: Calidad): Rig {
   centrado.position.y = PM.motor.centro;
   raiz.add(sacudida);
   sacudida.add(centrado);
-  desvio.add(raiz);
+  desvio.add(inclinacion);
+  inclinacion.add(raiz);
   escena.add(desvio);
 
   const motor = crearMotor();
@@ -203,9 +220,27 @@ export function construirRig(nivel: Calidad): Rig {
       const obj = motor.piezas[p.id];
       if (!obj) continue;   // si la geometría cambia de nombres, la pieza desaparece y nada revienta
       const radial = radialDe(obj);
+      // El grupo flota se mete ENTRE la pieza y su padre, en identidad: la pieza conserva su
+      // transformación local tal cual y todo lo que la timeline le escribe sigue significando lo
+      // mismo. Solo se crea una vez por pieza aunque la lista se resuelva dos veces.
+      let flota = obj.parent as Group | null;
+      if (!flota || flota.name !== `flota-${p.id}`) {
+        const padre = obj.parent;
+        flota = new Group();
+        flota.name = `flota-${p.id}`;
+        if (padre) { padre.add(flota); }
+        flota.add(obj);
+      }
+      const caja = new Box3();
+      obj.updateWorldMatrix(true, true);
+      const inv = new Matrix4().copy(obj.matrixWorld).invert();
+      caja.setFromObject(obj);
+      const centroide = caja.isEmpty() ? new Vector3() : caja.getCenter(new Vector3()).applyMatrix4(inv);
       salida.push({
         id: p.id,
         obj,
+        flota,
+        centroide,
         abierto: new Vector3(radial.x * p.r, p.y, radial.z * p.r),
         ancla: new Vector3(...p.ancla),
         anclaMovil: p.anclaMovil ? new Vector3(...p.anclaMovil) : undefined,
@@ -284,6 +319,7 @@ export function construirRig(nivel: Calidad): Rig {
   const mallaAletas = motor.piezas['aletas-placas'] as InstancedMesh | undefined;
   const azAletas = (mallaAletas?.userData.azimutes as number[] | undefined) ?? [];
   const aletas: number[] = new Array(azAletas.length).fill(0);
+  const aletasEscala: number[] = new Array(azAletas.length).fill(1);
   const mAleta = new Matrix4();
   const qAleta = new Quaternion();
   const qLama = new Quaternion();
@@ -303,7 +339,8 @@ export function construirRig(nivel: Calidad): Rig {
       qLama.setFromAxisAngle(ejeZ, aletas[i]);
       qAleta.multiply(qLama);
       pAleta.set(rc * Math.cos(th), 0, rc * Math.sin(th));
-      mallaAletas.setMatrixAt(i, mAleta.compose(pAleta, qAleta, eAleta.set(ex, ey, ez)));
+      const k = aletasEscala[i];
+      mallaAletas.setMatrixAt(i, mAleta.compose(pAleta, qAleta, eAleta.set(ex * k, ey * k, ez * k)));
     }
     mallaAletas.instanceMatrix.needsUpdate = true;
   }
@@ -378,7 +415,10 @@ export function construirRig(nivel: Calidad): Rig {
 
   const ELEVACION = Math.atan2(PM.motor.camara[1], PM.motor.camara[2]);
   const cajaPose: CajaPose = { alto: 0, centro: 0 };
-  function proyectar(rotX: number): CajaPose {
+  // `extra`: radio que se SUMA a las filas de la mitad baja del perfil (y < 0), donde vive la
+  // corona. Lo usa el primer despiece mientras la corona se abre en espiral, para que el encuadre
+  // crezca con los tubos y no después (coreografia.ts, 3d).
+  function proyectar(rotX: number, extra = 0): CajaPose {
     const phi = rotX + ELEVACION;
     const co = Math.cos(phi);
     const se = Math.abs(Math.sin(phi));
@@ -386,7 +426,7 @@ export function construirRig(nivel: Calidad): Rig {
     let abajo = Infinity;
     for (const [y, r] of PERFIL) {
       const eje = y * co;
-      const radio = r * se;
+      const radio = (r + (y < 0 ? extra : 0)) * se;
       if (eje + radio > arriba) arriba = eje + radio;
       if (eje - radio < abajo) abajo = eje - radio;
     }
@@ -431,10 +471,10 @@ export function construirRig(nivel: Calidad): Rig {
   }
 
   return {
-    escena, camara, desvio, medida, raiz, sacudida, motor, piezas, sueltas, tubos, azimutes, marca, materialesMarca,
+    escena, camara, desvio, inclinacion, medida, raiz, sacudida, motor, piezas, sueltas, tubos, azimutes, marca, materialesMarca,
     emisivosMarca, chapaMarca, turbina, luzClave, luzCamara, emisivos, caliente, cuerpos,
     yLabio: -M.tobera.largo,
-    onda, escribirTubos, aletas, escribirAletas, azimutesAletas: azAletas, tema, disponer, proyectar, reposoProyectado, elevacion: ELEVACION, radioMax, liberar,
+    onda, escribirTubos, aletas, aletasEscala, escribirAletas, azimutesAletas: azAletas, tema, disponer, proyectar, reposoProyectado, elevacion: ELEVACION, radioMax, liberar,
   };
 }
 
