@@ -1,6 +1,7 @@
 import { utils, type JSAnimation } from 'animejs';
 import { P } from '../params';
 import type { Maestro } from '../core/maestro';
+import type { Destino } from '../core/viaje';
 import { tiempoConVida } from './galeria';
 
 // LA CABECERA — #cabecera, fija arriba (fila 11 del informe)
@@ -24,9 +25,11 @@ import { tiempoConVida } from './galeria';
 //
 // ADÓNDE LLEVA CADA UNO. El scroll se calcula desde el maestro (scroller.pxParaTiempo), no desde
 // los id de las secciones: "Proyectos" aterriza en la primera tarjeta ya entera (el mismo cálculo
-// que #bajar, `tiempoPrimeraTarjeta`), y "Por dentro" en el 30 % de COMO, donde el despiece ya
-// está abierto. "Contacto" es el pie, que está fuera del maestro: scrollIntoView, que respeta el
-// scroll-behavior del body (suave, y sin suavizar con reduce).
+// que #bajar, `tiempoPrimeraTarjeta`), y "Por dentro" en el 40 % de COMO, donde el despiece ya
+// está abierto. "Contacto" es el pie, que está fuera del maestro: su borde de arriba. Los cuatro
+// VIAJAN (core/viaje.ts) con destinos que se releen en cada fotograma. Antes eran scrollTo y
+// scrollIntoView, y saltaban en un fotograma: el `scroll-behavior: smooth` que se suponía que los
+// suavizaba estaba en el body, y el navegador solo atiende al del elemento raíz.
 
 /** El tiempo del maestro en que aterrizan "Ver los proyectos" (#bajar), el enlace Proyectos y la
  *  parada de la sub-nav: la primera tarjeta entera, con su esquema trazado y funcionando. */
@@ -43,19 +46,26 @@ export interface Cabecera {
  * @param pxParaTiempo  Traductor de tiempo del maestro a scroll. Se pasa como función y no como
  *                      scroller porque la cabecera se monta ANTES de tl.init() (añade tweens al
  *                      maestro) y el scroller nace después; los clics llegan cuando ya existe.
+ * @param ir            El viaje (core/viaje.ts).
  */
-export function montarCabecera(m: Maestro, reduce: boolean, pxParaTiempo: (t: number) => number): Cabecera {
+export function montarCabecera(
+  m: Maestro,
+  reduce: boolean,
+  pxParaTiempo: (t: number) => number,
+  ir: (destino: Destino) => void,
+): Cabecera {
   const cab = document.querySelector<HTMLElement>('#cabecera');
   if (!cab) return { actualizar: () => undefined, revertir: () => undefined };
 
   const T = P.intro.texto;
   const enciende = m.L.INTRO_ON + T.delay;
 
+  const pie = document.querySelector<HTMLElement>('#pie');
   const destinos: Record<string, () => void> = {
-    inicio: () => window.scrollTo({ top: 0 }),
-    proyectos: () => window.scrollTo({ top: pxParaTiempo(tiempoPrimeraTarjeta(m)) }),
-    dentro: () => window.scrollTo({ top: pxParaTiempo(m.L.COMO + m.duracion('COMO') * P.cabecera.dentro) }),
-    contacto: () => document.querySelector('#pie')?.scrollIntoView(),
+    inicio: () => ir(0),
+    proyectos: () => ir(() => pxParaTiempo(tiempoPrimeraTarjeta(m))),
+    dentro: () => ir(() => pxParaTiempo(m.L.COMO + m.duracion('COMO') * P.cabecera.dentro)),
+    contacto: () => ir(() => (pie ? pie.getBoundingClientRect().top + window.scrollY : 0)),
   };
   // Un solo escuchador en la cabecera: el destino lo dice `data-ir` del enlace pulsado. Sin
   // data-ir (o sin destino conocido) el enlace se comporta como el ancla que es.

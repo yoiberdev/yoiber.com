@@ -50,6 +50,10 @@ export interface Scroller {
   quieto(): boolean;
   /** scrollY / maxScroll, crudo y sin suavizar: es lo que sigue el cursor de la sub-nav. */
   progreso(): number;
+  /** Con true, el proxy va CLAVADO al scroll, sin suavizado: lo pide un viaje (core/viaje.ts), que
+   *  ya trae su propia curva. Pasada por el suavizado llegaba ~250 ms tarde y con otra forma. Se
+   *  entra en rampa (P.scroll.suavizado.rampa), para no recuperar de golpe el retraso que hubiera. */
+  exacto(si: boolean): void;
 }
 
 // Los dos números del suavizado que no son de diseño (ver P.scroll.suavizado).
@@ -73,7 +77,14 @@ export function crearScroller(m: Maestro, proxy: Proxy, alActualizar: () => void
     objetivo: () => tiempoParaPx(window.scrollY),
     quieto: () => persecucion.paused,
     progreso: () => utils.clamp(window.scrollY / estado.maxScroll, 0, 1),
+    exacto: (si) => {
+      if (si && !clavado) clavadoDesde = performance.now();
+      clavado = si;
+      despertar();
+    },
   };
+  let clavado = false;
+  let clavadoDesde = 0;
 
   // El reloj del suavizado. `performance.now()` propio y no `deltaTime` del Timer: el de la librería
   // va un tic por detrás (render.js:129 lo calcula con el tiempo del tic anterior) y tras una pausa
@@ -83,11 +94,15 @@ export function crearScroller(m: Maestro, proxy: Proxy, alActualizar: () => void
   const persecucion: Timer = createTimer({
     autoplay: false,
     onUpdate: (self) => {
+      const ahora = performance.now();
       if (!manda()) {
+        // Mientras la intro manda, la rampa del modo clavado no corre: empieza cuando el scroller
+        // toma el mando. Si no, un clic en la cabecera durante la intro la gastaba esperando y el
+        // maestro recuperaba de golpe los 1 600 que separan la intro del scroll (medido).
+        clavadoDesde = ahora;
         self.pause(); // la intro sigue por tiempo: el siguiente `scroll` volverá a preguntar
         return;
       }
-      const ahora = performance.now();
       const dt = ahora - ultimo;
       ultimo = ahora;
       const meta = tiempoParaPx(window.scrollY);
@@ -96,7 +111,11 @@ export function crearScroller(m: Maestro, proxy: Proxy, alActualizar: () => void
         proxy.currentTime = meta;
         self.pause();
       } else {
-        const k = k60 >= 1 ? 1 : 1 - Math.pow(1 - k60, dt / SUAVIZADO.fotograma);
+        // Clavado, se llega a k = 1 con una rampa (P.scroll.suavizado.rampa) y no de golpe: el
+        // proxy puede ir cientos de unidades por detrás cuando empieza el viaje.
+        const suave = 1 - Math.pow(1 - k60, dt / SUAVIZADO.fotograma);
+        const r = clavado ? utils.clamp((ahora - clavadoDesde) / SUAVIZADO.rampa, 0, 1) : 0;
+        const k = k60 >= 1 ? 1 : suave + (1 - suave) * r * r;
         proxy.currentTime += resto * k;
       }
       alActualizar();

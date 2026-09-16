@@ -3,9 +3,13 @@ import { tramoActual } from './maestro';
 import type { Scroller, Proxy } from './scroller';
 import type { Relevo } from './escena';
 import type { Salida } from '../effects/logo-salida';
+import type { Viaje } from './viaje';
+
+/** Lo que main.ts enseña a las sondas: el viaje, las estaciones de la sub-nav y los destinos. */
+export interface ExtrasDebug { viaje: Viaje; estaciones: () => number[]; destinos: Record<string, () => number> }
 
 // Overlay con ?debug: tiempo del maestro, tramo, scroll, relevo del escenario y salida del logo.
-export function montarDebug(m: Maestro, scroller: Scroller, proxy: Proxy, escena: Relevo, salida: Salida): () => void {
+export function montarDebug(m: Maestro, scroller: Scroller, proxy: Proxy, escena: Relevo, salida: Salida, extras: ExtrasDebug): () => void {
   const caja = document.createElement('div');
   caja.id = 'debug';
   const texto = document.createElement('pre');
@@ -17,7 +21,7 @@ export function montarDebug(m: Maestro, scroller: Scroller, proxy: Proxy, escena
     o.textContent = `${nombre} (${m.L[nombre]})`;
     sel.append(o);
   }
-  sel.addEventListener('change', () => window.scrollTo({ top: scroller.pxParaTiempo(m.L[sel.value]) }));
+  sel.addEventListener('change', () => extras.viaje.irA(scroller.pxParaTiempo(m.L[sel.value]), { inmediato: true }));
   caja.append(texto, sel);
   document.body.append(caja);
 
@@ -42,6 +46,7 @@ export function montarDebug(m: Maestro, scroller: Scroller, proxy: Proxy, escena
       maestro: m.tl, labels: m.L, proxy, scroller, escena, salida,
       tiempoEsperado: (px: number = window.scrollY) => scroller.tiempoParaPx(px),
       quieto: () => scroller.quieto(),
+      ...extras,
     },
   });
   return () => {

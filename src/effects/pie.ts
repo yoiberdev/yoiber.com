@@ -1,5 +1,6 @@
 import { animate, onScroll, stagger, utils, type JSAnimation } from 'animejs';
 import { P } from '../params';
+import type { Destino } from '../core/viaje';
 
 // EL PIE DE PÁGINA — #pie, en flujo después de #capitulos
 // ================================================================================================
@@ -27,17 +28,18 @@ import { P } from '../params';
 // carril; el pie no tiene a nadie que lo rescate, así que va 1:1 con el scroll.
 const ENTRADA = P.pie.entrada;
 
-export function montarPie(reduce: boolean): () => void {
+export function montarPie(reduce: boolean, ir: (destino: Destino) => void): () => void {
   const pie = document.querySelector<HTMLElement>('#pie');
   if (!pie) return () => undefined;
   const bloques = Array.from(pie.querySelectorAll<HTMLElement>('.pie-bloque'));
   const arriba = pie.querySelector<HTMLAnchorElement>('#arriba');
 
   // "Volver arriba": al principio del documento, que es el hero con el logo ya montado. Sin
-  // preventDefault el href="#" saltaría a 0 igual, pero de golpe y dejando "#" en la URL.
+  // preventDefault el href="#" saltaría a 0 igual, pero de golpe y dejando "#" en la URL. Viaja
+  // (core/viaje.ts): se ve la página entera deshacerse hacia atrás, en 1,8 s como mucho.
   const subir = (ev: Event): void => {
     ev.preventDefault();
-    window.scrollTo({ top: 0 });
+    ir(0);
   };
   arriba?.addEventListener('click', subir);
 

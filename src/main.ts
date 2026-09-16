@@ -9,12 +9,13 @@ import { montarEscena } from './core/escena';
 import { montarTema } from './core/tema';
 import { montarAcento } from './core/acento';
 import { montarSubnav, type Parada } from './core/subnav';
+import { crearViaje } from './core/viaje';
 import { montarDebug } from './core/debug';
 import { limpiarUrl } from './core/url-limpia';
 import { montarHero } from './effects/hero';
 import { montarFondoIntro } from './effects/fondo-intro';
 import { montarCabecera, tiempoPrimeraTarjeta } from './effects/cabecera';
-import { montarGaleria } from './effects/galeria';
+import { montarGaleria, tiempoConVida } from './effects/galeria';
 import { montarVidaEsquemas } from './effects/vida-esquemas';
 import { montarLogoIntro } from './effects/logo-intro';
 import { montarLogoSalida } from './effects/logo-salida';
@@ -58,9 +59,12 @@ function montar(self?: Scope): () => void {
   // navegador. Sus bucles se apuntan en el registro del scope, como la flotación del logo.
   const fondo = montarFondoIntro(m, reduce);
   if (self) for (const b of fondo.bucles) ((self.data.loops ??= new Set()) as Set<unknown>).add(b);
+  // EL VIAJE (core/viaje.ts): el único que mueve el scroll por su cuenta. Mientras dura, el
+  // scroller va clavado al scroll; el scroller nace más abajo, pero el primer viaje llega con un clic.
+  const viaje = crearViaje(reduce, (activo) => scroller.exacto(activo));
   // La cabecera entra con el texto del hero (tween en el maestro). El traductor de scroll se le
   // pasa como función: el scroller nace más abajo, después de init(), y los clics llegan después.
-  const cabecera = montarCabecera(m, reduce, (t) => scroller.pxParaTiempo(t));
+  const cabecera = montarCabecera(m, reduce, (t) => scroller.pxParaTiempo(t), viaje.irA);
   // Antes de tl.init(): la galería añade sus tweens al maestro y init() los tiene que ver.
   const galeria = montarGaleria(m, reduce);
   const vidaEsquemas = montarVidaEsquemas(reduce);
@@ -135,7 +139,7 @@ function montar(self?: Scope): () => void {
   // El titular de capítulo y el pie viven FUERA del maestro (el porqué, en la cabecera de cada
   // módulo): el titular reacciona a un cambio de nombre y el pie mide su propio scroll.
   const titulo = montarTitulo(reduce);
-  const quitarPie = montarPie(reduce);
+  const quitarPie = montarPie(reduce, viaje.irA);
 
   // ¿Ya asoma el pie? Se mira desde el scroll y el tramo de CIERRE del scroller (su `fin` es el
   // borde inferior de #capitulos menos una ventana) en vez de medir el DOM: este callback corre
@@ -184,17 +188,27 @@ function montar(self?: Scope): () => void {
     GALERIA: () => scroller.pxParaTiempo(tiempoPrimeraTarjeta(m)),
     COMO: () => scroller.pxParaTiempo(m.L.COMO + m.duracion('COMO') * P.cabecera.dentro),
   };
-  const subnav = montarSubnav(scroller, PARADAS.map((p) => ({ ...p, destino: destinos[p.X] })));
-  const quitarDebug = location.search.includes('debug') ? montarDebug(m, scroller, proxy, escena, salidaLogo) : null;
+  // LAS ESTACIONES de la sub-nav (sus rayitas, adonde lleva un clic en la barra y donde encaja el
+  // imán): además de las paradas, cada tarjeta entera con su esquema vivo y el final del maestro.
+  const nTarjetas = document.querySelectorAll('#galeria-tarjetas .tarjeta').length;
+  const estaciones = (): number[] => [
+    ...Array.from({ length: nTarjetas }, (_, i) => scroller.pxParaTiempo(tiempoConVida(m, nTarjetas, i))),
+    scroller.maxScroll,
+  ];
+  const paradas = PARADAS.map((p) => ({ ...p, destino: destinos[p.X] }));
+  const subnav = montarSubnav(scroller, viaje, paradas, { reduce, estaciones });
+  const quitarDebug = location.search.includes('debug')
+    ? montarDebug(m, scroller, proxy, escena, salidaLogo, { viaje, estaciones, destinos })
+    : null;
 
   // "Ver los proyectos": el enlace del hero. preventDefault porque el href="#galeria" apuntaría al
   // espaciador, o sea al principio del tramo y no a la primera tarjeta (el cálculo, compartido con
-  // el enlace Proyectos de la cabecera, está en effects/cabecera.ts). Con scroll-behavior: smooth
-  // en el body, scrollTo anima; si la intro por tiempo aún corre, el scroller la para al primer tic.
+  // el enlace Proyectos de la cabecera, está en effects/cabecera.ts). Viaja; si la intro por tiempo
+  // aún corre, el scroller la para en cuanto el scroll pasa de 2 px.
   const bajar = document.querySelector<HTMLAnchorElement>('#bajar');
   const irAProyectos = (ev: Event): void => {
     ev.preventDefault();
-    window.scrollTo({ top: scroller.pxParaTiempo(tiempoPrimeraTarjeta(m)) });
+    viaje.irA(destinos.GALERIA);
   };
   bajar?.addEventListener('click', irAProyectos);
 
@@ -234,6 +248,7 @@ function montar(self?: Scope): () => void {
     temporizador = window.setTimeout(() => {
       ajustarAlturas();
       scroller.refrescar();   // rehace los tramos y en su primer tic vuelve a colocar el maestro
+      viaje.recolocar();      // un viaje en marcha escribe ya su posición con los tramos nuevos
     }, 250);
   };
   window.addEventListener('resize', alRedimensionar);
@@ -244,6 +259,7 @@ function montar(self?: Scope): () => void {
     bajar?.removeEventListener('click', irAProyectos);
     introTemporal?.revert();
     quitarDebug?.();
+    viaje.revertir();
     quitarPie();
     titulo.revertir();
     escena.revertir();

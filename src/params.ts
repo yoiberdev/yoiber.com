@@ -24,6 +24,11 @@ export const P = {
     suavizado: {
       fotograma: 1000 / 60, // ms: el fotograma para el que está definido el factor de la librería
       umbral: 0.5,          // unidades del maestro: por debajo se clava en el objetivo y el Timer se para
+      // ms que tarda el scroller en pasar de su suavizado a ir CLAVADO al scroll cuando empieza un
+      // viaje (core/viaje.ts). Con el paso de golpe, el maestro recuperaba en UN fotograma todo el
+      // retraso que llevara (medido: 436 a 1 128 unidades al soltar el imán o al hacer clic justo
+      // después de la rueda). Con la rampa, el mayor paso es el del suavizado de siempre.
+      rampa: 200,
     },
     origen: 'propio',
   },
@@ -311,5 +316,42 @@ export const P = {
     origen: 'propio',
   },
 
-  subnav: { visible: [0.02, 0.98] as [number, number], origen: 'propio' },
+  // EL VIAJE (core/viaje.ts, tanda 3): todos los saltos de la página —cabecera, «Ver los
+  // proyectos», paradas y clic en la sub-nav, «Volver arriba»— son un tween propio del scroll y no un
+  // scrollTo de un fotograma. La duración crece con la RAÍZ de las pantallas recorridas: una
+  // pantalla son 750 ms, del hero al despiece (unas 12) el tope de 1 800. Con la raíz y no lineal,
+  // porque en lineal los saltos cortos se arrastraban o los largos se volvían eternos.
+  viaje: {
+    base: 350,          // ms fijos de cualquier viaje
+    porRaiz: 400,       // ms por la raíz cuadrada de las pantallas recorridas
+    min: 500,
+    max: 1800,
+    ease: 'inOut(2)',
+    // Lo que cuenta como «el visitante ha movido el scroll por su cuenta» y cancela el viaje: si el
+    // scroll está a más de estos px de lo último que escribió el tween (barra de scroll, búsqueda
+    // en la página, un ancla...), el viaje se suelta en ese mismo fotograma.
+    desvio: 3,
+    // ...salvo en el arranque: si el navegador aún está animando SU scroll (AvPág, Espacio, flechas
+    // y la rueda suave duran 150-400 ms, y un scrollTo instantáneo no los detiene), ese movimiento
+    // venía de antes del clic y el viaje lo absorbe en vez de soltarse. Hasta que el scroll pase un
+    // fotograma sin moverse por su cuenta, y como mucho estos ms. Sin esto, el clic se perdía.
+    gracia: 500,
+    reciente: 250,      // ms: cuánto antes del viaje cuenta un gesto como «el que aún se mueve»
+    origen: 'propio',
+  },
+
+  subnav: {
+    visible: [0.02, 0.98] as [number, number],
+    // EL TECLADO del cursor (role=slider): flechas un 2 % con un tween corto que responde ya
+    // (out, no inOut: con la tecla mantenida cada repetición arranca desde parado y un inOut no
+    // llegaba a acelerar nunca); RePag/AvPag, de parada en parada con el viaje de siempre.
+    tecla: { paso: 0.02, duracion: 320, ease: 'out(3)' },
+    // EL IMÁN al soltar el cursor: a menos de estos px de barra de una estación (las rayitas), el
+    // scroll viaja hasta ella. Más lejos, se queda donde se soltó.
+    iman: 10,
+    // EL AGARRE (el cursor mide 4 px): escala de la marca al pasar el ratón y al agarrarla. Va en un
+    // hijo del cursor, porque el cursor lo mueve el Draggable con su propio transform.
+    agarre: { hover: [1.5, 1.1] as [number, number], agarrado: [2, 1.3] as [number, number], ms: 250, ease: 'out(3)' },
+    origen: 'propio',
+  },
 };

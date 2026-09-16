@@ -64,9 +64,12 @@ html.sin-property, html.sin-property body, html.sin-property .placa, html.sin-pr
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--fg); }
+/* Sin `scroll-behavior: smooth`. Estaba aquí, en el BODY, y la especificación (CSSOM View) solo
+   atiende al del elemento raíz: no suavizaba ningún salto (medido: 0 ms en Chromium). Los saltos
+   los hace ahora core/viaje.ts con su propia curva, y un smooth del navegador por debajo pelearía
+   con él en cada fotograma. */
 body {
   font-family: 'Space Grotesk Variable', system-ui, sans-serif;
-  scroll-behavior: smooth;
 }
 /* Oculto solo si hay JS (clase .js puesta por el script de cabecera) y las fuentes aún no están listas;
    el mismo script destapa a los 2,5 s aunque el módulo falle. */
@@ -492,12 +495,25 @@ html.motor-on #stage { opacity: 0; }
   pointer-events: none;
 }
 #subnav.is-visible { opacity: 1; transform: none; pointer-events: auto; }
-#subnav .barra {
-  position: relative; height: 1rem; cursor: pointer;
-  background-image: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px calc(100% / 32));
+#subnav .barra { position: relative; height: 1rem; cursor: pointer; }
+/* LAS RAYITAS (tanda 3): una por ESTACIÓN, los fotogramas pensados para verse quietos, que es adonde
+   lleva un clic en la barra y donde encaja el cursor al soltarlo. Antes eran 32 rayas de un
+   degradado que no correspondían a nada. subnav.ts las coloca como las paradas. */
+#subnav .raya {
+  position: absolute; top: 0.2rem; bottom: 0.2rem; width: 1px; translate: -50% 0;
+  background: var(--line); pointer-events: none;
 }
-#subnav .cursor { position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 2px; background: var(--acento-ui); cursor: grab; z-index: 1; transition: background-color 0.4s; }
-#subnav.is-grabbed .cursor { cursor: grabbing; transform-origin: center; }
+/* EL CURSOR mide 4 px y lo mueve el Draggable con su transform. Se agarra por un ::before de 24 × 40
+   px (el alto de la píldora), que recibe los eventos del cursor: en el teléfono, fallarlo por 3 px
+   mandaba a otro sitio. Lo que se ve es su hijo, la marca, que es la que crece al pasar el ratón y
+   al agarrarla (subnav.ts): la escala va en el hijo para no tocar el transform del Draggable. */
+#subnav .cursor { position: absolute; top: 0; left: 0; width: 4px; height: 100%; cursor: grab; z-index: 1; }
+#subnav .cursor::before { content: ''; position: absolute; left: 50%; top: 50%; width: 1.5rem; height: 2.5rem; translate: -50% -50%; }
+#subnav .cursor-marca {
+  position: absolute; inset: 0; border-radius: 2px; background: var(--acento-ui);
+  pointer-events: none; transition: background-color 0.4s;
+}
+#subnav.is-grabbed .cursor { cursor: grabbing; }
 #subnav .cursor:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
 /* LAS PARADAS (fila 11): un ancla por capítulo sobre la barra, en el `ini` de su tramo. El punto
    de 6 px va en un ::before y el <a> mide 1 rem para que se pueda pulsar; el cursor pasa por
@@ -535,12 +551,11 @@ html.is-light #subnav .parada::before { opacity: 1; }
   #cabecera nav { gap: 1rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  body { scroll-behavior: auto; }
   #panel { will-change: auto; }
   #subnav, html, body, .placa, #debug, #cabecera,
   html.sin-property, html.sin-property body, html.sin-property .placa, html.sin-property #debug { transition: none; }
   /* El acento cambia de golpe: ni el cursor, ni las paradas, ni el contador funden. */
-  #subnav .cursor, #subnav .parada::before, #capitulo-progreso, #capitulo-arco circle { transition: none; }
+  #subnav .cursor-marca, #subnav .parada::before, #capitulo-progreso, #capitulo-arco circle { transition: none; }
 }
 
 /* Rótulos del despiece. Van DENTRO de #motor (mismo contenedor que el lienzo), así que heredan
