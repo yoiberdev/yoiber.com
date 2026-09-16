@@ -66,8 +66,13 @@
     <!-- Analítica propia (Umami), servida desde este mismo dominio: nginx hace de
          pasarela hacia el contenedor, así la CSP sigue con script-src 'self' y
          connect-src 'self' sin abrir nada. No usa cookies ni guarda datos
-         personales, por eso no hace falta aviso de consentimiento. -->
-    <script defer src="/stats.js" data-website-id="e6fa5fba-eca9-4a8c-86c0-3d2f4f4f61cc" data-host-url="https://yoiber.com/stats"></script>
+         personales, por eso no hace falta aviso de consentimiento.
+         `data-host-url` va RELATIVO. Con la dirección completa (https://yoiber.com/stats) el mismo
+         HTML servido en cualquier otro nombre -las pruebas de demo.yoiber.dev- mandaba los eventos
+         a OTRO origen y la propia CSP los bloqueaba: dos errores de consola en cada visita
+         (comprobado el 2026-09-16). Relativo siempre sale al mismo sitio desde el que se sirve la
+         página, y en las pruebas el tracker ni se carga: lo corta nginx (ver nginx.conf). -->
+    <script defer src="/stats.js" data-website-id="e6fa5fba-eca9-4a8c-86c0-3d2f4f4f61cc" data-host-url="/stats"></script>
   </head>
   <body>
     <!-- El lienzo del motor 3D. Vacío hasta que llega el trozo diferido; si no llega nunca,
