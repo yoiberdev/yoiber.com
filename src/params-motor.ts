@@ -577,7 +577,15 @@ export const PM = {
       abrir: [0, 0.12] as [number, number],
       separar: [0.1, 0.34] as [number, number],
       rotulos: [0.16, 0.40] as [number, number],
-      parallax: [0.44, 0.58] as [number, number],
+      // EL GIRO CON LOS RÓTULOS ABIERTOS (tanda 2, «despiece-gira-con-rotulos-abiertos»). Antes el
+      // parallax iba de 0,44 a 0,58 y giraba 34°, pero los rótulos se recogen desde 0,485: con los
+      // nueve abiertos el conjunto giraba unos 8° y el despiece se leía como una lámina quieta con
+      // etiquetas. En animejs.com su vista lateral da una vuelta entera con los módulos rotulados.
+      // Ahora arranca mientras los rótulos todavía se abren (0,28) y gira 56°: con los nueve por
+      // encima de 0,9 recorre del orden de 40°, y las guías siguen a su pieza porque se proyectan
+      // en cada fotograma. `giroFinal` pasa a 0 para que la guiñada al llegar al CIERRE sea la misma
+      // de antes (62 + 56 + 0 = 62 + 34 + 22): el encendido sale idéntico.
+      parallax: [0.28, 0.52] as [number, number],
       cerrar: 0.485,
       logo: [0.62, 0.70] as [number, number],
       quieto: [0.70, 0.79] as [number, number],
@@ -602,8 +610,8 @@ export const PM = {
       // como el de antes (47 / 36).
       zoom: 0.43,
       giroAbre: 62,
-      giroParallax: 34,
-      giroFinal: 22,
+      giroParallax: 56,
+      giroFinal: 0,
       paso: 70,
       dur: 900,
       pasoRotulo: 95,

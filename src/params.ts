@@ -71,7 +71,9 @@ export const P = {
   // INTRO_ON + intro.texto.delay) y se queda toda la página. `dentro`: "Por dentro" lleva al 30 %
   // de COMO, que es donde el despiece ya está abierto y con rótulos (antes del 30 % el motor
   // todavía se está separando).
-  cabecera: { dentro: 0.3, origen: 'propio' },
+  // «Por dentro» aterriza al 40 % de COMO: con el giro nuevo, ahí están los nueve rótulos abiertos y
+  // el despiece a mitad de su vuelta (antes 0,30, con los rótulos aún abriéndose).
+  cabecera: { dentro: 0.4, origen: 'propio' },
   panel: {
     entrada: { rotateX: 70, y: '70vh', scale: 0.6 },
     galeria: { rotateY: 18 },
