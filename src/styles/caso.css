@@ -1,0 +1,177 @@
+/* LA PÁGINA DE UN CASO. Es una página aparte de la portada (casos/<slug>/index.html, su propia
+   entrada en vite.config.ts): sin motor 3D, sin línea de tiempo atada al scroll y sin GSAP. Solo
+   texto, un diagrama animado y los mismos colores, tipografías y voz que yoiber.com.
+
+   POR QUÉ NO REUTILIZA base.css: esa hoja son 700 líneas de una página de una sola pantalla con
+   capas fijas, galería y despiece. Aquí se copian los seis tokens de color y ya. Si cambian allí,
+   cambian aquí (son los mismos valores medidos: --muted 5,40:1 y --muted-2 4,68:1 sobre el fondo). */
+
+:root {
+  --bg: #1f1e1d;
+  --fg: #f4f4f2;
+  --muted: #93938f;
+  --muted-2: #888884;
+  --line: #3a3936;
+  --acento: #ffd166;
+  /* Una superficie por encima del fondo para las cajas del diagrama y las fichas. */
+  --placa: #272522;
+  --placa-borde: #46443f;
+  /* LOS TRES CAMINOS DE LA SEÑAL. No son decoración: el color dice qué viaja por cada línea, y se
+     repite en la leyenda. El vídeo en cian, el control en ámbar (el acento de la casa) y los datos
+     en violeta; el rojo es la caída del enlace. Medidos sobre #1f1e1d: 6,9 · 8,0 · 5,4 · 4,7. */
+  --video: #22d3ee;
+  --control: #ffd166;
+  --datos: #b9a1ff;
+  --alerta: #ff6b6b;
+  --mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Space Grotesk Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--fg); }
+
+/* ---------- la barra de arriba: volver a la portada ---------- */
+.barra {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem clamp(1rem, 4vw, 2.5rem);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(6px);
+}
+.barra a { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+.barra svg { display: block; height: 24px; width: auto; }
+.barra .mono-a { fill: color-mix(in srgb, var(--fg) 58%, var(--bg)); }
+.barra .mono-b { fill: color-mix(in srgb, var(--fg) 40%, var(--bg)); }
+.barra .mono-c { fill: var(--fg); }
+.barra .vuelta { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+.barra a:hover .vuelta, .barra a:focus-visible .vuelta { color: var(--fg); }
+
+/* ---------- caja de la página ---------- */
+.escena { max-width: 74rem; margin: 0 auto; padding: clamp(2rem, 6vw, 4rem) clamp(1rem, 4vw, 2.5rem) 5rem; }
+
+.kicker {
+  margin: 0 0 0.75rem;
+  font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--acento);
+}
+h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(2rem, 5.5vw, 3.4rem); line-height: 1.03; letter-spacing: -0.03em; font-weight: 700;
+}
+.entradilla { margin: 0; max-width: 60ch; color: var(--muted); font-size: clamp(1.05rem, 1.7vw, 1.2rem); line-height: 1.6; }
+.entradilla b { color: var(--fg); font-weight: 600; }
+
+h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spacing: -0.02em; line-height: 1.15; }
+.escena > p { max-width: 68ch; margin: 0 0 1rem; color: var(--muted); line-height: 1.65; }
+.escena > p b { color: var(--fg); font-weight: 600; }
+
+/* ---------- el diagrama ---------- */
+.lienzo { margin: 2.5rem 0 0.5rem; overflow-x: auto; }
+.aviso-desliza { margin: 0 0 1.5rem; font-family: var(--mono); font-size: 0.75rem; color: var(--muted-2); }
+@media (min-width: 1000px) { .aviso-desliza { display: none; } }
+
+#diagrama { display: block; width: 100%; min-width: 900px; height: auto; }
+/* MIENTRAS LLEGA EL MÓDULO. El estado inicial del diagrama (todo apagado) lo escribe casos/
+   maritimo.ts, y hasta entonces se vería un fotograma con el diagrama entero y de golpe. Solo
+   donde hay JavaScript: sin él la hoja no lo esconde nunca y el diagrama se ve completo y quieto,
+   que es la versión estática del mismo dibujo. El rescate a los 5 s es por si el módulo no llegara
+   a cargar: mejor un diagrama fijo que un hueco. */
+@media (scripting: enabled) {
+  #diagrama:not(.listo) { opacity: 0; animation: rescate-diagrama 0s 5s forwards; }
+  @keyframes rescate-diagrama { to { opacity: 1; } }
+}
+
+.zona { fill: var(--placa); stroke: var(--line); stroke-width: 1; }
+.zona-enlace { fill: url(#gradMar); opacity: 0.5; }
+.zona-tit { fill: var(--muted); font-size: 12px; letter-spacing: 0.18em; font-weight: 600; }
+
+.linea { stroke-width: 2.5; stroke-linecap: round; }
+.linea-video { stroke: var(--video); }
+.linea-control { stroke: var(--control); }
+.linea-datos { stroke: var(--datos); }
+
+.nodo rect { fill: var(--placa); stroke: var(--placa-borde); stroke-width: 1.5; }
+.nodo .n-tit { fill: var(--fg); font-size: 17px; font-weight: 600; text-anchor: middle; }
+.nodo .n-sub { fill: var(--muted); font-size: 12.5px; text-anchor: middle; }
+.nodo-datos rect { stroke: #5c4b8a; }
+.nodo-control rect { stroke: #7c5c1a; }
+.nodo-enlace rect { stroke: #2b6b8f; fill: #16303d; }
+.nodo-final rect { stroke: #2b6b5f; }
+/* el nodo del capítulo que se está contando */
+.nodo.activo rect { stroke: var(--video); stroke-width: 2.5; }
+.nodo-control.activo rect { stroke: var(--control); }
+.nodo-datos.activo rect { stroke: var(--datos); }
+
+.proto rect { fill: var(--bg); stroke: var(--placa-borde); stroke-width: 1; }
+.proto text { fill: var(--fg); font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-anchor: middle; }
+
+.pk { filter: url(#brillo); }
+.pk-video { fill: var(--video); }
+.pk-control { fill: var(--control); }
+
+/* ---------- la leyenda de los tres caminos ---------- */
+.leyenda { display: flex; flex-wrap: wrap; gap: 1.25rem; margin: 0 0 2rem; padding: 0; list-style: none; font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+.leyenda li { display: flex; align-items: center; gap: 0.5rem; }
+.leyenda i { width: 1.5rem; height: 3px; border-radius: 999px; background: currentColor; }
+.leyenda .v { color: var(--video); }
+.leyenda .c { color: var(--control); }
+.leyenda .d { color: var(--datos); }
+.leyenda span { color: var(--muted); }
+
+/* ---------- el relato, un capítulo cada vez ---------- */
+.relato { margin-top: 2.5rem; border-top: 1px solid var(--line); padding-top: 2rem; }
+.pasos { list-style: none; margin: 0; padding: 0; position: relative; min-height: 12rem; }
+.pasos li { position: absolute; inset: 0; max-width: 72ch; }
+.pasos h3 { margin: 0 0 0.75rem; font-size: clamp(1.15rem, 2.2vw, 1.5rem); letter-spacing: -0.02em; font-weight: 600; }
+.pasos p { margin: 0; color: var(--muted); font-size: clamp(1rem, 1.5vw, 1.08rem); line-height: 1.7; }
+.pasos b { color: var(--fg); font-weight: 600; }
+
+.mandos { margin-top: 1.75rem; display: flex; align-items: center; gap: 1.4rem; flex-wrap: wrap; }
+#btn-play {
+  background: transparent; border: 1px solid var(--line); color: var(--muted);
+  border-radius: 999px; padding: 0.55rem 1.25rem; font: inherit; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+#btn-play:hover, #btn-play:focus-visible { border-color: var(--acento); color: var(--fg); }
+.puntos { display: flex; gap: 0.6rem; }
+.punto { width: 34px; height: 4px; border-radius: 999px; border: 0; padding: 0; background: var(--line); cursor: pointer; transition: background 0.25s; }
+.punto[aria-selected='true'] { background: var(--acento); }
+.punto:focus-visible { outline: 2px solid var(--acento); outline-offset: 3px; }
+
+/* ---------- las decisiones ---------- */
+.fichas { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); margin: 1.5rem 0 0; padding: 0; list-style: none; }
+.fichas li { border: 1px solid var(--line); border-radius: 10px; padding: 1.1rem 1.2rem; background: color-mix(in srgb, var(--placa) 60%, transparent); }
+.fichas h3 { margin: 0 0 0.5rem; font-size: 1rem; letter-spacing: -0.01em; }
+.fichas p { margin: 0; color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+.fichas .clave { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--acento); display: block; margin-bottom: 0.4rem; }
+
+/* ---------- de dónde sale cada pieza ---------- */
+.origen { width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 0.9rem; }
+.origen th, .origen td { text-align: left; padding: 0.6rem 0.75rem 0.6rem 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.origen th { color: var(--fg); font-weight: 600; }
+.origen td { color: var(--muted); }
+.origen td code, .origen th code { font-family: var(--mono); font-size: 0.85em; color: var(--fg); }
+
+/* ---------- cierre ---------- */
+.cierre { margin-top: 4rem; border-top: 1px solid var(--line); padding-top: 2rem; }
+.cierre p { max-width: 60ch; color: var(--muted); line-height: 1.65; }
+.cierre .accion { display: inline-block; margin-top: 0.5rem; font-size: 1.05rem; color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--acento); padding-bottom: 3px; }
+.cierre .accion:hover, .cierre .accion:focus-visible { border-bottom-width: 2px; }
+
+.pie-caso { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+.pie-caso p { margin: 0; color: var(--muted-2); font-size: 0.82rem; line-height: 1.6; max-width: 72ch; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pk { display: none; }
+  .barra { backdrop-filter: none; }
+}

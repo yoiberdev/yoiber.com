@@ -1,5 +1,12 @@
 import { defineConfig, type Plugin } from 'vite';
 
+// LAS PÁGINAS DEL SITIO. La portada y una por caso (casos/<slug>/index.html). Cada caso es una
+// página aparte de verdad, con su dirección: sin motor 3D ni maestro, solo su texto y su diagrama.
+const PAGINAS = {
+  portada: 'index.html',
+  'caso-maritimo': 'casos/videovigilancia-maritima/index.html',
+};
+
 // LA FECHA DE PUBLICACIÓN. Google lee dos fechas de esta web: el `dateModified` de la ProfilePage
 // (index.html) y el `lastmod` del sitemap. Escritas a mano se quedaban viejas (el sitemap decía
 // 2026-09-10 una semana y dos publicaciones después), así que salen de la construcción: la web se
@@ -7,14 +14,13 @@ import { defineConfig, type Plugin } from 'vite';
 function fechaPublicacion(): Plugin {
   const lima = new Date(Date.now() - 5 * 3600 * 1000).toISOString().slice(0, 19);
   const fecha = `${lima}-05:00`;
+  // Una entrada por página. Las anclas de la portada (#galeria, #como, #pie) no son direcciones
+  // propias y no van aquí.
+  const direcciones = ['https://yoiber.com/', 'https://yoiber.com/casos/videovigilancia-maritima/'];
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<!-- Una sola página: todo el sitio es esta portada y sus anclas (#galeria, #como, #pie), y las
-     anclas no son URLs propias, así que no van aquí. Lo genera vite.config.ts al construir. -->
+<!-- Lo genera vite.config.ts al construir, con la fecha de la publicación. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://yoiber.com/</loc>
-    <lastmod>${fecha}</lastmod>
-  </url>
+${direcciones.map((u) => `  <url>\n    <loc>${u}</loc>\n    <lastmod>${fecha}</lastmod>\n  </url>`).join('\n')}
 </urlset>
 `;
   return {
@@ -32,6 +38,12 @@ export default defineConfig({
   build: {
     target: 'es2022',
     sourcemap: false,
+    rollupOptions: {
+      input: Object.fromEntries(
+        // rutas absolutas resueltas contra este fichero, sin `node:path` (el typecheck va sin @types/node)
+        Object.entries(PAGINAS).map(([nombre, ruta]) => [nombre, new URL(ruta, import.meta.url).pathname]),
+      ),
+    },
     // NADA INCRUSTADO COMO data: URI. Por defecto Vite mete en el CSS cualquier asset de menos de
     // 4 096 B, y el subset cyrillic-ext de JetBrains Mono (2 028 B) caía dentro: la CSP de nginx.conf
     // lleva `font-src 'self'` y el navegador lo rechazaba en CADA carga ("Refused to load the font
