@@ -162,6 +162,8 @@ export const P = {
   // trazado y la vida encendida. Antes era `margenBajar: 250`, que caía con el esquema al 1,6 % y
   // la tarjeta muerta al llegar (medido: 0 %/s).
   galeria: {
+    // EL ARCO DEL CONTADOR en segmentos (galeria.ts, tanda 5): grados de hueco entre uno y otro.
+    arco: { hueco: 14 },
     arranque: 0.18,
     // LA MINI-SECUENCIA DE CADA TARJETA (effects/galeria.ts). Antes la tarjeta entraba en bloque
     // (opacidad + 26 px); ahora cada pieza entra por su turno: título, captura destapándose de
@@ -188,6 +190,11 @@ export const P = {
         captura:  { ini: 0.18, dur: 0.36, ease: 'in(2)' },
         titulo:   { ini: 0.30, dur: 0.40, y: 28, ease: 'in(2)' },                 // acaba en 0,70
       },
+      // EL TÍTULO PARTIDO (tanda 5): cada trozo dura esta fracción del tramo del título y el resto es
+      // el escalón entre el primero y el último, así que el título entra y sale en el mismo tiempo.
+      // `desde` y `hasta`: más de un 100 % porque la máscara mide más que el trozo (el aire de los
+      // descendentes) y las letras asomaban como rayas de 1 px al principio y al final.
+      tituloPartido: { trozo: 0.6, desde: '115%', hasta: '-125%' },
       // EL ESQUEMA (el <svg class="esquema"> entre la pila y el detalle) entra y sale como un
       // párrafo más, pero con SUS PROPIOS tweens y no metido en el stagger de `parrafos`: así los
       // tres párrafos siguen entrando cuando entraban. Entra a mitad de camino entre la pila
@@ -215,8 +222,21 @@ export const P = {
     // reloj del NAVEGADOR y no con el del scroll. Sin esto, con el scroll parado la tarjeta
     // cambiaba el 0 % de sus píxeles por segundo mientras el motor cambiaba el 9,5 %.
     vida: {
-      salto: 420,      // ms que tarda el foco en pasar de una caja a la siguiente
-      espera: 900,     // ms que se queda en cada caja; por debajo de ~700 parece nervioso
+      salto: 420,      // ms que tarda el foco en pasar de una caja a la siguiente (duración PERCIBIDA del muelle)
+      espera: 900,     // ms que se queda en cada caja, de media; por debajo de ~700 parece nervioso
+      // LA CADENA DEL FOCO (tanda 5). Cada espera es `espera` por un factor al azar de `azar`, con
+      // una semilla fija por tarjeta (`semilla` + su índice): no se repite la misma vuelta, pero dos
+      // cargas dan la misma secuencia y el QA es repetible. El orden de las cajas NO cambia: es un
+      // registro que avanza por etapas.
+      azar: [0.55, 1.5] as [number, number],
+      semilla: 17,
+      // El salto llega con un muelle y se pasa un poco: con bounce 0,27 el amortiguamiento es 0,73 y el
+      // sobrepaso ronda el 3,5 % del recorrido. Más de un 5 % y el marco se salía por el hueco de 16
+      // unidades entre cajas.
+      muelle: 0.27,
+      // LA CAJA QUE REACCIONA: mientras el foco está en ella, su trazo engorda (`--toque` de 0 a 1,
+      // base.css). En ms: lo que tarda en encenderse al llegar el foco y en apagarse al irse.
+      toque: { entra: 260, sale: 520 },
       aire: 3,         // unidades del viewBox que el foco se infla sobre la caja, para no tapar el rótulo
       opacidad: 0.55,  // el foco acompaña, no compite con el dibujo que traza el scroll
       viaje: 820,      // ms que tarda la chispa en recorrer 100 unidades de línea
@@ -313,6 +333,9 @@ export const P = {
       y: 14,           // px que sube al entrar
       ease: 'out(3)',
     },
+    // EL PULSO del segmento del arco al cambiar de proyecto (tanda 5): el trazo pasa de 2 a `pico` en
+    // `sube` ms y vuelve en `baja`. Es el único acento del cambio de tarjeta.
+    pulso: { pico: 4, sube: 50, baja: 100 },
     origen: 'propio',
   },
 

@@ -10,6 +10,7 @@ import { revelarFilo } from '../motor/geometria';
 import { montarCoreografia } from '../motor/coreografia';
 import { montarRotulos } from '../motor/rotulos';
 import { montarCursor } from '../motor/cursor';
+import { montarArrastre } from '../motor/arrastre';
 import { crearPenacho } from '../motor/penacho';
 import { crearTinta } from '../motor/tinta';
 
@@ -143,9 +144,15 @@ export function montarMotor(ctx: ContextoMotor): Escena {
     const reduceMov = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     const cursor = montarCursor(rig, reduceMov);
     deshacer.push(() => cursor.revertir());
+    // EL ARRASTRE (tanda 5): con el despiece abierto se puede coger el motor y girarlo.
+    const arrastre = montarArrastre(rig, anfitrion, reduceMov);
+    deshacer.push(() => arrastre.revertir());
     // QUIETUD: 1 con el reloj del maestro parado, 0 mientras el visitante baja. Suavizada, para que
     // el motor no vuelva de frente de golpe con cada muesca de la rueda.
     let quietud = 0;
+    // MANO: 0 mientras el visitante tiene el motor cogido. Suavizada como la quietud: de golpe, la
+    // inclinación hacia el cursor saltaba 1,4° en un fotograma al coger y al soltar.
+    let mano = 1;
     let tAnterior = -1;
 
     // La coreografía se añade a un maestro que YA está inicializado y en marcha:
@@ -337,6 +344,8 @@ export function montarMotor(ctx: ContextoMotor): Escena {
         // ORDEN: Anime.js escribe en el grafo -> el canal derivado completa -> los rótulos se
         // proyectan -> Three dibuja. Nunca al revés.
         engine.update();
+        // el giro del visitante, ANTES de la coreografía que lo suma: si no, se dibujaba un fotograma tarde
+        arrastre.leer();
         const t = tiempo();
         avanzarTema(ahora);
         coreo.aplicar(t, ahora);
@@ -345,7 +354,10 @@ export function montarMotor(ctx: ContextoMotor): Escena {
           const parado = tAnterior >= 0 && Math.abs(t - tAnterior) < 0.5 ? 1 : 0;
           tAnterior = t;
           quietud += (parado - quietud) * PM.motor.cursor.quietud;
-          cursor.aplicar(quietud * Math.max(E.abierto, E.dentro) * (1 - E.logo) * (1 - E.vibra));
+          arrastre.aplicar(E.abierto > PM.motor.arrastre.abierto && E.logo < 0.5, E.abierto);
+          // mientras se arrastra, el motor no mira al cursor: la mano ya lo está moviendo
+          mano += ((arrastre.agarrado() ? 0 : 1) - mano) * PM.motor.cursor.quietud;
+          cursor.aplicar(mano * quietud * Math.max(E.abierto, E.dentro) * (1 - E.logo) * (1 - E.vibra));
         }
         penacho.aplicar(coreo.estado, t);
         rotulos.aplicar();
@@ -456,6 +468,7 @@ export function montarMotor(ctx: ContextoMotor): Escena {
       // Estos dos estaban solo en `deshacer`, que solo se recorre si el MONTAJE falla: al rendirse en
       // marcha quedaban vivos el pointermove del cursor y el observador del pie, reteniendo el rig.
       cursor.revertir();
+      arrastre.revertir();   // lo mismo con la capa del arrastre: quedaba viva, con eventos, sobre el hueco
       observadorPie.disconnect();
       cancelAnimationFrame(idRaf);
       mqDpr?.removeEventListener('change', alCambiarDpr);
@@ -541,6 +554,7 @@ export function montarMotor(ctx: ContextoMotor): Escena {
         PM,
         rig,
         coreo,
+        arrastre,
         render: fachadaRender,
         tinta,
         pintar,

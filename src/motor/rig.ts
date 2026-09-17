@@ -75,6 +75,9 @@ export interface Rig {
    *  arriba y dónde empieza la de abajo, en px CSS desde el borde superior y el inferior del lienzo,
    *  el peor caso de las cinco tarjetas (-1 si no se sabe). */
   medida: { ancho: number; alto: number; tarjeta: number; filaArriba: number; filaAbajo: number };
+  /** El giro que pone el visitante al arrastrar el motor (motor/arrastre.ts), en radianes. No es una
+   *  propiedad del grafo: la coreografía lo suma a la guiñada de `sacudida`, su único escritor. */
+  arrastre: { giro: number };
   /** Entre `desvio` y `raiz`: la inclinación hacia el cursor (motor/cursor.ts). Nadie más la toca. */
   inclinacion: Group;
   raiz: Group;
@@ -445,6 +448,7 @@ export function construirRig(nivel: Calidad): Rig {
   const reposoProyectado: CajaPose = { alto: enReposo.alto, centro: enReposo.centro };
 
   const medida = { ancho: 1, alto: 1, tarjeta: -1, filaArriba: -1, filaAbajo: -1 };
+  const arrastre = { giro: 0 };
   function disponer(ancho: number, alto: number): void {
     medida.ancho = Math.max(1, ancho);
     medida.alto = Math.max(1, alto);
@@ -478,7 +482,7 @@ export function construirRig(nivel: Calidad): Rig {
   }
 
   return {
-    escena, camara, desvio, inclinacion, medida, raiz, sacudida, motor, piezas, sueltas, tubos, azimutes, marca, materialesMarca,
+    escena, camara, desvio, inclinacion, medida, arrastre, raiz, sacudida, motor, piezas, sueltas, tubos, azimutes, marca, materialesMarca,
     emisivosMarca, chapaMarca, turbina, luzClave, luzCamara, emisivos, caliente, cuerpos,
     yLabio: -M.tobera.largo,
     onda, escribirTubos, aletas, aletasEscala, escribirAletas, azimutesAletas: azAletas, tema, disponer, proyectar, reposoProyectado, elevacion: ELEVACION, radioMax, liberar,

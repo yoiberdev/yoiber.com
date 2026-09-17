@@ -205,6 +205,10 @@ html.js:not(.is-ready) .capa, html.js:not(.is-ready) #cabecera { visibility: hid
   contain: strict;            /* el lienzo no puede provocar reflujo del resto de la página */
 }
 #motor .motor-lienzo { display: block; width: 100%; height: 100%; }
+/* La capa para coger el motor con el despiece abierto (motor/arrastre.ts). #motor no recibe eventos;
+   esta capa sí, y solo mientras está `activa`. El Draggable le pone el cursor y el touch-action. */
+#motor .motor-agarre { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+#motor .motor-agarre.activa { pointer-events: auto; }
 html.motor-on #motor { opacity: 1; }
 html.motor-on #stage { opacity: 0; }
 #stage { transition: opacity 0.42s ease-in-out; }
@@ -282,6 +286,18 @@ html.motor-on #stage { opacity: 0; }
    detalle, acceso, aviso) por debajo de 1 rem. Las medidas caben en 1440x900 con el detalle; en
    ventanas bajas y en vertical hay dos media queries más abajo que recortan lo que sobra. */
 .tarjeta h2 { margin: 0 0 0.75rem; font-size: clamp(1.9rem, 3.6vw, 3rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.02; }
+/* EL TÍTULO PARTIDO (galeria.ts, tanda 5). Cada trozo sube dentro de su máscara: la envoltura que
+   crea splitText (overflow: clip) solo recorta si es inline-block, y lleva un poco de alto de más
+   para no cortar los descendentes (g, p, y) con este interlineado tan apretado. Un título de una
+   sola palabra no se parte de línea: con cada letra en su caja el navegador podría cortarla. La
+   copia oculta para lectores de pantalla no se selecciona (si no, al copiar sale dos veces). */
+.tarjeta h2 .trozo { display: inline-block; }
+.tarjeta h2 span:has(> .trozo) {
+  display: inline-block; vertical-align: top;
+  padding: 0 0.08em 0.14em; margin: 0 -0.08em -0.14em;   /* aire lateral: el letter-spacing negativo estrecha la caja más que la letra */
+}
+.tarjeta h2.partido-letras { white-space: nowrap; }
+.tarjeta h2 > span:not(:has([data-char], [data-word])) { -webkit-user-select: none; user-select: none; }
 .tarjeta .que { margin: 0 0 1rem; font-size: 1.15rem; line-height: 1.45; color: var(--fg); }
 /* La pila (tarjetas y pie): mono, mayúsculas y pequeña. Es la voz "de máquina" de la página. */
 .pila { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; }
@@ -316,6 +332,10 @@ html.motor-on #stage { opacity: 0; }
    lo que ha trazado el scroll, así que NO lleva transición: una transición aquí haría que el valor
    dependiera de cuánto tiempo ha pasado y no de dónde está la rueda. */
 .esquema .vida { opacity: 0; }
+/* LA CAJA QUE REACCIONA (tanda 5): el trazo engorda mientras el foco está en ella. `--toque` lo
+   anima la vida en cada caja (0 → 1 → 0) y `--vida` es la intensidad de la capa, que la vida escribe
+   en el svg con el scroll: al irse la tarjeta el grosor vuelve por el mismo camino. */
+.esquema rect[data-paso] { stroke-width: calc(1.5px + var(--toque, 0) * var(--vida, 0) * 1.3px); }
 .esquema .vida .foco { fill: none; stroke: var(--acento); stroke-width: 1.5; opacity: 0; }
 /* La chispa va en el color del TEXTO y no en el acento: recorre líneas que ya están pintadas del
    acento, así que del mismo color no cambiaba ni un píxel donde más importa (medido: 0,25 %/s en
@@ -526,7 +546,9 @@ html.motor-on #stage { opacity: 0; }
 #capitulo-contador { display: flex; align-items: center; gap: 0.5rem; }
 #capitulo-progreso { font-family: var(--mono); font-size: 0.85rem; font-variant-numeric: tabular-nums; color: var(--acento-ui); transition: color 0.4s; }
 #capitulo-arco { order: -1; width: 22px; height: 22px; display: block; rotate: -90deg; }
-#capitulo-arco circle { fill: none; stroke: var(--acento-ui); stroke-width: 2; transition: stroke 0.4s; }
+/* El círculo es la PISTA, tenue; lo que se dibuja son los segmentos, uno por tarjeta (galeria.ts). */
+#capitulo-arco circle { fill: none; stroke: var(--line); stroke-width: 2; }
+#capitulo-arco .segmento { fill: none; stroke: var(--acento-ui); stroke-width: 2; transition: stroke 0.4s; }
 /* Sin contador (fuera de la galería) tampoco hay arco. */
 #capitulo-progreso:empty + #capitulo-arco { visibility: hidden; }
 
@@ -629,7 +651,7 @@ html.is-light #subnav .parada::before { opacity: 1; }
   #subnav, html, body, .placa, #debug, #cabecera,
   html.sin-property, html.sin-property body, html.sin-property .placa, html.sin-property #debug { transition: none; }
   /* El acento cambia de golpe: ni el cursor, ni las paradas, ni el contador funden. */
-  #subnav .cursor-marca, #subnav .parada::before, #capitulo-progreso, #capitulo-arco circle { transition: none; }
+  #subnav .cursor-marca, #subnav .parada::before, #capitulo-progreso, #capitulo-arco .segmento { transition: none; }
 }
 
 /* Rótulos del despiece. Van DENTRO de #motor (mismo contenedor que el lienzo), así que heredan

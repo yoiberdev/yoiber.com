@@ -1,4 +1,4 @@
-import { createDrawable, stagger, utils, type AnimationParams, type TargetsParam } from 'animejs';
+import { createDrawable, splitText, stagger, utils, type AnimationParams, type TargetsParam, type TextSplitter } from 'animejs';
 import { P } from '../params';
 import { geometriaGaleria, finDelDibujo, tiempoConVida } from '../core/geometria-galeria';
 export { geometriaGaleria, finDelDibujo, tiempoConVida };
@@ -30,10 +30,22 @@ import { montarEsquema } from './esquemas';
 // CIERRE con un salto grande el maestro cruzaba la salida de una vez y la tarjeta se quedaba a 0
 // con el contador diciendo "1 / 5" sobre la pantalla vacía.
 //
-// EL ARCO DE PROGRESO (#capitulo-arco, junto al contador): un círculo que se dibuja de '0 0' a
-// '0 1' a lo largo del tramo de cada tarjeta y se reinicia con la siguiente. TRAMPA que ya mordió
-// una vez (diagrama DSS): `draw` SOLO funciona sobre el PROXY que devuelve createDrawable; sobre el
+// EL ARCO DE PROGRESO (#capitulo-arco, junto al contador): un SEGMENTO por tarjeta (tanda 5), de
+// 360°/n menos un hueco, que se dibuja de '0 0' a '0 1' a lo largo del tramo de su tarjeta y se
+// QUEDA dibujado. Antes era un solo círculo que cada tarjeta reiniciaba: el arco lleno se vaciaba en
+// un fotograma cuatro veces por galería. El círculo de index.html queda como pista tenue debajo, y
+// los segmentos se generan aquí, con el número de tarjetas que haya. El pulso de grosor al cambiar
+// de proyecto es una reacción y va fuera del maestro (effects/titulo.ts). TRAMPA que ya mordió una
+// vez (diagrama DSS): `draw` SOLO funciona sobre el PROXY que devuelve createDrawable; sobre el
 // nodo, la animación se crea, no avisa y no hace nada.
+//
+// LOS TÍTULOS PARTIDOS (tanda 5): el título es el texto más grande de la galería y entraba con el
+// mismo fundido que los párrafos. Ahora sube desde debajo de una MÁSCARA, por trozos: por letras si
+// es una sola palabra (SysRRHH, KUIDY-CORE, TechDocAPI) y por palabras si son varias. `splitText`
+// sin líneas (no vuelve a partir al redimensionar, ver hero.ts) y antes de `tl.init()`, que tiene que
+// ver los nodos nuevos. El h2 conserva su fundido; los trozos llevan su `y` en % de su propio alto,
+// con escalón por rango para que la entrada y la salida del título duren lo mismo que antes. Las
+// palabras de una sola palabra no se parten de línea (base.css). Con movimiento reducido, nada.
 //
 // EL ESQUEMA VIVO (fila 21; effects/esquemas.ts). Entre la pila y el detalle cada tarjeta lleva un
 // <svg class="esquema"> que el scroll traza en el TRAMO QUIETO de la tarjeta: de `desde + cruce`
@@ -85,10 +97,24 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
   const y = (desde: number, hasta: number): AnimationParams => (reduce ? {} : { y: [desde, hasta] });
 
   const piezas: HTMLElement[] = [];
+  const partidos: TextSplitter[] = [];
+  // Los trozos del título, o ninguno si no se parte.
+  const partir = (h2: HTMLElement | undefined): HTMLElement[] => {
+    if (reduce || !h2) return [];
+    const unaPalabra = !/\s/.test((h2.textContent ?? '').trim());
+    const partido = unaPalabra
+      ? splitText(h2, { chars: { wrap: 'clip', class: 'trozo' } })
+      : splitText(h2, { words: { wrap: 'clip', class: 'trozo' } });
+    partidos.push(partido);
+    h2.classList.add(unaPalabra ? 'partido-letras' : 'partido-palabras');
+    return unaPalabra ? partido.chars : partido.words;
+  };
+  const T = S.tituloPartido;
   tarjetas.forEach((el, i) => {
     const desde = G.desde(i);   // empieza a entrar
     const fin = G.fin(i);       // empieza a salir (ver `retrasoSalida` en geometriaGaleria)
     const titulo = busca(el, ['h2']);
+    const trozos = partir(titulo[0]);
     // La BARRA DE AVANCE (.avance) entra y sale con la captura: es su barra, va pegada a su borde
     // superior y en la misma celda del grid. Aquí solo se le da la opacidad y el destape; cuánto
     // ha avanzado lo escribe esquemas.ts en el tramo quieto, con scaleX (otra propiedad: no se
@@ -115,15 +141,28 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
       .add(el, { opacity: [0, 1], duration: u(S.contenedor), ease: 'linear' }, desde)
       .add(el, { opacity: [1, 0], duration: u(S.contenedor), ease: 'linear' }, salidaFin - u(S.contenedor));
     if (!reduce) {
-      tl.set(titulo, { y: E.titulo.y }, 0)
-        .set(parrafos, { y: E.parrafos.y }, 0)
+      // el título partido no se desplaza entero: suben sus trozos
+      if (!trozos.length) tl.set(titulo, { y: E.titulo.y }, 0);
+      tl.set(parrafos, { y: E.parrafos.y }, 0)
         .set(esquema, { y: S.esquema.entrada.y }, 0)
         .set(acceso, { y: E.acceso.y }, 0)
         .set(captura, { clipPath: CLIP.cerrado }, 0);
     }
 
     // ENTRADA: título, captura, párrafos escalonados, acceso y aviso.
-    tramo(titulo, { opacity: [0, 1], ...y(E.titulo.y, 0), duration: u(E.titulo.dur), ease: E.titulo.ease }, desde + u(E.titulo.ini));
+    if (trozos.length) {
+      // Cada trozo tarda `trozo` del tramo del título y el último arranca `escalon` después del
+      // primero: acaban a la vez que el fundido del h2.
+      const dur = u(E.titulo.dur);
+      tl.set(trozos, { y: T.desde }, 0)
+        .add(trozos, {
+          y: [T.desde, '0%'], duration: Math.round(dur * T.trozo), ease: E.titulo.ease,
+          delay: stagger([0, Math.round(dur * (1 - T.trozo))]),
+        }, desde + u(E.titulo.ini));
+      tramo(titulo, { opacity: [0, 1], duration: dur, ease: E.titulo.ease }, desde + u(E.titulo.ini));
+    } else {
+      tramo(titulo, { opacity: [0, 1], ...y(E.titulo.y, 0), duration: u(E.titulo.dur), ease: E.titulo.ease }, desde + u(E.titulo.ini));
+    }
     tramo(captura, { opacity: [0, 1], ...(reduce ? {} : { clipPath: [CLIP.cerrado, CLIP.abierto] }), duration: u(E.captura.dur), ease: E.captura.ease }, desde + u(E.captura.ini));
     tramo(parrafos, { opacity: [0, 1], ...y(E.parrafos.y, 0), duration: u(E.parrafos.dur), ease: E.parrafos.ease, delay: stagger(u(E.parrafos.stagger)) }, desde + u(E.parrafos.ini));
     tramo(acceso, { opacity: [0, 1], ...y(E.acceso.y, 0), duration: u(E.acceso.dur), ease: E.acceso.ease, delay: stagger(u(E.acceso.stagger)) }, desde + u(E.acceso.ini));
@@ -134,20 +173,47 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
     tramo(acceso, { opacity: [1, 0], ...y(0, -X.acceso.y), duration: u(X.acceso.dur), ease: X.acceso.ease, delay: stagger(u(X.acceso.stagger), { reversed: true }) }, fin + u(X.acceso.ini));
     tramo(parrafos, { opacity: [1, 0], ...y(0, -X.parrafos.y), duration: u(X.parrafos.dur), ease: X.parrafos.ease, delay: stagger(u(X.parrafos.stagger), { reversed: true }) }, fin + u(X.parrafos.ini));
     tramo(captura, { opacity: [1, 0], ...(reduce ? {} : { clipPath: [CLIP.abierto, CLIP.cerrado] }), duration: u(X.captura.dur), ease: X.captura.ease }, fin + u(X.captura.ini));
-    tramo(titulo, { opacity: [1, 0], ...y(0, -X.titulo.y), duration: u(X.titulo.dur), ease: X.titulo.ease }, fin + u(X.titulo.ini));
+    if (trozos.length) {
+      const dur = u(X.titulo.dur);
+      tl.add(trozos, {
+        y: ['0%', T.hasta], duration: Math.round(dur * T.trozo), ease: X.titulo.ease,
+        delay: stagger([0, Math.round(dur * (1 - T.trozo))]),
+      }, fin + u(X.titulo.ini));
+      tramo(titulo, { opacity: [1, 0], duration: dur, ease: X.titulo.ease }, fin + u(X.titulo.ini));
+    } else {
+      tramo(titulo, { opacity: [1, 0], ...y(0, -X.titulo.y), duration: u(X.titulo.dur), ease: X.titulo.ease }, fin + u(X.titulo.ini));
+    }
     tramo(esquema, { opacity: [1, 0], ...y(0, -S.esquema.salida.y), duration: u(S.esquema.salida.dur), ease: S.esquema.salida.ease }, fin + u(S.esquema.salida.ini));
 
     // EL DIBUJO DEL ESQUEMA, en el tramo quieto: de que la entrada acaba a que la salida empieza.
     montarEsquema(tl, el, desde + cruce, fin - (desde + cruce), reduce);
   });
 
-  // EL ARCO: un tween lineal por tarjeta sobre el mismo proxy. Los tweens son contiguos y con
-  // `composition: 'none'` el que empieza escribe el último en la frontera: cada tarjeta lo reinicia.
-  const circulo = document.querySelector<SVGCircleElement>('#capitulo-arco circle');
-  if (circulo) {
-    const [arco] = createDrawable(circulo);
-    tl.set(arco, { draw: '0 0' }, 0);
-    tarjetas.forEach((_, i) => tl.add(arco, { draw: ['0 0', '0 1'], duration: paso, ease: 'linear' }, ini + paso * i));
+  // LOS SEGMENTOS: uno por tarjeta, cada uno con su tween lineal en el tramo de su tarjeta. Antes
+  // del tramo está a '0 0' y después se queda en '0 1' (valores explícitos en las dos puntas).
+  const svgArco = document.querySelector<SVGSVGElement>('#capitulo-arco');
+  const segmentos: SVGPathElement[] = [];
+  if (svgArco) {
+    const n = tarjetas.length;
+    const hueco = P.galeria.arco.hueco;
+    const punto = (a: number): string => {
+      const r = (a * Math.PI) / 180;
+      return `${(11 + 9 * Math.cos(r)).toFixed(3)} ${(11 + 9 * Math.sin(r)).toFixed(3)}`;
+    };
+    for (let i = 0; i < n; i++) {
+      const a0 = (360 / n) * i + hueco / 2;
+      const a1 = (360 / n) * (i + 1) - hueco / 2;
+      const seg = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      seg.setAttribute('class', 'segmento');
+      seg.setAttribute('d', `M ${punto(a0)} A 9 9 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${punto(a1)}`);
+      svgArco.append(seg);
+      segmentos.push(seg);
+    }
+    const arcos = createDrawable(segmentos);
+    arcos.forEach((arco, i) => {
+      tl.set(arco, { draw: '0 0' }, 0)
+        .add(arco, { draw: ['0 0', '0 1'], duration: paso, ease: 'linear' }, ini + paso * i);
+    });
   }
 
   // EL MISMO REPARTO PARA TODOS. Antes el contador de main.ts hacía floor(progreso * total) sobre
@@ -190,6 +256,9 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
       viva = k;
     },
     revertir(): void {
+      for (const s of segmentos) s.remove();
+      for (const p of partidos) p.revert();
+      for (const el of tarjetas) el.querySelector('h2')?.classList.remove('partido-letras', 'partido-palabras');
       for (const el of tarjetas) el.classList.remove('viva');
       utils.set([...tarjetas, ...piezas], { opacity: 0 });
     },

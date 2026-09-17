@@ -15,6 +15,19 @@ export const PM = {
     // que tarda en alcanzar el destino y con qué curva, y cuánto se acerca la quietud a su objetivo
     // en cada fotograma (0,08 ≈ medio segundo en volver a mandar tras parar la rueda).
     cursor: { max: [2, 3] as [number, number], ms: 600, ease: 'out(3)', quietud: 0.08 },
+    // ARRASTRAR EL MOTOR (motor/arrastre.ts, tanda 5). `goma`: fricción del Draggable fuera de los
+    // límites (todo el recorrido lo es); `gradosPorPx` y `max` hacen el tope suave (max · tanh):
+    // 200 px de mano son 100 de goma y unos 21°. `muelle`: la vuelta al soltar, con un rebote.
+    // `abierto`: a partir de qué apertura del despiece se puede coger. La capa cubre la columna del
+    // motor a todo lo alto (la cabecera y la sub-nav quedan por encima y se llevan sus clics) y a lo
+    // ancho su radio MÁS el desplazamiento de las piezas que salen de lado (conductos y turbobomba,
+    // PM.piezas r), por `holgura`: con el radio solo quedaba fuera un 10 % del motor.
+    // `eje`: px de gesto táctil para decidir si es un giro (horizontal) o un scroll (vertical).
+    arrastre: {
+      goma: 0.5, gradosPorPx: 0.25, max: 35,
+      muelle: { bounce: 0.35, duracion: 450 },
+      abierto: 0.6, holgura: 1.15, eje: 10,
+    },
     // ms que se sigue dibujando después de que el lienzo deje de verse: lo que dura el fundido CSS del
     // telón (base.css, #motor, 0,42 s) con un poco de aire.
     gracia: 500,

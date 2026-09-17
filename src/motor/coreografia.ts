@@ -582,7 +582,9 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     //     del motor (Y) y un cabeceo a un tercio (X). Solo con la guiñada, un cuerpo de revolución
     //     apenas cambia de silueta y encima se lee como un metrónomo; el cabeceo es lo que mueve
     //     la boca de la campana. `rotation.x` no lo escribe nadie más: el temblor (2a) va en Z.
-    rig.sacudida.rotation.y = PM.vida.derivaAmp * Math.sin(ahora * PM.vida.derivaHz);
+    //     Y el GIRO DEL VISITANTE (motor/arrastre.ts) se suma aquí, a la misma guiñada: un solo
+    //     escritor, y el eje es el del propio motor porque `sacudida` va dentro de `raiz`.
+    rig.sacudida.rotation.y = PM.vida.derivaAmp * Math.sin(ahora * PM.vida.derivaHz) + rig.arrastre.giro;
     rig.sacudida.rotation.x = PM.vida.cabeceoAmp * Math.sin(ahora * PM.vida.cabeceoHz);
 
     // 3. La turbobomba coge vueltas. Ángulo = f(tiempo), no un contador que se incrementa.

@@ -1,4 +1,4 @@
-import { animate, type JSAnimation } from 'animejs';
+import { animate, createTimer, spring, utils, type JSAnimation, type Timer } from 'animejs';
 import { P } from '../params';
 import { finDelDibujo, type EstadoEsquema } from './galeria';
 
@@ -22,6 +22,14 @@ import { finDelDibujo, type EstadoEsquema } from './galeria';
 // NO toca ni una de esas piezas: se crea sus propios elementos (un <g class="vida"> al final del
 // SVG, que por orden de documento queda por encima) y anima solo esos. Dos dueños sobre la misma
 // propiedad es la forma más rápida de que el scroll hacia atrás deje de cuadrar.
+//
+// LA TANDA 5 hizo del foco una CADENA y no un bucle de fotogramas clave: una vuelta idéntica de 4 s
+// se leía como un GIF a la segunda. Cada salto llega con un muelle (se pasa un 3,5 % y vuelve), cada
+// espera dura distinto (azar con semilla fija por tarjeta) y la CAJA por la que pasa reacciona: su
+// trazo engorda. Eso último rompe a medias la regla de arriba, con cuidado: la vida no toca ni el
+// `draw` ni la opacidad de la caja, solo una variable CSS propia (`--toque`), y el grosor que ve el
+// ojo es `--toque × --vida` (base.css). `--vida` es la intensidad de la capa que escribe
+// `actualizar()` en el svg, así que al irse la tarjeta el grosor vuelve con el scroll, sin saltos.
 //
 // QUÉ HACE CADA UNA. Dos mecanismos, no cinco:
 //   · EL FOCO: un rectángulo que salta de caja en caja siguiendo la geometría real de los
@@ -68,15 +76,24 @@ export interface VidaEsquemas {
   /** Enciende el bucle del esquema que está en pantalla, en proporción a lo trazado, y apaga los
    *  demás. Se llama por fotograma con lo que devuelve galeria.esquemaDe(). */
   actualizar(estado: EstadoEsquema): void;
+  /** Para el QA: cuántas cadenas de foco tienen un salto o una espera en marcha. */
+  enMarcha(): number;
   revertir(): void;
+}
+
+/** Lo que se enciende y se apaga: un bucle de Anime.js o la cadena del foco. */
+interface Bucle {
+  restart(): unknown;
+  pause(): unknown;
+  revert(): unknown;
 }
 
 /** Una vida que se enciende y se apaga: su nodo, sus bucles y lo último escrito. */
 interface Capa {
   barra: boolean;       // la del brillo (sigue encendida mientras la barra se va) o la del esquema
   el: HTMLElement | SVGElement;
-  caja: Element;        // de quién se pregunta si tiene caja (el svg, o la barra)
-  bucles: JSAnimation[];
+  caja: HTMLElement | SVGElement;   // de quién se pregunta si tiene caja (el svg, o la barra)
+  bucles: Bucle[];
   opacidad: string;     // la última escrita, para no ensuciar el estilo en cada fotograma
   corriendo: boolean;
 }
@@ -94,40 +111,100 @@ function caja(svg: SVGSVGElement, paso: string): { x: number; y: number; w: numb
   return { x: n('x'), y: n('y'), w: n('width'), h: n('height') };
 }
 
-/** EL FOCO: un marco que salta de una caja a la siguiente, en bucle. */
-function foco(svg: SVGSVGElement, grupo: SVGGElement, pasos: string[]): JSAnimation | null {
+/** Cuántas cadenas de foco tienen un salto o una espera en marcha (lo lee el QA por ?debug). */
+let cadenasEnMarcha = 0;
+
+/** EL FOCO: un marco que salta de una caja a la siguiente, en cadena. Cada salto es un `animate`
+ *  con muelle sobre los atributos del rect, y la espera hasta el siguiente, un `createTimer` con
+ *  duración al azar. Pausar corta los dos; reanudar empieza siempre por la primera caja y con la
+ *  misma semilla, así que la secuencia de una tarjeta es la misma cada vez que se enciende. */
+function foco(svg: SVGSVGElement, grupo: SVGGElement, pasos: string[], semilla: number): Bucle | null {
+  const rects = pasos
+    .map((p) => svg.querySelector(`[data-paso="${p}"]`))
+    .filter((e): e is SVGRectElement => e !== null && e.tagName === 'rect');
   const cajas = pasos.map((p) => caja(svg, p)).filter(Boolean) as { x: number; y: number; w: number; h: number }[];
-  if (cajas.length < 2) return null;
+  if (cajas.length < 2 || rects.length !== cajas.length) return null;
   const V = P.galeria.vida;
   const el = document.createElementNS(NS, 'rect');
   el.setAttribute('class', 'foco');
   el.setAttribute('rx', '4');
   grupo.append(el);
 
-  // Keyframes explícitos en las cuatro medidas: el salto y, después, la espera en la caja. La
-  // espera es un fotograma clave "al mismo sitio", que es como Anime.js expresa un mantenerse.
   const marco = (c: { x: number; y: number; w: number; h: number }) => ({
     x: c.x - V.aire, y: c.y - V.aire, width: c.w + V.aire * 2, height: c.h + V.aire * 2,
   });
-  type Clave = { to: number; duration: number; ease?: string };
-  const claves: Record<string, Clave[]> = { x: [], y: [], width: [], height: [] };
-  const primera = marco(cajas[0]);
-  for (const nombre of Object.keys(claves)) {
-    const k = claves[nombre];
-    for (let i = 0; i < cajas.length; i++) {
-      const m = marco(cajas[i]) as Record<string, number>;
-      // el primer salto parte de la última caja, porque el bucle da la vuelta
-      k.push({ to: m[nombre], duration: i === 0 ? 0 : V.salto, ease: 'inOut(3)' });
-      k.push({ to: m[nombre], duration: V.espera });
-    }
-    k.push({ to: (primera as Record<string, number>)[nombre], duration: V.salto, ease: 'inOut(3)' });
-  }
-  return animate(el, {
-    ...claves,
-    opacity: [{ to: V.opacidad, duration: V.salto }, { to: V.opacidad, duration: (V.salto + V.espera) * cajas.length }],
-    loop: true,
-    autoplay: false,
+  const muelle = spring({ bounce: V.muelle, duration: V.salto });
+  // Los límites de todos los marcos: el muelle no puede sacar el foco del esquema. Y los saltos que
+  // RETROCEDEN (de la última caja a la primera, o de vuelta a la columna izquierda en el formulario)
+  // van sin sobrepaso: son los largos, y con un 3,5 % de 200 unidades el marco se salía 8 fuera.
+  const marcos = cajas.map((c) => marco(c));
+  const tope = {
+    x: [Math.min(...marcos.map((m) => m.x)), Math.max(...marcos.map((m) => m.x))],
+    y: [Math.min(...marcos.map((m) => m.y)), Math.max(...marcos.map((m) => m.y))],
+    width: [Math.min(...marcos.map((m) => m.width)), Math.max(...marcos.map((m) => m.width))],
+    height: [Math.min(...marcos.map((m) => m.height)), Math.max(...marcos.map((m) => m.height))],
+  };
+  const conTope = (clave: keyof typeof tope, valor: number) => ({
+    to: valor, modifier: (v: number) => utils.clamp(v, tope[clave][0], tope[clave][1]),
   });
+  let azar = utils.createSeededRandom(semilla);
+  let salto: JSAnimation | null = null;
+  let entrada: JSAnimation | null = null;
+  let espera: Timer | null = null;
+  let actual = -1;
+  let enMarcha = false;
+  const toques: (JSAnimation | null)[] = rects.map(() => null);
+
+  const tocar = (i: number, valor: number): void => {
+    toques[i]?.cancel();
+    toques[i] = animate(rects[i], {
+      '--toque': valor, duration: valor > 0 ? V.toque.entra : V.toque.sale, ease: 'out(3)',
+    });
+  };
+  const ir = (k: number): void => {
+    const m = marcos[k];
+    const atras = actual >= 0 && m.x < marcos[actual].x;
+    salto?.cancel();
+    salto = animate(el, {
+      x: conTope('x', m.x), y: conTope('y', m.y), width: conTope('width', m.width), height: conTope('height', m.height),
+      ...(atras ? { ease: 'out(3)', duration: V.salto } : { ease: muelle }),
+    });
+    if (actual >= 0 && actual !== k) tocar(actual, 0);
+    tocar(k, 1);
+    actual = k;
+    const [a, b] = V.azar;
+    const dura = V.salto + V.espera * azar(a * 1000, b * 1000) / 1000;
+    espera = createTimer({ duration: dura, onComplete: () => { if (enMarcha) ir((k + 1) % cajas.length); } });
+  };
+  const parar = (): void => {
+    if (enMarcha) cadenasEnMarcha--;
+    enMarcha = false;
+    espera?.cancel();
+    salto?.cancel();
+    entrada?.cancel();
+    espera = salto = entrada = null;
+    // --toque a 0 de golpe: no se ve, porque la capa ya está a 0 (--vida) cuando se pausa
+    for (let i = 0; i < rects.length; i++) { toques[i]?.cancel(); toques[i] = null; }
+    utils.set(rects, { '--toque': 0 });
+    actual = -1;
+  };
+  return {
+    restart(): void {
+      parar();
+      enMarcha = true;
+      cadenasEnMarcha++;
+      azar = utils.createSeededRandom(semilla);
+      utils.set(el, { ...marco(cajas[0]), opacity: 0 });
+      entrada = animate(el, { opacity: [0, V.opacidad], duration: V.salto, ease: 'linear' });
+      ir(0);
+    },
+    pause: parar,
+    revert(): void {
+      parar();
+      // (sin utils.remove sobre las cajas: se llevaría también los tweens del maestro que las dibujan)
+      for (const r of rects) r.style.removeProperty('--toque');
+    },
+  };
 }
 
 /** LA CHISPA: un trazo corto que recorre una polilínea, en bucle, con stroke-dasharray.
@@ -197,7 +274,7 @@ function brillo(barra: HTMLElement): { el: HTMLElement; anim: JSAnimation } {
 
 export function montarVidaEsquemas(reduce: boolean): VidaEsquemas {
   const vivos: Vivo[] = [];
-  if (reduce) return { actualizar() {}, revertir() {} };
+  if (reduce) return { actualizar() {}, enMarcha: () => 0, revertir() {} };
 
   const tarjetas = Array.from(document.querySelectorAll('#galeria-tarjetas .tarjeta'));
   for (const [indice, tarjeta] of tarjetas.entries()) {
@@ -217,12 +294,13 @@ export function montarVidaEsquemas(reduce: boolean): VidaEsquemas {
     grupo.setAttribute('class', 'vida');
     svg.append(grupo);   // al final: por orden de documento se pinta por encima de las cajas
 
-    const bucles: JSAnimation[] = [];
-    const empujar = (a: JSAnimation | null) => { if (a) bucles.push(a); };
+    const bucles: Bucle[] = [];
+    const empujar = (a: Bucle | null) => { if (a) bucles.push(a); };
+    const semilla = P.galeria.vida.semilla + indice;
     switch (nombre) {
-      case 'flujo':       empujar(foco(svg, grupo, ['caja1', 'caja2', 'caja3'])); break;
-      case 'formulario':  empujar(foco(svg, grupo, ['campo1', 'campo2', 'campo3', 'boton'])); break;
-      case 'comandas':    empujar(foco(svg, grupo, ['mesa', 'cocina', 'caja'])); break;
+      case 'flujo':       empujar(foco(svg, grupo, ['caja1', 'caja2', 'caja3'], semilla)); break;
+      case 'formulario':  empujar(foco(svg, grupo, ['campo1', 'campo2', 'campo3', 'boton'], semilla)); break;
+      case 'comandas':    empujar(foco(svg, grupo, ['mesa', 'cocina', 'caja'], semilla)); break;
       // las tres rutas de la API: cada línea tiene 150 unidades libres de rótulo, sitio de sobra.
       // Salen escalonadas, que es como llegan las peticiones de verdad: no las tres a la vez.
       case 'rutas':
@@ -248,7 +326,12 @@ export function montarVidaEsquemas(reduce: boolean): VidaEsquemas {
           // `display: none` no da caja: el esquema en los teléfonos bajos, la barra en el resto.
           if (v.indice === i && kTarjeta > 0 && (c.barra || !soloBarra) && c.caja.getClientRects().length > 0) k = kTarjeta;
           const op = k.toFixed(3);
-          if (op !== c.opacidad) { c.el.style.opacity = op; c.opacidad = op; }
+          if (op !== c.opacidad) {
+            c.el.style.opacity = op;
+            c.opacidad = op;
+            // la intensidad con que reaccionan las cajas del esquema (base.css, --toque × --vida)
+            if (!c.barra) c.caja.style.setProperty('--vida', op);
+          }
           const debe = k > 0;
           if (debe === c.corriendo) continue;
           c.corriendo = debe;
@@ -256,11 +339,13 @@ export function montarVidaEsquemas(reduce: boolean): VidaEsquemas {
         }
       }
     },
+    enMarcha: () => cadenasEnMarcha,
     revertir(): void {
       for (const v of vivos) {
         for (const c of v.capas) {
           for (const b of c.bucles) b.revert();
           c.el.remove();
+          if (!c.barra) c.caja.style.removeProperty('--vida');
         }
       }
       vivos.length = 0;

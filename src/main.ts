@@ -156,7 +156,7 @@ function montar(self?: Scope): () => void {
     const { tramo } = tramoActual(m, proxy.currentTime);
     // El contador lo reparte la galería (indice): -1 antes de la primera tarjeta y fuera del capítulo.
     const k = galeria.indice(proxy.currentTime);
-    titulo.pintar(pieALaVista() ? '' : (NOMBRES[tramo] ?? tramo), k >= 0 ? `${k + 1} / ${galeria.total}` : '');
+    titulo.pintar(pieALaVista() ? '' : (NOMBRES[tramo] ?? tramo), k >= 0 ? `${k + 1} / ${galeria.total}` : '', k);
   };
 
   const tema = montarTema(m);
@@ -202,7 +202,7 @@ function montar(self?: Scope): () => void {
   const paradas = PARADAS.map((p) => ({ ...p, destino: destinos[p.X] }));
   const subnav = montarSubnav(scroller, viaje, paradas, { reduce, estaciones });
   const quitarDebug = location.search.includes('debug')
-    ? montarDebug(m, scroller, proxy, escena, salidaLogo, { viaje, estaciones, destinos })
+    ? montarDebug(m, scroller, proxy, escena, salidaLogo, { viaje, estaciones, destinos, vida: vidaEsquemas })
     : null;
 
   // "Ver los proyectos": el enlace del hero. preventDefault porque el href="#galeria" apuntaría al
