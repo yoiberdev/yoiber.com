@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- LA PÁGINA 404. nginx la sirve con código 404 (error_page en nginx.conf) para cualquier
+         dirección que no existe. Antes salía la de nginx, 153 bytes sin nada: Google pide que la
+         página diga que no existe para no confundirla con un "404 blando". Va sola, sin el paquete
+         de la web ni sus fuentes, y con el estilo en línea (la CSP permite estilos en línea, no
+         scripts). Los colores son los de base.css. -->
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#1f1e1d" />
+    <title>Esta página no existe · Yoiber</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="192x192" />
+    <style>
+      :root { --bg: #1f1e1d; --fg: #f4f4f2; --muted: #93938f; --line: #3a3936; color-scheme: dark; }
+      @media (prefers-color-scheme: light) {
+        :root { --bg: #efe9df; --fg: #141414; --muted: #5f5a52; --line: #c9c1b2; color-scheme: light; }
+      }
+      html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); }
+      body {
+        display: grid; place-items: center; padding: 1rem; box-sizing: border-box;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      }
+      main { max-width: 26rem; }
+      svg { display: block; height: 3rem; width: auto; margin-bottom: 1.5rem; }
+      .a { fill: color-mix(in srgb, var(--fg) 58%, var(--bg)); }
+      .b { fill: color-mix(in srgb, var(--fg) 40%, var(--bg)); }
+      .c { fill: var(--fg); }
+      p.codigo { margin: 0 0 0.5rem; font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--muted); }
+      h1 { margin: 0 0 0.75rem; font-size: clamp(1.75rem, 6vw, 2.5rem); line-height: 1.05; letter-spacing: -0.03em; }
+      p { margin: 0 0 1.5rem; line-height: 1.5; color: var(--muted); }
+      a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 2px; }
+      a:hover, a:focus-visible { border-bottom-color: var(--fg); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <svg viewBox="0 0 439 523" aria-hidden="true" focusable="false">
+        <path class="a" d="M204.77 0C235.539 0 254.787 33.2885 239.437 59.9551L141.891 229.411L8.98075 65.1621C-12.183 39.0082 6.43132 0.000141945 40.0755 0H204.77Z" />
+        <path class="b" d="M218.56 324.158C236.233 345.998 270.324 343.292 284.33 318.938L287.17 314H287.248L178.507 502.841C171.367 515.239 158.15 522.881 143.844 522.881H41.9276C11.1516 522.881 -8.09548 489.579 7.26839 462.912L141.839 229.348L218.56 324.158Z" />
+        <path class="c" d="M398.846 0.0380859C400.995 0.0380805 403.088 0.200518 405.117 0.511719C431.98 4.79989 447.501 35.2121 433.279 59.9414L284.33 318.938C270.324 343.292 236.234 345.998 218.561 324.158L141.84 229.347L262.418 20.0693C269.559 7.67596 282.774 0.0390986 297.077 0.0390625L398.846 0.0380859Z" />
+      </svg>
+      <p class="codigo">ERROR 404</p>
+      <h1>Esta página no existe</h1>
+      <p>La dirección no lleva a ninguna parte de yoiber.com. Todo lo que hay está en la portada: los proyectos, cómo está hecho el motor y el contacto.</p>
+      <a href="/">Ir a yoiber.com</a>
+    </main>
+  </body>
+</html>

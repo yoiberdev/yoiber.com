@@ -21,13 +21,24 @@
     <meta property="og:url" content="https://yoiber.com/" />
     <meta property="og:title" content="Yoiber · desarrollador full-stack" />
     <meta property="og:description" content="Sistemas distribuidos, dispositivos en campo e interfaces para datos en vivo." />
+    <meta property="og:site_name" content="Yoiber" />
     <meta property="og:image" content="https://yoiber.com/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Monograma de Yoiber junto al texto «yoiberdev, desarrollador de software»" />
     <meta property="og:locale" content="es_PE" />
     <meta name="twitter:card" content="summary_large_image" />
 
     <!-- DATOS ESTRUCTURADOS. Para una búsqueda por nombre propio lo que decide no es la página,
          es que el buscador entienda que "Yoiber" (la persona) y este dominio son la misma cosa.
-         `sameAs` es exactamente eso: los perfiles que ya existen y que el buscador ya conoce.
+         `sameAs` es exactamente eso: los perfiles que ya existen y que el buscador ya conoce (y solo
+         vale si esos perfiles enlazan de vuelta a yoiber.com).
+         `ProfilePage` es el único tipo de este bloque con resultado propio en Google: la página se
+         centra en una sola persona, que es el caso que su documentación da por bueno ("An 'About
+         Me' page"). `Person` no tiene resultado enriquecido; `WebSite` con `name` y `url` es lo que
+         pide el nombre del sitio que sale en el resultado.
+         `%FECHA_PUBLICACION%` lo sustituye vite.config.ts al construir por la fecha de la
+         publicación (la misma que va al `lastmod` del sitemap).
          Va como bloque de datos (`type="application/ld+json"`), que el navegador no ejecuta, así
          que la CSP de `script-src 'self'` no lo bloquea; comprobado en el navegador, sin avisos. -->
     <script type="application/ld+json">
@@ -35,33 +46,54 @@
       "@context": "https://schema.org",
       "@graph": [
         {
+          "@type": "WebSite",
+          "@id": "https://yoiber.com/#sitio",
+          "url": "https://yoiber.com/",
+          "name": "Yoiber",
+          "alternateName": ["yoiber.com", "yoiberdev"],
+          "inLanguage": "es",
+          "publisher": { "@id": "https://yoiber.com/#yoiber" }
+        },
+        {
+          "@type": "ProfilePage",
+          "@id": "https://yoiber.com/#perfil",
+          "url": "https://yoiber.com/",
+          "name": "Yoiber · desarrollador full-stack",
+          "inLanguage": "es",
+          "isPartOf": { "@id": "https://yoiber.com/#sitio" },
+          "dateCreated": "2026-09-09T22:10:00-05:00",
+          "dateModified": "%FECHA_PUBLICACION%",
+          "mainEntity": { "@id": "https://yoiber.com/#yoiber" }
+        },
+        {
           "@type": "Person",
           "@id": "https://yoiber.com/#yoiber",
           "name": "Yoiber",
           "alternateName": "yoiberdev",
           "url": "https://yoiber.com/",
+          "mainEntityOfPage": { "@id": "https://yoiber.com/#perfil" },
+          "image": "https://yoiber.com/icono-512.png",
           "jobTitle": "Desarrollador full-stack",
           "description": "Desarrollador full-stack. Sistemas distribuidos, dispositivos en campo e interfaces para datos en vivo.",
+          "knowsLanguage": ["es", "en"],
           "knowsAbout": ["Sistemas distribuidos", "IoT", "Streaming de vídeo", "React", "TypeScript", "Python", "Node.js", "PostgreSQL", "Docker"],
           "address": { "@type": "PostalAddress", "addressLocality": "Lima", "addressCountry": "PE" },
           "sameAs": [
             "https://github.com/yoiberdev",
-            "https://linkedin.com/in/yoiberdev"
+            "https://www.linkedin.com/in/yoiberdev/"
           ]
-        },
-        {
-          "@type": "WebSite",
-          "@id": "https://yoiber.com/#sitio",
-          "url": "https://yoiber.com/",
-          "name": "Yoiber",
-          "alternateName": "yoiber.com",
-          "inLanguage": "es",
-          "publisher": { "@id": "https://yoiber.com/#yoiber" }
         }
       ]
     }
     </script>
+    <!-- ICONOS. El SVG es el que usan las pestañas; Google NO acepta SVG como icono del resultado
+         (solo BMP, GIF, ICO, PNG, JPEG, PPM y TIFF, cuadrado y múltiplo de 48 px), así que va también
+         el PNG de 192. /favicon.ico existe para los navegadores y lectores que lo piden por su cuenta
+         (antes daba 404 en cada visita de ese tipo). Los tres son el monograma de la cabecera con los
+         grises del icono original, sobre el fondo de la página. -->
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- Analítica propia (Umami), servida desde este mismo dominio: nginx hace de
          pasarela hacia el contenedor, así la CSP sigue con script-src 'self' y
@@ -235,7 +267,7 @@
           <h3>Contacto</h3>
           <ul class="pie-lista">
             <li><a href="https://github.com/yoiberdev" target="_blank" rel="noopener">GitHub</a></li>
-            <li><a href="https://linkedin.com/in/yoiberdev/" target="_blank" rel="noopener">LinkedIn</a></li>
+            <li><a href="https://www.linkedin.com/in/yoiberdev/" target="_blank" rel="noopener">LinkedIn</a></li>
             <!-- correo: pendiente de Yoiber -->
           </ul>
         </div>
@@ -269,6 +301,12 @@
          captura, en su misma celda del grid, de 0 a 1 en el mismo tramo quieto. Va vacía y
          aria-hidden: es un indicador, no contenido; sin el módulo no se ve y nada cambia. -->
     <div id="galeria-tarjetas" class="capa">
+      <!-- EL DETALLE VA EN UN <details class="por-dentro">. En apaisado se ve siempre (va abierto y
+           el <summary> no se pinta); en vertical no cabe con el motor en medio, y antes se quitaba
+           con display:none, sin forma de verlo: en el teléfono el texto técnico de los cinco
+           proyectos no estaba, y Google indexa la versión móvil y pide que tenga el mismo contenido
+           (vale plegado, no vale quitado). Ahora es un desplegable sobre la captura (base.css) que
+           galeria.ts cierra al pasar a vertical y al cambiar de tarjeta. -->
       <article class="tarjeta" data-slot="0">
         <h2>SysRRHH</h2>
         <img class="captura" src="/proyectos/sysrrhh.jpg" alt="Panel interno de SysRRHH con el módulo de vacantes" width="900" height="563" loading="lazy" decoding="async" />
@@ -285,7 +323,10 @@
           <text data-paso="r3" x="278" y="35.5" text-anchor="middle">ASISTENCIA</text>
           <polyline data-paso="tic" points="337,33 344,40 358,24" />
         </svg>
-        <p class="detalle">Las ausencias se cuadran con transacciones en nivel <em>serializable</em>, y un índice parcial garantiza un solo contrato vigente por empleado. <b class="cifra" data-hasta="571">571</b> pruebas en seis segundos y medio.</p>
+        <details class="por-dentro" open>
+          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
+          <p class="detalle">Las ausencias se cuadran con transacciones en nivel <em>serializable</em>, y un índice parcial garantiza un solo contrato vigente por empleado. <b class="cifra" data-hasta="571">571</b> pruebas en seis segundos y medio.</p>
+        </details>
         <p class="acceso"><a href="https://sysrrhh-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir la demo</a> · <code>admin@demo.local</code> / <code>Demo1234!</code></p>
         <p class="aviso">Demo pública y editable: lo que hagas ahí lo ve todo el mundo.</p>
       </article>
@@ -307,7 +348,10 @@
           <text data-paso="r3" x="10" y="52.5">REGLA · OBLIGATORIO</text>
           <text class="sobre" data-paso="r4" x="233" y="52.5" text-anchor="middle">GUARDAR</text>
         </svg>
-        <p class="detalle">El validador se construye en tiempo de ejecución a partir de los metadatos y es el mismo en el navegador y en el servidor. Los registros viven en una sola tabla JSONB con índice GIN.</p>
+        <details class="por-dentro" open>
+          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
+          <p class="detalle">El validador se construye en tiempo de ejecución a partir de los metadatos y es el mismo en el navegador y en el servidor. Los registros viven en una sola tabla JSONB con índice GIN.</p>
+        </details>
         <p class="acceso"><a href="https://kuidy-core-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir la demo</a> · <code>owner@kuidy.demo</code> / <code>Demo1234!</code></p>
         <p class="aviso">Entra como propietario y crea un campo nuevo: el formulario se adapta solo.</p>
       </article>
@@ -329,7 +373,10 @@
           <text data-paso="r3"><tspan x="18" y="56.5">GET /api/versiones</tspan><tspan x="306" y="56.5">200</tspan></text>
           <line data-paso="linea3" x1="142" y1="53" x2="296" y2="53" />
         </svg>
-        <p class="detalle">Ocho entidades relacionadas y <b class="cifra" data-hasta="47">47</b> rutas documentadas, con respuesta uniforme y paginada y filtros por estado, tipo, fechas y etiquetas. Se enseña sola desde Swagger.</p>
+        <details class="por-dentro" open>
+          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
+          <p class="detalle">Ocho entidades relacionadas y <b class="cifra" data-hasta="47">47</b> rutas documentadas, con respuesta uniforme y paginada y filtros por estado, tipo, fechas y etiquetas. Se enseña sola desde Swagger.</p>
+        </details>
         <p class="acceso"><a href="https://techdoc-api-164532276262.us-central1.run.app/api/swagger-ui.html" target="_blank" rel="noopener">Abrir Swagger</a> · sin contraseña</p>
         <p class="aviso">Datos ficticios. La API no pide autenticación: cualquiera puede crear o borrar.</p>
       </article>
@@ -353,7 +400,10 @@
           <polyline class="ruta" points="65,24 96,24 190,9 190,32 65,32" />
           <circle class="punto" data-paso="id" data-ruta cx="65" cy="24" r="3.2" />
         </svg>
-        <p class="detalle">El identificador de correlación viaja por el contexto de Reactor y se puede comprobar en vivo: la cabecera coincide con el cuerpo de la respuesta. <b class="cifra" data-hasta="99">99</b> pruebas.</p>
+        <details class="por-dentro" open>
+          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
+          <p class="detalle">El identificador de correlación viaja por el contexto de Reactor y se puede comprobar en vivo: la cabecera coincide con el cuerpo de la respuesta. <b class="cifra" data-hasta="99">99</b> pruebas.</p>
+        </details>
         <p class="acceso"><a href="https://financial-api-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir la demo</a> · sin contraseña</p>
         <p class="aviso">Era un reto de entrevista. El cifrado del código es determinista a propósito.</p>
       </article>
@@ -376,7 +426,10 @@
           <path data-paso="ticket" d="M313 4 H353 V60 L348 56 L343 60 L338 56 L333 60 L328 56 L323 60 L318 56 L313 60 Z" />
           <path data-paso="rayas" d="M321 18 H345 M321 28 H345 M321 38 H345" />
         </svg>
-        <p class="detalle">La cuenta se divide por personas o por productos y el descuento de stock es idempotente dentro de una transacción. La imagen se publica por rama y el servidor se actualiza solo.</p>
+        <details class="por-dentro" open>
+          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
+          <p class="detalle">La cuenta se divide por personas o por productos y el descuento de stock es idempotente dentro de una transacción. La imagen se publica por rama y el servidor se actualiza solo.</p>
+        </details>
         <p class="acceso"><a href="https://comandas-dev.kipups.com" target="_blank" rel="noopener">Abrir el entorno de pruebas</a></p>
         <p class="aviso">Producto de Kip-Up, no personal. El enlace es el de pruebas, no el de producción.</p>
       </article>

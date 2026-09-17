@@ -308,6 +308,10 @@ html.motor-on #stage { opacity: 0; }
 .tarjeta .acceso a:hover { border-bottom-width: 2px; }
 .tarjeta .acceso code { font-family: var(--mono); font-size: 0.85em; color: var(--muted); }
 .tarjeta .aviso { margin: 0; font-size: 0.8rem; line-height: 1.4; color: var(--muted-2); }
+/* EL DESPLEGABLE DEL DETALLE (index.html, <details class="por-dentro">). En apaisado va abierto y
+   el <summary> no se pinta: se ve exactamente como el párrafo suelto de antes. En vertical, más
+   abajo, es una píldora sobre la captura. */
+.tarjeta .por-dentro > summary { display: none; }
 /* LA CIFRA VIVA del detalle (esquemas.ts la cuenta de 0 a su valor con el scroll). inline-block con
    un ancho mínimo en ch (lo escribe el módulo: tantos ch como dígitos) y números tabulares: la
    línea no se recompone mientras cuenta de "0" a "571", que sería un reflujo del párrafo por
@@ -415,7 +419,40 @@ html.motor-on #stage { opacity: 0; }
   .tarjeta .captura { grid-row: 4; grid-column: 1; }
   .tarjeta .que { grid-row: 6; }
   .tarjeta .acceso { grid-row: 7; }
-  .tarjeta .detalle, .tarjeta .aviso { display: none; }   /* lo esencial: qué es, con qué, y el enlace */
+  .tarjeta .aviso { display: none; }   /* lo esencial: qué es, con qué, y el enlace */
+  /* EL DETALLE, PLEGADO. No cabe en ninguna fila (la de abajo ya va justa contra el motor), así que
+     no ocupa ninguna: es un elemento ABSOLUTO dentro del área de las filas 3 y 4 (la banda del
+     motor y la captura; un hijo absoluto de un grid con fila puesta toma esa área como caja) y se
+     ancla al borde inferior de la captura (el 0,6 rem es su margen). Cerrado solo se ve la
+     píldora, en la esquina de abajo a la derecha de la captura. Abierto, el panel crece HACIA
+     ARRIBA desde ahí, tapa la captura y lo que haga falta de la banda del motor, y nunca pasa de
+     esa área (si no cabe, se desplaza dentro). Ninguna fila cambia de alto: ni el motor ni el
+     reparto medido de 390x664, 393x851 y 360x640 se enteran. galeria.ts lo cierra al cambiar de
+     tarjeta. */
+  .tarjeta .por-dentro {
+    position: absolute; grid-row: 3 / 5; grid-column: 1;
+    left: 0; right: 0; bottom: 0.6rem; max-height: calc(100% - 0.6rem);
+    box-sizing: border-box; border-radius: 6px;
+  }
+  /* El desplazamiento, solo abierto: cerrado sobraba 1 px (el margen de la píldora) y con `auto`
+     salía una barra en los navegadores que la pintan, además de recortar la zona táctil. */
+  .tarjeta .por-dentro[open] { overflow: auto; background: var(--bg); border: 1px solid var(--line); padding: 0.4rem 0 0.75rem; }
+  .tarjeta .por-dentro > summary {
+    display: block; position: relative; width: max-content; margin: 0 0.4rem 0.4rem auto;
+    padding: 0.4rem 0.7rem; border: 1px solid var(--line); border-radius: 999px;
+    background: color-mix(in srgb, var(--bg) 88%, transparent); color: var(--fg);
+    font-size: 0.75rem; line-height: 1; list-style: none; cursor: pointer;
+    -webkit-user-select: none; user-select: none;
+  }
+  .tarjeta .por-dentro > summary::-webkit-details-marker { display: none; }
+  /* 25 px de alto a la vista y 41 de zona táctil. */
+  .tarjeta .por-dentro > summary::after { content: ''; position: absolute; inset: -0.5rem; }
+  .tarjeta .por-dentro > summary:focus-visible { outline: 2px solid var(--acento-ui, var(--fg)); outline-offset: 2px; }
+  .tarjeta .por-dentro .signo { display: inline-block; margin-left: 0.4rem; transition: transform 0.2s; }
+  .tarjeta .por-dentro .signo::before { content: '+'; }
+  .tarjeta .por-dentro[open] .signo { transform: rotate(45deg); }
+  .tarjeta .por-dentro[open] > summary { margin-bottom: 0.3rem; }
+  .tarjeta .por-dentro .detalle { margin: 0; padding: 0 0.85rem; font-size: min(0.9rem, 3.7vw); line-height: 1.5; }
   /* EL ESQUEMA EN VERTICAL: solo donde cabe. La banda del motor es fija en píxeles desde los
      bordes (PM.coreo.galeria.vertical: 148 arriba y 280 abajo) y la fila de abajo ya empieza a
      272 px del borde: quedan 8 px. Medido con el motor puesto (QA de la Vuelta 3): del motor a la
@@ -529,6 +566,7 @@ html.motor-on #stage { opacity: 0; }
   .cierre-texto a { margin-top: 0.8rem; font-size: 0.72rem; }
 }
 @media (prefers-reduced-motion: reduce) { .cierre-texto .flecha { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .tarjeta .por-dentro .signo { transition: none; } }
 
 /* EL TITULAR DE CAPÍTULO (effects/titulo.ts). Fijo arriba a la izquierda, el nombre grande y el
    contador de la galería debajo, en mono. Antes era un rótulo de 0,85 rem en mayúsculas abajo a
@@ -662,6 +700,10 @@ html.is-light #subnav .parada::before { opacity: 1; }
 .solo-lectores {
   position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
   overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  /* Tamaño explícito: un <h1> dentro de un <section> no tiene cuerpo definido por el navegador y
+     Chrome lo avisa en la consola (H1UserAgentFontSizeInSection). No se ve, pero el aviso ensucia
+     la lista de QA, donde la cuenta de errores y avisos tiene que ser cero. */
+  font-size: 1rem;
 }
 /* LA LISTA DE PIEZAS, VISIBLE CUANDO NO HAY MOTOR 3D (html sin .motor-on). Es la misma lista de los
    lectores de pantalla: una sola fuente para el texto. Sin esto, quien llega sin WebGL o con

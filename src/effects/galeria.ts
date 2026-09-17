@@ -120,7 +120,9 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
     // ha avanzado lo escribe esquemas.ts en el tramo quieto, con scaleX (otra propiedad: no se
     // pisan). Donde el esquema se ve, base.css la deja en display:none y esto no pinta nada.
     const captura = busca(el, ['.captura', '.avance']);
-    const parrafos = busca(el, ['.que', '.pila', '.detalle']);
+    // El detalle va dentro de su desplegable (<details class="por-dentro">): se anima el envoltorio,
+    // que es el hijo directo de la tarjeta y el que base.css deja a opacidad 0 en reposo.
+    const parrafos = busca(el, ['.que', '.pila', '.por-dentro']);
     const esquema = busca(el, ['.esquema']);
     const acceso = busca(el, ['.acceso', '.aviso']);
     const todas = [...titulo, ...captura, ...parrafos, ...esquema, ...acceso];
@@ -238,6 +240,17 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
     return tiempo <= G.capturaFuera(i) ? { i, f: 1, soloBarra: true } : { i: -1, f: -1 };
   };
 
+  // EL DESPLEGABLE DEL DETALLE. En apaisado va abierto (y sin píldora: base.css); en vertical, cerrado
+  // hasta que se pulsa, y se vuelve a cerrar al cambiar de tarjeta para que la siguiente no llegue
+  // con el panel tapando su captura. La consulta es la misma que la de base.css.
+  const vertical = window.matchMedia('(max-aspect-ratio: 1/1)');
+  const desplegables = tarjetas.map((el) => el.querySelector<HTMLDetailsElement>('details.por-dentro'));
+  const ajustarDesplegables = (): void => {
+    for (const d of desplegables) if (d) d.open = !vertical.matches;
+  };
+  ajustarDesplegables();
+  vertical.addEventListener('change', ajustarDesplegables);
+
   let viva = -1;
   return {
     total: tarjetas.length,
@@ -251,11 +264,17 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
       const rel = tiempo - ini;
       const k = (rel % paso) >= paso - cruce + retrasoSalida ? -1 : indice(tiempo);
       if (k === viva) return;
-      if (viva >= 0) tarjetas[viva].classList.remove('viva');
+      if (viva >= 0) {
+        tarjetas[viva].classList.remove('viva');
+        const d = desplegables[viva];
+        if (d && vertical.matches) d.open = false;
+      }
       if (k >= 0) tarjetas[k].classList.add('viva');
       viva = k;
     },
     revertir(): void {
+      vertical.removeEventListener('change', ajustarDesplegables);
+      for (const d of desplegables) if (d) d.open = true;
       for (const s of segmentos) s.remove();
       for (const p of partidos) p.revert();
       for (const el of tarjetas) el.querySelector('h2')?.classList.remove('partido-letras', 'partido-palabras');

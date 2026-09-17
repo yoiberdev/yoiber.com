@@ -40,8 +40,9 @@ import { P } from '../params';
 //
 // LA BARRA DE AVANCE (<span class="avance">), lo que avanza EN LOS TELÉFONOS. El esquema y las
 // cifras viven en el detalle y en una fila propia, y ninguna de las dos cosas cabe en vertical por
-// debajo de 900 px de alto: base.css esconde el .detalle en toda la vertical y el .esquema por
-// debajo de esos 900 px, así que en un iPhone 13, un Pixel 5 o un 360x640 no quedaba NADA que se
+// debajo de 900 px de alto: en toda la vertical el .detalle va plegado (solo se ve si se abre su
+// desplegable) y base.css esconde el .esquema por debajo de esos 900 px, así que en un iPhone 13,
+// un Pixel 5 o un 360x640 no quedaba NADA a la vista que se
 // moviera con el scroll dentro de la tarjeta, que es justo lo que promete la fila 21. La barra son
 // 2 px en el acento del proyecto sobre el borde superior de la captura, en su MISMA celda del grid
 // (base.css): no añade un píxel de alto a la tarjeta y no toca la banda del motor. Va de 0 a 1 en
