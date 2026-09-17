@@ -39,7 +39,10 @@ export function geometriaGaleria(m: Maestro, n: number) {
   const fin = (i: number): number => desde(i) + paso - cruce + retrasoSalida; // empieza a salir
   const quieto = (i: number): [number, number] => [desde(i) + cruce, fin(i)];  // el tramo que dibuja el esquema
   const esquemaFuera = (i: number): number => fin(i) + cruce * (S.esquema.salida.ini + S.esquema.salida.dur);
-  return { ini, dur, paso, cruce, retrasoSalida, desde, fin, quieto, esquemaFuera };
+  // La barra de avance de los teléfonos se va con la CAPTURA (galeria.ts), que acaba más tarde que
+  // el esquema: su brillo tiene que seguir encendido hasta aquí.
+  const capturaFuera = (i: number): number => fin(i) + cruce * (S.salida.captura.ini + S.salida.captura.dur);
+  return { ini, dur, paso, cruce, retrasoSalida, desde, fin, quieto, esquemaFuera, capturaFuera };
 }
 
 /** Fracción del tramo quieto en que termina de trazarse la última pieza de CUALQUIER esquema.

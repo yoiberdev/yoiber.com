@@ -21,6 +21,7 @@ import { montarLogoIntro } from './effects/logo-intro';
 import { montarLogoSalida } from './effects/logo-salida';
 import { montarTitulo } from './effects/titulo';
 import { montarPie } from './effects/pie';
+import { montarCierre } from './effects/cierre';
 
 // Los nombres del titular de capítulo (#capitulo-nombre, effects/titulo.ts). INTRO y HERO_OUT van
 // vacíos: ahí el logo está en pantalla y es él quien dice de quién es la página.
@@ -67,6 +68,8 @@ function montar(self?: Scope): () => void {
   const cabecera = montarCabecera(m, reduce, (t) => scroller.pxParaTiempo(t), viaje.irA);
   // Antes de tl.init(): la galería añade sus tweens al maestro y init() los tiene que ver.
   const galeria = montarGaleria(m, reduce);
+  // La frase del despegue, también con tweens en el maestro (y su salida viaja al contacto).
+  const cierre = montarCierre(m, reduce, (d) => viaje.irA(d));
   const vidaEsquemas = montarVidaEsquemas(reduce);
   // El acento vigente (core/acento.ts) se decide desde el reloj con el reparto de la galería.
   const acento = montarAcento(galeria);
@@ -170,6 +173,7 @@ function montar(self?: Scope): () => void {
     galeria.actualizar(proxy.currentTime);
     vidaEsquemas.actualizar(galeria.esquemaDe(proxy.currentTime));
     hero.actualizar(proxy.currentTime);
+    cierre.actualizar(proxy.currentTime);
     cabecera.actualizar(proxy.currentTime);
     fondo.actualizar(proxy.currentTime);
     pintarRotulo();
@@ -221,6 +225,7 @@ function montar(self?: Scope): () => void {
     colocar(proxy.currentTime);
     tema.actualizar(proxy.currentTime);
     acento.actualizar(proxy.currentTime);
+    cierre.actualizar(proxy.currentTime);
     cabecera.actualizar(proxy.currentTime);
     fondo.actualizar(proxy.currentTime);
   } else {
@@ -233,6 +238,7 @@ function montar(self?: Scope): () => void {
       ease: 'linear',
       onUpdate: () => {
         colocar(proxy.currentTime);
+        hero.actualizar(proxy.currentTime);     // suelta el lema partido en cuanto acaban sus letras
         cabecera.actualizar(proxy.currentTime); // la cabecera se activa a mitad de la intro
         pintarRotulo();
       },
@@ -265,6 +271,7 @@ function montar(self?: Scope): () => void {
     escena.revertir();
     vidaEsquemas.revertir();
     galeria.revertir();
+    cierre.revertir();
     acento.revertir();
     cabecera.revertir();
     fondo.revertir();

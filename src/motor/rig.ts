@@ -51,6 +51,7 @@ export interface PiezaRig {
   /** [valor, decimales] de la cifra que cuenta en el rótulo; sin ella el rótulo no lleva cota. */
   cota?: [number, number];
   nota: string;
+  corto?: string;
 }
 
 /** Un tubo de la corona. NO es un Object3D: la corona entera es UNA InstancedMesh (1 llamada de
@@ -254,6 +255,7 @@ export function construirRig(nivel: Calidad): Rig {
         titulo: p.titulo,
         cota: p.cota,
         nota: p.nota,
+        corto: p.corto,
       });
     }
     return salida;

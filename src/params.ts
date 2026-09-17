@@ -41,6 +41,14 @@ export const P = {
     // `power4.out` las formas llegan a escala 1,027 a los 2,5 s y a 1,000 a los 3,5 s, así que a
     // los 3,2 s de reloj (2,9 s después de INTRO_ON) el logo está visualmente quieto.
     texto: { delay: 2900, duration: 800, stagger: 150, y: 12 },
+    // EL LEMA SE ESCRIBE LETRA A LETRA (tanda 4, effects/hero.ts). El presupuesto manda: el texto
+    // empieza a los 3 200 ms y la intro por tiempo acaba a los 5 100, y lo que se pase cae en
+    // HERO_OUT y ya lo movería el scroll. Con 53 letras un escalón fijo no cabe, así que el escalón
+    // es un RANGO: la última letra arranca `rango` ms después de la primera, repartidas con
+    // `reparto`. Lema entero a los 3 200 + 700 + 600 = 4 500 ms, a la vez que acaba de encenderse el
+    // anillo del fondo (4 564): la presentación se lee como una sola acción.
+    // La nota y el enlace esperan `resto` ms: entran cuando el lema va por la mitad, no antes.
+    lema: { x: '0.35em', duracion: 600, rango: 700, ease: 'out(4)', reparto: 'inOut(2)', resto: 450 },
     // Cuánto del tramo HERO_OUT ocupa cada retirada, en tanto por uno. El texto se va un poco más
     // tarde que el logo: el logo despeja el centro y el texto se lo lleva mientras el motor sube.
     salidaTexto: 0.6,
@@ -223,6 +231,15 @@ export const P = {
       // Cuánto más allá del encendido completo aterrizan los enlaces a Proyectos: un margen para
       // que el suavizado del scroll no deje la vida a medio encender al llegar.
       aterrizaAire: 0.03,
+      // EL BRILLO DE LA BARRA (tanda 4): en los teléfonos bajos el esquema no se ve y la tarjeta se
+      // quedaba sin nada vivo. Un destello de `largo` (fracción de la barra) la recorre en `viaje`
+      // ms y vuelve a empezar SIN pausa, a propósito: con 250 ms de respiro y 1,7 s de viaje había
+      // segundos en que solo cambiaba el 0,23 % de la fila de abajo de la tarjeta (medido en el
+      // iPhone 13), y la tarjeta volvía a parecer una foto.
+      // `largo` 0,5 y con meseta (base.css): la barra mide 2 px y no admite halo (su destape la
+      // recorta), así que la señal tiene que salir de la propia barra; con 0,3 y sin meseta había
+      // segundos con el 0,27 % de la tarjeta cambiando.
+      brillo: { largo: 0.5, viaje: 1400, respiro: 0, ease: 'inOut(2)' },
     },
     // Qué fracción del tramo quieto de la tarjeta ocupa el DIBUJO del esquema. El resto queda para
     // la capa de vida. Con 1 (como estaba) el dibujo acababa cuando la tarjeta ya se iba, y no
@@ -313,6 +330,21 @@ export const P = {
       enter: 'bottom top',   // el borde inferior de la ventana toca el borde superior del pie: asoma
       leave: 'center top',   // el borde superior del pie llega al centro de la ventana: ya está entero
     },
+    origen: 'propio',
+  },
+
+  // EL CIERRE (effects/cierre.ts, tanda 4): la frase del despegue, en fracciones del tramo CIERRE.
+  // Entra con el penacho (PM.coreo.cierre.penacho empieza en 0,14) y la última pieza acaba de
+  // entrar en 0,10 + 0,03·2 + 0,13 = 0,29; se va y la última acaba en 0,59 + 0,02·2 + 0,10 = 0,73,
+  // antes del fundido a negro (0,74). Entre medias, casi la mitad del tramo, quieta y legible.
+  cierre: {
+    entra: 0.1,
+    pieza: 0.13,         // lo que tarda en entrar cada pieza (titular, frase, enlace)
+    escalon: 0.03,
+    sale: 0.59,
+    piezaSalida: 0.1,
+    escalonSalida: 0.02,
+    y: 24,               // px que sube cada pieza al entrar (y otros tantos al irse)
     origen: 'propio',
   },
 

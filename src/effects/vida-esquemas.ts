@@ -46,6 +46,21 @@ import { finDelDibujo, type EstadoEsquema } from './galeria';
 // Al encenderse, restart() y no play(): el foco empieza en la primera caja, no a medio salto.
 // Y solo si el esquema está visible: por debajo de cierta ventana `base.css` lo esconde con
 // `display: none` y animar sería gastar batería para nadie. Con movimiento reducido no se crea nada.
+//
+// EL BRILLO DE LA BARRA (tanda 4). Donde el esquema está oculto —en vertical por debajo de 900 px
+// de alto: iPhone 13, Pixel 5, 360x640— la tarjeta cambiaba el 0 % de sus píxeles por segundo con
+// el scroll parado, que es justo lo que esta capa vino a arreglar en escritorio. Ahí se ve la barra
+// `.avance`, así que la vida va en ella: un destello que la recorre. Reglas:
+//   · va en un HIJO nuevo (<span class="brillo">): el scaleX de la barra es del maestro. Como es
+//     hijo, se escala con ella y solo recorre lo que la barra ya ha avanzado;
+//   · se enciende con la MISMA regla que la vida del esquema (proporción a lo trazado), pero
+//     preguntando por la caja de la barra y no por la del svg. Las dos cajas no existen a la vez
+//     (base.css), así que en cada ventana corre una sola de las dos vidas;
+//   · su opacidad es suya; la de la barra la lleva galeria.ts con la captura, y se multiplican. Y
+//     sigue encendido mientras la barra se va (`soloBarra`): la barra se va con la captura, más
+//     tarde que el esquema, y apagarlo con el esquema lo cortaba en seco con la barra a 2/3.
+//   · lo que lo mantiene dentro de lo avanzado es el recorte de la barra (su clip-path de destape,
+//     galeria.ts, y su overflow en base.css), no solo la escala.
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -56,14 +71,19 @@ export interface VidaEsquemas {
   revertir(): void;
 }
 
+/** Una vida que se enciende y se apaga: su nodo, sus bucles y lo último escrito. */
+interface Capa {
+  barra: boolean;       // la del brillo (sigue encendida mientras la barra se va) o la del esquema
+  el: HTMLElement | SVGElement;
+  caja: Element;        // de quién se pregunta si tiene caja (el svg, o la barra)
+  bucles: JSAnimation[];
+  opacidad: string;     // la última escrita, para no ensuciar el estilo en cada fotograma
+  corriendo: boolean;
+}
+
 interface Vivo {
   indice: number;       // posición de su tarjeta en la galería, la misma que usa esquemaDe()
-  tarjeta: Element;
-  opacidad: string;     // la última escrita, para no ensuciar el estilo en cada fotograma
-  svg: SVGSVGElement;
-  grupo: SVGGElement;
-  bucles: JSAnimation[];
-  corriendo: boolean;
+  capas: Capa[];        // la del esquema y la del brillo de la barra, si las hay
 }
 
 /** La caja de un <rect> del esquema, en unidades del viewBox (no en píxeles de pantalla). */
@@ -154,14 +174,44 @@ function verticesDeRuta(svg: SVGSVGElement): [number, number][] {
   return puntos;
 }
 
+/** EL BRILLO: un destello que recorre la barra de avance, en bucle. */
+function brillo(barra: HTMLElement): { el: HTMLElement; anim: JSAnimation } {
+  const B = P.galeria.vida.brillo;
+  const el = document.createElement('span');
+  el.className = 'brillo';
+  el.setAttribute('aria-hidden', 'true');
+  el.style.width = `${B.largo * 100}%`;
+  barra.append(el);
+  // En % de su PROPIO ancho: de fuera por la izquierda (-100 %) a fuera por la derecha (1 / largo).
+  const fin = `${(100 / B.largo).toFixed(2)}%`;
+  const anim = animate(el, {
+    x: ['-100%', fin],
+    duration: B.viaje,
+    ease: B.ease,
+    loop: true,
+    loopDelay: B.respiro,
+    autoplay: false,
+  });
+  return { el, anim };
+}
+
 export function montarVidaEsquemas(reduce: boolean): VidaEsquemas {
   const vivos: Vivo[] = [];
   if (reduce) return { actualizar() {}, revertir() {} };
 
   const tarjetas = Array.from(document.querySelectorAll('#galeria-tarjetas .tarjeta'));
   for (const [indice, tarjeta] of tarjetas.entries()) {
+    const capas: Capa[] = [];
+    const barra = tarjeta.querySelector<HTMLElement>('.avance');
+    if (barra) {
+      const b = brillo(barra);
+      capas.push({ barra: true, el: b.el, caja: barra, bucles: [b.anim], opacidad: '', corriendo: false });
+    }
     const svg = tarjeta.querySelector('svg.esquema') as SVGSVGElement | null;
-    if (!svg) continue;
+    if (!svg) {
+      if (capas.length) vivos.push({ indice, capas });
+      continue;
+    }
     const nombre = svg.dataset.esquema ?? '';
     const grupo = document.createElementNS(NS, 'g');
     grupo.setAttribute('class', 'vida');
@@ -182,32 +232,36 @@ export function montarVidaEsquemas(reduce: boolean): VidaEsquemas {
         break;
       case 'correlacion': empujar(chispa(grupo, verticesDeRuta(svg), 0)); break;
     }
-    if (!bucles.length) { grupo.remove(); continue; }
-    vivos.push({ indice, tarjeta, svg, grupo, bucles, corriendo: false, opacidad: '' });
+    if (bucles.length) capas.push({ barra: false, el: grupo, caja: svg, bucles, opacidad: '', corriendo: false });
+    else grupo.remove();
+    if (capas.length) vivos.push({ indice, capas });
   }
 
   return {
-    actualizar({ i, f }: EstadoEsquema): void {
+    actualizar({ i, f, soloBarra }: EstadoEsquema): void {
       const desde = finDelDibujo();
       const largo = P.galeria.vida.entraLargo;
+      const kTarjeta = f >= 0 ? Math.min(1, Math.max(0, (f - desde) / largo)) : 0;
       for (const v of vivos) {
-        let k = 0;
-        // `display: none` en móvil no da caja: ahí no se enciende nada.
-        if (v.indice === i && f >= 0 && v.svg.getClientRects().length > 0) {
-          k = Math.min(1, Math.max(0, (f - desde) / largo));
+        for (const c of v.capas) {
+          let k = 0;
+          // `display: none` no da caja: el esquema en los teléfonos bajos, la barra en el resto.
+          if (v.indice === i && kTarjeta > 0 && (c.barra || !soloBarra) && c.caja.getClientRects().length > 0) k = kTarjeta;
+          const op = k.toFixed(3);
+          if (op !== c.opacidad) { c.el.style.opacity = op; c.opacidad = op; }
+          const debe = k > 0;
+          if (debe === c.corriendo) continue;
+          c.corriendo = debe;
+          for (const b of c.bucles) (debe ? b.restart() : b.pause());
         }
-        const op = k.toFixed(3);
-        if (op !== v.opacidad) { v.grupo.style.opacity = op; v.opacidad = op; }
-        const debe = k > 0;
-        if (debe === v.corriendo) continue;
-        v.corriendo = debe;
-        for (const b of v.bucles) (debe ? b.restart() : b.pause());
       }
     },
     revertir(): void {
       for (const v of vivos) {
-        for (const b of v.bucles) b.revert();
-        v.grupo.remove();
+        for (const c of v.capas) {
+          for (const b of c.bucles) b.revert();
+          c.el.remove();
+        }
       }
       vivos.length = 0;
     },

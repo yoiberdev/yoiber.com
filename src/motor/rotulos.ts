@@ -109,6 +109,28 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
     // a la de abajo. El lado deja de importar porque no hay columnas laterales.
     ranuraCompacta.push(pieza.movil ? nCompacto++ : -1);
   }
+  // LA FICHA DE COMPACTO: una fila por cota, cifra arriba y etiqueta corta debajo. Sin guías y con
+  // el `t` de su pieza (PM.rotulos.ficha). La hoja la enseña solo con `.compacto`.
+  const ficha = document.createElement('div');
+  ficha.className = 'motor-ficha';
+  ficha.style.top = `${PM.rotulos.ficha.arriba * 100}%`;
+  const filas: ({ el: HTMLElement; cifra: HTMLElement; valor: number; dec: number; ancho: number } | null)[] = [];
+  for (const pieza of rig.piezas) {
+    if (!pieza.cota) { filas.push(null); continue; }
+    const fila = document.createElement('div');
+    fila.className = 'fila';
+    const c = document.createElement('i');
+    const [valor, dec] = pieza.cota;
+    const anchoCifra = cifra(valor, dec).length;
+    c.textContent = FIG.repeat(Math.max(0, anchoCifra - cifra(0, dec).length)) + cifra(0, dec);
+    const e = document.createElement('span');
+    e.textContent = pieza.corto ?? pieza.titulo;
+    fila.append(c, e);
+    ficha.append(fila);
+    filas.push({ el: fila, cifra: c, valor, dec, ancho: anchoCifra });
+  }
+  capa.append(ficha);
+  const ultimaFila = rig.piezas.map(() => ({ op: '', tr: '', ct: '' }));
   host.append(capa);
   // cuántas ranuras compactas van en la banda de arriba (el resto, abajo)
   const mitad = Math.min(PM.rotulos.enBandaAlta, nCompacto);
@@ -159,6 +181,29 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
   }
   medir();
 
+  // La cifra con relleno de ancho fijo (ver `cifra`), contada hasta la fracción k de su valor.
+  function contada(valor: number, dec: number, ancho: number, k: number): string {
+    const txt = cifra(valor * k, dec);
+    return txt.length >= ancho ? txt : FIG.repeat(ancho - txt.length) + txt;
+  }
+
+  // La ficha: solo en compacto (la hoja la oculta fuera). Misma entrada que el texto de un rótulo.
+  function aplicarFicha(): void {
+    for (let i = 0; i < filas.length; i++) {
+      const f = filas[i];
+      if (!f) continue;
+      const u = ultimaFila[i];
+      const opN = Math.max(0, (estado.rotulos[i].t - PM.rotulos.dibujo) / (1 - PM.rotulos.dibujo));
+      const op = opN.toFixed(3);
+      if (op !== u.op) f.el.style.opacity = u.op = op;
+      const tr = `translateX(${((1 - opN) * PM.rotulos.ficha.entra).toFixed(1)}px)`;
+      if (tr !== u.tr) f.el.style.transform = u.tr = tr;
+      const k = 1 - (1 - opN) * (1 - opN) * (1 - opN);
+      const ct = contada(f.valor, f.dec, f.ancho, k);
+      if (ct !== u.ct) f.cifra.textContent = u.ct = ct;
+    }
+  }
+
   function aplicar(): void {
     let algo = false;
     for (let i = 0; i < estado.rotulos.length; i++) {
@@ -169,6 +214,7 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
       return;
     }
     if (!visible) { capa.hidden = false; visible = true; medirTextos(); }
+    if (compacto) aplicarFicha();
 
     for (let i = 0; i < rig.piezas.length; i++) {
       const pieza = rig.piezas[i];
@@ -277,8 +323,7 @@ export function montarRotulos(rig: Rig, estado: Estado, host: HTMLElement): Rotu
       const cota = cotas[i];
       if (cota) {
         const k = 1 - (1 - opN) * (1 - opN) * (1 - opN);
-        const txt = cifra(cota.valor * k, cota.dec);
-        const pad = txt.length >= cota.ancho ? txt : FIG.repeat(cota.ancho - txt.length) + txt;
+        const pad = contada(cota.valor, cota.dec, cota.ancho, k);
         if (pad !== u.ct) cota.el.textContent = u.ct = pad;
       }
       const tr = `translate(${lado < 0 ? '0' : '-100'}%, -50%) translate3d(${bx.toFixed(1)}px, ${by.toFixed(1)}px, 0)`;

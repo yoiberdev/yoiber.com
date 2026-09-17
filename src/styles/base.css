@@ -163,6 +163,13 @@ html.js:not(.is-ready) .capa, html.js:not(.is-ready) #cabecera { visibility: hid
    la nota en gris, y el enlace en mono y mayúsculas. Los anchos en ch para que el lema no pase de
    dos líneas ni la nota de tres en ninguna ventana. */
 #lema, #nota, #bajar { position: relative; z-index: 1; }
+/* El lema partido en letras (effects/hero.ts). Las letras siguen EN LÍNEA (el texto se parte igual
+   que sin partir, con su balance) y entran con `left`, que en una caja en línea sí se aplica con
+   posición relativa. La copia oculta que deja splitText para los lectores de pantalla no se puede
+   seleccionar: si no, al copiar la página la frase salía dos veces. */
+#lema [data-char] { position: relative; }
+#lema.partido { white-space: nowrap; }   /* solo corta en los <br> que pone hero.ts */
+#lema > span:not([data-word]) { -webkit-user-select: none; user-select: none; }
 #lema { margin: var(--lema-arriba) auto 0; max-width: 28ch; font-size: clamp(1.25rem, 2.6vw, 1.75rem); font-weight: 500; line-height: 1.25; letter-spacing: -0.01em; color: var(--fg); text-wrap: balance; }
 #nota { margin: 1rem auto 0; max-width: 46ch; font-size: 1rem; line-height: 1.5; color: var(--muted); }
 #bajar {
@@ -327,7 +334,16 @@ html.motor-on #stage { opacity: 0; }
    de abajo, o sea exactamente donde el esquema está oculto; en escritorio, en ventanas bajas y en
    teléfonos altos manda el esquema y la barra no existe. Sin transición: quien escribe es el
    maestro, y una transición CSS encima haría que el valor medido llegara tarde. */
-.tarjeta .avance { display: none; height: 2px; background: var(--acento); transform-origin: left center; }
+.tarjeta .avance { display: none; position: relative; overflow: hidden; height: 2px; background: var(--acento); transform-origin: left center; }
+/* EL BRILLO que recorre la barra con el scroll parado (effects/vida-esquemas.ts, tanda 4). Hijo de la
+   barra: se escala con ella y el `overflow` de la barra lo deja dentro de lo avanzado (su recorrido
+   va del −30 % al 130 %). Un destello en el color del texto, sin halo: un halo difuminado por
+   encima y por debajo lo recortaba igualmente el destape de la barra (galeria.ts) y solo costaba un
+   filtro por fotograma. La opacidad la escribe el módulo, sin transición. */
+.tarjeta .avance .brillo {
+  position: absolute; top: 0; left: 0; height: 100%; opacity: 0; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--fg) 30%, var(--fg) 70%, transparent);
+}
 
 /* Ventanas bajas (portátiles de 13 pulgadas, o el navegador con barras): el párrafo técnico es lo
    primero que sobra. Qué es, con qué está hecho y el enlace tienen que caber siempre. */
@@ -435,6 +451,64 @@ html.motor-on #stage { opacity: 0; }
      dos relojes. Manda el esquema, que dice ADEMÁS de qué va el proyecto. */
   .tarjeta .avance { display: none; }
 }
+
+/* EL CIERRE (effects/cierre.ts): la frase del despegue. Oculta salvo en su tramo (`activa`, por
+   tiempo del maestro), y sin el módulo no aparece nunca. La opacidad y la `y` de las piezas las
+   escribe el maestro. En apaisado va en la columna libre de la izquierda: el motor del despegue
+   mide la mitad del alto de ancho y va centrado, así que queda 50vw − 26vh a cada lado. */
+/* z-index 2: sin 3D, la lista de piezas (fija, z-index 2 y con eventos a partir de 900 px) queda en
+   la columna izquierda aunque esté a opacidad 0, y se llevaba el clic de «Hablemos». La capa va
+   después en el documento, así que con el mismo índice queda encima; y por debajo del pie (3). */
+#cierre-capa { pointer-events: none; visibility: hidden; z-index: 2; }
+#cierre-capa.activa { visibility: visible; }
+/* TOPE DE ALTO en todas las disposiciones, con scroll propio: con la letra del navegador agrandada
+   (20, 24 o 32 px) la placa crecía sin límite, tapaba el penacho o el titular y dejaba el enlace
+   fuera de la pantalla. En rem, para que el tope crezca con la letra igual que el titular. */
+.cierre-texto {
+  position: absolute; left: 2rem; top: 50%; translate: 0 -50%;
+  width: min(24rem, calc(50vw - 26vh - 5rem)); pointer-events: auto;
+  max-height: calc(100vh - 17rem); overflow-y: auto; overscroll-behavior: contain;
+}
+.cierre-texto h2 { margin: 0; font-size: clamp(1.5rem, 2.6vw, 2.25rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; color: var(--fg); text-wrap: balance; }
+.cierre-texto p { margin: 0.9rem 0 0; font-size: 1rem; line-height: 1.5; color: var(--muted); }
+.cierre-texto a {
+  display: inline-block; margin-top: 1.5rem; padding-bottom: 0.2rem;
+  font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--acento-ui);
+}
+.cierre-texto a:focus-visible { outline: 2px solid var(--acento-ui); outline-offset: 4px; }
+.cierre-texto .flecha { display: inline-block; margin-left: 0.35em; animation: vaiven 1.6s ease-in-out infinite; }
+/* LA PLACA: donde el motor pasa por detrás del texto, un fondo del color de la página con los
+   bordes de arriba y de abajo fundidos (con un canto duro el motor parecía cortado a tijera). */
+@media (max-aspect-ratio: 5/4), (max-width: 899px) {
+  .cierre-texto {
+    padding: 1.1rem 1.25rem 1.2rem;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    -webkit-mask-image: linear-gradient(transparent, #000 0.8rem, #000 calc(100% - 0.8rem), transparent);
+    mask-image: linear-gradient(transparent, #000 0.8rem, #000 calc(100% - 0.8rem), transparent);
+  }
+}
+/* EN VERTICAL (o casi) el motor ocupa todo el ancho y el penacho la mitad de abajo: la placa va
+   arriba, bajo el titular, a todo el ancho. */
+@media (max-aspect-ratio: 5/4) {
+  /* hasta el 55 % del alto, que es donde empieza el penacho en el despegue */
+  .cierre-texto { top: 10rem; left: 1.25rem; right: 1.25rem; translate: none; width: auto; max-width: 30rem; max-height: calc(55vh - 11rem); }
+  .cierre-texto h2 { font-size: clamp(1.3rem, 5.5vw, 1.75rem); }
+  .cierre-texto p { font-size: 0.95rem; }
+}
+/* En compacto el titular va arriba a la DERECHA y acaba a 4,75 rem: la placa arranca debajo. */
+@media (max-aspect-ratio: 5/4) and (max-width: 899px) { .cierre-texto { top: 6.25rem; max-height: calc(55vh - 7.25rem); } }
+/* UN TELÉFONO TUMBADO: el alto no da para una placa arriba (se comía el penacho, medido a 664x390),
+   pero el motor es estrecho y deja la columna de la izquierda. La misma columna que en escritorio,
+   con la placa y la letra más pequeña. */
+@media (min-aspect-ratio: 5/4) and (max-width: 899px) {
+  .cierre-texto { left: 1rem; width: calc(50vw - 26vh - 1.5rem); padding: 0.8rem 0.9rem 0.9rem; max-height: calc(100vh - 8rem); }
+  .cierre-texto h2 { font-size: 1.15rem; }
+  .cierre-texto p { margin-top: 0.5rem; font-size: 0.82rem; line-height: 1.4; }
+  .cierre-texto a { margin-top: 0.8rem; font-size: 0.72rem; }
+}
+@media (prefers-reduced-motion: reduce) { .cierre-texto .flecha { animation: none; } }
 
 /* EL TITULAR DE CAPÍTULO (effects/titulo.ts). Fijo arriba a la izquierda, el nombre grande y el
    contador de la galería debajo, en mono. Antes era un rótulo de 0,85 rem en mayúsculas abajo a
@@ -630,20 +704,45 @@ html:not(.motor-on) .lista-piezas .dos-puntos { position: absolute; width: 1px; 
 /* La cota: la cifra que cuenta al entrar el rótulo (motor/rotulos.ts). Va en el color del título,
    no en el de la nota, porque es el dato; y en cifras tabulares para que no baile al contar. */
 .motor-rotulo i { font-style: normal; color: var(--fg); font-variant-numeric: tabular-nums; }
-@media (max-width: 899px) {
-  /* En compacto los rótulos van en dos bandas, arriba y abajo, no en columnas: hay ancho de sobra
-     para el título completo y ninguno se sale por el borde. */
-  .motor-rotulo { max-width: 60vw; }
-  .motor-rotulo b { font-size: 0.72rem; }
-  .motor-rotulo span { display: none; }
-  .motor-rotulos.compacto .motor-rotulo.lado-der { text-align: left; }
+/* LA FICHA DE COMPACTO (motor/rotulos.ts, tanda 4): las nueve cifras del despiece en una columna
+   pegada al borde derecho, sin guías. Solo existe en compacto; el `top` lo pone el módulo. */
+.motor-ficha { display: none; }
+.motor-rotulos.compacto .motor-ficha {
+  position: absolute; right: 4.5%; display: flex; flex-direction: column; align-items: flex-end;
+  gap: 0.45rem; text-align: right;
 }
+.motor-ficha .fila { opacity: 0; line-height: 1.15; will-change: transform, opacity; }
+.motor-ficha i { display: block; font-style: normal; font-size: 0.8rem; font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
+.motor-ficha span { display: block; max-width: 5rem; font-size: 0.62rem; color: var(--muted-2); }
+/* 5 rem de tope: la ficha se queda en ~80 px de ancho. Con las etiquetas largas en una línea medía
+   97 y, a 393x851, el brazo de la turbobomba llegaba a 2 px de ella al girar el despiece (COMO
+   0,30). Las etiquetas son cortas para que partan poco («rpm turbobomba», «contracción»). */
+/* CON EL TELÉFONO TUMBADO nueve filas no caben en 390 px de alto (la última se salía por abajo y la
+   primera tocaba el titular): la ficha pasa a una rejilla de DOS columnas, a la derecha del
+   despiece y bajo el titular. Con tres, la primera columna tocaba el brazo de la turbobomba. */
+@media (min-aspect-ratio: 1/1) {
+  .motor-rotulos.compacto .motor-ficha {
+    display: grid; grid-template-columns: repeat(2, auto); column-gap: 1.1rem; row-gap: 0.3rem;
+    margin-top: 1.25rem; justify-items: end;
+  }
+}
+/* En compacto los rótulos van en dos bandas, arriba y abajo, no en columnas: hay ancho de sobra
+   para el título completo y ninguno se sale por el borde. Con la CLASE `.compacto` y no con una
+   media query: rotulos.ts decide con el ancho del lienzo (sin la barra de desplazamiento) y la media
+   query mide la ventana con ella; entre 900 y 914 px, con barras clásicas, salían a la vez la ficha
+   y los rótulos con su nota, y las cotas repetidas. */
+.motor-rotulos.compacto .motor-rotulo { max-width: 60vw; }
+.motor-rotulos.compacto .motor-rotulo b { font-size: 0.72rem; }
+.motor-rotulos.compacto .motor-rotulo span { display: none; }
+.motor-rotulos.compacto .motor-rotulo.lado-der { text-align: left; }
 
 /* EL PIE (effects/pie.ts). En flujo después de #capitulos, y por encima de las capas fijas: todas
    van con z-index auto y este bloque con 3, así que cuando el maestro se acaba el pie las tapa,
    fondo incluido (el fondo opaco es lo que impide que un clic en un hueco caiga en .intro, que
    sigue fija en el centro con pointer-events: auto). Solo la cabecera (z-index 4) queda por
    encima. min-height 100lvh: el último tramo del scroll es el pie entero, no una franja. */
+/* tabindex -1: la salida del cierre le pasa el foco (effects/cierre.ts); no necesita anillo. */
+#pie:focus { outline: none; }
 #pie {
   position: relative; z-index: 3;
   min-height: 100vh; min-height: 100lvh;

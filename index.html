@@ -205,12 +205,27 @@
       <section id="cierre" data-label="CIERRE" data-chapter="cierre"></section>
     </div>
 
+    <!-- EL CIERRE (effects/cierre.ts). La frase que entra con el penacho del despegue y se va antes
+         del fundido a negro, con UNA salida: al contacto del pie.
+         FRASE PROVISIONAL, inventada para ocupar el sitio hasta que Yoiber escriba la suya: se
+         cambia aquí y nada más (el módulo anima lo que haya dentro de .cierre-texto). Sin módulo
+         la capa no se ve (base.css): el contacto sigue en el pie.
+         ANTES del pie en el documento a propósito: con el teclado, «Hablemos» llega antes que los
+         enlaces del pie (el pie está en flujo y el navegador saltaba a él con el primer Tab). -->
+    <div id="cierre-capa" class="capa">
+      <div class="cierre-texto">
+        <h2>¿Tu proyecto tiene que despegar?</h2>
+        <p>Lo diseño, lo construyo y me quedo hasta que funcione solo.</p>
+        <a href="#pie" data-ir="contacto">Hablemos <span class="flecha" aria-hidden="true">↓</span></a>
+      </div>
+    </div>
+
     <!-- EL PIE. En flujo, después de los espaciadores: cuando el maestro se acaba (el motor ya se
          ha fundido con el fondo al final de CIERRE) el pie sube por encima de todas las capas fijas
          menos la cabecera, que se queda también aquí.
          Sus bloques entran con el scroll desde effects/pie.ts, fuera del maestro. Los cinco
          proyectos son los mismos que las tarjetas, con el mismo enlace de cada .acceso. -->
-    <footer id="pie">
+    <footer id="pie" tabindex="-1">
       <div class="pie-bloque pie-cabecera">
         <h2>Yoiber</h2>
         <p class="que">Backend en Python y Node, interfaces en React y TypeScript, y máquinas Linux muy lejos de cualquier teclado.</p>

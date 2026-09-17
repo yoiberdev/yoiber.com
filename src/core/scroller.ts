@@ -46,7 +46,9 @@ export interface Scroller {
   tiempoParaPx(px: number): number;
   /** El tiempo que corresponde al scroll de ahora mismo: adonde va el proxy. */
   objetivo(): number;
-  /** true cuando el proxy ha llegado al objetivo y el suavizado está parado. */
+  /** true cuando el proxy ha llegado al objetivo y el suavizado está parado. Durante un viaje
+   *  (modo clavado) nunca: el proxy alcanza el scroll en cada tic y el suavizado se para entre dos
+   *  fotogramas, pero la página no está quieta. */
   quieto(): boolean;
   /** scrollY / maxScroll, crudo y sin suavizar: es lo que sigue el cursor de la sub-nav. */
   progreso(): number;
@@ -75,7 +77,7 @@ export function crearScroller(m: Maestro, proxy: Proxy, alActualizar: () => void
     pxParaTiempo,
     tiempoParaPx,
     objetivo: () => tiempoParaPx(window.scrollY),
-    quieto: () => persecucion.paused,
+    quieto: () => persecucion.paused && !clavado,
     progreso: () => utils.clamp(window.scrollY / estado.maxScroll, 0, 1),
     exacto: (si) => {
       if (si && !clavado) clavadoDesde = performance.now();

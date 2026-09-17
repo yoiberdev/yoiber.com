@@ -43,8 +43,10 @@ import { montarEsquema } from './esquemas';
 
 /** Qué esquema está en pantalla (`i`, o -1) y en qué punto (`f`): -1 mientras la tarjeta entra,
  *  de 0 a 1 a lo largo de su tramo quieto, y 1 mientras el esquema se va (la vida se queda
- *  encendida y se funde CON él, porque es hija suya y hereda su opacidad del maestro). */
-export interface EstadoEsquema { i: number; f: number }
+ *  encendida y se funde CON él, porque es hija suya y hereda su opacidad del maestro).
+ *  `soloBarra`: el esquema ya se fue pero la captura (y su barra de avance) aún se está yendo; el
+ *  brillo de la barra sigue a 1 y se funde con ella por el mismo motivo. */
+export interface EstadoEsquema { i: number; f: number; soloBarra?: boolean }
 
 export interface Galeria {
   actualizar(tiempo: number): void;
@@ -166,7 +168,8 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
     const [a, b] = G.quieto(i);
     if (tiempo < a || b <= a) return { i, f: -1 };
     if (tiempo <= b) return { i, f: (tiempo - a) / (b - a) };
-    return tiempo <= G.esquemaFuera(i) ? { i, f: 1 } : { i: -1, f: -1 };
+    if (tiempo <= G.esquemaFuera(i)) return { i, f: 1 };
+    return tiempo <= G.capturaFuera(i) ? { i, f: 1, soloBarra: true } : { i: -1, f: -1 };
   };
 
   let viva = -1;
