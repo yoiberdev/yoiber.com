@@ -1,13 +1,13 @@
 import '@fontsource-variable/space-grotesk';
 import '@fontsource-variable/jetbrains-mono';
-import '../styles/caso.css';
+import '../styles/pagina.css';
 import { animate, createDrawable, createMotionPath, createTimeline, stagger, utils, type JSAnimation } from 'animejs';
 
 // EL RECORRIDO DE LA SEÑAL (caso marítimo)
 // ================================================================================================
 // El diagrama de /root/trabajos/dss-diagrama traído al sitio: mismo relato y mismos tiempos, pero
 // con la copia de Anime.js que ya usa la página (una dependencia, un solo paquete con hash) y con
-// los colores de la casa (styles/caso.css). La escena se construye de izquierda a derecha, los
+// los colores de la casa (styles/pagina.css). La escena se construye de izquierda a derecha, los
 // paquetes circulan en bucles propios y cada pocos segundos el enlace se CAE: el trazo del SRT se
 // recorta, se pone rojo y se recompone. Ese es el problema del proyecto y por eso está animado.
 //

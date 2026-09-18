@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f1e1d" />
+    <title>Hablemos · Yoiber</title>
+    <meta name="description" content="Escríbeme: sistemas a medida, dispositivos en campo, interfaces para datos en vivo. Formulario directo o correo a yoiberdev@gmail.com." />
+    <link rel="canonical" href="https://yoiber.com/contacto/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://yoiber.com/contacto/" />
+    <meta property="og:site_name" content="Yoiber" />
+    <meta property="og:title" content="Hablemos · Yoiber" />
+    <meta property="og:description" content="Sistemas a medida, dispositivos en campo e interfaces para datos en vivo. Cuéntame qué necesitas." />
+    <meta property="og:image" content="https://yoiber.com/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Monograma de Yoiber junto al texto «yoiberdev, desarrollador de software»" />
+    <meta property="og:locale" content="es_PE" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://yoiber.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Contacto" }
+          ]
+        },
+        {
+          "@type": "ContactPage",
+          "@id": "https://yoiber.com/contacto/#pagina",
+          "url": "https://yoiber.com/contacto/",
+          "name": "Hablemos",
+          "inLanguage": "es",
+          "isPartOf": { "@id": "https://yoiber.com/#sitio" },
+          "dateModified": "%FECHA_PUBLICACION%",
+          "mainEntity": { "@id": "https://yoiber.com/#yoiber" }
+        }
+      ]
+    }
+    </script>
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script defer src="/stats.js" data-website-id="e6fa5fba-eca9-4a8c-86c0-3d2f4f4f61cc" data-host-url="/stats"></script>
+    <script type="module" src="/src/contacto/contacto.ts"></script>
+  </head>
+  <body>
+    <nav class="barra" aria-label="Volver">
+      <a href="/">
+        <svg viewBox="0 0 439 523" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path class="mono-a" d="M204.77 0C235.539 0 254.787 33.2885 239.437 59.9551L141.891 229.411L8.98075 65.1621C-12.183 39.0082 6.43132 0.000141945 40.0755 0H204.77Z" />
+          <path class="mono-b" d="M218.56 324.158C236.233 345.998 270.324 343.292 284.33 318.938L287.17 314H287.248L178.507 502.841C171.367 515.239 158.15 522.881 143.844 522.881H41.9276C11.1516 522.881 -8.09548 489.579 7.26839 462.912L141.839 229.348L218.56 324.158Z" />
+          <path class="mono-c" d="M398.846 0.0380859C400.995 0.0380805 403.088 0.200518 405.117 0.511719C431.98 4.79989 447.501 35.2121 433.279 59.9414L284.33 318.938C270.324 343.292 236.234 345.998 218.561 324.158L141.84 229.347L262.418 20.0693C269.559 7.67596 282.774 0.0390986 297.077 0.0390625L398.846 0.0380859Z" />
+        </svg>
+        <span class="vuelta">← yoiber.com</span>
+      </a>
+    </nav>
+
+    <main class="escena">
+      <header>
+        <p class="kicker">Contacto</p>
+        <h1>Hablemos</h1>
+        <p class="entradilla">
+          Sistemas de gestión a medida, dispositivos que trabajan lejos de la oficina e interfaces
+          para mirar datos en vivo. <b>Cuéntame qué tienes y qué te falta</b>: si no es lo mío, te lo
+          digo y te ahorro el tiempo.
+        </p>
+      </header>
+
+      <form class="formulario" id="formulario-contacto" novalidate>
+        <div class="campo">
+          <label for="nombre">Tu nombre</label>
+          <input id="nombre" name="nombre" type="text" maxlength="80" autocomplete="name" required />
+        </div>
+        <div class="campo">
+          <label for="correo">Tu correo</label>
+          <input id="correo" name="correo" type="email" maxlength="120" autocomplete="email" required />
+          <span class="ayuda">Solo lo uso para contestarte.</span>
+        </div>
+        <div class="campo">
+          <label for="mensaje">Qué necesitas</label>
+          <textarea id="mensaje" name="mensaje" maxlength="2000" required></textarea>
+        </div>
+        <!-- El señuelo: fuera de la vista y del tabulador. Si viene relleno, es un robot. -->
+        <div class="trampa" aria-hidden="true">
+          <label for="pagina-web">No rellenar</label>
+          <input id="pagina-web" name="trampa" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+        <button type="submit">Enviar</button>
+        <p class="estado" id="estado-envio" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="gracias" id="gracias" tabindex="-1" hidden>
+        <h2>Mensaje enviado</h2>
+        <p>Te contesto al correo que dejaste. Si no ves nada en un par de días, mira en la carpeta de
+        no deseados o escríbeme directo a <a href="mailto:yoiberdev@gmail.com">yoiberdev@gmail.com</a>.</p>
+      </div>
+
+      <h2>O por donde prefieras</h2>
+      <ul class="vias">
+        <li><span class="etiqueta">Correo</span><a href="mailto:yoiberdev@gmail.com">yoiberdev@gmail.com</a></li>
+        <li><span class="etiqueta">GitHub</span><a href="https://github.com/yoiberdev" target="_blank" rel="noopener">github.com/yoiberdev</a></li>
+        <li><span class="etiqueta">LinkedIn</span><a href="https://www.linkedin.com/in/yoiberdev/" target="_blank" rel="noopener">linkedin.com/in/yoiberdev</a></li>
+      </ul>
+
+      <section class="cierre">
+        <h2>Antes de escribir, si quieres verme trabajar</h2>
+        <p>
+          Tres sistemas contados por dentro: <a href="/casos/videovigilancia-maritima/">vídeo en
+          directo desde barcos</a>, <a href="/casos/erp-centro-de-terapias/">el ERP de un centro de
+          terapias</a> y <a href="/casos/gestion-de-campo-embarcaciones/">la gestión de campo en
+          embarcaciones</a>. En la <a href="/">portada</a> están además las demos que se pueden abrir
+          y tocar.
+        </p>
+      </section>
+
+      <footer class="pie-caso">
+        <p>
+          Lo que escribas me llega por correo y ahí se queda: no se guarda en ninguna base de datos
+          ni se usa para nada más. Esta web no pone cookies.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

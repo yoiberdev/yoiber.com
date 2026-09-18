@@ -1,6 +1,7 @@
-/* LA PÁGINA DE UN CASO. Es una página aparte de la portada (casos/<slug>/index.html, su propia
-   entrada en vite.config.ts): sin motor 3D, sin línea de tiempo atada al scroll y sin GSAP. Solo
-   texto, un diagrama animado y los mismos colores, tipografías y voz que yoiber.com.
+/* LAS PÁGINAS DE DENTRO: los casos (casos/<slug>/) y el contacto (contacto/). Cada una es una
+   página aparte de la portada, con su propia entrada en vite.config.ts: sin motor 3D, sin línea de
+   tiempo atada al scroll y sin GSAP. Solo texto, alguna imagen o diagrama, y los mismos colores,
+   tipografías y voz que yoiber.com.
 
    POR QUÉ NO REUTILIZA base.css: esa hoja son 700 líneas de una página de una sola pantalla con
    capas fijas, galería y despiece. Aquí se copian los seis tokens de color y ya. Si cambian allí,
@@ -199,3 +200,42 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
 .lecciones { margin: 1.25rem 0 0; padding: 0 0 0 1.1rem; max-width: 68ch; }
 .lecciones li { margin: 0 0 0.9rem; color: var(--muted); line-height: 1.65; }
 .lecciones li b { color: var(--fg); font-weight: 600; }
+
+/* ---------- el formulario de contacto ---------- */
+/* OJO: `[hidden]` lo pinta el navegador con `display:none`, pero es una regla suya y CUALQUIER
+   selector de clase la gana. Sin esto, al enviar el mensaje el formulario seguía a la vista debajo
+   del acuse (se vio en la prueba con navegador, no en la revisión del código). */
+[hidden] { display: none !important; }
+.formulario { display: grid; gap: 1.1rem; max-width: 34rem; margin: 2rem 0 0; }
+.campo { display: grid; gap: 0.4rem; }
+.campo label { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.campo input, .campo textarea {
+  font: inherit; font-size: 1rem; color: var(--fg); background: var(--placa);
+  border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem 0.85rem; width: 100%;
+}
+.campo textarea { resize: vertical; min-height: 9rem; line-height: 1.55; }
+.campo input:focus-visible, .campo textarea:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; border-color: transparent; }
+.campo .ayuda { font-size: 0.8rem; color: var(--muted-2); }
+/* EL SEÑUELO: un campo que las personas no ven y los robots rellenan. Fuera de la vista y del
+   tabulador, pero NO con display:none, que algunos robots sí miran. */
+.trampa { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.formulario button {
+  justify-self: start; font: inherit; font-family: var(--mono); font-size: 0.85rem;
+  color: var(--bg); background: var(--acento); border: 0; border-radius: 999px;
+  padding: 0.7rem 1.5rem; cursor: pointer;
+}
+.formulario button:hover, .formulario button:focus-visible { filter: brightness(1.08); }
+.formulario button[disabled] { opacity: 0.6; cursor: progress; }
+.estado { margin: 0; min-height: 1.4rem; font-size: 0.95rem; color: var(--muted); }
+.estado.mal { color: #ff9b9b; }
+.estado.bien { color: var(--fg); }
+/* Con el mensaje enviado el formulario se va y queda el acuse, que es lo único que hay que leer. */
+.gracias { border: 1px solid var(--line); border-radius: 10px; padding: 1.25rem 1.4rem; margin: 2rem 0 0; max-width: 34rem; background: color-mix(in srgb, var(--placa) 60%, transparent); }
+.gracias h2 { margin: 0 0 0.5rem; font-size: 1.2rem; }
+.gracias p { margin: 0; color: var(--muted); line-height: 1.6; }
+
+/* ---------- las otras vías ---------- */
+.vias { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; gap: 0.8rem; }
+.vias a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 0.1rem; }
+.vias a:hover, .vias a:focus-visible { border-bottom-color: var(--acento); }
+.vias .etiqueta { display: block; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }

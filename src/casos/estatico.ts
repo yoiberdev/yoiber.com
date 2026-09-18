@@ -4,4 +4,4 @@
 // propio módulo (como casos/maritimo.ts) y esta no cambia.
 import '@fontsource-variable/space-grotesk';
 import '@fontsource-variable/jetbrains-mono';
-import '../styles/caso.css';
+import '../styles/pagina.css';

@@ -7,6 +7,7 @@ const PAGINAS = {
   'caso-maritimo': 'casos/videovigilancia-maritima/index.html',
   'caso-erp': 'casos/erp-centro-de-terapias/index.html',
   'caso-campo': 'casos/gestion-de-campo-embarcaciones/index.html',
+  contacto: 'contacto/index.html',
 };
 
 // LA FECHA DE PUBLICACIÓN. Google lee dos fechas de esta web: el `dateModified` de la ProfilePage
