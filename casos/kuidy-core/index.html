@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f1e1d" />
+    <title>Defines un campo y el formulario ya existe · Yoiber</title>
+    <meta name="description" content="KUIDY-CORE: plataforma para montar aplicaciones internas sin escribir código. Defines módulos y campos desde la interfaz y un motor genérico pinta el formulario, valida y guarda. Demo abierta." />
+    <link rel="canonical" href="https://yoiber.com/casos/kuidy-core/" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://yoiber.com/casos/kuidy-core/" />
+    <meta property="og:site_name" content="Yoiber" />
+    <meta property="og:title" content="Defines un campo y el formulario ya existe" />
+    <meta property="og:description" content="Una plataforma donde el usuario define módulos y campos desde la interfaz, y el motor pinta el formulario, lo valida y lo guarda. Con demo abierta." />
+    <meta property="og:image" content="https://yoiber.com/casos/kuidy-og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Diálogo para agregar un campo, con su nombre, su clave y su tipo" />
+    <meta property="og:locale" content="es_PE" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://yoiber.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Defines un campo y el formulario ya existe" }
+          ]
+        },
+        {
+          "@type": "Article",
+          "@id": "https://yoiber.com/casos/kuidy-core/#caso",
+          "headline": "Defines un campo y el formulario ya existe",
+          "description": "KUIDY-CORE: motor de esquemas en tiempo de ejecución para montar aplicaciones internas sin escribir código.",
+          "inLanguage": "es",
+          "image": "https://yoiber.com/casos/kuidy-og.png",
+          "datePublished": "2026-09-18T00:00:00-05:00",
+          "dateModified": "%FECHA_PUBLICACION%",
+          "author": { "@id": "https://yoiber.com/#yoiber" },
+          "isPartOf": { "@id": "https://yoiber.com/#sitio" },
+          "about": ["Plataforma sin código", "Motor de esquemas", "PostgreSQL JSONB", "TypeScript"]
+        }
+      ]
+    }
+    </script>
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script defer src="/stats.js" data-website-id="e6fa5fba-eca9-4a8c-86c0-3d2f4f4f61cc" data-host-url="/stats"></script>
+    <script type="module" src="/src/casos/estatico.ts"></script>
+  </head>
+  <body>
+    <nav class="barra" aria-label="Volver">
+      <a href="/">
+        <svg viewBox="0 0 439 523" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path class="mono-a" d="M204.77 0C235.539 0 254.787 33.2885 239.437 59.9551L141.891 229.411L8.98075 65.1621C-12.183 39.0082 6.43132 0.000141945 40.0755 0H204.77Z" />
+          <path class="mono-b" d="M218.56 324.158C236.233 345.998 270.324 343.292 284.33 318.938L287.17 314H287.248L178.507 502.841C171.367 515.239 158.15 522.881 143.844 522.881H41.9276C11.1516 522.881 -8.09548 489.579 7.26839 462.912L141.839 229.348L218.56 324.158Z" />
+          <path class="mono-c" d="M398.846 0.0380859C400.995 0.0380805 403.088 0.200518 405.117 0.511719C431.98 4.79989 447.501 35.2121 433.279 59.9414L284.33 318.938C270.324 343.292 236.234 345.998 218.561 324.158L141.84 229.347L262.418 20.0693C269.559 7.67596 282.774 0.0390986 297.077 0.0390625L398.846 0.0380859Z" />
+        </svg>
+        <span class="vuelta">← yoiber.com</span>
+      </a>
+    </nav>
+
+    <main class="escena">
+      <header>
+        <p class="kicker">Caso · producto propio</p>
+        <h1>Defines un campo y el formulario ya existe</h1>
+        <p class="entradilla">
+          Cada empresa que me contrata pide el mismo sistema con otro formulario: otros campos, otras
+          reglas, otra pantalla. <b>KUIDY-CORE es lo que escribí para dejar de programar ese
+          formulario cada vez</b>: se definen los módulos y sus campos desde la interfaz, y un motor
+          genérico pinta la pantalla, valida lo que se escribe y lo guarda.
+        </p>
+      </header>
+
+      <h2>Cómo se ve</h2>
+      <p>
+        Un módulo son sus campos y sus registros. Arriba, la definición: nombre, clave, tipo y si es
+        obligatorio. Abajo, los datos ya cargados, con una columna por campo.
+      </p>
+
+      <figure class="figura">
+        <img src="/casos/kuidy-modulo.png" width="1400" height="875" loading="lazy" decoding="async"
+             alt="Módulo Activos con la lista de sus siete campos y, debajo, la tabla de registros" />
+        <figcaption>El módulo «Activos» de la demo: siete campos de cuatro tipos distintos y sus registros debajo.</figcaption>
+      </figure>
+
+      <p>
+        Añadir un campo es rellenar tres casillas. No hay migración, ni despliegue, ni una línea de
+        código: el campo se guarda como <i>definición</i>, y todo lo demás sale de ahí.
+      </p>
+
+      <div class="dos">
+        <figure class="figura">
+          <img src="/casos/kuidy-disenador.png" width="1400" height="875" loading="lazy" decoding="async"
+               alt="Diálogo Agregar campo con nombre, clave JSON, tipo fecha y casilla de obligatorio" />
+          <figcaption>El campo se declara: su nombre, la clave con la que viaja en los datos y su tipo.</figcaption>
+        </figure>
+        <figure class="figura">
+          <img src="/casos/kuidy-formulario.png" width="1400" height="875" loading="lazy" decoding="async"
+               alt="Formulario de alta que ya incluye el campo recién creado como selector de fecha" />
+          <figcaption><b>Y ya está en el formulario</b>, con el control que le toca y su validación. Los registros que ya existían muestran un guion en la columna nueva.</figcaption>
+        </figure>
+      </div>
+
+      <h2>Cómo funciona por dentro</h2>
+      <p>
+        La idea es vieja y buena: <b>separar la definición de los datos</b>. Los proyectos, módulos y
+        campos viven en tablas normales de PostgreSQL, y los registros en una sola tabla con una
+        columna <code>jsonb</code> y su índice GIN. Así se añade un campo sin tocar el esquema de la
+        base, y los metadatos siguen siendo consultables como cualquier otra tabla.
+      </p>
+      <p>
+        Lo que hace que esto no sea un caos es el <b>validador que se construye al vuelo</b>: con la
+        definición de campos de un módulo se arma un esquema de validación en tiempo de ejecución, y
+        es el mismo criterio el que corre en el navegador, para avisar mientras se escribe, y en la
+        API, que es la que manda. Un número no entra como texto, una fecha tiene que tener forma de
+        fecha y un desplegable solo acepta sus opciones, sin que nadie haya escrito ese código para
+        ese campo concreto.
+      </p>
+      <p>
+        Las contraseñas se guardan con <b>argon2id</b>, la sesión es un JWT de siete días, y el
+        acceso se decide por membresía en cada proyecto con cuatro papeles: propietario, administrador,
+        miembro y lector. El lector que intenta escribir recibe un no del servidor, no de la interfaz.
+      </p>
+      <ul class="pila-tec">
+        <li>TypeScript estricto</li><li>Hono</li><li>Drizzle</li><li>PostgreSQL · JSONB</li><li>React 19</li><li>Zod</li><li>monorepo pnpm</li>
+      </ul>
+
+      <h2>Pruébalo tú</h2>
+      <p>
+        La demo está abierta y sus datos son inventados. Entra, abre un módulo, <b>crea un campo</b> y
+        mira el formulario: eso es el producto entero en medio minuto.
+      </p>
+      <ul class="vias">
+        <li><span class="etiqueta">Demo</span><a href="https://kuidy-core-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir KUIDY-CORE</a></li>
+        <li><span class="etiqueta">Cuentas, todas con la contraseña Demo1234!</span><code>owner@kuidy.demo</code> · <code>admin@kuidy.demo</code> · <code>member@kuidy.demo</code> · <code>viewer@kuidy.demo</code></li>
+      </ul>
+
+      <h2>Qué es y qué no es</h2>
+      <p>
+        Es el motor con el que monto sistemas internos a medida sin repetir trabajo, y de ahí sale su
+        alcance: <b>todavía no hay relaciones entre módulos, ni informes, ni importación</b>, y el tipo
+        de un campo no se cambia una vez creado. Está escrito así a propósito: prefiero que lo que hay
+        sea sólido y que lo que falta se note, a prometer una plataforma entera y que se caiga en la
+        primera demo.
+      </p>
+
+      <section class="cierre">
+        <h2>¿Tu equipo lleva su trabajo en hojas de cálculo?</h2>
+        <p>
+          Ahí es donde esto vale: convertir esa hoja en un sistema con permisos, validaciones y
+          registro de quién hizo qué, sin esperar tres meses ni pagar por asiento.
+        </p>
+        <a class="accion" href="/contacto/">Hablemos →</a>
+      </section>
+
+      <footer class="pie-caso">
+        <p>
+          Producto propio. Las capturas salen de la demo pública, cuyos datos —plantas, activos,
+          tickets y personas— son inventados. Las credenciales de arriba son de demostración y están
+          publicadas a propósito.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>
