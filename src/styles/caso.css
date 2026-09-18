@@ -175,3 +175,27 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
   .pk { display: none; }
   .barra { backdrop-filter: none; }
 }
+
+/* ---------- capturas (los casos que se enseñan con pantallas, no con diagrama) ---------- */
+.figura { margin: 2rem 0 2.5rem; }
+.figura img {
+  display: block; width: 100%; height: auto;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--placa);
+}
+.figura figcaption { margin-top: 0.7rem; max-width: 68ch; color: var(--muted); font-size: 0.92rem; line-height: 1.6; }
+.figura figcaption b { color: var(--fg); font-weight: 600; }
+/* Dos capturas que se leen juntas; en una columna por debajo de 46rem. */
+.dos { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(23rem, 1fr)); }
+.dos .figura { margin: 0; }
+
+/* ---------- la pila, en la voz de máquina ---------- */
+.pila-tec { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.25rem 0 0; padding: 0; list-style: none; }
+.pila-tec li {
+  font-family: var(--mono); font-size: 0.78rem; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 999px; padding: 0.3rem 0.7rem;
+}
+
+/* ---------- lista de aprendizajes ---------- */
+.lecciones { margin: 1.25rem 0 0; padding: 0 0 0 1.1rem; max-width: 68ch; }
+.lecciones li { margin: 0 0 0.9rem; color: var(--muted); line-height: 1.65; }
+.lecciones li b { color: var(--fg); font-weight: 600; }

@@ -5,6 +5,8 @@ import { defineConfig, type Plugin } from 'vite';
 const PAGINAS = {
   portada: 'index.html',
   'caso-maritimo': 'casos/videovigilancia-maritima/index.html',
+  'caso-erp': 'casos/erp-centro-de-terapias/index.html',
+  'caso-campo': 'casos/gestion-de-campo-embarcaciones/index.html',
 };
 
 // LA FECHA DE PUBLICACIÓN. Google lee dos fechas de esta web: el `dateModified` de la ProfilePage
@@ -14,9 +16,9 @@ const PAGINAS = {
 function fechaPublicacion(): Plugin {
   const lima = new Date(Date.now() - 5 * 3600 * 1000).toISOString().slice(0, 19);
   const fecha = `${lima}-05:00`;
-  // Una entrada por página. Las anclas de la portada (#galeria, #como, #pie) no son direcciones
-  // propias y no van aquí.
-  const direcciones = ['https://yoiber.com/', 'https://yoiber.com/casos/videovigilancia-maritima/'];
+  // Una entrada por página, sacada de PAGINAS para que no haya dos listas que mantener. Las anclas
+  // de la portada (#galeria, #como, #pie) no son direcciones propias y no van aquí.
+  const direcciones = Object.values(PAGINAS).map((ruta) => `https://yoiber.com/${ruta.replace(/index\.html$/, '')}`);
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <!-- Lo genera vite.config.ts al construir, con la fecha de la publicación. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

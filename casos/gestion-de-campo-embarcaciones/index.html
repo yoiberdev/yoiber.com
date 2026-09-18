@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f1e1d" />
+    <title>Quién está a bordo ahora mismo · Yoiber</title>
+    <meta name="description" content="Caso de un sistema de gestión de campo para técnicos de embarcaciones: asistencia con posición, órdenes de trabajo, horas hombre por técnico y embarcación, y permisos por recurso." />
+    <link rel="canonical" href="https://yoiber.com/casos/gestion-de-campo-embarcaciones/" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://yoiber.com/casos/gestion-de-campo-embarcaciones/" />
+    <meta property="og:site_name" content="Yoiber" />
+    <meta property="og:title" content="Quién está a bordo ahora mismo" />
+    <meta property="og:description" content="Técnicos que suben a embarcaciones, marcan con su posición y cierran órdenes de trabajo. El mapa no enseña el historial: enseña el presente." />
+    <meta property="og:image" content="https://yoiber.com/casos/campo-og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Panel con un mapa de la costa y la lista de técnicos que están a bordo en este momento" />
+    <meta property="og:locale" content="es_PE" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://yoiber.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Quién está a bordo ahora mismo" }
+          ]
+        },
+        {
+          "@type": "Article",
+          "@id": "https://yoiber.com/casos/gestion-de-campo-embarcaciones/#caso",
+          "headline": "Quién está a bordo ahora mismo",
+          "description": "Caso de un sistema de gestión de campo para técnicos de embarcaciones: asistencia con posición, órdenes de trabajo y horas hombre.",
+          "inLanguage": "es",
+          "image": "https://yoiber.com/casos/campo-og.png",
+          "datePublished": "2026-09-18T00:00:00-05:00",
+          "dateModified": "%FECHA_PUBLICACION%",
+          "author": { "@id": "https://yoiber.com/#yoiber" },
+          "isPartOf": { "@id": "https://yoiber.com/#sitio" },
+          "about": ["Gestión de campo", "Órdenes de trabajo", "Node.js", "Prisma"]
+        }
+      ]
+    }
+    </script>
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script defer src="/stats.js" data-website-id="e6fa5fba-eca9-4a8c-86c0-3d2f4f4f61cc" data-host-url="/stats"></script>
+    <script type="module" src="/src/casos/estatico.ts"></script>
+  </head>
+  <body>
+    <nav class="barra" aria-label="Volver">
+      <a href="/">
+        <svg viewBox="0 0 439 523" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path class="mono-a" d="M204.77 0C235.539 0 254.787 33.2885 239.437 59.9551L141.891 229.411L8.98075 65.1621C-12.183 39.0082 6.43132 0.000141945 40.0755 0H204.77Z" />
+          <path class="mono-b" d="M218.56 324.158C236.233 345.998 270.324 343.292 284.33 318.938L287.17 314H287.248L178.507 502.841C171.367 515.239 158.15 522.881 143.844 522.881H41.9276C11.1516 522.881 -8.09548 489.579 7.26839 462.912L141.839 229.348L218.56 324.158Z" />
+          <path class="mono-c" d="M398.846 0.0380859C400.995 0.0380805 403.088 0.200518 405.117 0.511719C431.98 4.79989 447.501 35.2121 433.279 59.9414L284.33 318.938C270.324 343.292 236.234 345.998 218.561 324.158L141.84 229.347L262.418 20.0693C269.559 7.67596 282.774 0.0390986 297.077 0.0390625L398.846 0.0380859Z" />
+        </svg>
+        <span class="vuelta">← yoiber.com</span>
+      </a>
+    </nav>
+
+    <main class="escena">
+      <header>
+        <p class="kicker">Caso · operación en campo</p>
+        <h1>Quién está a bordo ahora mismo</h1>
+        <p class="entradilla">
+          Técnicos que suben a embarcaciones a hacer mantenimiento. Marcan su entrada con la posición
+          del teléfono, trabajan sobre una orden y marcan la salida. Desde la oficina,
+          <b>la pregunta que había que responder en un segundo era esa</b>: quién está a bordo, en
+          qué barco y desde cuándo.
+        </p>
+      </header>
+
+      <h2>El detalle que hace al producto</h2>
+      <p>
+        El mapa <b>no pinta todas las asistencias</b>: solo las que tienen entrada y todavía no tienen
+        salida. Es decir, no cuenta lo que pasó, cuenta lo que está pasando. Parece un detalle y es la
+        decisión que separa un panel que se mira de un informe que se archiva.
+      </p>
+
+      <figure class="figura">
+        <img src="/casos/campo-mapa.jpg" width="1400" height="833" loading="lazy" decoding="async"
+             alt="Panel con un mapa de la costa peruana y, debajo, la lista de técnicos a bordo con su embarcación y la hora de entrada" />
+        <figcaption>
+          El panel de control: el mapa con quien está embarcado en este momento y, debajo, la tabla
+          con su embarcación, la empresa y la hora de entrada. Cada fila lleva un botón para centrar
+          el mapa en esa posición.
+        </figcaption>
+      </figure>
+
+      <div class="dos">
+        <figure class="figura">
+          <img src="/casos/campo-horas.png" width="1400" height="833" loading="lazy" decoding="async"
+               alt="Reporte de horas hombre por técnico y embarcación" />
+          <figcaption><b>Horas hombre por técnico y por embarcación.</b> Es la cifra que justifica el sistema: sale de las marcas de entrada y salida, no de que alguien las escriba a mano.</figcaption>
+        </figure>
+        <figure class="figura">
+          <img src="/casos/campo-ordenes.png" width="1400" height="833" loading="lazy" decoding="async"
+               alt="Listado de órdenes de trabajo con su estado" />
+          <figcaption>Las órdenes de trabajo y su estado. El trabajo en campo se cierra contra una orden; si no, las horas no cuadran con nada.</figcaption>
+        </figure>
+      </div>
+
+      <h2>Permisos por recurso, porque no todos ven lo mismo</h2>
+      <p>
+        Un técnico, un supervisor y quien factura necesitan pantallas distintas del mismo sistema. Los
+        permisos se dan por recurso y se agrupan en roles, y el enrutador del frontend respeta esa
+        misma lista: si no tienes el permiso, la pantalla no existe para ti.
+      </p>
+
+      <h2>Cómo está construido</h2>
+      <p>
+        API en Node con Express y Prisma sobre MySQL, frontend en React compilado con Vite y el mapa
+        con Leaflet sobre teselas abiertas. Todo en contenedores.
+      </p>
+      <ul class="pila-tec">
+        <li>Node · Express</li><li>Prisma</li><li>MySQL</li><li>React · Vite</li><li>Leaflet</li><li>Docker</li>
+      </ul>
+
+      <h2>Lo que se aprende al sacar un sistema de la red donde nació</h2>
+      <p>
+        Estas capturas salen de levantarlo entero fuera de la infraestructura del cliente, con datos
+        inventados. Lo que apareció por el camino:
+      </p>
+      <ul class="lecciones">
+        <li><b>La lista de orígenes permitidos estaba escrita en el código</b>, con los dominios del
+        cliente. Desde cualquier otro sitio, el sistema responde con un error del servidor que no
+        dice lo que pasa. Eso pertenece a una variable de entorno.</li>
+        <li><b>Un permiso maestro que abre todas las rutas</b> es cómodo mientras se desarrolla y es
+        justo lo que hay que revisar antes de repartir roles de verdad.</li>
+        <li><b>El servidor de desarrollo no es el de producción.</b> Compilar y servir con nginx, como
+        en el servidor real, quita una clase entera de sorpresas.</li>
+      </ul>
+
+      <section class="cierre">
+        <h2>¿Tienes gente trabajando donde no llega la oficina?</h2>
+        <p>
+          Partes de trabajo, asistencia con posición, órdenes que se cierran en campo y una cifra
+          fiable al final del mes. Eso se puede tener sin perseguir a nadie por WhatsApp.
+        </p>
+        <a class="accion" href="/#pie">Hablemos →</a>
+      </section>
+
+      <footer class="pie-caso">
+        <p>
+          Sistema desarrollado para un cliente de control industrial. Las capturas salen de una
+          instancia local y temporal con una naviera inventada, embarcaciones de nombre ficticio y
+          personas que no existen; la marca del cliente se sustituyó también en el logotipo de la
+          barra lateral. Se comprobó pantalla a pantalla que no queda ningún rastro suyo.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

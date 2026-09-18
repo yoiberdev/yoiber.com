@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f1e1d" />
+    <title>Veinte módulos alrededor de la agenda del día · Yoiber</title>
+    <meta name="description" content="Caso de un ERP a medida para un centro de terapias: agenda por especialista, historia de sesiones, comprobantes electrónicos ante SUNAT y un CRM, en un solo sistema." />
+    <link rel="canonical" href="https://yoiber.com/casos/erp-centro-de-terapias/" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://yoiber.com/casos/erp-centro-de-terapias/" />
+    <meta property="og:site_name" content="Yoiber" />
+    <meta property="og:title" content="Veinte módulos alrededor de la agenda del día" />
+    <meta property="og:description" content="Un ERP a medida para un centro de terapias: agenda por especialista, sesiones, facturación electrónica y CRM en un solo sistema." />
+    <meta property="og:image" content="https://yoiber.com/casos/erp-og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Agenda del día del ERP, con una columna por especialista y las sesiones en su franja horaria" />
+    <meta property="og:locale" content="es_PE" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://yoiber.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Veinte módulos alrededor de la agenda del día" }
+          ]
+        },
+        {
+          "@type": "Article",
+          "@id": "https://yoiber.com/casos/erp-centro-de-terapias/#caso",
+          "headline": "Veinte módulos alrededor de la agenda del día",
+          "description": "Caso de un ERP a medida para un centro de terapias: agenda por especialista, sesiones, comprobantes electrónicos y CRM.",
+          "inLanguage": "es",
+          "image": "https://yoiber.com/casos/erp-og.png",
+          "datePublished": "2026-09-18T00:00:00-05:00",
+          "dateModified": "%FECHA_PUBLICACION%",
+          "author": { "@id": "https://yoiber.com/#yoiber" },
+          "isPartOf": { "@id": "https://yoiber.com/#sitio" },
+          "about": ["ERP a medida", "Django", "Facturación electrónica", "SUNAT"]
+        }
+      ]
+    }
+    </script>
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script defer src="/stats.js" data-website-id="e6fa5fba-eca9-4a8c-86c0-3d2f4f4f61cc" data-host-url="/stats"></script>
+    <!-- Este caso no anima nada: solo necesita la hoja y las fuentes del sitio. -->
+    <script type="module" src="/src/casos/estatico.ts"></script>
+  </head>
+  <body>
+    <nav class="barra" aria-label="Volver">
+      <a href="/">
+        <svg viewBox="0 0 439 523" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path class="mono-a" d="M204.77 0C235.539 0 254.787 33.2885 239.437 59.9551L141.891 229.411L8.98075 65.1621C-12.183 39.0082 6.43132 0.000141945 40.0755 0H204.77Z" />
+          <path class="mono-b" d="M218.56 324.158C236.233 345.998 270.324 343.292 284.33 318.938L287.17 314H287.248L178.507 502.841C171.367 515.239 158.15 522.881 143.844 522.881H41.9276C11.1516 522.881 -8.09548 489.579 7.26839 462.912L141.839 229.348L218.56 324.158Z" />
+          <path class="mono-c" d="M398.846 0.0380859C400.995 0.0380805 403.088 0.200518 405.117 0.511719C431.98 4.79989 447.501 35.2121 433.279 59.9414L284.33 318.938C270.324 343.292 236.234 345.998 218.561 324.158L141.84 229.347L262.418 20.0693C269.559 7.67596 282.774 0.0390986 297.077 0.0390625L398.846 0.0380859Z" />
+        </svg>
+        <span class="vuelta">← yoiber.com</span>
+      </a>
+    </nav>
+
+    <main class="escena">
+      <header>
+        <p class="kicker">Caso · sistema a medida</p>
+        <h1>Veinte módulos alrededor de la agenda del día</h1>
+        <p class="entradilla">
+          Un centro de terapias con varias sedes: pacientes, sesiones, especialistas, camillas,
+          cobros con comprobante electrónico y personal. El sistema tiene veinte módulos, pero
+          <b>hay uno que se mira cada hora</b>, y todo lo demás existe para que ese esté al día.
+        </p>
+      </header>
+
+      <h2>Por qué aquí no hay una demo que puedas abrir</h2>
+      <p>
+        Es el sistema con el que un cliente trabaja todos los días, con datos de pacientes dentro. No
+        hay versión pública ni la va a haber. Lo que se enseña son capturas de una instancia
+        levantada aparte, con la marca sustituida, un RUC de ejemplo y pacientes, especialistas y
+        contactos <b>generados por los datos de prueba del propio proyecto</b>: nadie de ahí existe.
+      </p>
+
+      <figure class="figura">
+        <img src="/casos/erp-agenda.png" width="1400" height="833" loading="lazy" decoding="async"
+             alt="Agenda del día con una columna por especialista, su horario y las sesiones colocadas en su franja" />
+        <figcaption>
+          <b>La agenda del día es el corazón del sistema.</b> Una columna por especialista y la sesión
+          en su franja, con la sede arriba. Se puede mirar por especialista, por camilla o por
+          paciente, comparar lo <i>planificado</i> con lo <i>real</i> y apretar o soltar la densidad
+          de la rejilla, porque no es lo mismo revisar el día en recepción que a media mañana.
+        </figcaption>
+      </figure>
+
+      <div class="dos">
+        <figure class="figura">
+          <img src="/casos/erp-facturacion.png" width="1400" height="833" loading="lazy" decoding="async"
+               alt="Pantalla de emisión de comprobante electrónico con validaciones" />
+          <figcaption>Emisión del comprobante. Abajo, una lista de comprobaciones que se pone en verde
+          mientras se llena: <b>hasta que no están todas, no se emite</b>. Un comprobante mal emitido
+          cuesta una nota de crédito y una llamada.</figcaption>
+        </figure>
+        <figure class="figura">
+          <img src="/casos/erp-crm.png" width="1400" height="833" loading="lazy" decoding="async"
+               alt="Tablero de asesorías con el embudo de contactos y sus métricas" />
+          <figcaption>Quien contesta el teléfono y quien atiende son el mismo equipo: el embudo de contactos vive dentro del sistema, no en una hoja aparte.</figcaption>
+        </figure>
+      </div>
+
+      <figure class="figura">
+        <img src="/casos/erp-modulos.png" width="1400" height="833" loading="lazy" decoding="async"
+             alt="Portada del sistema con sus módulos agrupados por área" />
+        <figcaption>
+          Los módulos, agrupados por área: pacientes, programación, paquetes, inventario, botica,
+          recepción, facturación, recursos humanos, proyectos. <b>Veinte piezas que se usan de
+          verdad</b>, no un menú de intenciones.
+        </figcaption>
+      </figure>
+
+      <h2>Cómo está construido</h2>
+      <p>
+        Backend en Django corriendo sobre ASGI con Daphne y Redis detrás, PostgreSQL, y el frontend
+        como aplicación aparte que habla con la API.
+      </p>
+      <ul class="pila-tec">
+        <li>Django</li><li>ASGI · Daphne</li><li>Redis</li><li>PostgreSQL</li><li>Docker</li><li>nginx</li>
+      </ul>
+
+      <h2>Lo que se aprende al sacar un sistema de la red donde nació</h2>
+      <p>
+        Para tomar estas capturas hubo que levantarlo entero fuera de la infraestructura del cliente.
+        Nada de esto se ve hasta que lo intentas, y es exactamente lo que separa un sistema que se
+        puede mover de uno que no:
+      </p>
+      <ul class="lecciones">
+        <li><b>Los nombres de máquina con guion bajo no son dominios válidos</b>, y Django rechaza esa
+        cabecera. El error que sale parece de credenciales y no tiene nada que ver.</li>
+        <li><b>El arranque dependía de variables que ya no se usan</b>: una base heredada y un servicio
+        de imágenes externo. Sin ellas el sistema no levantaba, aunque no hicieran falta para nada.</li>
+        <li><b>La configuración del servidor traía direcciones fijas</b> de la red del cliente y
+        certificados suyos, así que fuera de allí no arrancaba ni el proxy.</li>
+      </ul>
+      <p>
+        Ninguna de las tres es un fallo grave en producción y todas son una tarde perdida cuando hay
+        que migrar, hacer una copia de seguridad que se pueda restaurar o enseñárselo a alguien.
+      </p>
+
+      <section class="cierre">
+        <h2>¿Tienes un sistema así, o lo estás pidiendo?</h2>
+        <p>
+          Sistemas de gestión a medida que aguantan el día a día de un negocio, con la parte
+          aburrida hecha: permisos, comprobantes válidos y datos que cuadran.
+        </p>
+        <a class="accion" href="/#pie">Hablemos →</a>
+      </section>
+
+      <footer class="pie-caso">
+        <p>
+          Sistema desarrollado para un cliente. Las capturas salen de una instancia local y
+          temporal: marca sustituida, RUC de ejemplo y personas generadas por los datos de prueba
+          del proyecto. Se comprobó, extrayendo el texto de las ocho pantallas, que no queda ninguna
+          mención al cliente.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>
