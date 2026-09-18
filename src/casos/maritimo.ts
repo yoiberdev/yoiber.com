@@ -19,6 +19,11 @@ import { animate, createDrawable, createMotionPath, createTimeline, stagger, uti
 // módulo, y la hoja solo lo esconde mientras se espera (`#diagrama:not(.listo)`), con un rescate a
 // los 5 s por si este trozo no llegara a cargar.
 
+// LOS TEXTOS DE LOS MANDOS VIENEN DEL MARCADO (data-pausar, data-reanudar, data-paso), porque esta
+// misma página existe en español y en inglés. Sin esos atributos, castellano.
+const rotulo = (el: Element | null, clave: string, porDefecto: string): string =>
+  (el instanceof HTMLElement ? el.dataset[clave] : undefined) ?? porDefecto;
+
 const svg = document.querySelector<SVGSVGElement>('#diagrama');
 const pasosLi = Array.from(document.querySelectorAll<HTMLElement>('.pasos li'));
 const btn = document.querySelector<HTMLButtonElement>('#btn-play');
@@ -26,6 +31,9 @@ const contPuntos = document.querySelector<HTMLElement>('#puntos');
 
 if (svg && pasosLi.length && btn && contPuntos) {
   const TOTAL = pasosLi.length;
+  const PAUSAR = rotulo(btn, 'pausar', 'Pausar');
+  const REANUDAR = rotulo(btn, 'reanudar', 'Reanudar');
+  const PASO = rotulo(btn, 'paso', 'Paso {n} de {total}');
   const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Estado inicial: todo apagado antes del primer fotograma.
@@ -128,7 +136,7 @@ if (svg && pasosLi.length && btn && contPuntos) {
   let temporizador: number | null = null;
   const detenerAvance = (): void => {
     if (temporizador) { window.clearInterval(temporizador); temporizador = null; }
-    btn.textContent = 'Reanudar';
+    btn.textContent = REANUDAR;
   };
   const avanceAutomatico = (): void => {
     temporizador = window.setInterval(() => muestraPaso((pasoActual + 1) % TOTAL), 7000);
@@ -140,7 +148,7 @@ if (svg && pasosLi.length && btn && contPuntos) {
     b.type = 'button';
     b.setAttribute('role', 'tab');
     b.setAttribute('aria-selected', 'false');
-    b.setAttribute('aria-label', `Paso ${i + 1} de ${TOTAL}`);
+    b.setAttribute('aria-label', PASO.replace('{n}', String(i + 1)).replace('{total}', String(TOTAL)));
     b.addEventListener('click', () => { detenerAvance(); muestraPaso(i); });
     contPuntos.appendChild(b);
   });
@@ -152,7 +160,7 @@ if (svg && pasosLi.length && btn && contPuntos) {
     } else {
       avanceAutomatico();
       viajes.forEach((v) => v.play());
-      btn.textContent = 'Pausar';
+      btn.textContent = PAUSAR;
     }
   });
 
@@ -167,6 +175,6 @@ if (svg && pasosLi.length && btn && contPuntos) {
   }, reducido ? 0 : 3200);
 
   muestraPaso(0, true);
-  if (reducido) btn.textContent = 'Reanudar';
+  if (reducido) btn.textContent = REANUDAR;
   else avanceAutomatico();
 }

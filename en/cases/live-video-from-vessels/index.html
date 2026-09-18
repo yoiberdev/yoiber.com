@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f1e1d" />
+    <title>Live video from vessels that keep losing the link · Yoiber</title>
+    <meta name="description" content="A case study of a maritime video surveillance system: cameras on board, a satellite link that keeps dropping and video in the browser from shore. The path the signal takes, and why it is built this way." />
+    <link rel="canonical" href="https://yoiber.com/en/cases/live-video-from-vessels/" />
+    <link rel="alternate" hreflang="es" href="https://yoiber.com/casos/videovigilancia-maritima/" />
+    <link rel="alternate" hreflang="en" href="https://yoiber.com/en/cases/live-video-from-vessels/" />
+    <link rel="alternate" hreflang="x-default" href="https://yoiber.com/casos/videovigilancia-maritima/" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://yoiber.com/en/cases/live-video-from-vessels/" />
+    <meta property="og:site_name" content="Yoiber" />
+    <meta property="og:title" content="Live video from vessels that keep losing the link" />
+    <meta property="og:description" content="Cameras on board, a satellite link that keeps dropping and video in the browser from shore. The path the signal takes, protocol by protocol." />
+    <meta property="og:image" content="https://yoiber.com/casos/maritimo-og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Diagram of the path the signal takes: camera, agent, satellite link, server and browser" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- `BreadcrumbList` is the only type on this page with a result of its own in Google (the
+         breadcrumb trail under the title). `Article` describes the case and ties it to the same
+         Person as the home page. The modified date is written by vite.config.ts at build time,
+         same as on the home page. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://yoiber.com/en/" },
+            { "@type": "ListItem", "position": 2, "name": "Live video from vessels that keep losing the link" }
+          ]
+        },
+        {
+          "@type": "Article",
+          "@id": "https://yoiber.com/en/cases/live-video-from-vessels/#caso",
+          "headline": "Live video from vessels that keep losing the link",
+          "description": "A case study of a maritime video surveillance system: cameras on board, a satellite link that keeps dropping and video in the browser from shore.",
+          "inLanguage": "en",
+          "image": "https://yoiber.com/casos/maritimo-og.png",
+          "datePublished": "2026-09-17T00:00:00-05:00",
+          "dateModified": "%FECHA_PUBLICACION%",
+          "author": { "@id": "https://yoiber.com/#yoiber" },
+          "isPartOf": { "@id": "https://yoiber.com/#sitio" },
+          "about": ["Maritime video surveillance", "SRT", "MQTT", "Onboard systems"]
+        }
+      ]
+    }
+    </script>
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script defer src="/stats.js" data-website-id="e6fa5fba-eca9-4a8c-86c0-3d2f4f4f61cc" data-host-url="/stats"></script>
+    <script type="module" src="/src/casos/maritimo.ts"></script>
+  </head>
+  <body>
+    <nav class="barra" aria-label="Back">
+      <a href="/">
+        <svg viewBox="0 0 439 523" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path class="mono-a" d="M204.77 0C235.539 0 254.787 33.2885 239.437 59.9551L141.891 229.411L8.98075 65.1621C-12.183 39.0082 6.43132 0.000141945 40.0755 0H204.77Z" />
+          <path class="mono-b" d="M218.56 324.158C236.233 345.998 270.324 343.292 284.33 318.938L287.17 314H287.248L178.507 502.841C171.367 515.239 158.15 522.881 143.844 522.881H41.9276C11.1516 522.881 -8.09548 489.579 7.26839 462.912L141.839 229.348L218.56 324.158Z" />
+          <path class="mono-c" d="M398.846 0.0380859C400.995 0.0380805 403.088 0.200518 405.117 0.511719C431.98 4.79989 447.501 35.2121 433.279 59.9414L284.33 318.938C270.324 343.292 236.234 345.998 218.561 324.158L141.84 229.347L262.418 20.0693C269.559 7.67596 282.774 0.0390986 297.077 0.0390625L398.846 0.0380859Z" />
+        </svg>
+        <span class="vuelta">← yoiber.com</span>
+      </a>
+      <a class="idioma" href="/casos/videovigilancia-maritima/" hreflang="es" lang="es">Español</a>
+    </nav>
+
+    <main class="escena">
+      <header>
+        <p class="kicker">Case · onboard systems</p>
+        <h1>Live video from vessels that keep losing the link</h1>
+        <p class="entradilla">
+          An industrial control company needed to watch, from shore, the cameras on fishing vessels
+          working hundreds of kilometres off the coast. The problem was not the video:
+          <b>it was the link, which drops several times a day</b>. This is the path the signal takes
+          and why it is built this way.
+        </p>
+      </header>
+
+      <h2>Why this case has no screenshots</h2>
+      <p>
+        The system lives in an industrial PC on board, in a satellite link and in a server on shore.
+        A screenshot of the operator's screen would show a video player, which is exactly the easy
+        part. What is really worth showing is the <b>path the signal takes</b>: what talks to what,
+        over which protocol, and what happens when the boat loses its link.
+      </p>
+      <p>
+        The diagram draws itself, in six chapters. Watch the moment the link line breaks and turns
+        red: that happens for real, and it explains almost every technical decision in the project.
+      </p>
+
+      <div class="lienzo">
+        <svg id="diagrama" viewBox="0 0 1400 640" role="img"
+             aria-label="Diagram of the path the signal takes from the cameras on a vessel to the browser on shore">
+          <defs>
+            <linearGradient id="gradMar" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#0e3a56" />
+              <stop offset="0.5" stop-color="#14506f" />
+              <stop offset="1" stop-color="#0e3a56" />
+            </linearGradient>
+            <filter id="brillo" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="5" result="b" />
+              <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+          </defs>
+
+          <g class="zonas">
+            <rect class="zona zona-barco" x="30" y="70" width="470" height="500" rx="18" />
+            <rect class="zona zona-enlace" x="520" y="70" width="300" height="500" rx="18" />
+            <rect class="zona zona-tierra" x="840" y="70" width="530" height="500" rx="18" />
+            <text class="zona-tit" x="60" y="104">ON BOARD · industrial PC</text>
+            <text class="zona-tit" x="550" y="104">THE LINK · satellite, 4G</text>
+            <text class="zona-tit" x="870" y="104">ON SHORE · server</text>
+          </g>
+
+          <g class="trazados" fill="none">
+            <path id="t-rtsp" class="linea linea-video" d="M 210 200 L 330 200" />
+            <path id="t-sqlite" class="linea linea-datos" d="M 400 250 L 400 330" />
+            <path id="t-srt" class="linea linea-video" d="M 470 200 C 560 200, 600 200, 670 200" />
+            <path id="t-srt2" class="linea linea-video" d="M 770 200 C 830 200, 860 200, 930 200" />
+            <path id="t-hls" class="linea linea-video" d="M 1090 200 L 1200 200" />
+            <path id="t-mqtt" class="linea linea-control" d="M 470 235 C 620 400, 760 480, 930 452" />
+            <path id="t-api" class="linea linea-control" d="M 1010 450 L 1150 450" />
+            <path id="t-pg" class="linea linea-datos" d="M 1230 410 L 1230 364" />
+            <path id="t-web" class="linea linea-control" d="M 1318 410 L 1318 250" />
+          </g>
+
+          <g class="nodos">
+            <g class="nodo" id="n-camara" data-paso="1">
+              <rect x="70" y="160" width="140" height="80" rx="12" />
+              <text class="n-tit" x="140" y="192">IP camera</text>
+              <text class="n-sub" x="140" y="214">Dahua · Hikvision</text>
+            </g>
+            <g class="nodo" id="n-agente" data-paso="2">
+              <rect x="330" y="150" width="140" height="100" rx="12" />
+              <text class="n-tit" x="400" y="182">Agent</text>
+              <text class="n-sub" x="400" y="204">Python · Go</text>
+              <text class="n-sub" x="400" y="224">native SDK</text>
+            </g>
+            <g class="nodo nodo-datos" id="n-sqlite" data-paso="2">
+              <rect x="336" y="330" width="128" height="64" rx="12" />
+              <text class="n-tit" x="400" y="358">SQLite</text>
+              <text class="n-sub" x="400" y="378">local queue</text>
+            </g>
+            <g class="nodo nodo-enlace" id="n-enlace" data-paso="3">
+              <rect x="600" y="160" width="140" height="80" rx="12" />
+              <text class="n-tit" x="670" y="192">Link</text>
+              <text class="n-sub" x="670" y="214">loss and latency</text>
+            </g>
+            <g class="nodo" id="n-slate" data-paso="4">
+              <rect x="930" y="150" width="160" height="100" rx="12" />
+              <text class="n-tit" x="1010" y="182">SLATE</text>
+              <text class="n-sub" x="1010" y="204">listens for SRT</text>
+              <text class="n-sub" x="1010" y="224">transcodes</text>
+            </g>
+            <g class="nodo nodo-control" id="n-mqtt" data-paso="5">
+              <rect x="930" y="420" width="150" height="64" rx="12" />
+              <text class="n-tit" x="1005" y="448">Mosquitto</text>
+              <text class="n-sub" x="1005" y="468">MQTT broker</text>
+            </g>
+            <g class="nodo nodo-control" id="n-api" data-paso="5">
+              <rect x="1150" y="410" width="170" height="80" rx="12" />
+              <text class="n-tit" x="1235" y="440">Core</text>
+              <text class="n-sub" x="1235" y="462">hexagonal API</text>
+              <text class="n-sub" x="1235" y="480">FastAPI</text>
+            </g>
+            <g class="nodo nodo-datos" id="n-pg" data-paso="5">
+              <rect x="1166" y="300" width="128" height="64" rx="12" />
+              <text class="n-tit" x="1230" y="328">PostgreSQL</text>
+              <text class="n-sub" x="1230" y="348">fleet and cameras</text>
+            </g>
+            <g class="nodo nodo-final" id="n-web" data-paso="6">
+              <rect x="1200" y="160" width="150" height="90" rx="12" />
+              <text class="n-tit" x="1275" y="192">Browser</text>
+              <text class="n-sub" x="1275" y="214">React</text>
+              <text class="n-sub" x="1275" y="234">plays HLS</text>
+            </g>
+          </g>
+
+          <g class="protos">
+            <g class="proto" id="p-rtsp" data-paso="1"><rect x="234" y="164" width="72" height="26" rx="13" /><text x="270" y="181">RTSP</text></g>
+            <g class="proto" id="p-onvif" data-paso="1"><rect x="234" y="212" width="72" height="26" rx="13" /><text x="270" y="229">ONVIF</text></g>
+            <g class="proto" id="p-srt" data-paso="3"><rect x="497" y="146" width="66" height="26" rx="13" /><text x="530" y="163">SRT</text></g>
+            <g class="proto" id="p-hls" data-paso="4"><rect x="1112" y="164" width="66" height="26" rx="13" /><text x="1145" y="181">HLS</text></g>
+            <g class="proto" id="p-mqtt" data-paso="5"><rect x="655" y="443" width="80" height="26" rx="13" /><text x="695" y="460">MQTT</text></g>
+          </g>
+
+          <g class="paquetes">
+            <circle class="pk pk-video" id="pk1" r="6" />
+            <circle class="pk pk-video" id="pk2" r="6" />
+            <circle class="pk pk-video" id="pk3" r="6" />
+            <circle class="pk pk-control" id="pkc" r="5" />
+          </g>
+        </svg>
+      </div>
+      <p class="aviso-desliza">Swipe the diagram sideways to see all of it.</p>
+
+      <ul class="leyenda">
+        <li class="v"><i></i><span>video</span></li>
+        <li class="c"><i></i><span>control and telemetry</span></li>
+        <li class="d"><i></i><span>data on disk</span></li>
+      </ul>
+
+      <section class="relato" aria-live="polite">
+        <ol class="pasos" id="pasos">
+          <li data-paso="1">
+            <h3>1 · The camera speaks more than one language</h3>
+            <p>The cameras on board give video over <b>RTSP</b>, but snapshots and events need the
+            <b>vendor's native SDK</b>, which is a C library. The agent calls it from Python with
+            <b>ctypes</b>. <b>ONVIF</b> is there to discover them and configure them.</p>
+          </li>
+          <li data-paso="2">
+            <h3>2 · The agent decides what goes out, and when</h3>
+            <p>A process on the vessel's industrial PC, written in <b>Python</b> and with a version
+            in <b>Go</b>. It keeps state in a local <b>SQLite</b> database because the boat spends
+            hours without a link: whatever could not be sent waits there instead of being lost.</p>
+          </li>
+          <li data-paso="3">
+            <h3>3 · The real problem: the link drops</h3>
+            <p>Between the boat and the coast there is satellite or intermittent 4G, with packet
+            loss and high latency. A protocol on top of TCP stalls there. That is why the video goes
+            out over <b>SRT</b>, which runs on UDP and recovers what was lost without blocking the
+            rest. The agent pushes it with <b>FFmpeg</b> in sender mode.</p>
+          </li>
+          <li data-paso="4">
+            <h3>4 · On shore, translate it for the browser</h3>
+            <p>The <b>SLATE</b> server listens in receiver mode, picks up the stream and transcodes
+            it to <b>HLS</b>: segments and a playlist that any browser understands without plugins.
+            The snapshots are stored there too.</p>
+          </li>
+          <li data-paso="5">
+            <h3>5 · Control travels by another route</h3>
+            <p>Commands and telemetry do not travel with the video: they use <b>MQTT</b> over
+            Mosquitto, with topics per device and per camera. It is light and it survives
+            disconnections. The core is an <b>API with a hexagonal architecture</b>, with a domain
+            that does not import infrastructure at all, and <b>PostgreSQL</b> for the fleet.</p>
+          </li>
+          <li data-paso="6">
+            <h3>6 · And only then, the screen</h3>
+            <p>The operator opens the browser and sees the camera of a boat that is hundreds of
+            kilometres away. Everything before it exists so that last step looks trivial.</p>
+          </li>
+        </ol>
+
+        <div class="mandos">
+          <button id="btn-play" type="button" aria-label="Pause or resume the story" data-pausar="Pause" data-reanudar="Resume" data-paso="Step {n} of {total}">Pause</button>
+          <div class="puntos" id="puntos" role="tablist" aria-label="Go to a step"></div>
+        </div>
+      </section>
+
+      <h2>The four decisions that hold it up</h2>
+      <ul class="fichas">
+        <li>
+          <span class="clave">Transport</span>
+          <h3>SRT instead of TCP</h3>
+          <p>On a lossy link, a transport that retries in order stalls and the picture freezes. SRT
+          runs on UDP and recovers what was lost without blocking what is already coming behind
+          it: the quality degrades, not the session.</p>
+        </li>
+        <li>
+          <span class="clave">No coverage</span>
+          <h3>A queue inside the boat</h3>
+          <p>The boat spends hours without a link. Whatever could not be sent waits in an SQLite
+          database on board and goes out when the signal comes back, instead of being lost or
+          blocking the agent.</p>
+        </li>
+        <li>
+          <span class="clave">Two routes</span>
+          <h3>Control does not travel with the video</h3>
+          <p>Commands and telemetry go over MQTT, with one topic per device and camera. If the video
+          drops, the boat still answers; and a command weighs a few bytes, not a few megabytes.</p>
+        </li>
+        <li>
+          <span class="clave">Core</span>
+          <h3>The domain knows nothing about cameras</h3>
+          <p>The API is hexagonal: the domain imports no infrastructure. Changing the broker, the
+          database or the camera vendor touches the adapters, not the business rules.</p>
+        </li>
+      </ul>
+
+      <h2>A whole fleet does not fit on one server</h2>
+      <p>
+        Video does not transcode itself: each server on shore handles a limited number of recordings
+        at a time, and past that number it runs out of hardware. So growth is not buying a bigger
+        server, it is <b>adding one slave server per batch of recordings</b>, each with its own group
+        of vessels assigned to it.
+      </p>
+      <p>
+        That is how the system goes from watching a few boats to watching the whole fleet: adding
+        boats means adding servers, with the same core, the same broker and the same screen for the
+        operator. Everything else along the path — the agent on board, SRT, the local queue, MQTT —
+        is already built for that: each boat talks to its own server, not to all of them.
+      </p>
+
+      <h2>Where each piece of the diagram comes from</h2>
+      <p>
+        The path is not an idealisation: every element in the drawing is taken from the code of
+        the system, not from how it ought to be.
+      </p>
+      <table class="origen">
+        <tbody>
+          <tr><th>RTSP and ONVIF to the cameras</th><td>addresses and client in the device agent</td></tr>
+          <tr><th>Native SDK through <code>ctypes</code></th><td>the C headers of the vendor's library</td></tr>
+          <tr><th>Local queue in SQLite</th><td>the agent's persistence layer</td></tr>
+          <tr><th>SRT output with FFmpeg</th><td><code>srt://host:port?mode=caller</code> in the agent</td></tr>
+          <tr><th>Listening on shore</th><td><code>srt://0.0.0.0:port?mode=listener</code> in the video server</td></tr>
+          <tr><th>Transcoding to HLS</th><td><code>hls_time</code>, <code>hls_list_size</code> and <code>hls_flags</code> parameters</td></tr>
+          <tr><th>MQTT topics</th><td><code>streaming/device/{id}/camera/{uuid}/…</code></td></tr>
+          <tr><th>Hexagonal API</th><td>the <code>domain</code>, <code>application</code> and <code>infrastructure</code> folders</td></tr>
+        </tbody>
+      </table>
+
+      <section class="cierre">
+        <h2>Do you have a system that lives far from the keyboard?</h2>
+        <p>
+          Devices in the field, links that drop, data that cannot be lost and someone who needs to
+          see it on a screen. It is the work I like most.
+        </p>
+        <a class="accion" href="/en/contact/">Let's talk →</a>
+      </section>
+
+      <footer class="pie-caso">
+        <p>
+          System built for an industrial control company. The diagram is schematic: the names of the
+          fleet, the addresses of the client's network and any credentials are left out on purpose.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

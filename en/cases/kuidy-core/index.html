@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f1e1d" />
+    <title>You define a field and the form is already there · Yoiber</title>
+    <meta name="description" content="KUIDY-CORE: a platform for building internal apps without writing code. You define modules and fields from the interface and a generic engine draws the form, validates it and saves it. Open demo." />
+    <link rel="canonical" href="https://yoiber.com/en/cases/kuidy-core/" />
+    <link rel="alternate" hreflang="es" href="https://yoiber.com/casos/kuidy-core/" />
+    <link rel="alternate" hreflang="en" href="https://yoiber.com/en/cases/kuidy-core/" />
+    <link rel="alternate" hreflang="x-default" href="https://yoiber.com/casos/kuidy-core/" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://yoiber.com/en/cases/kuidy-core/" />
+    <meta property="og:site_name" content="Yoiber" />
+    <meta property="og:title" content="You define a field and the form is already there" />
+    <meta property="og:description" content="A platform where you define modules and fields from the interface, and the engine draws the form, validates it and saves it. With an open demo." />
+    <meta property="og:image" content="https://yoiber.com/casos/kuidy-og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Dialog for adding a field, with its name, its key and its type" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://yoiber.com/en/" },
+            { "@type": "ListItem", "position": 2, "name": "You define a field and the form is already there" }
+          ]
+        },
+        {
+          "@type": "Article",
+          "@id": "https://yoiber.com/en/cases/kuidy-core/#caso",
+          "headline": "You define a field and the form is already there",
+          "description": "KUIDY-CORE: a runtime schema engine for building internal apps without writing code.",
+          "inLanguage": "en",
+          "image": "https://yoiber.com/casos/kuidy-og.png",
+          "datePublished": "2026-09-18T00:00:00-05:00",
+          "dateModified": "%FECHA_PUBLICACION%",
+          "author": { "@id": "https://yoiber.com/#yoiber" },
+          "isPartOf": { "@id": "https://yoiber.com/#sitio" },
+          "about": ["No-code platform", "Schema engine", "PostgreSQL JSONB", "TypeScript"]
+        }
+      ]
+    }
+    </script>
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script defer src="/stats.js" data-website-id="e6fa5fba-eca9-4a8c-86c0-3d2f4f4f61cc" data-host-url="/stats"></script>
+    <script type="module" src="/src/casos/estatico.ts"></script>
+  </head>
+  <body>
+    <nav class="barra" aria-label="Back">
+      <a href="/">
+        <svg viewBox="0 0 439 523" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path class="mono-a" d="M204.77 0C235.539 0 254.787 33.2885 239.437 59.9551L141.891 229.411L8.98075 65.1621C-12.183 39.0082 6.43132 0.000141945 40.0755 0H204.77Z" />
+          <path class="mono-b" d="M218.56 324.158C236.233 345.998 270.324 343.292 284.33 318.938L287.17 314H287.248L178.507 502.841C171.367 515.239 158.15 522.881 143.844 522.881H41.9276C11.1516 522.881 -8.09548 489.579 7.26839 462.912L141.839 229.348L218.56 324.158Z" />
+          <path class="mono-c" d="M398.846 0.0380859C400.995 0.0380805 403.088 0.200518 405.117 0.511719C431.98 4.79989 447.501 35.2121 433.279 59.9414L284.33 318.938C270.324 343.292 236.234 345.998 218.561 324.158L141.84 229.347L262.418 20.0693C269.559 7.67596 282.774 0.0390986 297.077 0.0390625L398.846 0.0380859Z" />
+        </svg>
+        <span class="vuelta">← yoiber.com</span>
+      </a>
+      <a class="idioma" href="/casos/kuidy-core/" hreflang="es" lang="es">Español</a>
+    </nav>
+
+    <main class="escena">
+      <header>
+        <p class="kicker">Case · my own product</p>
+        <h1>You define a field and the form is already there</h1>
+        <p class="entradilla">
+          Every company that hires me asks for the same system with a different form: different
+          fields, different rules, a different screen. <b>KUIDY-CORE is what I wrote to stop
+          coding that form over and over</b>: you define the modules and their fields from the
+          interface, and a generic engine draws the screen, validates what you type and saves it.
+        </p>
+      </header>
+
+      <h2>What it looks like</h2>
+      <p>
+        A module is its fields and its records. At the top, the definition: name, key, type and
+        whether it is required. Below, the data already loaded, with one column per field.
+      </p>
+
+      <figure class="figura">
+        <img src="/casos/kuidy-modulo.png" width="1400" height="875" loading="lazy" decoding="async"
+             alt="The Activos (assets) module with the list of its seven fields and, below it, the table of records" />
+        <figcaption>The demo's “Activos” (assets) module: seven fields of four different types, with its records below.</figcaption>
+      </figure>
+
+      <p>
+        Adding a field means filling in three boxes. No migration, no deploy, not a line of code:
+        the field is saved as a <i>definition</i>, and everything else comes from there.
+      </p>
+
+      <div class="dos">
+        <figure class="figura">
+          <img src="/casos/kuidy-disenador.png" width="1400" height="875" loading="lazy" decoding="async"
+               alt="The “Agregar campo” (add field) dialog, with a name, a JSON key, the date type and the required checkbox" />
+          <figcaption>The field is declared: its name, the key it travels under in the data, and its type.</figcaption>
+        </figure>
+        <figure class="figura">
+          <img src="/casos/kuidy-formulario.png" width="1400" height="875" loading="lazy" decoding="async"
+               alt="New record form that already includes the field just created, as a date picker" />
+          <figcaption><b>And there it is in the form</b>, with the right control and its validation. Records that already existed show a dash in the new column.</figcaption>
+        </figure>
+      </div>
+
+      <h2>How it works inside</h2>
+      <p>
+        The idea is old and good: <b>keep the definition apart from the data</b>. Projects, modules
+        and fields live in ordinary PostgreSQL tables, and the records live in a single table with a
+        <code>jsonb</code> column and its GIN index. That way a field can be added without touching
+        the database schema, and the metadata is still queryable like any other table.
+      </p>
+      <p>
+        What keeps this from turning into a mess is the <b>validator that is built on the fly</b>: a
+        module's field definitions are turned into a validation schema at runtime, and the same rules
+        run in the browser, to warn you while you type, and in the API, which is the one that
+        decides. A number does not get in as text, a date has to look like a date and a dropdown only
+        accepts its own options, without anyone having written that code for that particular field.
+      </p>
+      <p>
+        Passwords are stored with <b>argon2id</b>, the session is a seven-day JWT, and access is
+        decided by membership in each project with four roles: owner, admin, member and viewer. A
+        viewer who tries to write gets a no from the server, not from the interface.
+      </p>
+      <ul class="pila-tec">
+        <li>strict TypeScript</li><li>Hono</li><li>Drizzle</li><li>PostgreSQL · JSONB</li><li>React 19</li><li>Zod</li><li>pnpm monorepo</li>
+      </ul>
+
+      <h2>Try it yourself</h2>
+      <p>
+        The demo is open and its data is made up. Sign in, open a module, <b>create a field</b> and
+        look at the form: that is the whole product in half a minute.
+      </p>
+      <p>
+        The demo interface is in Spanish. Open the “Activos” (assets) module and click
+        “Agregar campo” (add field).
+      </p>
+      <ul class="vias">
+        <li><span class="etiqueta">Demo</span><a href="https://kuidy-core-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Open KUIDY-CORE</a></li>
+        <li><span class="etiqueta">Accounts, all with the password Demo1234!</span><code>owner@kuidy.demo</code> · <code>admin@kuidy.demo</code> · <code>member@kuidy.demo</code> · <code>viewer@kuidy.demo</code></li>
+      </ul>
+
+      <h2>What it is and what it is not</h2>
+      <p>
+        It is the engine I use to build custom internal systems without redoing the same work, and
+        that is where its scope comes from: <b>there are still no relations between modules, no
+        reports and no import</b>, and a field's type cannot be changed once it has been created. It
+        is written that way on purpose: I would rather what is there be solid and what is missing be
+        obvious than promise a whole platform and have it fall over in the first demo.
+      </p>
+
+      <section class="cierre">
+        <h2>Does your team run its work out of spreadsheets?</h2>
+        <p>
+          That is where this pays off: turning that sheet into a system with permissions, validation
+          and a record of who did what, without waiting three months or paying per seat.
+        </p>
+        <a class="accion" href="/en/contact/">Let's talk →</a>
+      </section>
+
+      <footer class="pie-caso">
+        <p>
+          My own product. The screenshots come from the public demo, whose data — plants, assets,
+          tickets and people — is made up. The credentials above are demo credentials and are
+          published on purpose.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

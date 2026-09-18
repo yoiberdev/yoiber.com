@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f1e1d" />
+    <title>Twenty modules around the day's schedule · Yoiber</title>
+    <meta name="description" content="A case study of a custom ERP for a therapy center: a schedule per specialist, session history, electronic invoices filed with Peru's tax authority (SUNAT) and a CRM, all in one system." />
+    <link rel="canonical" href="https://yoiber.com/en/cases/therapy-center-erp/" />
+    <link rel="alternate" hreflang="es" href="https://yoiber.com/casos/erp-centro-de-terapias/" />
+    <link rel="alternate" hreflang="en" href="https://yoiber.com/en/cases/therapy-center-erp/" />
+    <link rel="alternate" hreflang="x-default" href="https://yoiber.com/casos/erp-centro-de-terapias/" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://yoiber.com/en/cases/therapy-center-erp/" />
+    <meta property="og:site_name" content="Yoiber" />
+    <meta property="og:title" content="Twenty modules around the day's schedule" />
+    <meta property="og:description" content="A custom ERP for a therapy center: a schedule per specialist, sessions, electronic invoicing and a CRM in a single system." />
+    <meta property="og:image" content="https://yoiber.com/casos/erp-og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The day's schedule in the ERP, with one column per specialist and each session in its time slot" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://yoiber.com/en/" },
+            { "@type": "ListItem", "position": 2, "name": "Twenty modules around the day's schedule" }
+          ]
+        },
+        {
+          "@type": "Article",
+          "@id": "https://yoiber.com/en/cases/therapy-center-erp/#caso",
+          "headline": "Twenty modules around the day's schedule",
+          "description": "A case study of a custom ERP for a therapy center: a schedule per specialist, sessions, electronic invoices and a CRM.",
+          "inLanguage": "en",
+          "image": "https://yoiber.com/casos/erp-og.png",
+          "datePublished": "2026-09-18T00:00:00-05:00",
+          "dateModified": "%FECHA_PUBLICACION%",
+          "author": { "@id": "https://yoiber.com/#yoiber" },
+          "isPartOf": { "@id": "https://yoiber.com/#sitio" },
+          "about": ["Custom ERP", "Django", "Electronic invoicing", "SUNAT"]
+        }
+      ]
+    }
+    </script>
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script defer src="/stats.js" data-website-id="e6fa5fba-eca9-4a8c-86c0-3d2f4f4f61cc" data-host-url="/stats"></script>
+    <!-- This case animates nothing: it only needs the site's stylesheet and fonts. -->
+    <script type="module" src="/src/casos/estatico.ts"></script>
+  </head>
+  <body>
+    <nav class="barra" aria-label="Back">
+      <a href="/en/">
+        <svg viewBox="0 0 439 523" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path class="mono-a" d="M204.77 0C235.539 0 254.787 33.2885 239.437 59.9551L141.891 229.411L8.98075 65.1621C-12.183 39.0082 6.43132 0.000141945 40.0755 0H204.77Z" />
+          <path class="mono-b" d="M218.56 324.158C236.233 345.998 270.324 343.292 284.33 318.938L287.17 314H287.248L178.507 502.841C171.367 515.239 158.15 522.881 143.844 522.881H41.9276C11.1516 522.881 -8.09548 489.579 7.26839 462.912L141.839 229.348L218.56 324.158Z" />
+          <path class="mono-c" d="M398.846 0.0380859C400.995 0.0380805 403.088 0.200518 405.117 0.511719C431.98 4.79989 447.501 35.2121 433.279 59.9414L284.33 318.938C270.324 343.292 236.234 345.998 218.561 324.158L141.84 229.347L262.418 20.0693C269.559 7.67596 282.774 0.0390986 297.077 0.0390625L398.846 0.0380859Z" />
+        </svg>
+        <span class="vuelta">← yoiber.com</span>
+      </a>
+      <a class="idioma" href="/casos/erp-centro-de-terapias/" hreflang="es" lang="es">Español</a>
+    </nav>
+
+    <main class="escena">
+      <header>
+        <p class="kicker">Case · custom system</p>
+        <h1>Twenty modules around the day's schedule</h1>
+        <p class="entradilla">
+          A therapy center with several locations: patients, sessions, specialists, treatment beds,
+          payments with an electronic invoice, and staff. The system has twenty modules, but
+          <b>there is one that gets looked at every hour</b>, and everything else exists to keep it
+          up to date.
+        </p>
+      </header>
+
+      <h2>Why there is no demo here you can open</h2>
+      <p>
+        This is the system a client works with every day, with patient data inside it. There is no
+        public version and there never will be. What you see are screenshots of a separate instance,
+        with the branding replaced, a sample tax ID and patients, specialists and contacts
+        <b>generated by the project's own test data</b>: nobody in them is a real person.
+      </p>
+
+      <figure class="figura">
+        <img src="/casos/erp-agenda.png" width="1400" height="833" loading="lazy" decoding="async"
+             alt="The day's schedule with one column per specialist, their hours and the sessions placed in their time slot" />
+        <figcaption>
+          <b>The day's schedule is the heart of the system.</b> One column per specialist and each
+          session in its slot, with the location at the top. You can look at it by specialist, by
+          treatment bed or by patient, compare what was <i>planned</i> against what <i>happened</i>,
+          and tighten or loosen the density of the grid, because going over the day at the front
+          desk is not the same as checking it mid-morning.
+        </figcaption>
+      </figure>
+
+      <div class="dos">
+        <figure class="figura">
+          <img src="/casos/erp-facturacion.png" width="1400" height="833" loading="lazy" decoding="async"
+               alt="Screen for issuing an electronic invoice, with its validations" />
+          <figcaption>Issuing the invoice. At the bottom, a list of checks that turns green as the
+          form is filled in: <b>nothing is issued until every one of them passes</b>. An invoice
+          issued wrong costs a credit note and a phone call.</figcaption>
+        </figure>
+        <figure class="figura">
+          <img src="/casos/erp-crm.png" width="1400" height="833" loading="lazy" decoding="async"
+               alt="Consultations dashboard with the contact funnel and its metrics" />
+          <figcaption>The people who answer the phone and the people who treat patients are the same team: the contact funnel lives inside the system, not in a spreadsheet on the side.</figcaption>
+        </figure>
+      </div>
+
+      <figure class="figura">
+        <img src="/casos/erp-modulos.png" width="1400" height="833" loading="lazy" decoding="async"
+             alt="The system's home screen with its modules grouped by area" />
+        <figcaption>
+          The modules, grouped by area: patients, scheduling, packages, inventory, pharmacy, front
+          desk, invoicing, human resources, projects. <b>Twenty pieces that are actually used</b>,
+          not a menu of good intentions.
+        </figcaption>
+      </figure>
+
+      <h2>How it is built</h2>
+      <p>
+        A Django backend running on ASGI with Daphne and Redis behind it, PostgreSQL, and the
+        frontend as a separate application that talks to the API.
+      </p>
+      <ul class="pila-tec">
+        <li>Django</li><li>ASGI · Daphne</li><li>Redis</li><li>PostgreSQL</li><li>Docker</li><li>nginx</li>
+      </ul>
+
+      <h2>What you learn taking a system out of the network it was born in</h2>
+      <p>
+        To take these screenshots the whole thing had to run outside the client's infrastructure.
+        None of this shows up until you try, and it is exactly what separates a system you can move
+        from one you cannot:
+      </p>
+      <ul class="lecciones">
+        <li><b>Host names with an underscore are not valid domains</b>, and Django rejects that
+        header. The error you get looks like a credentials problem and has nothing to do with one.</li>
+        <li><b>Startup depended on variables nobody uses any more</b>: a legacy database and an
+        external image service. Without them the system would not come up, even though nothing
+        needed them.</li>
+        <li><b>The server configuration carried fixed addresses</b> from the client's network and
+        their own certificates, so outside that network not even the proxy would start.</li>
+      </ul>
+      <p>
+        None of the three is a serious fault in production, and every one of them is a lost
+        afternoon when you have to migrate, make a backup you can actually restore, or show the
+        system to someone.
+      </p>
+
+      <section class="cierre">
+        <h2>Do you have a system like this, or are you asking for one?</h2>
+        <p>
+          Custom management systems that hold up to the daily running of a business, with the
+          boring part already done: permissions, valid invoices and numbers that add up.
+        </p>
+        <a class="accion" href="/en/contact/">Let's talk →</a>
+      </section>
+
+      <footer class="pie-caso">
+        <p>
+          System built for a client. The screenshots come from a local, temporary instance:
+          branding replaced, a sample tax ID and people generated by the project's test data. The
+          text of all eight screens was extracted and checked: no mention of the client is left.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

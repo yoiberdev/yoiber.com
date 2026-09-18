@@ -21,6 +21,17 @@ const gracias = document.querySelector<HTMLElement>('#gracias');
 
 if (form && estado && gracias) {
   const boton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+  // Los avisos vienen del marcado (data-*) para que la versión en inglés no necesite otro módulo.
+  const rotulo = (clave: string, porDefecto: string): string => form.dataset[clave] ?? porDefecto;
+  const AVISO = {
+    nombre: rotulo('avisoNombre', 'Falta tu nombre.'),
+    correo: rotulo('avisoCorreo', 'Ese correo no parece válido; sin él no puedo contestarte.'),
+    mensaje: rotulo('avisoMensaje', 'Cuéntame un poco más, aunque sean dos líneas.'),
+    enviando: rotulo('avisoEnviando', 'Enviando…'),
+    limite: rotulo('avisoLimite', 'Has enviado varios seguidos. Espera un minuto y vuelve a intentarlo.'),
+    fallo: rotulo('avisoFallo', 'No he podido enviarlo. Escríbeme a yoiberdev@gmail.com y llega igual.'),
+    sinRed: rotulo('avisoSinRed', 'No he podido enviarlo, parece que se cayó la conexión. Escríbeme a yoiberdev@gmail.com.'),
+  };
   const decir = (texto: string, clase: '' | 'mal' | 'bien' = ''): void => {
     estado.textContent = texto;
     estado.className = `estado ${clase}`.trim();
@@ -34,12 +45,12 @@ if (form && estado && gracias) {
     const correo = campo('correo');
     const mensaje = campo('mensaje');
 
-    if (nombre.length < 2) return decir('Falta tu nombre.', 'mal');
-    if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(correo)) return decir('Ese correo no parece válido; sin él no puedo contestarte.', 'mal');
-    if (mensaje.length < 10) return decir('Cuéntame un poco más, aunque sean dos líneas.', 'mal');
+    if (nombre.length < 2) return decir(AVISO.nombre, 'mal');
+    if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(correo)) return decir(AVISO.correo, 'mal');
+    if (mensaje.length < 10) return decir(AVISO.mensaje, 'mal');
 
     if (boton) boton.disabled = true;
-    decir('Enviando…');
+    decir(AVISO.enviando, '');
     try {
       const r = await fetch('/contacto/enviar', {
         method: 'POST',
@@ -53,14 +64,9 @@ if (form && estado && gracias) {
         return;
       }
       // 429: el freno por IP de nginx. El resto: el flujo dijo que no, o está caído.
-      decir(
-        r.status === 429
-          ? 'Has enviado varios seguidos. Espera un minuto y vuelve a intentarlo.'
-          : 'No he podido enviarlo. Escríbeme a yoiberdev@gmail.com y llega igual.',
-        'mal',
-      );
+      decir(r.status === 429 ? AVISO.limite : AVISO.fallo, 'mal');
     } catch {
-      decir('No he podido enviarlo, parece que se cayó la conexión. Escríbeme a yoiberdev@gmail.com.', 'mal');
+      decir(AVISO.sinRed, 'mal');
     } finally {
       if (boton) boton.disabled = false;
     }
