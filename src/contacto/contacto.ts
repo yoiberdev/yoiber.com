@@ -1,6 +1,7 @@
 import '@fontsource-variable/space-grotesk';
 import '@fontsource-variable/jetbrains-mono';
 import '../styles/pagina.css';
+import { sugerirIdioma } from '../comun/idioma';
 
 // EL FORMULARIO DE CONTACTO (contacto/index.html)
 // ================================================================================================
@@ -72,3 +73,6 @@ if (form && estado && gracias) {
     }
   });
 }
+
+// El aviso de «esta página también está en…», si el navegador pide el otro idioma.
+sugerirIdioma();
