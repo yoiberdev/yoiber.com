@@ -282,6 +282,20 @@
         </li>
       </ul>
 
+      <h2>Una flota entera no cabe en un servidor</h2>
+      <p>
+        El vídeo no se transcodifica solo: cada servidor en tierra aguanta un número acotado de
+        grabaciones a la vez, y pasado ese número se queda sin máquina. Por eso el crecimiento no es
+        comprar un servidor más grande, sino <b>añadir un servidor esclavo por cada lote de
+        grabaciones</b>, cada uno con su grupo de embarcaciones asignado.
+      </p>
+      <p>
+        Esa es la vía por la que el sistema pasa de vigilar unos cuantos barcos a vigilar la flota
+        completa: sumar barcos es sumar servidores, con el mismo núcleo, el mismo broker y la misma
+        pantalla para el operador. Todo lo demás del recorrido —el agente a bordo, SRT, la cola
+        local, MQTT— ya está pensado para eso: cada barco habla con su servidor y no con todos.
+      </p>
+
       <h2>De dónde sale cada pieza del diagrama</h2>
       <p>
         El recorrido no es una idealización: cada elemento del dibujo está sacado del código del
