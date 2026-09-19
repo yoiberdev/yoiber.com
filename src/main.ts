@@ -1,6 +1,7 @@
 import '@fontsource-variable/space-grotesk';
 import '@fontsource-variable/jetbrains-mono';
 import './styles/base.css';
+import { sugerirIdioma } from './comun/idioma';
 import { animate, createScope, type JSAnimation, type Scope } from 'animejs';
 import { P } from './params';
 import { crearMaestro, tramoActual } from './core/maestro';
@@ -293,3 +294,7 @@ document.fonts.ready.then(() => {
   document.documentElement.classList.add('is-ready');
   createScope({ mediaQueries: { reduceMotion: '(prefers-reduced-motion: reduce)' } }).add(montar);
 });
+
+// LA SUGERENCIA DE IDIOMA (comun/idioma.ts). La portada solo existe en español; a quien llega con
+// el navegador en inglés se le ofrece /en/, sin redirigirle y una sola vez.
+sugerirIdioma();

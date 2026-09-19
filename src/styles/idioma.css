@@ -1,0 +1,28 @@
+/* EL AVISO DE IDIOMA (comun/idioma.ts). Fijo abajo a la derecha, por encima de todo pero pequeño:
+   no tapa contenido, no empuja nada (position: fixed, así que no hay salto de maquetación) y se va
+   con un clic. En el teléfono ocupa el ancho menos los márgenes, encima de la sub-nav. */
+.aviso-idioma {
+  position: fixed; z-index: 30; right: 1rem; bottom: 1rem; max-width: min(24rem, calc(100vw - 2rem));
+  display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+  padding: 0.7rem 0.9rem;
+  background: var(--bg, #1f1e1d); border: 1px solid var(--line, #3a3936); border-radius: 10px;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 35%);
+  font-family: var(--mono, ui-monospace, monospace); font-size: 0.78rem; line-height: 1.4;
+  color: var(--muted, #93938f);
+  opacity: 0; transform: translateY(0.5rem); transition: opacity 0.25s, transform 0.25s;
+}
+.aviso-idioma.visible { opacity: 1; transform: none; }
+.aviso-idioma-ir { color: var(--fg, #f4f4f2); text-decoration: none; border-bottom: 1px solid var(--acento, #ffd166); padding-bottom: 1px; }
+.aviso-idioma-ir:hover, .aviso-idioma-ir:focus-visible { border-bottom-width: 2px; }
+.aviso-idioma-cerrar {
+  margin-left: auto; background: none; border: 0; padding: 0.2rem 0.3rem; cursor: pointer;
+  color: var(--muted-2, #888884); font: inherit; font-size: 0.85rem; line-height: 1;
+}
+.aviso-idioma-cerrar:hover, .aviso-idioma-cerrar:focus-visible { color: var(--fg, #f4f4f2); }
+@media (prefers-reduced-motion: reduce) {
+  .aviso-idioma { transition: none; transform: none; }
+}
+/* En vertical, sobre la sub-nav de la portada, que vive abajo del todo. */
+@media (max-aspect-ratio: 1/1) {
+  .aviso-idioma { left: 1rem; right: 1rem; bottom: 4.75rem; max-width: none; }
+}

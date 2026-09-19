@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f1e1d" />
+    <title>La boleta sale del sistema y SUNAT la acepta · Yoiber</title>
+    <meta name="description" content="Kuantera: facturación electrónica ante SUNAT sin intermediario. UBL 2.1 armado a mano, firma XML-DSig con el certificado del propio negocio y envío por SOAP, con la respuesta guardada." />
+    <link rel="canonical" href="https://yoiber.com/casos/kuantera/" />
+    <link rel="alternate" hreflang="es" href="https://yoiber.com/casos/kuantera/" />
+    <link rel="alternate" hreflang="en" href="https://yoiber.com/en/cases/kuantera/" />
+    <link rel="alternate" hreflang="x-default" href="https://yoiber.com/casos/kuantera/" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://yoiber.com/casos/kuantera/" />
+    <meta property="og:site_name" content="Yoiber" />
+    <meta property="og:title" content="La boleta sale del sistema y SUNAT la acepta" />
+    <meta property="og:description" content="Facturación electrónica peruana escrita desde cero: UBL 2.1, firma digital y envío a SUNAT, con el certificado de cada negocio." />
+    <meta property="og:image" content="https://yoiber.com/casos/kuantera-og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Detalle de una boleta aceptada por SUNAT, con el aviso «SUNAT lo aceptó»" />
+    <meta property="og:locale" content="es_PE" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://yoiber.com/" },
+            { "@type": "ListItem", "position": 2, "name": "La boleta sale del sistema y SUNAT la acepta" }
+          ]
+        },
+        {
+          "@type": "Article",
+          "@id": "https://yoiber.com/casos/kuantera/#caso",
+          "headline": "La boleta sale del sistema y SUNAT la acepta",
+          "description": "Kuantera: facturación electrónica ante SUNAT sin intermediario, con el certificado digital y la clave SOL de cada empresa.",
+          "inLanguage": "es",
+          "image": "https://yoiber.com/casos/kuantera-og.png",
+          "datePublished": "2026-09-19T00:00:00-05:00",
+          "dateModified": "%FECHA_PUBLICACION%",
+          "author": { "@id": "https://yoiber.com/#yoiber" },
+          "isPartOf": { "@id": "https://yoiber.com/#sitio" },
+          "about": ["Facturación electrónica", "SUNAT", "UBL 2.1", "Firma XML-DSig", "NestJS", "PostgreSQL"]
+        }
+      ]
+    }
+    </script>
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script defer src="/stats.js" data-website-id="e6fa5fba-eca9-4a8c-86c0-3d2f4f4f61cc" data-host-url="/stats"></script>
+    <script type="module" src="/src/casos/estatico.ts"></script>
+  </head>
+  <body>
+    <nav class="barra" aria-label="Volver">
+      <a href="/">
+        <svg viewBox="0 0 439 523" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path class="mono-a" d="M204.77 0C235.539 0 254.787 33.2885 239.437 59.9551L141.891 229.411L8.98075 65.1621C-12.183 39.0082 6.43132 0.000141945 40.0755 0H204.77Z" />
+          <path class="mono-b" d="M218.56 324.158C236.233 345.998 270.324 343.292 284.33 318.938L287.17 314H287.248L178.507 502.841C171.367 515.239 158.15 522.881 143.844 522.881H41.9276C11.1516 522.881 -8.09548 489.579 7.26839 462.912L141.839 229.348L218.56 324.158Z" />
+          <path class="mono-c" d="M398.846 0.0380859C400.995 0.0380805 403.088 0.200518 405.117 0.511719C431.98 4.79989 447.501 35.2121 433.279 59.9414L284.33 318.938C270.324 343.292 236.234 345.998 218.561 324.158L141.84 229.347L262.418 20.0693C269.559 7.67596 282.774 0.0390986 297.077 0.0390625L398.846 0.0380859Z" />
+        </svg>
+        <span class="vuelta">← yoiber.com</span>
+      </a>
+      <a class="idioma" href="/en/cases/kuantera/" hreflang="en" lang="en">English</a>
+    </nav>
+
+    <main class="escena">
+      <header>
+        <p class="kicker">Caso · producto de Kip-Up</p>
+        <h1>La boleta sale del sistema y SUNAT la acepta</h1>
+        <p class="entradilla">
+          En Perú una venta no termina cuando el cliente paga: termina cuando SUNAT acepta el
+          comprobante, y cada uno tiene <b>tres días calendario</b> para llegar. Kuantera es la pieza
+          que hace ese viaje —armar el documento, firmarlo y enviarlo— y <b>está escrita desde cero,
+          sin pasar por ningún intermediario</b>.
+        </p>
+      </header>
+
+      <h2>Cómo se ve</h2>
+      <p>
+        Quince segundos, de la pantalla en blanco a la constancia guardada: se elige el cliente, se
+        añade una línea, y al emitir el servidor firma y envía. El estado se actualiza solo.
+      </p>
+
+      <figure class="figura video">
+        <video src="/casos/kuantera-emitir.mp4" poster="/casos/kuantera-cartel.png"
+               width="1000" height="565" controls muted loop playsinline preload="none"></video>
+        <figcaption>
+          Emisión real contra el <b>entorno de pruebas de SUNAT</b>: la boleta B001-16 sale por
+          S/ 36.00, entra «en cola», y al final SUNAT contesta <b>código 0, aceptada</b>. Lo que se
+          guarda no es un «enviado»: es la constancia, el XML firmado y el PDF.
+        </figcaption>
+      </figure>
+
+      <h2>Cómo funciona por dentro</h2>
+      <p>
+        Un comprobante electrónico peruano es un <b>XML en formato UBL 2.1</b> con una firma digital
+        dentro, envuelto en un ZIP y entregado por SOAP. Aquí no hay una librería que haga eso: está
+        escrito en el proyecto, en <code>packages/sunat</code>, porque es justo la parte donde se
+        decide si el comprobante vale o lo rechazan por una cifra mal puesta.
+      </p>
+      <p>
+        <b>La firma es lo que no se negocia.</b> Cada comprobante se firma con el certificado digital
+        y la clave SOL <i>del negocio que emite</i>, nunca con los míos ni con los de la agencia: el
+        emisor ante SUNAT es él. Usar credenciales propias para emitir por otros obligaría a
+        inscribirse como proveedor de servicios electrónicos, que es otro negocio y otra
+        responsabilidad.
+      </p>
+      <p>
+        El envío no bloquea la venta. La API acepta el comprobante, lo numera y lo devuelve al
+        momento; <b>un proceso aparte lo manda a SUNAT y reintenta</b> si el servicio está caído, que
+        pasa más de lo que uno esperaría. Por eso el panel enseña estados de verdad —en cola,
+        enviado, aceptado, observado, rechazado— y no un «listo» que no significa nada.
+      </p>
+      <p>
+        Cada empresa ve solo lo suyo, y eso se sostiene <b>en la base de datos, no en el código</b>:
+        las tablas van con seguridad a nivel de fila y el rol con el que se conecta la API no puede
+        saltársela. Si mañana una consulta olvida filtrar por empresa, no devuelve datos ajenos:
+        devuelve vacío.
+      </p>
+      <ul class="pila-tec">
+        <li>TypeScript</li><li>NestJS</li><li>Prisma · PostgreSQL</li><li>RLS</li><li>pg-boss</li><li>UBL 2.1</li><li>XML-DSig</li><li>SOAP</li><li>React</li>
+      </ul>
+
+      <h2>Qué es y qué no es</h2>
+      <p>
+        Está probada contra el <b>entorno de pruebas de SUNAT</b>: factura, boleta, notas de crédito y
+        débito, detracción y recargo al consumo. Lo que <b>todavía no ha pasado</b> es emitir con un
+        RUC real en producción, y hasta que eso ocurra no diré que está terminada.
+      </p>
+      <p>
+        Y una cosa que aprendí preparando este caso: al emitir con bolsas plásticas, SUNAT rechaza el
+        comprobante si el número de bolsas no coincide con la cantidad de la línea. <b>Lo encontré
+        emitiendo, no leyendo la norma</b>, y está anotado como error con su XML para corregirlo. Esa
+        es la diferencia entre decir que algo funciona y haberlo visto funcionar.
+      </p>
+
+      <section class="cierre">
+        <h2>¿Emites comprobantes y te pelas con el facturador?</h2>
+        <p>
+          Sistemas que emiten ante SUNAT desde dentro, sin copiar datos a otra pantalla y sin
+          depender de un tercero para la parte que decide si la venta existe.
+        </p>
+        <a class="accion" href="/contacto/">Hablemos →</a>
+      </section>
+
+      <footer class="pie-caso">
+        <p>
+          Producto de Kip-Up. El vídeo sale del entorno de pruebas, con el RUC de demostración que
+          publica SUNAT y datos inventados: ningún comprobante de este caso es real.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

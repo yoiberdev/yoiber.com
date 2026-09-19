@@ -5,3 +5,7 @@
 import '@fontsource-variable/space-grotesk';
 import '@fontsource-variable/jetbrains-mono';
 import '../styles/pagina.css';
+import { sugerirIdioma } from '../comun/idioma';
+
+// El aviso de «esta página también está en…», si el navegador pide el otro idioma.
+sugerirIdioma();

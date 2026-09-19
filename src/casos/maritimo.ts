@@ -1,6 +1,7 @@
 import '@fontsource-variable/space-grotesk';
 import '@fontsource-variable/jetbrains-mono';
 import '../styles/pagina.css';
+import { sugerirIdioma } from '../comun/idioma';
 import { animate, createDrawable, createMotionPath, createTimeline, stagger, utils, type JSAnimation } from 'animejs';
 
 // EL RECORRIDO DE LA SEÑAL (caso marítimo)
@@ -178,3 +179,6 @@ if (svg && pasosLi.length && btn && contPuntos) {
   if (reducido) btn.textContent = REANUDAR;
   else avanceAutomatico();
 }
+
+// El aviso de «esta página también está en…», si el navegador pide el otro idioma.
+sugerirIdioma();
