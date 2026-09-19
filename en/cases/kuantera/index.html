@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f1e1d" />
+    <title>The receipt leaves the system and the tax office accepts it · Yoiber</title>
+    <meta name="description" content="Kuantera: Peruvian electronic invoicing with no middleman. UBL 2.1 built by hand, XML-DSig signature with the business's own certificate, SOAP delivery and the response kept." />
+    <link rel="canonical" href="https://yoiber.com/en/cases/kuantera/" />
+    <link rel="alternate" hreflang="en" href="https://yoiber.com/en/cases/kuantera/" />
+    <link rel="alternate" hreflang="es" href="https://yoiber.com/casos/kuantera/" />
+    <link rel="alternate" hreflang="x-default" href="https://yoiber.com/casos/kuantera/" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://yoiber.com/en/cases/kuantera/" />
+    <meta property="og:site_name" content="Yoiber" />
+    <meta property="og:title" content="The receipt leaves the system and the tax office accepts it" />
+    <meta property="og:description" content="Peruvian electronic invoicing written from scratch: UBL 2.1, digital signature and delivery to SUNAT with each business's own certificate." />
+    <meta property="og:image" content="https://yoiber.com/casos/kuantera-og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Detail of a receipt accepted by the tax office, with the notice «SUNAT lo aceptó»" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://yoiber.com/en/" },
+            { "@type": "ListItem", "position": 2, "name": "The receipt leaves the system and the tax office accepts it" }
+          ]
+        },
+        {
+          "@type": "Article",
+          "@id": "https://yoiber.com/en/cases/kuantera/#caso",
+          "headline": "The receipt leaves the system and the tax office accepts it",
+          "description": "Kuantera: Peruvian electronic invoicing with no middleman, signed with each company's own certificate and tax-office credentials.",
+          "inLanguage": "en",
+          "image": "https://yoiber.com/casos/kuantera-og.png",
+          "datePublished": "2026-09-19T00:00:00-05:00",
+          "dateModified": "%FECHA_PUBLICACION%",
+          "author": { "@id": "https://yoiber.com/#yoiber" },
+          "isPartOf": { "@id": "https://yoiber.com/#sitio" },
+          "about": ["Electronic invoicing", "SUNAT", "UBL 2.1", "XML-DSig", "NestJS", "PostgreSQL"]
+        }
+      ]
+    }
+    </script>
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script defer src="/stats.js" data-website-id="e6fa5fba-eca9-4a8c-86c0-3d2f4f4f61cc" data-host-url="/stats"></script>
+    <script type="module" src="/src/casos/estatico.ts"></script>
+  </head>
+  <body>
+    <nav class="barra" aria-label="Back">
+      <a href="/en/">
+        <svg viewBox="0 0 439 523" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path class="mono-a" d="M204.77 0C235.539 0 254.787 33.2885 239.437 59.9551L141.891 229.411L8.98075 65.1621C-12.183 39.0082 6.43132 0.000141945 40.0755 0H204.77Z" />
+          <path class="mono-b" d="M218.56 324.158C236.233 345.998 270.324 343.292 284.33 318.938L287.17 314H287.248L178.507 502.841C171.367 515.239 158.15 522.881 143.844 522.881H41.9276C11.1516 522.881 -8.09548 489.579 7.26839 462.912L141.839 229.348L218.56 324.158Z" />
+          <path class="mono-c" d="M398.846 0.0380859C400.995 0.0380805 403.088 0.200518 405.117 0.511719C431.98 4.79989 447.501 35.2121 433.279 59.9414L284.33 318.938C270.324 343.292 236.234 345.998 218.561 324.158L141.84 229.347L262.418 20.0693C269.559 7.67596 282.774 0.0390986 297.077 0.0390625L398.846 0.0380859Z" />
+        </svg>
+        <span class="vuelta">← yoiber.com</span>
+      </a>
+      <a class="idioma" href="/casos/kuantera/" hreflang="es" lang="es">Español</a>
+    </nav>
+
+    <main class="escena">
+      <header>
+        <p class="kicker">Case · a Kip-Up product</p>
+        <h1>The receipt leaves the system and the tax office accepts it</h1>
+        <p class="entradilla">
+          In Peru a sale isn't over when the customer pays: it's over when SUNAT, the tax office,
+          accepts the receipt — and each one has <b>three calendar days</b> to get there. Kuantera is
+          the piece that makes that trip: it builds the document, signs it and sends it, and it is
+          <b>written from scratch, with no middleman in between</b>.
+        </p>
+      </header>
+
+      <h2>What it looks like</h2>
+      <p>
+        Fifteen seconds, from an empty screen to the receipt filed: pick the customer, add a line,
+        and on submit the server signs and sends. The status updates on its own.
+      </p>
+
+      <figure class="figura video">
+        <video src="/casos/kuantera-emitir.mp4" poster="/casos/kuantera-cartel.png"
+               width="1000" height="565" controls muted loop playsinline preload="none"></video>
+        <figcaption>
+          A real issue against <b>the tax office's test environment</b>: receipt B001-16 goes out for
+          S/ 36.00, sits «in the queue», and at the end SUNAT answers <b>code 0, accepted</b>. What's
+          stored isn't a «sent» flag: it's the official acknowledgement, the signed XML and the PDF.
+        </figcaption>
+      </figure>
+
+      <h2>How it works inside</h2>
+      <p>
+        A Peruvian electronic receipt is a <b>UBL 2.1 XML</b> with a digital signature inside it,
+        wrapped in a ZIP and handed over by SOAP. There is no library doing that here: it is written
+        in the project, in <code>packages/sunat</code>, because that is exactly where it's decided
+        whether the document is valid or gets rejected over one misplaced figure.
+      </p>
+      <p>
+        <b>The signature is the part that isn't negotiable.</b> Every receipt is signed with the
+        digital certificate and tax-office credentials of <i>the business issuing it</i>, never mine
+        nor the agency's: before SUNAT, the issuer is them. Using your own credentials to issue on
+        behalf of others would mean registering as an electronic service provider, which is a
+        different business and a different liability.
+      </p>
+      <p>
+        Sending doesn't block the sale. The API accepts the receipt, numbers it and returns it right
+        away; <b>a separate worker delivers it to SUNAT and retries</b> when the service is down,
+        which happens more often than you'd expect. That's why the panel shows honest states — queued,
+        sent, accepted, observed, rejected — instead of a «done» that means nothing.
+      </p>
+      <p>
+        Each company sees only its own data, and that holds <b>in the database, not in the code</b>:
+        the tables use row-level security and the role the API connects with cannot bypass it. If a
+        query ever forgets to filter by company, it doesn't return someone else's rows — it returns
+        nothing.
+      </p>
+      <ul class="pila-tec">
+        <li>TypeScript</li><li>NestJS</li><li>Prisma · PostgreSQL</li><li>RLS</li><li>pg-boss</li><li>UBL 2.1</li><li>XML-DSig</li><li>SOAP</li><li>React</li>
+      </ul>
+
+      <h2>What it is and what it isn't</h2>
+      <p>
+        It's tested against <b>the tax office's test environment</b>: invoices, receipts, credit and
+        debit notes, withholding and service charge. What <b>hasn't happened yet</b> is issuing with a
+        real taxpayer ID in production, and until that day I won't call it finished.
+      </p>
+      <p>
+        And one thing I learned while preparing this case: when plastic bags are involved, SUNAT
+        rejects the document if the number of bags doesn't match the quantity on the line. <b>I found
+        it by issuing, not by reading the spec</b>, and it's filed as a bug with its XML attached.
+        That's the difference between saying something works and having watched it work.
+      </p>
+
+      <section class="cierre">
+        <h2>Do you issue tax receipts and fight your invoicing tool?</h2>
+        <p>
+          Systems that file with the tax office from the inside, without copying data into another
+          screen and without depending on a third party for the part that decides whether the sale
+          exists.
+        </p>
+        <a class="accion" href="/en/contact/">Let's talk →</a>
+      </section>
+
+      <footer class="pie-caso">
+        <p>
+          A Kip-Up product. The video comes from the test environment, with the demonstration
+          taxpayer ID the tax office publishes and made-up data: no receipt in this case is real.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

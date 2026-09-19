@@ -193,6 +193,14 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
 }
 .figura figcaption { margin-top: 0.7rem; max-width: 68ch; color: var(--muted); font-size: 0.92rem; line-height: 1.6; }
 .figura figcaption b { color: var(--fg); font-weight: 600; }
+/* VÍDEO en vez de GIF. Un GIF de esta grabación pesa 713 KB y no se puede parar, que choca con
+   `prefers-reduced-motion`; el mismo metraje en h.264 son 260 KB. Sin `autoplay` a propósito: se
+   mira cuando la persona quiere, y con `preload="none"` no se descarga hasta que le da al play. */
+.figura video {
+  display: block; width: 100%; height: auto;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--placa);
+}
+
 /* Dos capturas que se leen juntas; en una columna por debajo de 46rem. */
 .dos { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(23rem, 1fr)); }
 .dos .figura { margin: 0; }

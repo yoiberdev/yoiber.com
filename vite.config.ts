@@ -23,12 +23,14 @@ const PAGINAS: Pagina[] = [
   { nombre: 'caso-erp', entrada: 'casos/erp-centro-de-terapias/index.html', url: '/casos/erp-centro-de-terapias/', lang: 'es', alterna: '/en/cases/therapy-center-erp/' },
   { nombre: 'caso-campo', entrada: 'casos/gestion-de-campo-embarcaciones/index.html', url: '/casos/gestion-de-campo-embarcaciones/', lang: 'es', alterna: '/en/cases/field-operations-at-sea/' },
   { nombre: 'caso-kuidy', entrada: 'casos/kuidy-core/index.html', url: '/casos/kuidy-core/', lang: 'es', alterna: '/en/cases/kuidy-core/' },
+  { nombre: 'caso-kuantera', entrada: 'casos/kuantera/index.html', url: '/casos/kuantera/', lang: 'es', alterna: '/en/cases/kuantera/' },
   { nombre: 'contacto', entrada: 'contacto/index.html', url: '/contacto/', lang: 'es', alterna: '/en/contact/' },
   { nombre: 'en-entrada', entrada: 'en/index.html', url: '/en/', lang: 'en' },
   { nombre: 'en-caso-maritimo', entrada: 'en/cases/live-video-from-vessels/index.html', url: '/en/cases/live-video-from-vessels/', lang: 'en', alterna: '/casos/videovigilancia-maritima/' },
   { nombre: 'en-caso-erp', entrada: 'en/cases/therapy-center-erp/index.html', url: '/en/cases/therapy-center-erp/', lang: 'en', alterna: '/casos/erp-centro-de-terapias/' },
   { nombre: 'en-caso-campo', entrada: 'en/cases/field-operations-at-sea/index.html', url: '/en/cases/field-operations-at-sea/', lang: 'en', alterna: '/casos/gestion-de-campo-embarcaciones/' },
   { nombre: 'en-caso-kuidy', entrada: 'en/cases/kuidy-core/index.html', url: '/en/cases/kuidy-core/', lang: 'en', alterna: '/casos/kuidy-core/' },
+  { nombre: 'en-caso-kuantera', entrada: 'en/cases/kuantera/index.html', url: '/en/cases/kuantera/', lang: 'en', alterna: '/casos/kuantera/' },
   { nombre: 'en-contacto', entrada: 'en/contact/index.html', url: '/en/contact/', lang: 'en', alterna: '/contacto/' },
 ];
 
