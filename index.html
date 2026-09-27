@@ -271,7 +271,7 @@
             <li><a href="/casos/kuantera/">Kuantera</a><span class="pila">NestJS · PostgreSQL con RLS · UBL 2.1 · XML-DSig</span></li>
             <li><a href="https://comandas-dev.kipups.com" target="_blank" rel="noopener">Kip-Up Comandas</a><span class="pila">Next.js · Prisma · Socket.IO · ESC/POS</span></li>
             <li><a href="https://kipups.com" target="_blank" rel="noopener">Automatizaciones</a><span class="pila">n8n · PostgreSQL · Google Calendar · Telegram</span></li>
-            <li><a href="https://kuidy-core-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">KUIDY-CORE</a><span class="pila">Hono · Drizzle · PostgreSQL con JSONB · React</span></li>
+            <li><a href="/casos/videovigilancia-maritima/">Vídeo desde barcos</a><span class="pila">Python · Go · SRT · HLS · MQTT</span></li>
             <li><a href="https://sebas.yoiber.dev" target="_blank" rel="noopener">Web de Sebastian Murazzo</a><span class="pila">Vite · TypeScript · three.js · Anime.js</span></li>
           </ul>
         </div>
@@ -279,8 +279,8 @@
       <p class="pie-bloque pie-final">© 2026 Yoiber · <a href="#" id="arriba">Volver arriba</a></p>
     </footer>
 
-    <!-- LA GALERÍA. Cinco proyectos (27/09/2026: Kuantera, Comandas, las automatizaciones, KUIDY-CORE y
-         la web de Sebastian; fuera SysRRHH, TechDocAPI y la API financiera), cada uno con su VITRINA:
+    <!-- LA GALERÍA. Cinco proyectos (27/09/2026: Kuantera, Comandas, las automatizaciones, el vídeo desde
+         barcos y la web de Sebastian; fuera SysRRHH, TechDocAPI, la API financiera y KUIDY-CORE), cada uno con su VITRINA:
          el trabajo en movimiento, grande, donde antes estaba el motor (effects/vitrinas.ts pone los
          carteles y los vídeos al acercarse y anda solo el de la tarjeta que manda). Las secciones de #capitulos son espaciadores:
          lo que se ve vive aquí, en una capa fija, y el reloj del maestro decide cuál está delante.
@@ -375,12 +375,11 @@
 
       <article class="tarjeta" data-slot="2">
         <h2>Automatizaciones</h2>
-        <figure class="captura" style="--proporcion: 600 / 1170">
-            <span class="vitrina" data-marco="movil">
-              <span class="vitrina-medio">
-                <img class="vitrina-cartel" data-src="/proyectos/citas-cartel.webp" alt="Grabación en un móvil de la reserva de Citas de una clínica de demostración: se rellenan nombre, teléfono y correo, se elige servicio y hora." width="600" height="1170" decoding="async" />
-                <video class="vitrina-video" data-video="/proyectos/citas" muted loop playsinline preload="none" aria-hidden="true"></video>
-                <noscript><img class="vitrina-sin-js" src="/proyectos/citas-cartel.webp" alt="Grabación en un móvil de la reserva de Citas de una clínica de demostración: se rellenan nombre, teléfono y correo, se elige servicio y hora." /></noscript>
+        <figure class="captura" style="--proporcion: 1000 / 625">
+            <span class="vitrina" data-marco="lienzo">
+              <span class="vitrina-medio" data-sim="automatizaciones">
+                <img class="vitrina-cartel" data-src="/proyectos/automatizaciones-cartel.webp" alt="Simulación de Citas: el teléfono del cliente con la reserva confirmada, la cita nueva en la agenda del negocio, el flujo de n8n y el aviso en el grupo de Telegram." width="1000" height="625" decoding="async" />
+                <noscript><img class="vitrina-sin-js" src="/proyectos/automatizaciones-cartel.webp" alt="Simulación de Citas: el teléfono del cliente con la reserva confirmada, la cita nueva en la agenda del negocio, el flujo de n8n y el aviso en el grupo de Telegram." /></noscript>
               </span>
             </span>
         </figure>
@@ -402,41 +401,39 @@
           <p class="detalle">Las horas libres salen del calendario real del negocio: si Google falla, no se ofrecen horas inventadas. Un recordatorio que no sale no se da por enviado y se reintenta en la siguiente ronda. Con la misma pieza, el cierre de caja de Comandas le llega al dueño cada noche por Telegram y correo.</p>
         </details>
         <p class="acceso">Producto de <a href="https://kipups.com" target="_blank" rel="noopener">Kip-Up</a> · flujos en n8n</p>
-        <p class="aviso">La grabación es la reserva de una clínica de demostración, sin llegar a reservar.</p>
+        <p class="aviso">Simulación con datos inventados de una clínica de demostración.</p>
       </article>
 
       <article class="tarjeta" data-slot="3">
-        <h2>KUIDY-CORE</h2>
-        <figure class="captura" style="--proporcion: 1200 / 750">
+        <h2>Vídeo desde barcos</h2>
+        <figure class="captura" style="--proporcion: 1000 / 625">
             <span class="vitrina" data-marco="navegador">
-              <span class="vitrina-barra" aria-hidden="true"><i></i><i></i><i></i><span class="vitrina-url">kuidy-core-demo</span></span>
-              <span class="vitrina-medio">
-                <img class="vitrina-cartel" data-src="/proyectos/kuidy-cartel.webp" alt="Capturas de KUIDY-CORE: el diseñador de campos, el formulario que genera y el módulo con sus registros." width="1200" height="750" decoding="async" />
-                <video class="vitrina-video" data-video="/proyectos/kuidy" muted loop playsinline preload="none" aria-hidden="true"></video>
-                <noscript><img class="vitrina-sin-js" src="/proyectos/kuidy-cartel.webp" alt="Capturas de KUIDY-CORE: el diseñador de campos, el formulario que genera y el módulo con sus registros." /></noscript>
+              <span class="vitrina-barra" aria-hidden="true"><i></i><i></i><i></i><span class="vitrina-url">centro de control · simulación</span></span>
+              <span class="vitrina-medio" data-sim="camaras">
+                <img class="vitrina-cartel" data-src="/proyectos/camaras-cartel.webp" alt="Simulación de la sala de control: el mapa con cinco embarcaciones, la cámara en directo de una de ellas, la cola a bordo y el control por MQTT." width="1000" height="625" decoding="async" />
+                <noscript><img class="vitrina-sin-js" src="/proyectos/camaras-cartel.webp" alt="Simulación de la sala de control: el mapa con cinco embarcaciones, la cámara en directo de una de ellas, la cola a bordo y el control por MQTT." /></noscript>
               </span>
             </span>
         </figure>
         <span class="avance" aria-hidden="true"></span>
-        <p class="que">Plataforma sin código: defines proyectos, módulos y campos, y un motor genérico dibuja los formularios y valida los registros.</p>
-        <p class="pila">Hono · Drizzle · PostgreSQL con JSONB · React</p>
-        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="formulario">
-          <rect data-paso="campo1" x="1" y="4" width="166" height="22" rx="3" />
-          <rect data-paso="campo2" x="185" y="4" width="166" height="22" rx="3" />
-          <rect data-paso="campo3" x="1" y="38" width="166" height="22" rx="3" />
-          <rect data-paso="boton" x="185" y="38" width="96" height="22" rx="3" />
-          <rect class="relleno" data-paso="relleno" data-fundido x="185" y="38" width="96" height="22" rx="3" />
-          <text data-paso="r1" x="10" y="18.5">NOMBRE DEL CAMPO</text>
-          <text data-paso="r2" x="194" y="18.5">TIPO · FECHA</text>
-          <text data-paso="r3" x="10" y="52.5">REGLA · OBLIGATORIO</text>
-          <text class="sobre" data-paso="r4" x="233" y="52.5" text-anchor="middle">GUARDAR</text>
+        <p class="que">Las cámaras de barcos de pesca, en directo desde tierra, a cientos de kilómetros y con un enlace por satélite que se cae varias veces al día.</p>
+        <p class="pila">Python · Go · SRT · HLS · MQTT</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="flujo">
+          <line data-paso="linea" x1="1" y1="32" x2="326" y2="32" />
+          <rect class="tapa" data-paso="caja1" x="1" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja2" x="115" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja3" x="229" y="18" width="98" height="28" rx="3" />
+          <text data-paso="r1" x="50" y="35.5" text-anchor="middle">A BORDO</text>
+          <text data-paso="r2" x="164" y="35.5" text-anchor="middle">SRT · SATÉLITE</text>
+          <text data-paso="r3" x="278" y="35.5" text-anchor="middle">NAVEGADOR</text>
+          <polyline data-paso="tic" points="337,33 344,40 358,24" />
         </svg>
         <details class="por-dentro" open>
           <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
-          <p class="detalle">El validador se construye en tiempo de ejecución a partir de los metadatos y es el mismo en el navegador y en el servidor. Los registros viven en una sola tabla JSONB con índice GIN.</p>
+          <p class="detalle">El vídeo sale por SRT, que va sobre UDP y recupera lo perdido sin atascarse: con mal enlace baja la calidad, no se corta la sesión. Lo que no puede salir espera en una cola SQLite a bordo, y las órdenes viajan aparte por MQTT, así que el barco sigue respondiendo aunque el vídeo caiga.</p>
         </details>
-        <p class="acceso"><a href="https://kuidy-core-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir la demo</a> · <code>owner@kuidy.demo</code> / <code>Demo1234!</code></p>
-        <p class="aviso">Entra como propietario y crea un campo nuevo: el formulario se adapta solo. El caso, en <a href="/casos/kuidy-core/">su página</a>.</p>
+        <p class="acceso"><a href="/casos/videovigilancia-maritima/">Ver el caso</a> · el recorrido de la señal, paso a paso</p>
+        <p class="aviso">Simulación con una flota inventada: la pantalla real es del cliente y no se enseña.</p>
       </article>
 
       <article class="tarjeta" data-slot="4">

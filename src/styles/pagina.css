@@ -256,3 +256,13 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
 .vias a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 0.1rem; }
 .vias a:hover, .vias a:focus-visible { border-bottom-color: var(--acento); }
 .vias .etiqueta { display: block; font-family: var(--etiqueta); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+
+/* LA GUÍA SIMULADA del caso marítimo (src/sim/camaras.ts en modo guía, montada por casos/maritimo.ts):
+   el marco guarda la proporción de la escena (1000x625) y es su contenedor de tamaño; debajo, la
+   fila de pasos y los mandos. */
+.guia-sim { --sim-acento: #5fd4e6; margin: 1.75rem 0 3rem; }
+.guia-sim-marco {
+  position: relative; aspect-ratio: 1000 / 625; container-type: inline-size; overflow: hidden;
+  border: 1px solid var(--line); border-radius: 12px; background: #0b1422;
+  box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 0.35);
+}

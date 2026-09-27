@@ -2,6 +2,7 @@ import '@fontsource-variable/instrument-sans';
 import '@fontsource/fragment-mono';
 import '../styles/pagina.css';
 import { sugerirIdioma } from '../comun/idioma';
+import { montarCamaras } from '../sim/camaras';
 import { animate, createDrawable, createMotionPath, createTimeline, stagger, utils, type JSAnimation } from 'animejs';
 
 // EL RECORRIDO DE LA SEÑAL (caso marítimo)
@@ -182,3 +183,23 @@ if (svg && pasosLi.length && btn && contPuntos) {
 
 // El aviso de «esta página también está en…», si el navegador pide el otro idioma.
 sugerirIdioma();
+
+// LA GUÍA SIMULADA (arriba del diagrama): la sala de control de src/sim/camaras.ts, con su fila de
+// pasos. Anda solo mientras se ve (a la vista de un tercio del marco) y con movimiento reducido se
+// queda quieta en su instante más explicativo; los pasos siguen saltando.
+const marcoGuia = document.querySelector<HTMLElement>('#guia-sim');
+if (marcoGuia) {
+  const quieta = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const capa = document.createElement('div');
+  marcoGuia.append(capa);
+  const sim = montarCamaras(capa, { reduce: quieta, guia: marcoGuia });
+  let tocada = false;
+  new IntersectionObserver(([e]) => {
+    if (e.isIntersecting) {
+      if (!tocada) { tocada = true; sim.reiniciar(); }
+      sim.reproducir();
+    } else {
+      sim.pausar();
+    }
+  }, { threshold: 0.33 }).observe(marcoGuia);
+}

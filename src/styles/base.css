@@ -360,6 +360,9 @@ html.motor-on #stage { opacity: 0; }
   grid-template-rows: minmax(0, 1fr);
 }
 .vitrina[data-marco="movil"] .vitrina-medio { border-radius: 1.7rem; overflow: hidden; }
+/* EL LIENZO: sin barra ni bisel, para una escena que no es una sola aplicación (la simulación de las
+   automatizaciones, sim/automatizaciones.ts: teléfono, agenda, flujo y chat a la vez). */
+.vitrina[data-marco="lienzo"] { --barra: 0px; grid-template-rows: minmax(0, 1fr); border-radius: 14px; }
 /* JERARQUÍA DE LA TARJETA. Antes todo iba entre 12 y 15 px a peso 400-600 y el título no mandaba.
    Ahora hay tres voces claras: el título a 3 rem y peso 700, el "qué" a 1,15 rem, y el resto (pila,
    detalle, acceso, aviso) por debajo de 1 rem. Las medidas caben en 1440x900 con el detalle; en

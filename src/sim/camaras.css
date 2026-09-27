@@ -1,0 +1,128 @@
+/* LA SALA DE CONTROL (sim/camaras.ts). Diseño a 1000x625 px en em (1 em = 16 px de diseño). Noche
+   azul, telemetría en mono, cian para lo que va bien, ámbar para lo que empeora y rojo para lo caído.
+   Los bucles de ambiente (olas, balanceo, flujo del enlace, latido) son animaciones CSS que solo
+   corren con la escena en marcha (.corriendo, lo pone el motor) y se congelan con el enlace caído. */
+.sim-camaras {
+  --sim-acento: #5fd4e6;
+  --cc-fondo: #0b1422; --cc-panel: #0e1a2c; --cc-linea: #1d2c44; --cc-texto: #dfe8f5; --cc-gris: #7f93ad;
+  --cc-bien: #5fd4e6; --cc-mal: #ffb547; --cc-caido: #ff6b6b;
+  background: var(--cc-fondo); color: var(--cc-texto);
+  font-family: var(--etiqueta, system-ui, sans-serif);
+}
+/* 18,5 em del rótulo (410 px de diseño): se queda sobre el mapa también cuando la cámara se acerca
+   al panel, que entonces empieza hacia el 40 % del ancho; más ancho tapaba la respuesta de MQTT. */
+.sim-camaras .sim-nota { max-width: 18.5em; }
+.sim-camaras .sim-onda { color: var(--cc-bien); }
+.cc { position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr) 25em; grid-template-rows: 2.75em minmax(0, 1fr); }
+.cc-barra {
+  grid-column: 1 / -1; display: flex; align-items: center; gap: 0.6em; padding: 0 1.1em;
+  border-bottom: 0.0625em solid var(--cc-linea); background: #0d182a; font-size: 0.85em;
+}
+.cc-marca { display: flex; align-items: center; gap: 0.55em; margin-right: auto; font-weight: 600; letter-spacing: 0.01em; }
+.cc-marca i { width: 0.8em; height: 0.8em; border-radius: 0.2em; background: linear-gradient(135deg, var(--cc-bien), #2c6fd6); }
+.cc-chip { padding: 0.25em 0.65em; border: 0.0625em solid var(--cc-linea); border-radius: 999px; color: var(--cc-gris); }
+.cc-chip b { color: var(--cc-texto); font-family: var(--mono, monospace); font-weight: 400; margin-left: 0.25em; }
+.cc-reloj { font-family: var(--mono, monospace); color: var(--cc-gris); margin-left: 0.4em; }
+
+.cc-mapa { position: relative; overflow: hidden; }
+.cc-mapa svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.cc-reticula line { stroke: rgb(95 212 230 / 0.05); stroke-width: 1; }
+.cc-isobatas path { fill: none; stroke: rgb(95 212 230 / 0.13); stroke-width: 1; }
+.cc-tierra { fill: #182231; stroke: #2a3a52; stroke-width: 1.2; }
+.cc-puerto circle { fill: var(--cc-texto); }
+.cc-puerto text, .cc-sat text, .cc-escala text, .cc-km { fill: var(--cc-gris); font: 11px/1 var(--mono, monospace); }
+.cc-sat rect { fill: #2a3a52; stroke: var(--cc-gris); stroke-width: 0.8; }
+.cc-escala line { stroke: var(--cc-gris); stroke-width: 1; }
+.cc-barco .cc-casco { fill: #b9c7da; }
+.cc-barco .cc-id { fill: #b9c7da; font: 600 11px/1 var(--mono, monospace); }
+.cc-e03 .cc-casco, .cc-e03 .cc-id { fill: #fff; }
+.cc-anillo, .cc-latido { fill: none; stroke: var(--cc-bien); stroke-width: 1.6; transition: stroke 0.3s; }
+.cc-latido { transform-box: fill-box; transform-origin: center; opacity: 0; }
+.sim.corriendo .cc-latido { animation: cc-latido 1.8s ease-out infinite; }
+@keyframes cc-latido { from { transform: scale(1); opacity: 0.7; } to { transform: scale(2.1); opacity: 0; } }
+.cc-barras rect { fill: rgb(255 255 255 / 0.18); transition: fill 0.25s; }
+.cc-barras rect.on { fill: var(--cc-bien); }
+.cc-enlace { fill: none; stroke: var(--cc-bien); stroke-width: 1.8; stroke-dasharray: 6 7; transition: stroke 0.3s; }
+.sim.corriendo .cc-enlace { animation: cc-flujo 0.9s linear infinite; }
+@keyframes cc-flujo { to { stroke-dashoffset: -13; } }
+.cc.mal .cc-enlace, .cc.mal .cc-anillo, .cc.mal .cc-latido { stroke: var(--cc-mal); }
+.cc.mal .cc-barras rect.on { fill: var(--cc-mal); }
+.cc.caido .cc-enlace { stroke: var(--cc-caido); stroke-dasharray: 2 10; animation: none; }
+.cc.caido .cc-anillo, .cc.caido .cc-latido { stroke: var(--cc-caido); }
+
+.cc-panel { position: relative; padding: 0.85em 1em; background: var(--cc-panel); border-left: 0.0625em solid var(--cc-linea); overflow: hidden; }
+.cc-vacio {
+  position: absolute; inset: 0; margin: 0; display: grid; place-content: center; justify-items: center; gap: 0.8em;
+  color: var(--cc-gris); font-size: 1em; text-align: center;
+}
+.cc-vacio i { width: 2.4em; height: 2.4em; border: 0.12em dashed var(--cc-linea); border-radius: 50%; }
+.cc-ficha { display: flex; flex-direction: column; gap: 0.5em; }
+.cc-cab { display: flex; align-items: baseline; gap: 0.6em; height: 2em; }
+.cc-cab b { font: 400 1.5em/1 var(--mono, monospace); }
+.cc-pill { padding: 0.15em 0.55em; border-radius: 999px; background: rgb(94 227 154 / 0.14); color: #5ee39a; font-size: 0.75em; font-weight: 600; }
+.cc-lejos { margin-left: auto; color: var(--cc-gris); font-size: 0.8em; }
+
+.cc-video { position: relative; aspect-ratio: 16 / 9; border-radius: 0.5em; overflow: hidden; background: #05080d; }
+.cc-escena { position: absolute; inset: -12% -8%; transform-origin: 50% 60%; }
+.sim.corriendo .cc-escena { animation: cc-balanceo 7.3s ease-in-out infinite alternate; }
+.cc.caido .cc-escena, .cc.caido .cc-olas { animation-play-state: paused !important; }
+@keyframes cc-balanceo { from { transform: rotate(-2.4deg) translateY(1%); } to { transform: rotate(2.1deg) translateY(-1.5%); } }
+.cc-cielo { position: absolute; left: 0; right: 0; top: 0; height: 58%; background: linear-gradient(#1c2b4d 0%, #4a4d74 55%, #d58a63 100%); }
+.cc-mar { position: absolute; left: 0; right: 0; top: 58%; bottom: 0; overflow: hidden; background: linear-gradient(#27415f, #0f1f33); }
+.cc-olas { position: absolute; left: 0; top: 0; width: 200%; height: 100%; }
+.cc-olas path { fill: none; stroke: rgb(255 255 255 / 0.16); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.sim.corriendo .cc-olas { animation: cc-olas 6s linear infinite; }
+@keyframes cc-olas { to { transform: translateX(-50%); } }
+.cc-borda { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cc-borda path { fill: #0a0d12; }
+.cc-borda .cc-baranda { fill: none; stroke: #222a35; stroke-width: 1.6; }
+.cc-bloques { position: absolute; inset: 0; width: 100%; height: 100%; mix-blend-mode: hard-light; }
+.cc-bloques rect { fill: #3b5575; }
+.cc-flash { position: absolute; inset: 0; background: #fff; opacity: 0; }
+.cc-sinsenal {
+  position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 0.6em;
+  background: rgb(5 8 13 / 0.62); color: #ffd0d0; font-size: 0.85em; font-weight: 600;
+}
+.cc-sinsenal i { width: 1.6em; height: 1.6em; border-radius: 50%; border: 0.18em solid rgb(255 107 107 / 0.3); border-top-color: var(--cc-caido); }
+.sim.corriendo .cc-sinsenal i { animation: cc-giro 0.9s linear infinite; }
+@keyframes cc-giro { to { transform: rotate(1turn); } }
+.cc-vivo {
+  position: absolute; top: 0.6em; left: 0.6em; padding: 0.2em 0.5em 0.2em 1.2em; border-radius: 0.3em;
+  background: rgb(5 8 13 / 0.7); font-size: 0.65em; font-weight: 700; letter-spacing: 0.08em;
+}
+.cc-vivo::before { content: ''; position: absolute; left: 0.5em; top: 50%; width: 0.45em; height: 0.45em; margin-top: -0.225em; border-radius: 50%; background: #ff4d4d; }
+.cc.caido .cc-vivo { opacity: 0.4; }
+.cc-hora { position: absolute; left: 0.6em; bottom: 0.5em; font: 0.65em/1 var(--mono, monospace); color: rgb(255 255 255 / 0.85); text-shadow: 0 0.1em 0.2em #000; }
+.cc-hora b { font-weight: 400; }
+
+.cc-datos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5em; margin: 0; }
+.cc-datos div { padding: 0.35em 0.6em; border: 0.0625em solid var(--cc-linea); border-radius: 0.4em; }
+.cc-datos dt { color: var(--cc-gris); font-size: 0.7em; }
+.cc-datos dd { margin: 0.1em 0 0; font-size: 0.8em; color: var(--cc-gris); }
+.cc-datos b { font: 400 1.35em/1.1 var(--mono, monospace); color: var(--cc-texto); transition: color 0.3s; }
+.cc.mal .cc-datos b { color: var(--cc-mal); }
+.cc.caido .cc-datos b { color: var(--cc-caido); }
+
+.cc-tit { display: flex; align-items: center; gap: 0.45em; margin: 0 0 0.45em; font-size: 0.8em; font-weight: 600; }
+.cc-tit span { color: var(--cc-gris); font: 400 0.9em/1 var(--mono, monospace); }
+.cc-cola { padding: 0.6em 0.7em; border: 0.0625em solid var(--cc-linea); border-radius: 0.5em; min-height: 5.6em; }
+.cc-cola-n { margin-left: auto; min-width: 1.8em; padding: 0.1em 0.45em; border-radius: 999px; background: rgb(255 181 71 / 0.16); color: var(--cc-mal); font: 400 1em/1.2 var(--mono, monospace); text-align: center; }
+.cc-cola ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.25em; }
+.cc-cola li { font-size: 0.72em; color: var(--cc-texto); white-space: nowrap; }
+.cc-cola time { font-family: var(--mono, monospace); color: var(--cc-gris); margin-right: 0.5em; }
+.cc-mqtt { position: relative; padding: 0.55em 0.7em; border: 0.0625em solid var(--cc-linea); border-radius: 0.5em; }
+.cc-boton {
+  margin-left: auto; padding: 0.3em 0.8em; border-radius: 0.35em; background: #1e6fd9; color: #fff !important;
+  font: 600 0.95em/1 var(--etiqueta, system-ui, sans-serif) !important; transition: transform 0.12s, background 0.12s;
+}
+.cc-boton.pulsado { transform: scale(0.94); background: #3b86ea; }
+.cc-log { margin: 0; min-height: 1.3em; font: 0.72em/1.55 var(--mono, monospace); color: var(--bien, #9fe7f2); }
+.cc-log1 { color: #9fe7f2; }
+.cc-log2 { color: #5ee39a; }
+.cc-cursor { display: inline-block; width: 0.5em; height: 1em; margin-left: 0.1em; vertical-align: -0.15em; background: #9fe7f2; opacity: 0; }
+.sim.corriendo .cc.tecleando .cc-cursor { animation: cc-parpadeo 0.8s steps(1) infinite; }
+@keyframes cc-parpadeo { 50% { opacity: 0.8; } }
+/* Las capturas que han llegado, en su propia fila bajo el registro: encima de él tapaban la respuesta. */
+.cc-fotos { display: flex; gap: 0.3em; margin-top: 0.45em; }
+.cc-fotos i { width: 2.6em; height: 1.46em; border-radius: 0.2em; background: linear-gradient(#4a4d74 0 45%, #d58a63 45% 55%, #27415f 55%); opacity: 0.55; }
+.cc-fotos .cc-nueva { opacity: 1; outline: 0.1em solid var(--cc-bien); }

@@ -1,4 +1,5 @@
 import type { Maestro } from '../core/maestro';
+import type { Sim } from '../sim/motor';
 import type { Galeria } from './galeria';
 
 // LAS VITRINAS DE LA GALERÍA — el trabajo de cada proyecto, andando
@@ -20,6 +21,13 @@ import type { Galeria } from './galeria';
 //   · MP4 (H.264) primero: es el más ligero y lo reproducen todos los navegadores de verdad. El WebM
 //     es la red para los que no traen H.264 (el Chromium de Playwright, algún Linux sin códecs).
 //
+// LAS SIMULACIONES (27/09/2026). Dos vitrinas no llevan vídeo sino una escena viva (src/sim/): las
+// cámaras de los barcos, que son de un cliente y no se pueden grabar, y las automatizaciones, que
+// pasan en tres pantallas a la vez. `data-sim` en la .vitrina-medio dice cuál; el trozo se pide con
+// los carteles (pesa poco y no descarga medios), se monta encima del cartel y sigue la misma regla:
+// solo anda la de la tarjeta que manda, y al volver a ella empieza desde el paso 1. Con movimiento
+// reducido se monta igual pero quieta, en su instante más explicativo.
+//
 // Este módulo NO escribe nada del maestro: la opacidad y el destape de la vitrina los lleva
 // galeria.ts con el scroll. Esto solo decide qué medio está cargado y cuál anda.
 
@@ -28,12 +36,36 @@ export interface Vitrinas {
   revertir(): void;
 }
 
-interface Vitrina { cartel: HTMLImageElement | null; video: HTMLVideoElement | null; base: string }
+interface Vitrina {
+  cartel: HTMLImageElement | null;
+  video: HTMLVideoElement | null;
+  base: string;
+  medio: HTMLElement | null;
+  sim: string;
+  escena: Sim | null;
+  capa: HTMLElement | null;
+}
+
+type MontarSim = (raiz: HTMLElement, opciones: { reduce: boolean }) => Sim;
+// Un import por escena, escrito entero: así Vite parte cada una en su trozo.
+const SIMS: Record<string, () => Promise<MontarSim>> = {
+  camaras: () => import('../sim/camaras').then((m) => m.montarCamaras),
+  automatizaciones: () => import('../sim/automatizaciones').then((m) => m.montarAutomatizaciones),
+};
 
 export function montarVitrinas(m: Maestro, galeria: Galeria, reduce: boolean): Vitrinas {
   const vitrinas: Vitrina[] = Array.from(document.querySelectorAll<HTMLElement>('#galeria-tarjetas .tarjeta')).map((t) => {
     const video = t.querySelector<HTMLVideoElement>('video.vitrina-video[data-video]');
-    return { cartel: t.querySelector<HTMLImageElement>('img.vitrina-cartel[data-src]'), video, base: video?.dataset.video ?? '' };
+    const medio = t.querySelector<HTMLElement>('.vitrina-medio');
+    return {
+      cartel: t.querySelector<HTMLImageElement>('img.vitrina-cartel[data-src]'),
+      video,
+      base: video?.dataset.video ?? '',
+      medio,
+      sim: medio?.dataset.sim ?? '',
+      escena: null,
+      capa: null,
+    };
   });
   if (!vitrinas.length) return { actualizar: () => undefined, revertir: () => undefined };
 
@@ -60,8 +92,27 @@ export function montarVitrinas(m: Maestro, galeria: Galeria, reduce: boolean): V
 
   let activa = -1;
   let visible = !document.hidden;
+  let vivo = true;
+  const montarSim = (v: Vitrina, i: number): void => {
+    const cargar = SIMS[v.sim];
+    if (!cargar || !v.medio) return;
+    cargar().then((montar) => {
+      if (!vivo || !v.medio || v.escena) return;
+      const capa = document.createElement('div');
+      v.medio.classList.add('con-sim');
+      v.medio.append(capa);
+      v.capa = capa;
+      v.escena = montar(capa, { reduce });
+      if (i === activa) { v.escena.reiniciar(); reproducir(); }
+    }).catch(() => undefined);   // sin el trozo se queda el cartel, que dice lo mismo quieto
+  };
+
   const reproducir = (): void => {
     for (let i = 0; i < vitrinas.length; i++) {
+      const escena = vitrinas[i].escena;
+      if (escena) {
+        if (i === activa && visible) escena.reproducir(); else escena.pausar();
+      }
       const video = vitrinas[i].video;
       if (!video || !pedidos.has(i)) continue;
       if (i === activa && visible) {
@@ -72,6 +123,8 @@ export function montarVitrinas(m: Maestro, galeria: Galeria, reduce: boolean): V
     }
   };
   const alCambiarVisibilidad = (): void => { visible = !document.hidden; reproducir(); };
+  // Para el QA (?debug): las escenas montadas, para colocarlas en un instante y fotografiarlas.
+  if (location.search.includes('debug')) Object.assign(window, { __sims: () => vitrinas.map((v) => v.escena) });
   document.addEventListener('visibilitychange', alCambiarVisibilidad);
 
   return {
@@ -80,6 +133,7 @@ export function montarVitrinas(m: Maestro, galeria: Galeria, reduce: boolean): V
       if (!carteles && tiempo >= m.L.DESPEGUE) {
         carteles = true;
         for (const { cartel } of vitrinas) if (cartel?.dataset.src) cartel.src = cartel.dataset.src;
+        vitrinas.forEach((v, i) => { if (v.sim) montarSim(v, i); });
       }
       const i = galeria.indice(tiempo);
       if (i === activa) return;
@@ -88,12 +142,21 @@ export function montarVitrinas(m: Maestro, galeria: Galeria, reduce: boolean): V
         cargar(i + 1);
         const video = vitrinas[i].video;
         if (video && pedidos.has(i) && video.readyState > 0) video.currentTime = 0;
+        vitrinas[i].escena?.reiniciar();
       }
       activa = i;
       reproducir();
     },
     revertir() {
       document.removeEventListener('visibilitychange', alCambiarVisibilidad);
+      vivo = false;
+      for (const v of vitrinas) {
+        v.escena?.revertir();
+        v.capa?.remove();
+        v.medio?.classList.remove('con-sim');
+        v.escena = null;
+        v.capa = null;
+      }
       for (const { cartel, video } of vitrinas) {
         cartel?.removeAttribute('src');
         if (!video) continue;
