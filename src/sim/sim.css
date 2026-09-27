@@ -10,6 +10,11 @@
   -webkit-user-select: none; user-select: none;
 }
 .sim.sim-lista { opacity: 1; }
+/* La escena vive dentro de una .tarjeta y los títulos de la tarjeta se colaban: en el teléfono
+   `.tarjeta h2` pone 7,5 rem de relleno a la derecha y partía palabra a palabra los h2 de las pantallas
+   dibujadas («Entra / a tu / panel»). Misma especificidad y esta hoja se carga después: gana; lo
+   propio de cada escena (su letra, su tamaño) va en su hoja, que llega aún más tarde. */
+.sim h2, .sim h3 { margin: 0; padding: 0; letter-spacing: normal; }
 .sim-camara { position: absolute; inset: 0; transform-origin: 0 0; }
 
 /* EL PUNTERO: la flecha del ratón o, en un teléfono, la yema del dedo. Su esquina (o su centro) es el

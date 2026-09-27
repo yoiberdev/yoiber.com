@@ -270,6 +270,7 @@
           <ul class="pie-lista pie-proyectos">
             <li><a href="/casos/kuantera/">Kuantera</a><span class="pila">NestJS · PostgreSQL con RLS · UBL 2.1 · XML-DSig</span></li>
             <li><a href="https://comandas-dev.kipups.com" target="_blank" rel="noopener">Kip-Up Comandas</a><span class="pila">Next.js · Prisma · Socket.IO · ESC/POS</span></li>
+            <li><a href="https://contenido-dev.kipups.com" target="_blank" rel="noopener">Kip-Up Contenido</a><span class="pila">NestJS · PostgreSQL con RLS · TikTok API</span></li>
             <li><a href="https://kipups.com" target="_blank" rel="noopener">Automatizaciones</a><span class="pila">n8n · PostgreSQL · Google Calendar · Telegram</span></li>
             <li><a href="/casos/videovigilancia-maritima/">Vídeo desde barcos</a><span class="pila">Python · Go · SRT · HLS · MQTT</span></li>
             <li><a href="https://sebas.yoiber.dev" target="_blank" rel="noopener">Web de Sebastian Murazzo</a><span class="pila">Vite · TypeScript · three.js · Anime.js</span></li>
@@ -279,7 +280,7 @@
       <p class="pie-bloque pie-final">© 2026 Yoiber · <a href="#" id="arriba">Volver arriba</a></p>
     </footer>
 
-    <!-- LA GALERÍA. Cinco proyectos (27/09/2026: Kuantera, Comandas, las automatizaciones, el vídeo desde
+    <!-- LA GALERÍA. Seis proyectos (27/09/2026: Kuantera, Comandas, Contenido, las automatizaciones, el vídeo desde
          barcos y la web de Sebastian; fuera SysRRHH, TechDocAPI, la API financiera y KUIDY-CORE), cada uno con su VITRINA:
          el trabajo en movimiento, grande, donde antes estaba el motor (effects/vitrinas.ts pone los
          carteles y los vídeos al acercarse y anda solo el de la tarjeta que manda). Las secciones de #capitulos son espaciadores:
@@ -372,6 +373,38 @@
       </article>
 
       <article class="tarjeta" data-slot="2">
+        <h2>Kip-Up Contenido</h2>
+        <figure class="captura" style="--proporcion: 1000 / 625">
+            <span class="vitrina" data-marco="navegador">
+              <span class="vitrina-barra" aria-hidden="true"><i></i><i></i><i></i><span class="vitrina-url">contenido.kipups.com · simulación</span></span>
+              <span class="vitrina-medio" data-sim="contenido">
+                <img class="vitrina-cartel" data-src="/proyectos/contenido-cartel.webp" alt="Simulación de Kip-Up Contenido: el tablero del mes con las tres ventas que trajo TikTok, lo que costó cada una y la fila de cada vídeo." width="1000" height="625" decoding="async" />
+                <noscript><img class="vitrina-sin-js" src="/proyectos/contenido-cartel.webp" alt="Simulación de Kip-Up Contenido: el tablero del mes con las tres ventas que trajo TikTok, lo que costó cada una y la fila de cada vídeo." /></noscript>
+              </span>
+            </span>
+        </figure>
+        <span class="avance" aria-hidden="true"></span>
+        <p class="que">Del vídeo de TikTok a la venta en soles: el taller donde nace cada vídeo con su código, los mensajes que llegan por cada anuncio y, cada mes, lo que vendió cada vídeo.</p>
+        <p class="pila">NestJS · PostgreSQL con RLS · React · TikTok API for Business</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="flujo">
+          <line data-paso="linea" x1="1" y1="32" x2="326" y2="32" />
+          <rect class="tapa" data-paso="caja1" x="1" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja2" x="115" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja3" x="229" y="18" width="98" height="28" rx="3" />
+          <text data-paso="r1" x="50" y="35.5" text-anchor="middle">VÍDEO</text>
+          <text data-paso="r2" x="164" y="35.5" text-anchor="middle">MENSAJE</text>
+          <text data-paso="r3" x="278" y="35.5" text-anchor="middle">VENTA</text>
+          <polyline data-paso="tic" points="337,33 344,40 358,24" />
+        </svg>
+        <details class="por-dentro" open>
+          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
+          <p class="detalle">Los avisos de TikTok llegan firmados y se comprueban antes de tocar la base, y cada negocio ve solo lo suyo porque lo impone PostgreSQL. La regla de las 48 horas de TikTok la hace cumplir el servidor, y a TikTok solo vuelven las ventas, cifradas y nunca de salud.</p>
+        </details>
+        <p class="acceso"><a href="https://contenido-dev.kipups.com" target="_blank" rel="noopener">Abrir el entorno de pruebas</a></p>
+        <p class="aviso">Producto de Kip-Up, en demo. Simulación con la misma cevichería inventada de Comandas; TikTok, en modo de pruebas.</p>
+      </article>
+
+      <article class="tarjeta" data-slot="3">
         <h2>Automatizaciones</h2>
         <figure class="captura" style="--proporcion: 1000 / 625">
             <span class="vitrina" data-marco="lienzo">
@@ -402,7 +435,7 @@
         <p class="aviso">Simulación con datos inventados de una clínica de demostración.</p>
       </article>
 
-      <article class="tarjeta" data-slot="3">
+      <article class="tarjeta" data-slot="4">
         <h2>Vídeo desde barcos</h2>
         <figure class="captura" style="--proporcion: 1000 / 625">
             <span class="vitrina" data-marco="navegador">
@@ -434,7 +467,7 @@
         <p class="aviso">Simulación con una flota inventada: la pantalla real es del cliente y no se enseña.</p>
       </article>
 
-      <article class="tarjeta" data-slot="4">
+      <article class="tarjeta" data-slot="5">
         <h2>Web de Sebastian Murazzo</h2>
         <figure class="captura" style="--proporcion: 1280 / 800">
             <span class="vitrina" data-marco="navegador">

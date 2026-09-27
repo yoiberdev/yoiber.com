@@ -248,6 +248,7 @@ const SIMS: Record<string, () => Promise<MontarSim>> = {
   kuantera: () => import('../sim/kuantera').then((m) => m.montarKuantera),
   camaras: () => import('../sim/camaras').then((m) => m.montarCamaras),
   comandas: () => import('../sim/comandas').then((m) => m.montarComandas),
+  contenido: () => import('../sim/contenido').then((m) => m.montarContenido),
   automatizaciones: () => import('../sim/automatizaciones').then((m) => m.montarAutomatizaciones),
 };
 

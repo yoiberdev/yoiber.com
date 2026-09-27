@@ -293,9 +293,10 @@ html.motor-on #stage { opacity: 0; }
    violeta de antes y la web de Sebastian en el coral, lo más cerca del rojo de su página. */
 .tarjeta[data-slot="0"] { --acento: #4fd6a8; }
 .tarjeta[data-slot="1"] { --acento: #ff7a85; }
-.tarjeta[data-slot="2"] { --acento: #5c9dff; }
-.tarjeta[data-slot="3"] { --acento: #c39bff; }
-.tarjeta[data-slot="4"] { --acento: #ff8a5b; }
+.tarjeta[data-slot="2"] { --acento: #f2c14e; }
+.tarjeta[data-slot="3"] { --acento: #5c9dff; }
+.tarjeta[data-slot="4"] { --acento: #c39bff; }
+.tarjeta[data-slot="5"] { --acento: #ff8a5b; }
 /* LA VITRINA (.captura, para que la mini-secuencia de galeria.ts la destape como destapaba la captura):
    el trabajo de cada proyecto en movimiento, en un marco de NAVEGADOR (barra con tres puntos y el
    dominio) o de TELÉFONO. Cartel y vídeo sin `src` en el marcado: los pone effects/vitrinas.ts al

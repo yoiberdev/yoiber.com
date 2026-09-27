@@ -53,6 +53,7 @@ const SIMS: Record<string, () => Promise<MontarSim>> = {
   automatizaciones: () => import('../sim/automatizaciones').then((m) => m.montarAutomatizaciones),
   kuantera: () => import('../sim/kuantera').then((m) => m.montarKuantera),
   comandas: () => import('../sim/comandas').then((m) => m.montarComandas),
+  contenido: () => import('../sim/contenido').then((m) => m.montarContenido),
 };
 
 export function montarVitrinas(m: Maestro, galeria: Galeria, reduce: boolean): Vitrinas {
