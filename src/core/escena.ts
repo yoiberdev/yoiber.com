@@ -180,10 +180,15 @@ export function montarEscena(m: Maestro, op: OpcionesEscena): Relevo {
         // cuando el maestro entra en HERO_OUT, que es cuando el motor empieza a ensamblarse, y se
         // vuelve a tapar al volver a INTRO: quien arrastra el scroll hacia atrás desde la galería
         // tiene que encontrarse la misma intro limpia que la primera vez.
+        // Y DESDE EL 27/09/2026 SE VUELVE A TAPAR AL LLEGAR A LA GALERÍA: el motor despega en DESPEGUE
+        // (sube y se funde, `salida`) y en GALERIA ya no está. Con el telón abajo motor3d.ts deja de
+        // pintar (seVe), así que el resto de la página no paga el 3D. Otra vez dos umbrales, por lo
+        // mismo que abajo: arrastrar justo en el borde no hace parpadear nada.
         if (dibuja) {
           const t = op.tiempo();
-          if (t > m.L.HERO_OUT + P.motor.telonSube) subirTelon();
-          else if (t < m.L.HERO_OUT + P.motor.telonBaja) bajarTelon();
+          const enPortada = t > m.L.HERO_OUT + P.motor.telonSube && t < m.L.GALERIA + P.motor.telonTapa;
+          if (enPortada) subirTelon();
+          else if (t < m.L.HERO_OUT + P.motor.telonBaja || t > m.L.GALERIA + P.motor.telonTapa + P.motor.telonHolgura) bajarTelon();
         }
         idVigila = requestAnimationFrame(mirar);
       };

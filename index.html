@@ -128,8 +128,8 @@
     </div>
 
     <!-- LA CABECERA (effects/cabecera.ts). Fija arriba: el monograma (los tres trazados del logo a
-         28 px) que vuelve al principio, y tres enlaces que llevan a la primera tarjeta, al despiece
-         y al pie. Los href son anclas de verdad por si el módulo no llega; con él, el clic calcula
+         28 px) que vuelve al principio, y dos enlaces que llevan a la primera tarjeta y al pie (el del
+         despiece se fue con «Por dentro», 27/09/2026). Los href son anclas de verdad por si el módulo no llega; con él, el clic calcula
          el scroll desde el maestro (data-ir). Entra con el texto del hero y se queda toda la página. -->
     <header id="cabecera">
       <a class="cabecera-logo" href="#" data-ir="inicio" aria-label="Inicio">
@@ -141,7 +141,6 @@
       </a>
       <nav aria-label="Secciones">
         <a href="#galeria" data-ir="proyectos">Proyectos</a>
-        <a href="#como" data-ir="dentro">Por dentro</a>
         <a href="#pie" data-ir="contacto">Contacto</a>
       </nav>
     </header>
@@ -212,28 +211,10 @@
 
     <div id="capitulos">
       <section id="intro" data-label="HERO_OUT" data-chapter="intro"></section>
+      <!-- EL DESPEGUE (27/09/2026): el motor, ya montado, enciende y se va hacia arriba antes de la
+           galería (motor/coreografia.ts). Es el único sitio, además de la portada, donde está. -->
+      <section id="despegue" data-label="DESPEGUE" data-chapter="despegue"></section>
       <section id="galeria" data-label="GALERIA" data-chapter="galeria"></section>
-      <section id="como" data-label="COMO" data-chapter="como" data-theme="light">
-        <!-- Las nueve piezas del despiece, en texto. Los rótulos del motor viven dentro de #motor,
-             que es aria-hidden porque es decorado; pero "Cámara de combustión · relación de
-             contracción 3,24" ES el contenido de este capítulo, no decoración. Con el motor 3D la
-             lista no se ve (la dicen los rótulos). SIN él —navegador sin WebGL, máquina justa o
-             movimiento reducido, que también apaga el 3D— se VE: el escenario CSS no tiene rótulos
-             y el capítulo se quedaba en cinco placas grises sin una palabra (base.css, .lista-piezas;
-             la entrada la pone core/escenario.ts). -->
-        <h2 class="solo-lectores">Cómo está hecho: las piezas del motor</h2>
-        <ul class="solo-lectores lista-piezas">
-          <li><b>Estructura de empuje</b><span class="dos-puntos">: </span>12 tirantes en A sobre el anillo</li>
-          <li><b>Cúpula del colector</b><span class="dos-puntos">: </span>980 mm de domo; se levanta y deja ver los inyectores</li>
-          <li><b>Placa de inyectores</b><span class="dos-puntos">: </span>127 orificios en siete anillos</li>
-          <li><b>Anillo de aletas</b><span class="dos-puntos">: </span>29 aletas radiales sobre la cámara</li>
-          <li><b>Conductos</b><span class="dos-puntos">: </span>3 líneas: descarga, domo y escape</li>
-          <li><b>Turbobomba</b><span class="dos-puntos">: </span>36 000 rpm: voluta, cuerpo, turbina y escape</li>
-          <li><b>Cámara de combustión</b><span class="dos-puntos">: </span>3,24 de relación de contracción</li>
-          <li><b>Corona de refrigeración</b><span class="dos-puntos">: </span>36 tubos de radio variable</li>
-          <li><b>Campana de la tobera</b><span class="dos-puntos">: </span>17,6 de expansión, perfil de Rao</li>
-        </ul>
-      </section>
       <section id="cierre" data-label="CIERRE" data-chapter="cierre"></section>
     </div>
 
@@ -287,18 +268,21 @@
         <div class="pie-bloque">
           <h3>Proyectos</h3>
           <ul class="pie-lista pie-proyectos">
-            <li><a href="https://sysrrhh-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">SysRRHH</a><span class="pila">NestJS · Prisma · PostgreSQL · React</span></li>
-            <li><a href="https://kuidy-core-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">KUIDY-CORE</a><span class="pila">Hono · Drizzle · PostgreSQL con JSONB · React</span></li>
-            <li><a href="https://techdoc-api-164532276262.us-central1.run.app/api/swagger-ui.html" target="_blank" rel="noopener">TechDocAPI</a><span class="pila">Java 21 · Spring Boot · JPA · PostgreSQL</span></li>
-            <li><a href="https://financial-api-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">API financiera reactiva</a><span class="pila">Java 21 · WebFlux · R2DBC · Maven multi-módulo</span></li>
+            <li><a href="/casos/kuantera/">Kuantera</a><span class="pila">NestJS · PostgreSQL con RLS · UBL 2.1 · XML-DSig</span></li>
             <li><a href="https://comandas-dev.kipups.com" target="_blank" rel="noopener">Kip-Up Comandas</a><span class="pila">Next.js · Prisma · Socket.IO · ESC/POS</span></li>
+            <li><a href="https://kipups.com" target="_blank" rel="noopener">Automatizaciones</a><span class="pila">n8n · PostgreSQL · Google Calendar · Telegram</span></li>
+            <li><a href="https://kuidy-core-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">KUIDY-CORE</a><span class="pila">Hono · Drizzle · PostgreSQL con JSONB · React</span></li>
+            <li><a href="https://sebas.yoiber.dev" target="_blank" rel="noopener">Web de Sebastian Murazzo</a><span class="pila">Vite · TypeScript · three.js · Anime.js</span></li>
           </ul>
         </div>
       </div>
       <p class="pie-bloque pie-final">© 2026 Yoiber · <a href="#" id="arriba">Volver arriba</a></p>
     </footer>
 
-    <!-- LA GALERÍA. Cinco proyectos con demo viva. Las secciones de #capitulos son espaciadores:
+    <!-- LA GALERÍA. Cinco proyectos (27/09/2026: Kuantera, Comandas, las automatizaciones, KUIDY-CORE y
+         la web de Sebastian; fuera SysRRHH, TechDocAPI y la API financiera), cada uno con su VITRINA:
+         el trabajo en movimiento, grande, donde antes estaba el motor (effects/vitrinas.ts pone los
+         carteles y los vídeos al acercarse y anda solo el de la tarjeta que manda). Las secciones de #capitulos son espaciadores:
          lo que se ve vive aquí, en una capa fija, y el reloj del maestro decide cuál está delante.
          Es contenido de verdad, no decoración, así que NO lleva aria-hidden.
          Cada tarjeta lleva, entre la pila y el detalle, un ESQUEMA (<svg class="esquema">) que el
@@ -321,109 +305,51 @@
            (vale plegado, no vale quitado). Ahora es un desplegable sobre la captura (base.css) que
            galeria.ts cierra al pasar a vertical y al cambiar de tarjeta. -->
       <article class="tarjeta" data-slot="0">
-        <h2>SysRRHH</h2>
-        <img class="captura" src="/proyectos/sysrrhh.jpg" alt="Panel interno de SysRRHH con el módulo de vacantes" width="900" height="563" loading="lazy" decoding="async" />
+        <h2>Kuantera</h2>
+        <figure class="captura" style="--proporcion: 1000 / 566">
+            <span class="vitrina" data-marco="navegador">
+              <span class="vitrina-barra" aria-hidden="true"><i></i><i></i><i></i><span class="vitrina-url">kuantera.com</span></span>
+              <span class="vitrina-medio">
+                <img class="vitrina-cartel" data-src="/proyectos/kuantera-cartel.webp" alt="Grabación del panel de Kuantera: se emite la boleta B001-16 y SUNAT la acepta." width="1000" height="566" decoding="async" />
+                <video class="vitrina-video" data-video="/proyectos/kuantera" muted loop playsinline preload="none" aria-hidden="true"></video>
+                <noscript><img class="vitrina-sin-js" src="/proyectos/kuantera-cartel.webp" alt="Grabación del panel de Kuantera: se emite la boleta B001-16 y SUNAT la acepta." /></noscript>
+              </span>
+            </span>
+        </figure>
         <span class="avance" aria-hidden="true"></span>
-        <p class="que">Sistema de recursos humanos completo: reclutamiento, contratos, asistencia, ausencias y portal de empleo.</p>
-        <p class="pila">NestJS · Prisma · PostgreSQL · React</p>
-        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="flujo">
-          <line data-paso="linea" x1="1" y1="32" x2="326" y2="32" />
-          <rect class="tapa" data-paso="caja1" x="1" y="18" width="98" height="28" rx="3" />
-          <rect class="tapa" data-paso="caja2" x="115" y="18" width="98" height="28" rx="3" />
-          <rect class="tapa" data-paso="caja3" x="229" y="18" width="98" height="28" rx="3" />
-          <text data-paso="r1" x="50" y="35.5" text-anchor="middle">RECLUTAMIENTO</text>
-          <text data-paso="r2" x="164" y="35.5" text-anchor="middle">CONTRATO</text>
-          <text data-paso="r3" x="278" y="35.5" text-anchor="middle">ASISTENCIA</text>
-          <polyline data-paso="tic" points="337,33 344,40 358,24" />
+        <p class="que">Facturación electrónica directa a SUNAT, escrita desde cero: arma el comprobante, lo firma con el certificado del negocio, lo envía y guarda la constancia.</p>
+        <p class="pila">NestJS · PostgreSQL con RLS · UBL 2.1 · XML-DSig</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="rutas">
+          <circle data-paso="punto1" cx="6" cy="11" r="3.5" />
+          <text data-paso="r1"><tspan x="18" y="14.5">POST /comprobantes</tspan><tspan x="306" y="14.5">201</tspan></text>
+          <line data-paso="linea1" x1="136" y1="11" x2="296" y2="11" />
+          <circle data-paso="punto2" cx="6" cy="32" r="3.5" />
+          <text data-paso="r2"><tspan x="18" y="35.5">UBL 2.1 + FIRMA</tspan><tspan x="306" y="35.5">OK</tspan></text>
+          <line data-paso="linea2" x1="124" y1="32" x2="296" y2="32" />
+          <circle data-paso="punto3" cx="6" cy="53" r="3.5" />
+          <text data-paso="r3"><tspan x="18" y="56.5">RESPUESTA SUNAT</tspan><tspan x="306" y="56.5">ACEPTADA</tspan></text>
+          <line data-paso="linea3" x1="124" y1="53" x2="296" y2="53" />
         </svg>
         <details class="por-dentro" open>
           <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
-          <p class="detalle">Las ausencias se cuadran con transacciones en nivel <em>serializable</em>, y un índice parcial garantiza un solo contrato vigente por empleado. <b class="cifra" data-hasta="571">571</b> pruebas en seis segundos y medio.</p>
+          <p class="detalle">El envío no frena la venta: la API numera y responde al momento, y un proceso aparte lo manda a SUNAT y reintenta si el servicio cae. Cada empresa ve solo lo suyo, y eso lo garantiza la base de datos, no el código.</p>
         </details>
-        <p class="acceso"><a href="https://sysrrhh-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir la demo</a> · <code>admin@demo.local</code> / <code>Demo1234!</code></p>
-        <p class="aviso">Demo pública y editable: lo que hagas ahí lo ve todo el mundo.</p>
+        <p class="acceso"><a href="/casos/kuantera/">Ver el caso</a> · la boleta aceptada, paso a paso</p>
+        <p class="aviso">Producto de Kip-Up. Probado contra el entorno de pruebas de SUNAT; todavía sin un RUC real en producción.</p>
       </article>
 
       <article class="tarjeta" data-slot="1">
-        <h2>KUIDY-CORE</h2>
-        <img class="captura" src="/proyectos/kuidy.jpg" alt="Pantalla de proyectos de KUIDY-CORE" width="900" height="563" loading="lazy" decoding="async" />
-        <span class="avance" aria-hidden="true"></span>
-        <p class="que">Plataforma sin código: defines proyectos, módulos y campos, y un motor genérico dibuja los formularios y valida los registros.</p>
-        <p class="pila">Hono · Drizzle · PostgreSQL con JSONB · React</p>
-        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="formulario">
-          <rect data-paso="campo1" x="1" y="4" width="166" height="22" rx="3" />
-          <rect data-paso="campo2" x="185" y="4" width="166" height="22" rx="3" />
-          <rect data-paso="campo3" x="1" y="38" width="166" height="22" rx="3" />
-          <rect data-paso="boton" x="185" y="38" width="96" height="22" rx="3" />
-          <rect class="relleno" data-paso="relleno" data-fundido x="185" y="38" width="96" height="22" rx="3" />
-          <text data-paso="r1" x="10" y="18.5">NOMBRE DEL CAMPO</text>
-          <text data-paso="r2" x="194" y="18.5">TIPO · FECHA</text>
-          <text data-paso="r3" x="10" y="52.5">REGLA · OBLIGATORIO</text>
-          <text class="sobre" data-paso="r4" x="233" y="52.5" text-anchor="middle">GUARDAR</text>
-        </svg>
-        <details class="por-dentro" open>
-          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
-          <p class="detalle">El validador se construye en tiempo de ejecución a partir de los metadatos y es el mismo en el navegador y en el servidor. Los registros viven en una sola tabla JSONB con índice GIN.</p>
-        </details>
-        <p class="acceso"><a href="https://kuidy-core-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir la demo</a> · <code>owner@kuidy.demo</code> / <code>Demo1234!</code></p>
-        <p class="aviso">Entra como propietario y crea un campo nuevo: el formulario se adapta solo.</p>
-      </article>
-
-      <article class="tarjeta" data-slot="2">
-        <h2>TechDocAPI</h2>
-        <img class="captura" src="/proyectos/techdoc.jpg" alt="Swagger de TechDocAPI con sus rutas" width="900" height="563" loading="lazy" decoding="async" />
-        <span class="avance" aria-hidden="true"></span>
-        <p class="que">API REST para la documentación técnica de los sistemas instalados a bordo de embarcaciones.</p>
-        <p class="pila">Java 21 · Spring Boot · JPA · PostgreSQL</p>
-        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="rutas">
-          <circle data-paso="punto1" cx="6" cy="11" r="3.5" />
-          <text data-paso="r1"><tspan x="18" y="14.5">GET /api/sistemas</tspan><tspan x="306" y="14.5">200</tspan></text>
-          <line data-paso="linea1" x1="136" y1="11" x2="296" y2="11" />
-          <circle data-paso="punto2" cx="6" cy="32" r="3.5" />
-          <text data-paso="r2"><tspan x="18" y="35.5">GET /api/documentos</tspan><tspan x="306" y="35.5">200</tspan></text>
-          <line data-paso="linea2" x1="148" y1="32" x2="296" y2="32" />
-          <circle data-paso="punto3" cx="6" cy="53" r="3.5" />
-          <text data-paso="r3"><tspan x="18" y="56.5">GET /api/versiones</tspan><tspan x="306" y="56.5">200</tspan></text>
-          <line data-paso="linea3" x1="142" y1="53" x2="296" y2="53" />
-        </svg>
-        <details class="por-dentro" open>
-          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
-          <p class="detalle">Ocho entidades relacionadas y <b class="cifra" data-hasta="47">47</b> rutas documentadas, con respuesta uniforme y paginada y filtros por estado, tipo, fechas y etiquetas. Se enseña sola desde Swagger.</p>
-        </details>
-        <p class="acceso"><a href="https://techdoc-api-164532276262.us-central1.run.app/api/swagger-ui.html" target="_blank" rel="noopener">Abrir Swagger</a> · sin contraseña</p>
-        <p class="aviso">Datos ficticios. La API no pide autenticación: cualquiera puede crear o borrar.</p>
-      </article>
-
-      <article class="tarjeta" data-slot="3">
-        <h2>API financiera reactiva</h2>
-        <img class="captura" src="/proyectos/financial.jpg" alt="Página de la demo de la API financiera" width="900" height="563" loading="lazy" decoding="async" />
-        <span class="avance" aria-hidden="true"></span>
-        <p class="que">Tres microservicios reactivos: uno descifra el código del cliente, llama a los otros dos en paralelo y compone la respuesta.</p>
-        <p class="pila">Java 21 · WebFlux · R2DBC · Maven multi-módulo</p>
-        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="correlacion">
-          <rect data-paso="nodoA" x="1" y="20" width="64" height="24" rx="3" />
-          <text data-paso="rA" x="33" y="35.5" text-anchor="middle">BFF</text>
-          <path data-paso="flecha1" d="M65 24 H96 L190 9 L183.4 6.7 L190 9 L184.4 13.2" />
-          <path data-paso="flecha2" d="M65 40 H96 L190 55 L184.4 50.8 L190 55 L183.4 57.3" />
-          <rect data-paso="nodoB" x="190" y="1" width="112" height="18" rx="3" />
-          <rect data-paso="nodoC" x="190" y="45" width="112" height="18" rx="3" />
-          <text data-paso="rB" x="246" y="13.5" text-anchor="middle">CLIENTES</text>
-          <text data-paso="rC" x="246" y="57.5" text-anchor="middle">PRODUCTOS</text>
-          <path data-paso="vuelta" d="M190 19 V45 M190 32 H65 L71 28.5 L65 32 L71 35.5" />
-          <polyline class="ruta" points="65,24 96,24 190,9 190,32 65,32" />
-          <circle class="punto" data-paso="id" data-ruta cx="65" cy="24" r="3.2" />
-        </svg>
-        <details class="por-dentro" open>
-          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
-          <p class="detalle">El identificador de correlación viaja por el contexto de Reactor y se puede comprobar en vivo: la cabecera coincide con el cuerpo de la respuesta. <b class="cifra" data-hasta="99">99</b> pruebas.</p>
-        </details>
-        <p class="acceso"><a href="https://financial-api-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir la demo</a> · sin contraseña</p>
-        <p class="aviso">Era un reto de entrevista. El cifrado del código es determinista a propósito.</p>
-      </article>
-
-      <article class="tarjeta" data-slot="4">
         <h2>Kip-Up Comandas</h2>
-        <img class="captura" src="/proyectos/comandas.jpg" alt="Entrada de Kip-Up Comandas" width="900" height="563" loading="lazy" decoding="async" />
+        <figure class="captura" style="--proporcion: 1000 / 626">
+            <span class="vitrina" data-marco="navegador">
+              <span class="vitrina-barra" aria-hidden="true"><i></i><i></i><i></i><span class="vitrina-url">comandas.kipups.com</span></span>
+              <span class="vitrina-medio">
+                <img class="vitrina-cartel" data-src="/proyectos/comandas-cartel.webp" alt="Grabación de Kip-Up Comandas: el mesero abre la mesa 3, añade tres platos, envía el pedido y aparece en la pantalla de cocina." width="1000" height="625" decoding="async" />
+                <video class="vitrina-video" data-video="/proyectos/comandas" muted loop playsinline preload="none" aria-hidden="true"></video>
+                <noscript><img class="vitrina-sin-js" src="/proyectos/comandas-cartel.webp" alt="Grabación de Kip-Up Comandas: el mesero abre la mesa 3, añade tres platos, envía el pedido y aparece en la pantalla de cocina." /></noscript>
+              </span>
+            </span>
+        </figure>
         <span class="avance" aria-hidden="true"></span>
         <p class="que">De la mesa a la cocina y a la caja, sincronizado en tiempo real: plano de mesas, pantalla de cocina e impresión de tickets.</p>
         <p class="pila">Next.js · Prisma · Socket.IO · ESC/POS</p>
@@ -445,6 +371,108 @@
         </details>
         <p class="acceso"><a href="https://comandas-dev.kipups.com" target="_blank" rel="noopener">Abrir el entorno de pruebas</a></p>
         <p class="aviso">Producto de Kip-Up, no personal. El enlace es el de pruebas, no el de producción.</p>
+      </article>
+
+      <article class="tarjeta" data-slot="2">
+        <h2>Automatizaciones</h2>
+        <figure class="captura" style="--proporcion: 600 / 1170">
+            <span class="vitrina" data-marco="movil">
+              <span class="vitrina-medio">
+                <img class="vitrina-cartel" data-src="/proyectos/citas-cartel.webp" alt="Grabación en un móvil de la reserva de Citas de una clínica de demostración: se rellenan nombre, teléfono y correo, se elige servicio y hora." width="600" height="1170" decoding="async" />
+                <video class="vitrina-video" data-video="/proyectos/citas" muted loop playsinline preload="none" aria-hidden="true"></video>
+                <noscript><img class="vitrina-sin-js" src="/proyectos/citas-cartel.webp" alt="Grabación en un móvil de la reserva de Citas de una clínica de demostración: se rellenan nombre, teléfono y correo, se elige servicio y hora." /></noscript>
+              </span>
+            </span>
+        </figure>
+        <span class="avance" aria-hidden="true"></span>
+        <p class="que">Citas que se reservan, se recuerdan y piden reseña solas: el cliente elige hora desde el móvil, la cita entra en el calendario del negocio y lo demás pasa sin nadie detrás.</p>
+        <p class="pila">n8n · PostgreSQL · Google Calendar · Telegram</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="flujo">
+          <line data-paso="linea" x1="1" y1="32" x2="326" y2="32" />
+          <rect class="tapa" data-paso="caja1" x="1" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja2" x="115" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja3" x="229" y="18" width="98" height="28" rx="3" />
+          <text data-paso="r1" x="50" y="35.5" text-anchor="middle">RESERVA</text>
+          <text data-paso="r2" x="164" y="35.5" text-anchor="middle">CALENDARIO</text>
+          <text data-paso="r3" x="278" y="35.5" text-anchor="middle">RECORDATORIO</text>
+          <polyline data-paso="tic" points="337,33 344,40 358,24" />
+        </svg>
+        <details class="por-dentro" open>
+          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
+          <p class="detalle">Las horas libres salen del calendario real del negocio: si Google falla, no se ofrecen horas inventadas. Un recordatorio que no sale no se da por enviado y se reintenta en la siguiente ronda. Con la misma pieza, el cierre de caja de Comandas le llega al dueño cada noche por Telegram y correo.</p>
+        </details>
+        <p class="acceso">Producto de <a href="https://kipups.com" target="_blank" rel="noopener">Kip-Up</a> · flujos en n8n</p>
+        <p class="aviso">La grabación es la reserva de una clínica de demostración, sin llegar a reservar.</p>
+      </article>
+
+      <article class="tarjeta" data-slot="3">
+        <h2>KUIDY-CORE</h2>
+        <figure class="captura" style="--proporcion: 1200 / 750">
+            <span class="vitrina" data-marco="navegador">
+              <span class="vitrina-barra" aria-hidden="true"><i></i><i></i><i></i><span class="vitrina-url">kuidy-core-demo</span></span>
+              <span class="vitrina-medio">
+                <img class="vitrina-cartel" data-src="/proyectos/kuidy-cartel.webp" alt="Capturas de KUIDY-CORE: el diseñador de campos, el formulario que genera y el módulo con sus registros." width="1200" height="750" decoding="async" />
+                <video class="vitrina-video" data-video="/proyectos/kuidy" muted loop playsinline preload="none" aria-hidden="true"></video>
+                <noscript><img class="vitrina-sin-js" src="/proyectos/kuidy-cartel.webp" alt="Capturas de KUIDY-CORE: el diseñador de campos, el formulario que genera y el módulo con sus registros." /></noscript>
+              </span>
+            </span>
+        </figure>
+        <span class="avance" aria-hidden="true"></span>
+        <p class="que">Plataforma sin código: defines proyectos, módulos y campos, y un motor genérico dibuja los formularios y valida los registros.</p>
+        <p class="pila">Hono · Drizzle · PostgreSQL con JSONB · React</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="formulario">
+          <rect data-paso="campo1" x="1" y="4" width="166" height="22" rx="3" />
+          <rect data-paso="campo2" x="185" y="4" width="166" height="22" rx="3" />
+          <rect data-paso="campo3" x="1" y="38" width="166" height="22" rx="3" />
+          <rect data-paso="boton" x="185" y="38" width="96" height="22" rx="3" />
+          <rect class="relleno" data-paso="relleno" data-fundido x="185" y="38" width="96" height="22" rx="3" />
+          <text data-paso="r1" x="10" y="18.5">NOMBRE DEL CAMPO</text>
+          <text data-paso="r2" x="194" y="18.5">TIPO · FECHA</text>
+          <text data-paso="r3" x="10" y="52.5">REGLA · OBLIGATORIO</text>
+          <text class="sobre" data-paso="r4" x="233" y="52.5" text-anchor="middle">GUARDAR</text>
+        </svg>
+        <details class="por-dentro" open>
+          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
+          <p class="detalle">El validador se construye en tiempo de ejecución a partir de los metadatos y es el mismo en el navegador y en el servidor. Los registros viven en una sola tabla JSONB con índice GIN.</p>
+        </details>
+        <p class="acceso"><a href="https://kuidy-core-demo-164532276262.us-central1.run.app" target="_blank" rel="noopener">Abrir la demo</a> · <code>owner@kuidy.demo</code> / <code>Demo1234!</code></p>
+        <p class="aviso">Entra como propietario y crea un campo nuevo: el formulario se adapta solo. El caso, en <a href="/casos/kuidy-core/">su página</a>.</p>
+      </article>
+
+      <article class="tarjeta" data-slot="4">
+        <h2>Web de Sebastian Murazzo</h2>
+        <figure class="captura" style="--proporcion: 1280 / 800">
+            <span class="vitrina" data-marco="navegador">
+              <span class="vitrina-barra" aria-hidden="true"><i></i><i></i><i></i><span class="vitrina-url">sebas.yoiber.dev</span></span>
+              <span class="vitrina-medio">
+                <img class="vitrina-cartel" data-src="/proyectos/sebas-cartel.webp" alt="Grabación de la web de Sebastian Murazzo: su nombre y un montaje de sus vídeos, su kit de grabación en 3D abriéndose pieza a pieza y un editor de vídeo simulado." width="1000" height="626" decoding="async" />
+                <video class="vitrina-video" data-video="/proyectos/sebas" muted loop playsinline preload="none" aria-hidden="true"></video>
+                <noscript><img class="vitrina-sin-js" src="/proyectos/sebas-cartel.webp" alt="Grabación de la web de Sebastian Murazzo: su nombre y un montaje de sus vídeos, su kit de grabación en 3D abriéndose pieza a pieza y un editor de vídeo simulado." /></noscript>
+              </span>
+            </span>
+        </figure>
+        <span class="avance" aria-hidden="true"></span>
+        <p class="que">El portafolio de un creador de contenido, contado al bajar: su kit de grabación en 3D se abre pieza a pieza, un editor simulado monta un vídeo y sus trabajos pasan en un iPhone.</p>
+        <p class="pila">Vite · TypeScript · three.js · Anime.js</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="correlacion">
+          <rect data-paso="nodoA" x="1" y="20" width="64" height="24" rx="3" />
+          <text data-paso="rA" x="33" y="35.5" text-anchor="middle">SCROLL</text>
+          <path data-paso="flecha1" d="M65 24 H96 L190 9 L183.4 6.7 L190 9 L184.4 13.2" />
+          <path data-paso="flecha2" d="M65 40 H96 L190 55 L184.4 50.8 L190 55 L183.4 57.3" />
+          <rect data-paso="nodoB" x="190" y="1" width="112" height="18" rx="3" />
+          <rect data-paso="nodoC" x="190" y="45" width="112" height="18" rx="3" />
+          <text data-paso="rB" x="246" y="13.5" text-anchor="middle">ESCENA 3D</text>
+          <text data-paso="rC" x="246" y="57.5" text-anchor="middle">VÍDEOS</text>
+          <path data-paso="vuelta" d="M190 19 V45 M190 32 H65 L71 28.5 L65 32 L71 35.5" />
+          <polyline class="ruta" points="65,24 96,24 190,9 190,32 65,32" />
+          <circle class="punto" data-paso="id" data-ruta cx="65" cy="24" r="3.2" />
+        </svg>
+        <details class="por-dentro" open>
+          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
+          <p class="detalle">Todo lo que se mueve cuelga de un solo reloj, el del scroll: bajar y subir dan exactamente lo mismo. Abrir la página pesa <b class="cifra" data-hasta="256">256</b> kB; el 3D, los vídeos y el editor llegan después.</p>
+        </details>
+        <p class="acceso"><a href="https://sebas.yoiber.dev" target="_blank" rel="noopener">Ver la web</a> · en desarrollo</p>
+        <p class="aviso">Hecha para Sebastian Murazzo, creador de contenido.</p>
       </article>
     </div>
 

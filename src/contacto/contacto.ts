@@ -1,5 +1,5 @@
-import '@fontsource-variable/space-grotesk';
-import '@fontsource-variable/jetbrains-mono';
+import '@fontsource-variable/instrument-sans';
+import '@fontsource/fragment-mono';
 import '../styles/pagina.css';
 import { sugerirIdioma } from '../comun/idioma';
 

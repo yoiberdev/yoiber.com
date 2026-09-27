@@ -3,7 +3,10 @@ import { P } from '../params';
 
 // Orden propio de capítulos. Cada tramo dura alturas × 1000 unidades y ocupa alturas × 100lvh de scroll,
 // así todos los tramos avanzan a la misma velocidad percibida.
-export const ORDEN = ['HERO_OUT', 'GALERIA', 'COMO', 'CIERRE'] as const;
+// DESPEGUE (27/09/2026): el motor ya no acompaña a la galería (Yoiber: «el cohete, solo en la
+// portada»). Se ensambla en HERO_OUT, despega en DESPEGUE y deja la pantalla a los proyectos. «Por
+// dentro» (COMO), que era el despiece del motor, se quitó con él.
+export const ORDEN = ['HERO_OUT', 'DESPEGUE', 'GALERIA', 'CIERRE'] as const;
 export type Tramo = (typeof ORDEN)[number];
 
 export interface Maestro {

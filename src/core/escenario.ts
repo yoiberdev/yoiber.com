@@ -3,8 +3,9 @@ import { P } from '../params';
 import type { Maestro } from './maestro';
 import type { Escena } from './escena';
 
-// Escenario CSS 3D: un panel de placas apiladas en translateZ que entra, gira, se abre y se hunde
-// según el tramo del maestro. Con reduced-motion solo hay fundidos.
+// Escenario CSS 3D: un panel de placas apiladas en translateZ que entra con la portada y se hunde en
+// DESPEGUE, igual que el motor 3D se va (27/09/2026: el motor ya no acompaña a la galería ni hay
+// despiece). Con reduced-motion solo hay fundidos.
 // Cumple el contrato `Escena` (core/escena.ts) para poder relevarse con el motor 3D. Su
 // `revertir()` no tiene nada que soltar: no crea nodos ni escuchadores, y sus animaciones son
 // hijas del maestro, así que las deshace el `m.tl.revert()` de main.ts.
@@ -17,23 +18,6 @@ export function montarEscenario(m: Maestro, reduce: boolean): Escena {
 
   tl.set(puntos, { opacity: 0.15, scale: 0.5 }, 0);
 
-  // LA LISTA DE PIEZAS (index.html, .lista-piezas). Se anima en los dos caminos, con y sin reduce,
-  // y también cuando luego llega el 3D: allí la lista va recortada para lectores de pantalla y la
-  // opacidad no se ve, así que no estorba. Entra escalonada al empezar COMO y sale antes de CIERRE.
-  // Con reduce, solo opacidad.
-  const lista = '.lista-piezas li';
-  const dC = m.duracion('COMO');
-  const LP = P.panel.lista;
-  tl.set(lista, { opacity: 0, ...(reduce ? {} : { x: LP.x }) }, 0)
-    .add(lista, {
-      opacity: [0, 1], ...(reduce ? {} : { x: [LP.x, 0] }),
-      duration: dC * LP.entra, ease: 'out(3)', delay: stagger(dC * LP.escalon),
-    }, `COMO+=${dC * LP.desde}`)
-    .add(lista, {
-      opacity: [1, 0],
-      duration: dC * LP.sale, ease: 'in(2)', delay: stagger(dC * LP.escalonSalida, { reversed: true }),
-    }, `COMO+=${dC * LP.hasta}`);
-
   // LAS OPACIDADES VAN CON [desde, hasta] EXPLÍCITO, igual que en motor/coreografia.ts y por el
   // mismo motivo: el `from` implícito se captura EN EL `.add()`, leyendo el nodo vivo, no del
   // `set()` de t=0. Con solo `{ opacity: 1 }` el panel se quedaba asomando durante toda la INTRO
@@ -43,8 +27,8 @@ export function montarEscenario(m: Maestro, reduce: boolean): Escena {
   if (reduce) {
     tl.set(panel, { opacity: 0, rotateX: 0, rotateY: 0, y: 0, scale: 1 }, 0)
       .add(panel, { opacity: [0, 1], duration: m.duracion('HERO_OUT'), ease: 'linear' }, 'HERO_OUT')
-      .add(puntos, { opacity: 1, scale: 1, duration: 400 }, stagger(1000, { start: 'GALERIA' }))
-      .add(panel, { opacity: [1, 0], duration: m.duracion('CIERRE'), ease: 'linear' }, 'CIERRE');
+      .add(puntos, { opacity: 1, scale: 1, duration: 400 }, stagger(250, { start: 'HERO_OUT' }))
+      .add(panel, { opacity: [1, 0], duration: m.duracion('DESPEGUE'), ease: 'linear' }, 'DESPEGUE');
     return escena;
   }
 
@@ -53,21 +37,11 @@ export function montarEscenario(m: Maestro, reduce: boolean): Escena {
     .set(placas, { z: 0 }, 0)
     // Entra desde abajo mientras el hero se va.
     .add(panel, { opacity: [0, 1], rotateX: 0, y: '0vh', scale: 1, duration: m.duracion('HERO_OUT'), ease: 'out(2)' }, 'HERO_OUT')
-    // Galería: balanceo lento y los 8 puntos se encienden uno por tramo.
-    .add(panel, {
-      rotateY: [{ to: P.panel.galeria.rotateY }, { to: -P.panel.galeria.rotateY }, { to: 0 }],
-      duration: m.duracion('GALERIA'),
-      ease: 'inOut(2)',
-    }, 'GALERIA')
-    .add(puntos, { opacity: 1, scale: 1, duration: 400, ease: 'out(3)' }, stagger(1000, { start: 'GALERIA' }))
-    // "Cómo está hecho": se inclina, las placas se separan, gira y se recompone.
-    .add(panel, { rotateX: P.panel.como.rotateX, duration: 1500 }, 'COMO')
-    .add(placas, { z: stagger([-P.panel.como.z, P.panel.como.z]), duration: 1500 }, 'COMO')
-    .add(panel, { rotateY: P.panel.como.giro, duration: 2000 }, 'COMO+=1500')
-    .add(placas, { z: 0, duration: 1500 }, 'COMO+=3500')
-    .add(panel, { rotateX: 0, rotateY: 0, duration: 1500 }, 'COMO+=3500')
-    // Cierre: se hunde bajo el horizonte.
-    .add(panel, { rotateX: P.panel.cierre.rotateX, y: P.panel.cierre.y, opacity: [1, 0], duration: m.duracion('CIERRE'), ease: 'in(2)' }, 'CIERRE');
+    // Los ocho puntos se encienden mientras entra, y en DESPEGUE se hunde bajo el horizonte, como el
+    // motor 3D despega: la galería llega con la pantalla libre.
+    .add(puntos, { opacity: 1, scale: 1, duration: 400, ease: 'out(3)' }, stagger(250, { start: 'HERO_OUT' }))
+    .add(placas, { z: stagger([-P.panel.como.z, P.panel.como.z]), duration: m.duracion('DESPEGUE') * 0.5 }, 'DESPEGUE')
+    .add(panel, { rotateX: P.panel.cierre.rotateX, y: P.panel.cierre.y, opacity: [1, 0], duration: m.duracion('DESPEGUE'), ease: 'in(2)' }, 'DESPEGUE');
 
   return escena;
 }
