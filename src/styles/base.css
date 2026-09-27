@@ -341,7 +341,9 @@ html.motor-on #stage { opacity: 0; }
 .vitrina-barra i { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--line); }
 .vitrina-url { margin-left: 0.7rem; font: 500 0.75rem/1 var(--etiqueta); color: var(--muted); }
 .vitrina-medio { position: relative; display: block; aspect-ratio: var(--proporcion); background: #0d0d0c; }
-.vitrina-medio img, .vitrina-medio video {
+/* Solo los hijos directos (cartel y vídeo): dentro de una simulación hay fotos que van en su sitio
+   (los platos de Comandas) y con el selector suelto salían del flujo de su tarjeta. */
+.vitrina-medio > img, .vitrina-medio > video {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: top center;
 }
@@ -597,12 +599,17 @@ html.motor-on #stage { opacity: 0; }
 #cierre-capa { pointer-events: none; visibility: hidden; z-index: 2; }
 #cierre-capa.activa { visibility: visible; }
 /* TOPE DE ALTO con scroll propio: con la letra del navegador agrandada (20, 24 o 32 px) el bloque
-   crecía sin límite y dejaba el enlace fuera de la pantalla. En rem, para que crezca con la letra. */
+   crecía sin limite y dejaba el enlace fuera de la pantalla. En rem, para que crezca con la letra.
+   EL RELLENO DE 2 REM ARRIBA Y ABAJO es lo que impide que ese scroll salga sin hacer falta: las
+   piezas entran y salen desplazadas 24 px (P.cierre.y) y la flecha de «Hablemos» baja 6 px en bucle;
+   un transform también cuenta como desbordamiento, y sin hueco la barra de scroll aparecía y
+   desaparecía cada 1,6 s (lo vio Yoiber el 27/09/2026). Con el relleno, los desplazamientos caen
+   dentro de la caja. */
 .cierre-texto {
   position: absolute; left: 50%; top: 50%; translate: -50% -50%;
-  box-sizing: border-box; width: min(38rem, calc(100vw - 2.5rem)); padding: 0 0.5rem;
+  box-sizing: border-box; width: min(38rem, calc(100vw - 2.5rem)); padding: 2rem 0.5rem;
   text-align: center; pointer-events: auto;
-  max-height: calc(100vh - 12rem); overflow-y: auto; overscroll-behavior: contain;
+  max-height: calc(100vh - 8rem); overflow-y: auto; overscroll-behavior: contain;
 }
 .cierre-texto h2 { margin: 0; font-size: clamp(1.9rem, 4.6vw, 3.5rem); font-weight: 700; line-height: 1.04; letter-spacing: -0.03em; color: var(--fg); text-wrap: balance; }
 .cierre-texto p { margin: 1.1rem auto 0; max-width: 28rem; font-size: 1.1rem; line-height: 1.5; color: var(--muted); text-wrap: balance; }

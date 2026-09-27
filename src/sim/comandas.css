@@ -1,0 +1,213 @@
+/* KIP-UP COMANDAS (sim/comandas.ts). Diseño a 1000x625 px en em (1 em = 16 px de diseño). Colores del
+   kit de Kip-Up (comandas/design/brand/tokens): tinta #1A1A2E, rojo #E63946 (acción; como texto
+   pequeño no llega a AA y va en #A50022), naranja #F4A261, crema #F8F5F0, verde de estado #2A9D8F.
+   Poppins en títulos, Inter en el texto: las dos del producto. */
+.sim-comandas {
+  --sim-acento: #ff7a85;
+  --cm-tinta: #1a1a2e; --cm-rojo: #e63946; --cm-rojo-t: #a50022; --cm-naranja: #f4a261; --cm-crema: #f8f5f0;
+  --cm-gris: #55556a; --cm-gris-2: #9b99a8; --cm-linea: #e6e1d8; --cm-verde: #2a9d8f; --cm-verde-t: #00675c;
+  --cm-head: 'Poppins', system-ui, sans-serif; --cm-body: 'Inter Variable', system-ui, sans-serif;
+  background: var(--cm-crema); color: var(--cm-tinta); font-family: var(--cm-body);
+}
+.sim-comandas .sim-onda { color: var(--cm-rojo); }
+/* El reinicio con especificidad cero (:where): con `.sim-comandas p` ganaba a las clases y se comía el
+   relleno de la cabecera de la comanda, de los tickets de cocina y del aviso. */
+:where(.sim-comandas) :where(p, h2, h3, ul, ol) { margin: 0; padding: 0; list-style: none; }
+.sim-comandas h3 { font: 700 1.2em/1.2 var(--cm-head); letter-spacing: -0.01em; }
+.cm-ico { width: 1.1em; height: 1.1em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.cm-rojo { color: var(--cm-rojo); }
+.cm-boton {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5em; padding: 0.7em 1em; border-radius: 0.6em;
+  background: var(--cm-rojo); color: #fff; font-size: 0.78em; font-weight: 600; white-space: nowrap;
+}
+.cm-boton.cm-borde { background: #fff; color: var(--cm-gris); box-shadow: inset 0 0 0 0.09em var(--cm-linea); }
+
+/* La aplicación. */
+.cm-app { position: absolute; inset: 0; display: grid; grid-template-columns: 12em minmax(0, 1fr); }
+.cm-lat { display: flex; flex-direction: column; gap: 0.25em; padding: 1.1em 0.75em; background: var(--cm-tinta); color: #d9d6e4; }
+.cm-marca { display: flex; align-items: center; gap: 0.6em; margin: 0 0 1.2em 0.4em !important; }
+.cm-mono svg { display: block; width: 1.9em; height: 1.9em; }
+.cm-marca span:last-child { display: grid; }
+.cm-marca b { font: 700 0.95em/1.1 var(--cm-head); color: #fff; }
+.cm-marca small { font-size: 0.55em; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cm-gris-2); }
+.cm-sec { margin: 0.8em 0 0.3em 0.7em !important; font-size: 0.55em; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #7e7d8d; }
+.cm-nav { position: relative; display: flex; align-items: center; gap: 0.65em; padding: 0.55em 0.7em; border-radius: 0.5em; font-size: 0.76em; transition: background 0.25s, color 0.25s; }
+.cm-nav.on { background: rgb(255 255 255 / 0.08); color: #fff; }
+.cm-nav.on .cm-ico { color: var(--cm-naranja); }
+.cm-nav.on::after { content: ''; position: absolute; right: 0.7em; width: 0.4em; height: 0.4em; border-radius: 50%; background: var(--cm-rojo); }
+.cm-yo { display: flex; align-items: center; gap: 0.6em; margin-top: auto !important; padding: 0.6em 0.4em 0; border-top: 0.0625em solid rgb(255 255 255 / 0.08); }
+.cm-yo i { display: grid; place-items: center; width: 2.1em; height: 2.1em; border-radius: 50%; background: rgb(255 255 255 / 0.1); font-style: normal; font-size: 0.7em; font-weight: 700; color: #fff; }
+.cm-yo span { display: grid; }
+.cm-yo b { font-size: 0.72em; color: #fff; }
+.cm-yo small { font-size: 0.58em; color: var(--cm-gris-2); }
+.cm-main { position: relative; min-width: 0; }
+.cm-mesas, .cm-pedido, .cm-cocina, .cm-caja { position: absolute; inset: 0; padding: 1.2em 1.4em; }
+.cm-mesas, .cm-cocina, .cm-caja { display: flex; flex-direction: column; gap: 0.7em; }
+.cm-cab { display: flex; align-items: center; gap: 0.5em; }
+.cm-cab > span:first-child { display: grid; gap: 0.15em; margin-right: auto; }
+.cm-cab small { font-size: 0.66em; color: var(--cm-gris); }
+.cm-chip { padding: 0.3em 0.7em; border-radius: 999px; font-size: 0.62em; font-weight: 600; }
+.cm-chip.verde { background: #d8eeea; color: var(--cm-verde-t); }
+.cm-chip.naranja { background: #ffebdd; color: #a35e1f; }
+.cm-chip.rojo { background: #ffdfdd; color: var(--cm-rojo-t); }
+.cm-zona { display: flex; align-items: center; gap: 0.5em; margin-top: 0.3em !important; font-size: 0.6em; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cm-gris); }
+.cm-zona i { font-style: normal; padding: 0.1em 0.5em; border-radius: 999px; background: #ebe6dd; letter-spacing: 0; }
+
+/* Plano de mesas. */
+.cm-rejilla-mesas { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.65em; }
+.cm-mesa {
+  position: relative; display: grid; gap: 0.25em; padding: 0.75em 0.7em 0.65em; border-radius: 0.75em; background: #fff;
+  border: 0.0625em solid var(--cm-linea); box-shadow: 0 0.2em 0.5em rgb(26 26 46 / 0.05); transition: box-shadow 0.3s, border-color 0.3s;
+}
+.cm-mesa b { font: 700 1em/1 var(--cm-head); }
+.cm-mesa i { position: absolute; top: 0.65em; right: 0.6em; padding: 0.15em 0.5em; border-radius: 999px; font-style: normal; font-size: 0.55em; font-weight: 700; }
+.cm-mesa small { display: flex; align-items: center; gap: 0.3em; font-size: 0.62em; color: var(--cm-gris); }
+.cm-mesa em { font-style: normal; font-size: 0.58em; color: var(--cm-gris); }
+.cm-mesa.libre i { background: #d8eeea; color: var(--cm-verde-t); }
+.cm-mesa.ocupada { border-color: #ffcba5; }
+.cm-mesa.ocupada i { background: #ffebdd; color: #a35e1f; }
+.cm-mesa.ocupada em { color: #a35e1f; font-weight: 600; }
+.cm-mesa.cobrar { border-color: #ffc0bd; }
+.cm-mesa.cobrar i { background: #ffdfdd; color: var(--cm-rojo-t); }
+.cm-mesa.cobrar em { color: var(--cm-rojo-t); font-weight: 600; }
+.cm-mesa.elegida { border-color: var(--cm-rojo); box-shadow: 0 0 0 0.22em rgb(230 57 70 / 0.22); }
+
+/* La carta y la comanda. */
+.cm-pedido { display: grid; grid-template-columns: minmax(0, 1fr) 16.5em; gap: 1em; padding-right: 0; padding-top: 0; padding-bottom: 0; }
+.cm-carta { display: flex; flex-direction: column; gap: 0.7em; padding-top: 1.1em; min-width: 0; }
+.cm-atras { display: grid; place-items: center; width: 1.9em; height: 1.9em; border-radius: 0.5em; color: var(--cm-gris); }
+.cm-carta .cm-cab h3 { margin-right: 0.2em; }
+.cm-sub { margin-right: auto; font-size: 0.66em !important; }
+.cm-busca { display: flex; align-items: center; gap: 0.5em; width: 11em; padding: 0.5em 0.7em; border-radius: 0.6em; background: #fff; border: 0.0625em solid var(--cm-linea); font-size: 0.66em; color: var(--cm-gris-2); }
+.cm-cats { display: flex; gap: 0.45em; }
+.cm-cats i { font-style: normal; padding: 0.45em 0.9em; border-radius: 999px; background: #fff; border: 0.0625em solid var(--cm-linea); font-size: 0.66em; font-weight: 500; color: var(--cm-gris); }
+.cm-cats i.on { background: var(--cm-tinta); border-color: var(--cm-tinta); color: #fff; }
+.cm-platos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6em; }
+.cm-plato { display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; border-radius: 0.7em; background: #fff; border: 0.0625em solid var(--cm-linea); box-shadow: 0 0.2em 0.6em rgb(26 26 46 / 0.06); }
+.cm-plato img { display: block; width: 100%; aspect-ratio: 4 / 3; height: auto; object-fit: cover; }
+.cm-plato b { padding: 0.55em 0.65em 0.1em; font-size: 0.66em; font-weight: 600; line-height: 1.25; }
+.cm-plato em { padding: 0 0.75em 0.6em; font-style: normal; font-size: 0.64em; font-weight: 700; }
+.cm-comanda { display: flex; flex-direction: column; background: #fff; border-left: 0.0625em solid var(--cm-linea); }
+.cm-com-cab { display: grid; gap: 0.1em; padding: 1em 1em 0.8em; border-bottom: 0.0625em solid var(--cm-linea); }
+.cm-com-cab b { font: 600 0.9em/1.2 var(--cm-head); }
+.cm-com-cab small { font-size: 0.6em; color: var(--cm-gris); }
+.cm-com-vacia { position: absolute; margin-top: 5em !important; width: 16.5em; padding: 0 1.5em; text-align: center; font-size: 0.7em; color: var(--cm-gris-2); transition: opacity 0.2s; }
+.cm-lineas { flex: 1; display: flex; flex-direction: column; gap: 0.1em; padding: 0.6em 0.8em !important; }
+.cm-l { position: relative; display: grid; grid-template-columns: 2.3em 1fr auto; align-items: start; gap: 0.3em; padding: 0.5em 0.3em; border-bottom: 0.0625em dashed var(--cm-linea); font-size: 0.7em; }
+.cm-cant { display: flex; gap: 0.15em; align-items: baseline; color: var(--cm-gris); }
+.cm-cant b { display: grid; place-items: center; min-width: 1.6em; height: 1.6em; border-radius: 0.4em; background: #fdecee; color: var(--cm-rojo-t); font-weight: 700; }
+.cm-ln { display: grid; gap: 0.2em; font-weight: 500; }
+.cm-lp { font-variant-numeric: tabular-nums; font-weight: 600; }
+.cm-nota { display: none; align-items: center; gap: 0.3em; padding: 0.2em 0.45em; border-radius: 0.35em; background: #fff6ef; color: #a35e1f; font-size: 0.85em; font-weight: 500; }
+.cm-nota.abierta { display: inline-flex; }
+.cm-enc { position: absolute; right: 0.3em; bottom: -0.2em; font-style: normal; font-size: 0.72em; font-weight: 600; color: var(--cm-verde-t); opacity: 0; transition: opacity 0.3s; }
+.cm-comanda.enviada .cm-enc { opacity: 1; }
+.cm-com-pie { display: grid; gap: 0.5em; padding: 0.9em 1em 1em; border-top: 0.0625em solid var(--cm-linea); }
+.cm-total { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.75em; color: var(--cm-gris); }
+.cm-total b { font: 700 1.6em/1 var(--cm-head); color: var(--cm-tinta); font-variant-numeric: tabular-nums; }
+.cm-toast {
+  /* Arriba, sobre la carta: abajo lo tapaba el rótulo del paso. */
+  position: absolute; left: 50%; top: 1em; translate: calc(-50% - 8.25em) 0; display: flex; align-items: center; gap: 0.6em;
+  padding: 0.7em 1em; border-radius: 0.7em; background: var(--cm-tinta); color: #fff; font-size: 0.75em; box-shadow: 0 1em 2em rgb(26 26 46 / 0.3);
+}
+.cm-toast .cm-ico { color: #63b8ab; }
+
+/* La cocina. */
+.cm-conm { display: inline-flex; gap: 0.2em; padding: 0.2em; border-radius: 0.6em; background: #ebe6dd; font-size: 0.66em; }
+.cm-conm i { display: inline-flex; align-items: center; gap: 0.4em; padding: 0.45em 0.8em; border-radius: 0.45em; font-style: normal; font-weight: 600; color: var(--cm-gris); }
+.cm-conm i.on { background: #fff; color: var(--cm-tinta); }
+.cm-conm b { padding: 0 0.45em; border-radius: 999px; background: var(--cm-rojo); color: #fff; }
+.cm-tickets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8em; align-items: start; }
+.cm-tk { display: grid; gap: 0.5em; padding: 0 0 0.9em; overflow: hidden; border-radius: 0.8em; background: #fff; border: 0.0625em solid var(--cm-linea); box-shadow: 0 0.3em 0.8em rgb(26 26 46 / 0.06); transition: border-color 0.3s, box-shadow 0.3s; }
+.cm-tk-cab { display: flex; justify-content: space-between; align-items: center; padding: 0.7em 0.9em; background: #f1ede6; font-size: 0.72em; }
+.cm-tk-cab b { font-family: var(--cm-head); font-weight: 600; }
+.cm-hace { display: flex; align-items: center; gap: 0.3em; font-size: 0.9em; color: var(--cm-gris); font-variant-numeric: tabular-nums; }
+.cm-tk-tarde .cm-tk-cab { background: #ffebdd; }
+.cm-tk-tarde .cm-hace { color: #a35e1f; font-weight: 600; }
+.cm-tk-nuevo { border-color: var(--cm-rojo); box-shadow: 0 0 0 0.2em rgb(230 57 70 / 0.15), 0 0.6em 1.4em rgb(26 26 46 / 0.12); }
+.cm-tk-nuevo .cm-tk-cab { background: #fdecee; }
+.cm-tk-nuevo.lista { border-color: var(--cm-verde); box-shadow: 0 0 0 0.2em rgb(42 157 143 / 0.2); }
+.cm-tk-nuevo.lista .cm-tk-cab { background: #d8eeea; }
+.cm-tk ul { display: grid; gap: 0.1em; padding: 0 0.9em !important; }
+.cm-it { display: flex; align-items: center; gap: 0.55em; padding: 0.4em 0; font-size: 0.72em; font-weight: 500; transition: color 0.2s; }
+.cm-it small { display: block; color: #a35e1f; font-size: 0.85em; }
+.cm-it i { flex: none; width: 1.1em; height: 1.1em; border-radius: 0.3em; border: 0.12em solid #cfcbcf; transition: all 0.2s; }
+.cm-it.hecho { color: var(--cm-gris-2); text-decoration: line-through; }
+.cm-it.hecho i { background: var(--cm-verde); border-color: var(--cm-verde); box-shadow: inset 0 0 0 0.18em #fff; }
+.cm-listo { justify-self: stretch; margin: 0.2em 0.9em 0; padding: 0.55em; border-radius: 0.5em; background: var(--cm-tinta); color: #fff; font-size: 0.7em; font-weight: 600; text-align: center; transition: background 0.3s; }
+.cm-tk-nuevo.lista .cm-listo { background: var(--cm-verde); }
+
+/* La caja. */
+.cm-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7em; }
+.cm-stat { display: grid; gap: 0.3em; padding: 0.8em 0.9em !important; border-radius: 0.75em; background: #fff; border: 0.0625em solid var(--cm-linea); }
+.cm-stat small { font-size: 0.58em; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cm-gris); }
+.cm-stat b { font: 700 1.25em/1.1 var(--cm-head); font-variant-numeric: tabular-nums; }
+.cm-cuenta { display: flex; align-items: center; gap: 0.8em; padding: 0.8em 0.9em; border-radius: 0.75em; background: #fff; border: 0.0625em solid var(--cm-linea); }
+.cm-cuenta > span:first-child { display: grid; gap: 0.2em; margin-right: auto; }
+.cm-cuenta b { font-size: 0.8em; }
+.cm-cuenta small { font-size: 0.6em; color: var(--cm-gris); }
+.cm-cuenta > b { font: 700 1em/1 var(--cm-head); font-variant-numeric: tabular-nums; }
+.cm-cta-4 { border-color: #ffc0bd; }
+.cm-cta-4.fuera, .cm-hecha:not(.dentro) { display: none; }
+.cm-pagada { display: inline-flex; align-items: center; gap: 0.35em; padding: 0.35em 0.7em; border-radius: 999px; background: #d8eeea; color: var(--cm-verde-t); font-size: 0.62em; font-weight: 700; }
+.cm-hecha { border-color: #b6ded7; }
+
+/* El cobro. */
+.cm-modal {
+  position: absolute; z-index: 6; left: 26.5em; top: 7em; width: 21em; display: grid; gap: 0.5em; padding: 1.2em 1.3em 1.3em;
+  border-radius: 1em; background: #fff; box-shadow: 0 2em 4em rgb(26 26 46 / 0.35), 0 0 0 0.0625em var(--cm-linea);
+}
+.cm-mod-cab { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.3em !important; }
+.cm-mod-cab b { font: 700 1em/1.2 var(--cm-head); }
+.cm-mod-cab small { font-size: 0.62em; color: var(--cm-gris); }
+.cm-mod-l { display: flex; justify-content: space-between; font-size: 0.74em; color: var(--cm-gris); }
+.cm-mod-l b { color: var(--cm-tinta); font-variant-numeric: tabular-nums; }
+.cm-mod-tot { padding-top: 0.5em; border-top: 0.0625em solid var(--cm-linea); font-size: 0.85em; }
+.cm-mod-tot b { font: 700 1.3em/1 var(--cm-head); }
+.cm-rot { margin-top: 0.3em !important; font-size: 0.6em; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cm-gris); }
+.cm-opc { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4em; }
+.cm-opc i { padding: 0.55em 0.3em; border-radius: 0.55em; border: 0.09em solid var(--cm-linea); font-style: normal; font-size: 0.66em; font-weight: 600; text-align: center; color: var(--cm-gris); transition: all 0.2s; }
+.cm-opc i.on { border-color: var(--cm-rojo); background: #fdecee; color: var(--cm-rojo-t); }
+.cm-pagar { margin-top: 0.5em; }
+
+/* El ticket impreso. */
+.cm-ticket {
+  position: absolute; z-index: 7; right: 8em; top: 2.2em; width: 23em; padding: 1.8em 1.6em 2.6em;
+  background: #fff; color: #111; font: 0.62em/1.5 'IBM Plex Mono', ui-monospace, monospace; text-align: center;
+  box-shadow: 0 1.5em 3em rgb(26 26 46 / 0.35);
+  -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 1.2em 51% repeat-x, linear-gradient(#000 0 0) top / 100% 50% no-repeat;
+  mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 1.2em 51% repeat-x, linear-gradient(#000 0 0) top / 100% 50% no-repeat;
+}
+.cm-tq-neg { font-weight: 600; font-size: 1.2em; }
+.cm-tq-sep { margin: 0.5em 0 !important; padding-top: 0.5em; border-top: 0.1em dashed #999; }
+.cm-tq-l { display: flex; justify-content: space-between; text-align: left; }
+.cm-tq-tot { margin-top: 0.3em !important; font-weight: 600; font-size: 1.15em; }
+.cm-tq-pie { margin-top: 1em !important; }
+
+/* La entrada. */
+.cm-login { position: absolute; inset: 0; z-index: 8; display: grid; grid-template-columns: 1fr 1fr; background: var(--cm-crema); }
+.cm-marca-panel { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 2.2em 2.4em; background: var(--cm-tinta); color: #fff; }
+.cm-mancha1, .cm-mancha2 { position: absolute; border-radius: 50%; filter: blur(3em); opacity: 0.4; }
+.cm-mancha1 { left: -6em; top: -6em; width: 20em; height: 20em; background: var(--cm-rojo); }
+.cm-mancha2 { right: -6em; bottom: -8em; width: 24em; height: 24em; background: rgb(244 162 97 / 0.7); }
+.cm-palabra { position: relative; }
+.cm-palabra svg { display: block; width: 9em; height: auto; }
+.cm-lema { position: relative; display: grid; gap: 0.8em; max-width: 24em; }
+.cm-kicker { font: 500 0.62em/1 var(--cm-head); letter-spacing: 0.18em; text-transform: uppercase; color: var(--cm-naranja); }
+.cm-lema h2 { font: 700 1.75em/1.15 var(--cm-head); letter-spacing: -0.01em; }
+.cm-lema > p:not(.cm-kicker) { font-size: 0.82em; line-height: 1.5; color: #b9b6c9; }
+.cm-lema ul { display: grid; gap: 0.7em; margin-top: 0.4em !important; font-size: 0.75em; color: rgb(255 255 255 / 0.85); }
+.cm-lema li { display: flex; align-items: center; gap: 0.7em; }
+.cm-lema li .cm-ico { width: 1.9em; height: 1.9em; padding: 0.45em; border-radius: 0.5em; background: rgb(255 255 255 / 0.1); }
+.cm-marca-panel > small { position: relative; font-size: 0.6em; color: rgb(255 255 255 / 0.5); }
+.cm-form { display: grid; align-content: center; gap: 0.7em; padding: 0 5em; }
+.cm-form h3 { font-size: 1.45em; }
+.cm-form > p { margin-top: -0.3em !important; font-size: 0.75em; color: var(--cm-gris); }
+.cm-form label { display: grid; gap: 0.35em; margin-top: 0.3em; }
+.cm-form label small { font-size: 0.7em; font-weight: 600; }
+.cm-campo { display: flex; align-items: center; gap: 0.6em; height: 2.6em; padding: 0 0.8em; border-radius: 0.6em; background: #fff; border: 0.0625em solid var(--cm-linea); font-size: 0.8em; color: var(--cm-tinta); transition: border-color 0.2s, box-shadow 0.2s; }
+.cm-campo .cm-ico { color: var(--cm-gris-2); }
+.cm-campo.foco { border-color: var(--cm-rojo); box-shadow: 0 0 0 0.2em rgb(230 57 70 / 0.15); }
+.cm-ph { color: var(--cm-gris-2); }
+.cm-clave-t { letter-spacing: 0.12em; }
+.cm-entrar { margin-top: 0.6em; padding: 0.85em; font-size: 0.85em; }

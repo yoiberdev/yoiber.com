@@ -1,0 +1,168 @@
+/* KUANTERA (sim/kuantera.ts). Diseño a 1000x625 px en em (1 em = 16 px de diseño). Colores y letras
+   del kit de marca (kuantera-brand/tokens/colors.css): tinta #12324A, primario #1B5C7A, menta
+   #3FC9B2 solo de acento, fondo #F3F6F8, líneas #DDEEF3; Poppins en títulos, Inter en el texto e
+   IBM Plex Mono en los números. El panel real mide 1280 px: aquí va al 78 %. */
+.sim-kuantera {
+  --sim-acento: #3fc9b2;
+  --kt-tinta: #12324a; --kt-noche: #0b2032; --kt-prim: #1b5c7a; --kt-menta: #3fc9b2; --kt-fondo: #f3f6f8;
+  --kt-linea: #ddeef3; --kt-linea-2: #b9cad3; --kt-gris: #587587; --kt-ok: #1f6a48; --kt-ok-bg: #e8f5ef; --kt-ok-500: #2e9e6b;
+  --kt-head: 'Poppins', system-ui, sans-serif; --kt-body: 'Inter Variable', system-ui, sans-serif; --kt-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  background: var(--kt-fondo); color: var(--kt-tinta); font-family: var(--kt-body);
+}
+.sim-kuantera .sim-onda { color: var(--kt-prim); }
+:where(.sim-kuantera) :where(p, h3) { margin: 0; }
+.sim-kuantera h3 { font: 600 1.15em/1.2 var(--kt-head); letter-spacing: -0.01em; }
+.kt-num { font-family: var(--kt-mono); font-variant-numeric: tabular-nums; }
+.kt-der { text-align: right; }
+.kt-verde { color: var(--kt-ok-500) !important; }
+.kt-ico { width: 1.15em; height: 1.15em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* La aplicación: barra lateral, cabecera y la vista con sus tres pantallas apiladas. */
+.kt-app { position: absolute; inset: 0; display: grid; grid-template-columns: 11.75em minmax(0, 1fr); }
+.kt-lat { display: flex; flex-direction: column; gap: 0.2em; padding: 1.3em 0.8em; background: var(--kt-tinta); color: #cfe0ea; }
+.kt-logo svg { display: block; width: 8.6em; height: auto; margin: 0 0 1.5em 0.5em; }
+.kt-seccion { margin: 0 0 0.4em 0.7em !important; font-size: 0.55em; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #7c96a7; }
+.kt-nav { display: flex; align-items: center; gap: 0.65em; padding: 0.55em 0.7em; border-radius: 0.45em; font-size: 0.78em; transition: background 0.25s, color 0.25s; }
+.kt-nav.on { background: var(--kt-prim); color: #fff; }
+.kt-main { display: grid; grid-template-rows: 3.1em minmax(0, 1fr); min-width: 0; }
+.kt-top { display: flex; align-items: center; gap: 0.9em; padding: 0 1.3em; background: #fff; border-bottom: 0.0625em solid var(--kt-linea); }
+.kt-top > span:first-child { display: grid; margin-right: auto; }
+.kt-top b { font: 600 0.82em/1.2 var(--kt-head); }
+.kt-top small { font-size: 0.6em; color: var(--kt-gris); }
+.kt-pruebas { padding: 0.25em 0.7em 0.25em 1.4em; position: relative; border-radius: 999px; background: #fdf1dc; color: #7a4f00; font-size: 0.62em; font-weight: 600; }
+.kt-pruebas::before { content: ''; position: absolute; left: 0.65em; top: 50%; width: 0.4em; height: 0.4em; margin-top: -0.2em; border-radius: 50%; background: #c98a1a; }
+.kt-yo { font-size: 0.7em; color: var(--kt-gris); }
+.kt-vista { position: relative; }
+.kt-panel, .kt-emitir, .kt-emitido { position: absolute; inset: 0; padding: 1.1em 1.3em; display: flex; flex-direction: column; gap: 0.8em; }
+.kt-cabeza { display: flex; align-items: center; gap: 0.6em; }
+.kt-cabeza > span:first-child { display: grid; gap: 0.15em; margin-right: auto; }
+.kt-cabeza small { font-size: 0.65em; color: var(--kt-gris); }
+.kt-boton {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.45em; padding: 0.55em 1em; border-radius: 0.45em;
+  background: var(--kt-prim); color: #fff; font-size: 0.72em; font-weight: 500; white-space: nowrap;
+}
+.kt-boton.kt-borde { background: #fff; color: var(--kt-tinta); box-shadow: inset 0 0 0 0.09em var(--kt-linea-2); }
+.kt-boton.kt-chico { padding: 0.5em 0.8em; font-size: 0.66em; }
+.kt-tarjeta { background: #fff; border: 0.0625em solid var(--kt-linea); border-radius: 0.7em; padding: 0.8em 0.95em; box-shadow: 0 0.2em 0.6em rgb(18 50 74 / 0.05); }
+.kt-tit { margin-bottom: 0.6em !important; font: 600 0.8em/1.2 var(--kt-head); }
+
+/* Panel. */
+.kt-cifras { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.7em; }
+.kt-cifras .kt-tarjeta { display: grid; gap: 0.35em; }
+.kt-cifras small { font-size: 0.66em; color: var(--kt-gris); }
+.kt-cifras b { font-size: 1.12em; font-weight: 400; white-space: nowrap; }
+.kt-cifras em { font-style: normal; font-size: 0.58em; font-weight: 600; color: var(--kt-gris); }
+.kt-dos { display: grid; grid-template-columns: 1fr 1.35fr; gap: 0.7em; flex: 1; min-height: 0; }
+.kt-barras { display: flex; align-items: flex-end; gap: 0.7em; height: 9.5em; padding-top: 0.5em; }
+.kt-barras i { position: relative; flex: 1; height: var(--h); border-radius: 0.3em 0.3em 0 0; background: linear-gradient(var(--kt-prim), #308fbb); }
+.kt-barras i:nth-child(6) { background: linear-gradient(var(--kt-menta), #30aa96); }
+.kt-barras b { position: absolute; left: 0; right: 0; bottom: -1.6em; text-align: center; font: 500 0.55em/1 var(--kt-mono); color: var(--kt-gris); }
+.kt-tabla { width: 100%; border-collapse: collapse; font-size: 0.66em; }
+.kt-tabla td { padding: 0.7em 0.4em; border-top: 0.1em solid var(--kt-linea); }
+.kt-tabla td.kt-num:first-child { color: var(--kt-prim); text-decoration: underline; text-underline-offset: 0.2em; }
+.kt-pill { display: inline-flex; align-items: center; gap: 0.35em; padding: 0.2em 0.6em; border-radius: 999px; background: #eef2f5; color: var(--kt-gris); font-size: 0.85em; font-weight: 600; white-space: nowrap; }
+.kt-pill::before { content: ''; width: 0.45em; height: 0.45em; border-radius: 50%; background: currentColor; }
+.kt-pill.ok { background: var(--kt-ok-bg); color: var(--kt-ok); }
+.kt-pill.va { background: #e5f0f5; color: var(--kt-prim); }
+
+/* Emisión. */
+.kt-rejilla { display: grid; grid-template-columns: minmax(0, 1fr) 15.5em; gap: 0.8em; flex: 1; min-height: 0; }
+.kt-col { display: flex; flex-direction: column; gap: 0.7em; min-width: 0; }
+.kt-fila { display: flex; align-items: center; gap: 0.6em; }
+.kt-fila small { font-size: 0.6em; color: var(--kt-gris); white-space: nowrap; }
+.kt-toggle { display: inline-flex; padding: 0.15em; border-radius: 0.45em; background: #eef2f5; font-size: 0.68em; }
+.kt-toggle i { font-style: normal; padding: 0.35em 0.8em; border-radius: 0.35em; color: var(--kt-gris); }
+.kt-toggle i.on { background: var(--kt-prim); color: #fff; }
+.kt-campo {
+  position: relative; display: flex; align-items: center; gap: 0.5em; min-height: 2.05em; padding: 0 0.7em;
+  border: 0.0625em solid var(--kt-linea-2); border-radius: 0.45em; background: #fff; font-size: 0.72em; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.kt-campo.foco { border-color: var(--kt-menta); box-shadow: 0 0 0 0.2em rgb(63 201 178 / 0.25); }
+.kt-serie { min-width: 6em; }
+.kt-buscar { flex: 1; color: var(--kt-tinta); }
+.kt-buscar .kt-ico { color: var(--kt-gris); }
+.kt-ph1, .kt-ph2 { color: #9fb2bf; }
+.kt-cliente, .kt-productos { position: relative; }
+.kt-cliente label, .kt-dosc label { display: grid; gap: 0.25em; margin-top: 0.55em; }
+.kt-cliente label small, .kt-resumen small, .kt-cobrar small { font-size: 0.6em; color: var(--kt-gris); }
+.kt-dosc { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6em; }
+.kt-dni, .kt-nombre { transition: background 0.6s; }
+.kt-relleno .kt-dni, .kt-relleno .kt-nombre { background: #e8f7f4; }
+.kt-sug {
+  position: absolute; z-index: 5; left: 0.95em; right: 7.4em; top: 4.35em; margin: 0; padding: 0.3em; list-style: none;
+  border: 0.0625em solid var(--kt-linea-2); border-radius: 0.55em; background: #fff; box-shadow: 0 0.8em 1.8em rgb(18 50 74 / 0.18);
+}
+.kt-sug li { display: grid; gap: 0.1em; padding: 0.45em 0.6em; border-radius: 0.4em; }
+.kt-sug li:first-child { background: #eef6f9; }
+.kt-sug b { font-size: 0.68em; font-weight: 600; }
+.kt-sug small { font-size: 0.56em; color: var(--kt-gris); }
+.kt-lineas { width: 100%; margin-top: 0.6em; border-collapse: collapse; font-size: 0.66em; }
+.kt-lineas th { padding: 0.5em 0.5em; background: var(--kt-fondo); color: var(--kt-gris); font-size: 0.82em; font-weight: 600; text-align: left; letter-spacing: 0.04em; text-transform: uppercase; }
+.kt-lineas td { padding: 0.6em 0.5em; border-bottom: 0.1em solid var(--kt-linea); white-space: nowrap; }
+.kt-cant { display: inline-flex; align-items: center; gap: 0.5em; padding: 0.15em 0.35em; border: 0.1em solid var(--kt-linea-2); border-radius: 0.4em; }
+.kt-cant i { font-style: normal; color: var(--kt-gris); width: 1em; text-align: center; }
+.kt-vacio { margin-top: 0.8em !important; font-size: 0.62em; color: var(--kt-gris); text-align: center; }
+.kt-productos .kt-vacio { position: absolute; left: 0; right: 0; top: 7.6em; }
+.kt-totales .kt-t { display: flex; justify-content: space-between; padding: 0.45em 0; border-bottom: 0.0625em solid var(--kt-linea); font-size: 0.72em; }
+.kt-totales .kt-t b { font-weight: 400; }
+.kt-totales .kt-total { border-bottom: 0; font-weight: 700; }
+.kt-totales .kt-total b { font-weight: 600; }
+.kt-pago { margin-top: 0.7em !important; }
+.kt-cobrar { display: grid; gap: 0.4em; }
+.kt-cobrar b { font-size: 1.7em; font-weight: 500; }
+.kt-emitir-b { padding: 0.75em 1em; font-size: 0.78em; }
+
+/* Emitido: resumen, camino a SUNAT y la respuesta. */
+.kt-resumen { display: grid; grid-template-columns: 1.3fr 1fr 1.2fr 1.5fr; gap: 0.8em; }
+.kt-resumen label { display: grid; gap: 0.3em; }
+.kt-resumen b { font-size: 0.95em; font-weight: 500; }
+.kt-resumen b:not(.kt-num) { font-size: 0.78em; }
+.kt-estado { justify-self: start; font-size: 0.66em; transition: background 0.3s, color 0.3s; }
+.kt-pasos { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); padding: 0.2em 0 0.1em; }
+.kt-linea { position: absolute; left: 16.66%; right: 16.66%; top: 1.3em; height: 0.18em; background: var(--kt-linea); border-radius: 1em; overflow: hidden; }
+.kt-lleno { display: block; height: 100%; background: var(--kt-menta); transform-origin: left center; }
+.kt-paso { position: relative; display: grid; justify-items: center; gap: 0.3em; text-align: center; }
+.kt-paso .kt-ico { width: 2.6em; height: 2.6em; padding: 0.55em; border-radius: 50%; background: #fff; border: 0.12em solid var(--kt-linea-2); color: var(--kt-gris); transition: all 0.3s; }
+.kt-paso.hecho .kt-ico { background: var(--kt-prim); border-color: var(--kt-prim); color: #fff; }
+.kt-paso b { font-size: 0.7em; font-weight: 600; }
+.kt-paso small { font-size: 0.56em; color: var(--kt-gris); }
+.kt-aceptada { display: grid; gap: 0.35em; padding: 0.9em 1em; border-radius: 0.7em; background: var(--kt-ok-bg); border: 0.0625em solid #b6e2ce; color: var(--kt-ok); }
+.kt-ok { display: flex; align-items: center; gap: 0.5em; font: 600 0.95em/1.2 var(--kt-head); }
+.kt-ok .kt-ico { width: 1.5em; height: 1.5em; padding: 0.25em; border-radius: 50%; background: var(--kt-ok-500); color: #fff; stroke-width: 2.6; }
+.kt-aceptada p:not(.kt-ok) { font-size: 0.74em; color: #1d4d38; }
+.kt-aceptada small { font-size: 0.62em; color: #3b6e57; }
+.kt-acciones { display: flex; flex-wrap: wrap; gap: 0.5em; }
+
+/* La entrada. */
+.kt-login { position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; background: radial-gradient(circle at 70% 20%, rgb(63 201 178 / 0.12), transparent 45%), var(--kt-tinta); }
+.kt-login-tarjeta { display: grid; gap: 0.5em; width: 23.75em; padding: 1.8em 1.75em 1.6em; border-radius: 1em; background: #fff; box-shadow: 0 2em 4em rgb(0 0 0 / 0.35); }
+.kt-login-logo svg { display: block; width: 10.5em; height: auto; margin-bottom: 0.9em; }
+.kt-login-tarjeta p { font-size: 0.78em; color: var(--kt-gris); margin-bottom: 0.4em !important; }
+.kt-login-tarjeta label { display: grid; gap: 0.3em; }
+.kt-login-tarjeta label small { font-size: 0.7em; font-weight: 500; }
+.kt-login .kt-campo { min-height: 2.3em; font-size: 0.8em; }
+.kt-clave-t { letter-spacing: 0.12em; }
+.kt-caret { width: 0.07em; height: 1.1em; background: var(--kt-tinta); opacity: 0; }
+.sim.corriendo .kt-correo.foco .kt-caret { animation: kt-parpadeo 0.9s steps(1) infinite; }
+@keyframes kt-parpadeo { 50% { opacity: 1; } }
+.kt-entrar { margin-top: 0.6em; padding: 0.8em; font-size: 0.85em; }
+.kt-olvido { margin-top: 0.4em; font-size: 0.6em; color: var(--kt-gris); }
+
+/* El ticket de 80 mm. */
+.kt-ticket {
+  /* Sus medidas van en SU em (la letra es 0,62 de la escena): 23,4 em son 232 px de diseño. */
+  position: absolute; z-index: 6; right: 7.2em; top: 2.6em; width: 23.4em; padding: 1.8em 1.6em 2.6em;
+  background: #fff; color: #111; font: 0.62em/1.45 var(--kt-mono); text-align: center;
+  box-shadow: 0 1.5em 3em rgb(11 32 50 / 0.35);
+  -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 1.2em 51% repeat-x, linear-gradient(#000 0 0) top / 100% 50% no-repeat;
+  mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 1.2em 51% repeat-x, linear-gradient(#000 0 0) top / 100% 50% no-repeat;
+}
+.kt-ticket p { margin: 0; }
+.kt-tk-neg { font-weight: 500; font-size: 1.2em; }
+.kt-tk-tipo { margin: 0.7em 0 !important; font-weight: 500; }
+.kt-tk-sep { margin: 0.5em 0 !important; padding-top: 0.5em; border-top: 0.1em dashed #999; }
+.kt-tk-l { display: flex; justify-content: space-between; text-align: left; }
+.kt-tk-tot { margin-top: 0.3em !important; font-weight: 500; font-size: 1.15em; }
+.kt-qr { display: block; width: 7.5em; height: 7.5em; margin: 0.9em auto 0.6em; }
+.kt-qr rect { fill: #111; }
+.kt-tk-pie { font-size: 0.85em; color: #555; }
