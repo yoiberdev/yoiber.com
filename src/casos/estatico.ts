@@ -1,11 +1,14 @@
-// LOS CASOS QUE SE CUENTAN CON CAPTURAS no animan nada: no hay línea de tiempo, ni scroll atado,
-// ni Anime.js. Esta entrada existe solo para que Vite empaquete la hoja y las fuentes del sitio con
-// su hash, igual que en las demás páginas. Si algún caso llega a necesitar movimiento, tendrá su
-// propio módulo (como casos/maritimo.ts) y esta no cambia.
+// LOS CASOS QUE SE CUENTAN CON CAPTURAS. Hasta el 27/09/2026 esta entrada solo empaquetaba la hoja y
+// las fuentes; ahora monta también el kit de los casos (casos/kit.ts): cifras que cuentan, recorridos
+// en pestañas, capturas anotadas con acercamiento y, en Kuantera, la simulación en modo guía. Lo que
+// no esté en el marcado de una página, simplemente no se monta.
 import '@fontsource-variable/instrument-sans';
 import '@fontsource/fragment-mono';
 import '../styles/pagina.css';
 import { sugerirIdioma } from '../comun/idioma';
+import { montarKit } from './kit';
 
 // El aviso de «esta página también está en…», si el navegador pide el otro idioma.
 sugerirIdioma();
+
+montarKit();

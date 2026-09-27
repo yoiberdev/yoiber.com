@@ -82,6 +82,12 @@
         </p>
       </header>
 
+      <dl class="cifras">
+        <div><dt>módulos que se usan de verdad, alrededor de la agenda del día</dt><dd data-hasta="20">20</dd></div>
+        <div><dt>formas de mirar el día: por especialista, por camilla o por paciente</dt><dd data-hasta="3">3</dd></div>
+        <div><dt>pantallas revisadas texto a texto: ninguna nombra al cliente</dt><dd data-hasta="8">8</dd></div>
+      </dl>
+
       <h2>Por qué aquí no hay una demo que puedas abrir</h2>
       <p>
         Es el sistema con el que un cliente trabaja todos los días, con datos de pacientes dentro. No
@@ -90,9 +96,16 @@
         contactos <b>generados por los datos de prueba del propio proyecto</b>: nadie de ahí existe.
       </p>
 
-      <figure class="figura">
-        <img src="/casos/erp-agenda.png" width="1400" height="833" loading="lazy" decoding="async"
-             alt="Agenda del día con una columna por especialista, su horario y las sesiones colocadas en su franja" />
+      <figure class="anotada" data-anotada>
+        <div class="anotada-marco"><div class="anotada-lienzo"><img src="/casos/erp-agenda.png" width="1400" height="833" loading="lazy" decoding="async" alt="Agenda del día con una columna por especialista, su horario y las sesiones colocadas en su franja" /></div></div>
+        <ol class="anotada-notas" aria-label="Qué se ve en la captura">
+          <li data-x="27" data-y="23" data-zoom="1.9">Una columna por especialista, con su turno arriba.</li>
+          <li data-x="27" data-y="55" data-zoom="1.8">Cada sesión ocupa su franja y lleva su estado; esta, confirmada.</li>
+          <li data-x="74" data-y="9" data-zoom="2.2">Plan o Real: lo que se planificó contra lo que pasó.</li>
+          <li data-x="86" data-y="9" data-zoom="2.2">La densidad de la rejilla: no es lo mismo revisar el día en recepción que a media mañana.</li>
+          <li data-x="90" data-y="15.5" data-zoom="2.2">El mismo día, por especialista, por camilla o por paciente.</li>
+          <li data-x="73" data-y="15.5" data-zoom="2.2">La sede, arriba: el centro tiene varias.</li>
+        </ol>
         <figcaption>
           <b>La agenda del día es el corazón del sistema.</b> Una columna por especialista y la sesión
           en su franja, con la sede arriba. Se puede mirar por especialista, por camilla o por
@@ -101,24 +114,39 @@
         </figcaption>
       </figure>
 
-      <div class="dos">
-        <figure class="figura">
-          <img src="/casos/erp-facturacion.png" width="1400" height="833" loading="lazy" decoding="async"
-               alt="Pantalla de emisión de comprobante electrónico con validaciones" />
-          <figcaption>Emisión del comprobante. Abajo, una lista de comprobaciones que se pone en verde
-          mientras se llena: <b>hasta que no están todas, no se emite</b>. Un comprobante mal emitido
-          cuesta una nota de crédito y una llamada.</figcaption>
-        </figure>
-        <figure class="figura">
-          <img src="/casos/erp-crm.png" width="1400" height="833" loading="lazy" decoding="async"
-               alt="Tablero de asesorías con el embudo de contactos y sus métricas" />
-          <figcaption>Quien contesta el teléfono y quien atiende son el mismo equipo: el embudo de contactos vive dentro del sistema, no en una hoja aparte.</figcaption>
-        </figure>
-      </div>
+      <figure class="anotada" data-anotada>
+        <div class="anotada-marco"><div class="anotada-lienzo"><img src="/casos/erp-facturacion.png" width="1400" height="833" loading="lazy" decoding="async" alt="Pantalla de emisión de comprobante electrónico con validaciones" /></div></div>
+        <ol class="anotada-notas" aria-label="Qué se ve en la captura">
+          <li data-x="24" data-y="36.5" data-zoom="2">Boleta o factura, lo primero que se elige.</li>
+          <li data-x="73" data-y="36.5" data-zoom="2">La fecha solo deja ir tres días atrás: el plazo que da SUNAT.</li>
+          <li data-x="89" data-y="64" data-zoom="2">Quien se atiende puede no ser quien paga: se registran los dos.</li>
+          <li data-x="45" data-y="95" data-zoom="1.8">La lista de comprobaciones, que se pone en verde mientras se llena.</li>
+          <li data-x="92" data-y="95.5" data-zoom="2">Hasta que no está todo en verde, no se emite.</li>
+        </ol>
+        <figcaption>Emisión del comprobante. Abajo, una lista de comprobaciones que se pone en verde
+        mientras se llena: <b>hasta que no están todas, no se emite</b>. Un comprobante mal emitido
+        cuesta una nota de crédito y una llamada.</figcaption>
+      </figure>
+      <figure class="anotada" data-anotada>
+        <div class="anotada-marco"><div class="anotada-lienzo"><img src="/casos/erp-crm.png" width="1400" height="833" loading="lazy" decoding="async" alt="Tablero de asesorías con el embudo de contactos y sus métricas" /></div></div>
+        <ol class="anotada-notas" aria-label="Qué se ve en la captura">
+          <li data-x="55" data-y="27" data-zoom="1.6">Lo que se cae si nadie lo mira, en rojo: sin gestionar, sin asesora, sin tocar en tres días.</li>
+          <li data-x="50" data-y="44" data-zoom="1.5">El embudo, columna a columna: de sin gestionar a convertido.</li>
+          <li data-x="24" data-y="52" data-zoom="2">Cada contacto con su canal y su prioridad.</li>
+          <li data-x="33" data-y="18" data-zoom="2">Del tablero a la cotización, la cita y la caja, sin salir del módulo.</li>
+        </ol>
+        <figcaption>Quien contesta el teléfono y quien atiende son el mismo equipo: el embudo de contactos vive dentro del sistema, no en una hoja aparte.</figcaption>
+      </figure>
 
-      <figure class="figura">
-        <img src="/casos/erp-modulos.png" width="1400" height="833" loading="lazy" decoding="async"
-             alt="Portada del sistema con sus módulos agrupados por área" />
+      <figure class="anotada" data-anotada>
+        <div class="anotada-marco"><div class="anotada-lienzo"><img src="/casos/erp-modulos.png" width="1400" height="833" loading="lazy" decoding="async" alt="Portada del sistema con sus módulos agrupados por área" /></div></div>
+        <ol class="anotada-notas" aria-label="Qué se ve en la captura">
+          <li data-x="22" data-y="13" data-zoom="2">Agrupados por área, cada una con lo que se hace en ella.</li>
+          <li data-x="16" data-y="44" data-zoom="2">Facturación, con su emisión electrónica.</li>
+          <li data-x="45" data-y="65" data-zoom="1.8">Recursos humanos: legajo, contratos que vencen y vacaciones con sus alertas.</li>
+          <li data-x="65" data-y="6" data-zoom="2.2">Un buscador de módulos, con atajo de teclado.</li>
+          <li data-x="40" data-y="76" data-zoom="1.8">Usuarios, roles y permisos detallados.</li>
+        </ol>
         <figcaption>
           Los módulos, agrupados por área: pacientes, programación, paquetes, inventario, botica,
           recepción, facturación, recursos humanos, proyectos. <b>Veinte piezas que se usan de
@@ -141,14 +169,14 @@
         Nada de esto se ve hasta que lo intentas, y es exactamente lo que separa un sistema que se
         puede mover de uno que no:
       </p>
-      <ul class="lecciones">
+      <ol class="lecciones">
         <li><b>Los nombres de máquina con guion bajo no son dominios válidos</b>, y Django rechaza esa
         cabecera. El error que sale parece de credenciales y no tiene nada que ver.</li>
         <li><b>El arranque dependía de variables que ya no se usan</b>: una base heredada y un servicio
         de imágenes externo. Sin ellas el sistema no levantaba, aunque no hicieran falta para nada.</li>
         <li><b>La configuración del servidor traía direcciones fijas</b> de la red del cliente y
         certificados suyos, así que fuera de allí no arrancaba ni el proxy.</li>
-      </ul>
+      </ol>
       <p>
         Ninguna de las tres es un fallo grave en producción y todas son una tarde perdida cuando hay
         que migrar, hacer una copia de seguridad que se pueda restaurar o enseñárselo a alguien.

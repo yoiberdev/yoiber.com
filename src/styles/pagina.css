@@ -266,3 +266,5 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
   border: 1px solid var(--line); border-radius: 12px; background: #0b1422;
   box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 0.35);
 }
+/* La de Kuantera es clara: el marco sigue su fondo mientras carga la escena. */
+.guia-sim-marco.guia-sim-clara { background: #f3f6f8; }
