@@ -2,12 +2,16 @@ import '@fontsource/poppins/latin-600.css';
 import '@fontsource-variable/inter';
 import '@fontsource/ibm-plex-mono/latin-400.css';
 import '@fontsource/ibm-plex-mono/latin-500.css';
-import logo from './marcas/kuantera-logo.svg?raw';
+import porKipup from './marcas/kuantera-por-kipup-oscuro.svg?raw';
 import logoOscuro from './marcas/kuantera-logo-oscuro.svg?raw';
 import { Escena, envolver, escribir, teclear, tramos, type OpcionesSim, type Sim } from './motor';
 import './kuantera.css';
 
 // KUANTERA POR DENTRO — simulación del panel, desde la entrada hasta la boleta aceptada
+// (La entrada es la nueva del producto, kip-up-agency/kuantera#2 y PR #3: la marca a la izquierda
+// sobre el fondo de acceso del kit y el formulario a la derecha. Medidas: las de 1440x900 x 0,694.
+// Sin el comprobante de adorno: el producto no lo enseña por debajo de 1320x800, que es el tamaño
+// que representa el resto de la escena, y aquí lo tapaba el rótulo del paso.)
 // ================================================================================================
 // Sustituye a la grabación de trece fotogramas (27/09/2026, Yoiber: «que se muestre incluso desde el
 // login, todo bonito, que por algo tiene manual de marca»). Es una RECREACIÓN del panel real
@@ -45,6 +49,8 @@ const ICONOS: Record<string, string> = {
   imprimir: '<path d="M7 9V3h10v6 M6 18H4v-8h16v8h-2 M7 14h10v7H7z" />',
   pdf: '<path d="M6 3h9l4 4v14H6z M14 3v5h5" />',
   correo: '<path d="M3 6h18v12H3z M3 7l9 6 9-6" />',
+  reloj: '<circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" />',
+  ojo: '<path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12Z M12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z" />',
 };
 const icono = (n: string): string => `<svg class="kt-ico" viewBox="0 0 24 24" aria-hidden="true">${ICONOS[n]}</svg>`;
 
@@ -189,14 +195,27 @@ function plantilla(): string {
     </div>
 
     <div class="kt-login">
-      <div class="kt-login-tarjeta">
-        <span class="kt-login-logo">${logo}</span>
-        <h3>Entrar al panel</h3>
-        <p>Emite y consulta tus comprobantes electrónicos.</p>
-        <label><small>Correo</small><span class="kt-campo kt-correo"><span class="kt-correo-t"></span><i class="kt-caret"></i></span></label>
-        <label><small>Contraseña</small><span class="kt-campo kt-clave"><span class="kt-clave-t"></span></span></label>
-        <span class="kt-boton kt-entrar">Entrar</span>
-        <small class="kt-olvido">¿No recuerdas tu contraseña? Pídesela a quien administra el negocio.</small>
+      <section class="kt-login-marca">
+        <span class="kt-login-logo">${porKipup}</span>
+        <div class="kt-login-texto">
+          <p class="kt-login-lema">Tu negocio, en números claros<span>.</span></p>
+          <p class="kt-login-bajada">Boletas y facturas electrónicas que salen de tu negocio directo a SUNAT, firmadas con tu propio certificado.</p>
+          <ul class="kt-login-puntos">
+            <li>${icono('sunat')}Directo a SUNAT, sin intermediarios: emites tú, con tu certificado y tu clave SOL.</li>
+            <li>${icono('comprobantes')}Cada venta queda guardada con la constancia que devuelve SUNAT.</li>
+            <li>${icono('reloj')}Te avisa antes de que venza el plazo para enviar un comprobante.</li>
+          </ul>
+        </div>
+      </section>
+      <div class="kt-login-lado">
+        <div class="kt-login-caja">
+          <h3>Entrar al panel</h3>
+          <p>Emite y consulta tus comprobantes electrónicos.</p>
+          <label><small>Correo</small><span class="kt-campo kt-correo"><span class="kt-correo-t"></span><i class="kt-caret"></i></span></label>
+          <label><small>Contraseña</small><span class="kt-campo kt-clave"><span class="kt-clave-t"></span><span class="kt-ojo">${icono('ojo')}</span></span></label>
+          <span class="kt-boton kt-entrar">Entrar</span>
+          <small class="kt-olvido">¿No recuerdas tu contraseña? Pídesela a quien administra el negocio.</small>
+        </div>
       </div>
     </div>
 

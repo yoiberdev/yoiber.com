@@ -1,4 +1,4 @@
-import { createTimeline, type Timeline } from 'animejs';
+import { createTimeline, createTimer, type Timeline, type Timer } from 'animejs';
 import './sim.css';
 
 // EL MOTOR DE LAS SIMULACIONES — guías animadas de un producto, con datos inventados
@@ -9,7 +9,13 @@ import './sim.css';
 // que toca, la cámara que se acerca y un rótulo numerado que cuenta el paso. Aquí sin capturas: la
 // pantalla es HTML y SVG propios, así que se ve nítida a cualquier tamaño y densidad.
 //
-// UN SOLO RELOJ POR ESCENA. Una timeline en bucle de duración fija (`duracion`):
+// UN SOLO RELOJ POR ESCENA. Una timeline de duración fija (`duracion`) que NO hace el bucle ella
+// misma: la mueve `reloj`, un createTimer en bucle que en cada fotograma hace `tl.seek(t)`. Con
+// `loop: true` en la timeline, al volver a empezar Anime.js no devolvía a su estado de partida las
+// piezas que habían cambiado varias veces (medido el 27/09/2026 en Kuantera: dos segundos después
+// de reiniciar seguían a la vista la boleta emitida y el ticket, con el puntero haciendo el login
+// por debajo). Un seek hacia atrás sí lo hace, en cualquier dirección: es el mismo modelo que el
+// maestro de la página, donde subir con el scroll deshace todo. Dentro de la timeline:
 //   · lo CONTINUO (puntero, cámara, fundidos, trazos) son hijos de la timeline con [desde, hasta]
 //     explícitos en las dos puntas y `composition: 'none'`, el mismo contrato que el maestro de la
 //     página: se puede saltar a cualquier instante y hacia atrás y el fotograma sale igual;
@@ -55,6 +61,8 @@ export class Escena {
   readonly camara: HTMLElement;
   readonly puntero: HTMLElement;
   readonly tl: Timeline;
+  /** El que anda: un temporizador en bucle que coloca la timeline con seek (ver arriba). */
+  readonly reloj: Timer;
   readonly duracion: number;
   private readonly onda: HTMLElement;
   private readonly notaN: HTMLElement;
@@ -90,10 +98,15 @@ export class Escena {
     this.notaT = nota.querySelector<HTMLElement>('.sim-nota-t')!;
     this.donde = opciones.inicio;
     this.tl = createTimeline({
-      loop: true,
       autoplay: false,
       defaults: { composition: 'none', ease: 'inOut(2)' },
-      onRender: (self) => this.pintar(self.iterationCurrentTime),
+      onRender: (self) => this.pintar(self.currentTime),
+    });
+    this.reloj = createTimer({
+      duration: duracion,
+      loop: true,
+      autoplay: false,
+      onUpdate: (self) => { this.tl.seek(self.iterationCurrentTime); },
     });
     // La duración de la vuelta la fija un tween que la ocupa entera: el bucle es de `duracion` exacta
     // aunque el último gesto acabe antes.
@@ -266,22 +279,30 @@ export function envolver(escena: Escena, opciones: OpcionesSim, tReducido: numbe
   const { tl, raiz } = escena;
   tl.init();
   raiz.classList.add('sim-lista');
+  let pausada = true;
+  // `.corriendo` deja andar los bucles de ambiente en CSS (olas, parpadeos): con la escena en pausa
+  // se congelan con ella.
+  const reloj = escena.reloj;
+  const marcha = (p: boolean): void => {
+    pausada = p;
+    raiz.classList.toggle('corriendo', !p);
+    if (p) reloj.pause(); else reloj.resume();
+  };
+  // Colocar la vuelta en un instante: el reloj y la timeline a la vez (un seek del reloj en pausa
+  // no garantiza que pase por su onUpdate).
+  const colocar = (t: number): void => {
+    const x = Math.max(0, Math.min(escena.duracion - 1, t));
+    reloj.seek(x);
+    tl.seek(x);
+  };
   // Con movimiento reducido no hay bucle: la escena se queda quieta en su instante más explicativo,
   // sin puntero.
   if (opciones.reduce) {
     raiz.classList.add('sim-quieta');
-    tl.seek(tReducido);
+    colocar(tReducido);
   }
-  let pausada = true;
-  // `.corriendo` deja andar los bucles de ambiente en CSS (olas, parpadeos): con la escena en pausa
-  // se congelan con ella.
-  const marcha = (p: boolean): void => {
-    pausada = p;
-    raiz.classList.toggle('corriendo', !p);
-    if (p) tl.pause(); else tl.resume();
-  };
   let quitarGuia: (() => void) | null = null;
-  if (opciones.guia) [, quitarGuia] = montarGuia(escena, opciones.guia, opciones.reduce, () => pausada, marcha);
+  if (opciones.guia) [, quitarGuia] = montarGuia(escena, opciones.guia, opciones.reduce, () => pausada, marcha, colocar);
   return {
     reproducir() {
       if (opciones.reduce) return;
@@ -292,12 +313,13 @@ export function envolver(escena: Escena, opciones: OpcionesSim, tReducido: numbe
     },
     reiniciar() {
       if (opciones.reduce) return;
-      tl.seek(0);
+      colocar(0);
     },
     irA(t) {
-      tl.seek(Math.max(0, Math.min(escena.duracion - 1, t)));
+      colocar(t);
     },
     revertir() {
+      reloj.revert();
       tl.revert();
       quitarGuia?.();
       raiz.classList.remove('sim-lista', 'sim-quieta', 'corriendo');
@@ -306,7 +328,7 @@ export function envolver(escena: Escena, opciones: OpcionesSim, tReducido: numbe
 }
 
 /** La fila de la guía: un botón por paso (salta a su instante), pausa y «otra vez». */
-function montarGuia(escena: Escena, tras: HTMLElement, reduce: boolean, pausada: () => boolean, fijar: (p: boolean) => void): [HTMLElement, () => void] {
+function montarGuia(escena: Escena, tras: HTMLElement, reduce: boolean, pausada: () => boolean, fijar: (p: boolean) => void, colocar: (t: number) => void): [HTMLElement, () => void] {
   const fila = document.createElement('div');
   fila.className = 'sim-guia';
   const lista = document.createElement('ol');
@@ -319,7 +341,7 @@ function montarGuia(escena: Escena, tras: HTMLElement, reduce: boolean, pausada:
     b.innerHTML = `<span class="n">${i + 1}</span><span class="t"></span>`;
     b.querySelector('.t')!.textContent = escena.textoPaso(i);
     b.addEventListener('click', () => {
-      escena.tl.seek(escena.instanteDe(i) + 1);
+      colocar(escena.instanteDe(i) + 1);
       if (reduce) return;
       fijar(false);
       alternar.textContent = 'Pausar';
@@ -342,7 +364,7 @@ function montarGuia(escena: Escena, tras: HTMLElement, reduce: boolean, pausada:
   otra.type = 'button';
   otra.textContent = 'Otra vez';
   otra.addEventListener('click', () => {
-    escena.tl.seek(0);
+    colocar(0);
     if (reduce) return;
     fijar(false);
     alternar.textContent = 'Pausar';

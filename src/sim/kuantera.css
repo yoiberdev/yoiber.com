@@ -133,20 +133,41 @@
 .kt-aceptada small { font-size: 0.62em; color: #3b6e57; }
 .kt-acciones { display: flex; flex-wrap: wrap; gap: 0.5em; }
 
-/* La entrada. */
-.kt-login { position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; background: radial-gradient(circle at 70% 20%, rgb(63 201 178 / 0.12), transparent 45%), var(--kt-tinta); }
-.kt-login-tarjeta { display: grid; gap: 0.5em; width: 23.75em; padding: 1.8em 1.75em 1.6em; border-radius: 1em; background: #fff; box-shadow: 0 2em 4em rgb(0 0 0 / 0.35); }
-.kt-login-logo svg { display: block; width: 10.5em; height: auto; margin-bottom: 0.9em; }
-.kt-login-tarjeta p { font-size: 0.78em; color: var(--kt-gris); margin-bottom: 0.4em !important; }
-.kt-login-tarjeta label { display: grid; gap: 0.3em; }
-.kt-login-tarjeta label small { font-size: 0.7em; font-weight: 500; }
-.kt-login .kt-campo { min-height: 2.3em; font-size: 0.8em; }
+/* La entrada: la del producto desde kip-up-agency/kuantera#2 (Acceso.tsx), a 0,694 de su medida en
+   1440x900. A la izquierda la marca sobre el fondo de acceso del kit (petróleo noche con las barras
+   del símbolo, fundidas hacia el texto); a la derecha el formulario. */
+.kt-login { position: absolute; inset: 0; z-index: 4; display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); background: var(--kt-fondo); }
+.kt-login-marca { position: relative; overflow: hidden; display: grid; grid-template-rows: auto 1fr; padding: 1.95em 2.6em 2.1em; background: var(--kt-noche); color: #fff; }
+.kt-login-marca::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: url('./marcas/kuantera-patron-oscuro.svg') 0 0 / 8.7em 8.7em repeat;
+  -webkit-mask-image: linear-gradient(115deg, transparent 38%, #000 78%); mask-image: linear-gradient(115deg, transparent 38%, #000 78%);
+}
+.kt-login-marca::after { content: ''; position: absolute; width: 27.8em; height: 27.8em; right: -11.3em; bottom: -13em; border-radius: 50%; background: radial-gradient(closest-side, rgb(27 92 122 / 0.55), transparent); pointer-events: none; }
+.kt-login-logo { position: relative; z-index: 1; }
+.kt-login-logo svg { display: block; width: 10.85em; height: auto; }
+.kt-login-texto { position: relative; z-index: 1; align-self: center; max-width: 20em; }
+.kt-login-lema { font: 600 2em/1.12 var(--kt-head); letter-spacing: -0.02em; }
+.kt-login-lema span { color: var(--kt-menta); }
+.kt-login-bajada { margin-top: 0.85em !important; font-size: 0.74em; line-height: 1.55; color: #b9cad3; max-width: 26em; }
+.kt-login-puntos { display: grid; gap: 0.62em; margin: 1.3em 0 0; padding: 0; list-style: none; }
+.kt-login-puntos li { display: flex; align-items: center; gap: 0.55em; font-size: 0.65em; line-height: 1.45; color: #dde7ee; }
+.kt-login-puntos .kt-ico { width: 2.55em; height: 2.55em; padding: 0.6em; border-radius: 0.65em; background: rgb(63 201 178 / 0.12); color: var(--kt-menta); }
+.kt-login-lado { display: grid; place-items: center; }
+.kt-login-caja { width: 16.5em; display: grid; gap: 0.5em; }
+.kt-login-caja h3 { font-size: 1.18em; }
+.kt-login-caja > p { margin: -0.2em 0 0.55em !important; font-size: 0.72em; color: var(--kt-gris); }
+.kt-login-caja label { display: grid; gap: 0.3em; }
+.kt-login-caja label small { font-size: 0.66em; font-weight: 500; }
+.kt-login .kt-campo { min-height: 2.35em; font-size: 0.8em; }
+.kt-login .kt-clave { justify-content: space-between; }
+.kt-ojo { display: grid; color: var(--kt-gris); }
 .kt-clave-t { letter-spacing: 0.12em; }
 .kt-caret { width: 0.07em; height: 1.1em; background: var(--kt-tinta); opacity: 0; }
 .sim.corriendo .kt-correo.foco .kt-caret { animation: kt-parpadeo 0.9s steps(1) infinite; }
 @keyframes kt-parpadeo { 50% { opacity: 1; } }
-.kt-entrar { margin-top: 0.6em; padding: 0.8em; font-size: 0.85em; }
-.kt-olvido { margin-top: 0.4em; font-size: 0.6em; color: var(--kt-gris); }
+.kt-entrar { margin-top: 0.45em; padding: 0.85em; font-size: 0.8em; }
+.kt-olvido { margin-top: 0.3em; font-size: 0.58em; color: var(--kt-gris); line-height: 1.45; }
 
 /* El ticket de 80 mm. */
 .kt-ticket {
