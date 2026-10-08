@@ -18,7 +18,7 @@ export const P = {
     // el tramo INTRO es "el logo entrando", así que se acaban a la vez. Antes eran 4 000 ms con un
     // título de texto partido que duraba eso; ahora manda la coreografía de yoiber.com.
     introDuration: LOGO.arranque + LOGO.entrada, // 5100
-    alturas: { HERO_OUT: 2, DESPEGUE: 1.25, GALERIA: 12, CIERRE: 2 } as Record<string, number>, // en alturas de viewport; 1 altura = 1000 unidades del maestro. GALERIA: dos por tarjeta (seis desde el 27/09/2026, con Kip-Up Contenido), así que cada tarjeta conserva su tramo de 2 000
+    alturas: { HERO_OUT: 2, DESPEGUE: 1.25, GALERIA: 14, CIERRE: 2 } as Record<string, number>, // en alturas de viewport; 1 altura = 1000 unidades del maestro. GALERIA: dos por tarjeta (siete desde el 07/10/2026, con el ajolote), así que cada tarjeta conserva su tramo de 2 000
     // El suavizado lo hace core/scroller.ts con un Timer propio por tiempo (no el `sync` de
     // onScroll: ver allí por qué). `sync` sigue siendo el factor; estos dos son su mecánica.
     suavizado: {

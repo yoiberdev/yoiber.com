@@ -274,14 +274,16 @@
             <li><a href="https://kipups.com" target="_blank" rel="noopener">Automatizaciones</a><span class="pila">n8n · PostgreSQL · Google Calendar · Telegram</span></li>
             <li><a href="/casos/videovigilancia-maritima/">Vídeo desde barcos</a><span class="pila">Python · Go · SRT · HLS · MQTT</span></li>
             <li><a href="https://sebas.yoiber.dev" target="_blank" rel="noopener">Web de Sebastian Murazzo</a><span class="pila">Vite · TypeScript · three.js · Anime.js</span></li>
+            <li><a href="https://ajolote.yoiber.dev" target="_blank" rel="noopener">Ajolote</a><span class="pila">React · three.js · React Three Fiber · GLSL</span></li>
           </ul>
         </div>
       </div>
       <p class="pie-bloque pie-final">© 2026 Yoiber · <a href="#" id="arriba">Volver arriba</a></p>
     </footer>
 
-    <!-- LA GALERÍA. Seis proyectos (27/09/2026: Kuantera, Comandas, Contenido, las automatizaciones, el vídeo desde
-         barcos y la web de Sebastian; fuera SysRRHH, TechDocAPI, la API financiera y KUIDY-CORE), cada uno con su VITRINA:
+    <!-- LA GALERÍA. Siete proyectos (27/09/2026: Kuantera, Comandas, Contenido, las automatizaciones, el vídeo desde
+         barcos y la web de Sebastian; fuera SysRRHH, TechDocAPI, la API financiera y KUIDY-CORE; el 07/10/2026 entra el
+         ajolote), cada uno con su VITRINA:
          el trabajo en movimiento, grande, donde antes estaba el motor (effects/vitrinas.ts pone los
          carteles y los vídeos al acercarse y anda solo el de la tarjeta que manda). Las secciones de #capitulos son espaciadores:
          lo que se ve vive aquí, en una capa fija, y el reloj del maestro decide cuál está delante.
@@ -501,6 +503,39 @@
         </details>
         <p class="acceso"><a href="https://sebas.yoiber.dev" target="_blank" rel="noopener">Ver la web</a> · en desarrollo</p>
         <p class="aviso">Hecha para Sebastian Murazzo, creador de contenido.</p>
+      </article>
+
+      <article class="tarjeta" data-slot="6">
+        <h2>Ajolote</h2>
+        <figure class="captura" style="--proporcion: 1280 / 800">
+            <span class="vitrina" data-marco="navegador">
+              <span class="vitrina-barra" aria-hidden="true"><i></i><i></i><i></i><span class="vitrina-url">ajolote.yoiber.dev</span></span>
+              <span class="vitrina-medio">
+                <img class="vitrina-cartel" data-src="/proyectos/ajolote-cartel.webp" alt="Grabación de la cueva del ajolote: una cueva submarina de bloques con corales y kelp; el enfoque pasa del ajolote al fondo y a las plantas del frente, y al hacer clic el ajolote da una voltereta y cambia de color." width="1000" height="626" decoding="async" />
+                <video class="vitrina-video" data-video="/proyectos/ajolote" muted loop playsinline preload="none" aria-hidden="true"></video>
+                <noscript><img class="vitrina-sin-js" src="/proyectos/ajolote-cartel.webp" alt="Grabación de la cueva del ajolote: una cueva submarina de bloques con corales y kelp; el enfoque pasa del ajolote al fondo y a las plantas del frente, y al hacer clic el ajolote da una voltereta y cambia de color." /></noscript>
+              </span>
+            </span>
+        </figure>
+        <span class="avance" aria-hidden="true"></span>
+        <p class="que">Una cueva submarina hecha de bloques que enfoca donde apuntas: el desenfoque sigue al cursor y, si haces clic en el ajolote, da una voltereta y cambia de color.</p>
+        <p class="pila">React · three.js · React Three Fiber · GLSL</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="flujo">
+          <line data-paso="linea" x1="1" y1="32" x2="326" y2="32" />
+          <rect class="tapa" data-paso="caja1" x="1" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja2" x="115" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja3" x="229" y="18" width="98" height="28" rx="3" />
+          <text data-paso="r1" x="50" y="35.5" text-anchor="middle">CURSOR</text>
+          <text data-paso="r2" x="164" y="35.5" text-anchor="middle">CÁMARA</text>
+          <text data-paso="r3" x="278" y="35.5" text-anchor="middle">ENFOQUE</text>
+          <polyline data-paso="tic" points="337,33 344,40 358,24" />
+        </svg>
+        <details class="por-dentro" open>
+          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
+          <p class="detalle">La cueva son <b class="cifra" data-hasta="6627">6627</b> bloques de 16 tipos, generados con ruido y dibujados de una vez por tipo con instancias. Las texturas se pintan píxel a píxel en código: no hay ni una imagen.</p>
+        </details>
+        <p class="acceso"><a href="https://ajolote.yoiber.dev" target="_blank" rel="noopener">Abrir la cueva</a> · mueve el cursor y haz clic en el ajolote</p>
+        <p class="aviso">El ajolote azul sale una vez de cada doce clics, más o menos.</p>
       </article>
     </div>
 

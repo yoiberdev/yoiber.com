@@ -20,7 +20,7 @@ assets ni textos de ese sitio.
 | Intro | La entrada del logo corre por tiempo (GSAP, la misma de la versión anterior) sobre un anillo de marcas que respira, y cede el mando en cuanto el visitante baja. |
 | Motor 3D | Geometría procedimental: campana de perfil de Rao, 36 tubos de refrigeración instanciados, turbobomba, celosía y tornillería. Llega en un trozo diferido y solo si la máquina lo aguanta. |
 | Dibujo | Material *toon* de tres tonos con una luz y un filo cálido por shader; la tinta de los contornos es un pase de pantalla propio (profundidad y normales con cruz de Roberts) y FXAA. |
-| Galería | Cinco proyectos, cada uno con su vitrina: una grabación corta, o una simulación dibujada en HTML y SVG (`src/sim/`) cuando la pantalla real no se puede enseñar, que se carga al acercarse y solo anda la de la tarjeta que manda. Cada tarjeta entra por piezas y traza un esquema con el scroll; el color de la página cambia con cada proyecto. |
+| Galería | Siete proyectos, cada uno con su vitrina: una grabación corta, o una simulación dibujada en HTML y SVG (`src/sim/`) cuando la pantalla real no se puede enseñar, que se carga al acercarse y solo anda la de la tarjeta que manda. Cada tarjeta entra por piezas y traza un esquema con el scroll; el color de la página cambia con cada proyecto. |
 | Escenario de reserva | Sin WebGL, o en una máquina justa, la misma coreografía se cuenta con capas CSS en 3D. |
 | Accesibilidad | Con `prefers-reduced-motion` no hay intro temporal, ni rotaciones, ni bucles: el contenido queda en su estado final. |
 
