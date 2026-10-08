@@ -1,7 +1,8 @@
-import '@fontsource-variable/space-grotesk';
-import '@fontsource-variable/jetbrains-mono';
+import '@fontsource-variable/instrument-sans';
+import '@fontsource/fragment-mono';
 import '../styles/pagina.css';
 import { sugerirIdioma } from '../comun/idioma';
+import { montarKit } from './kit';
 import { animate, createDrawable, createMotionPath, createTimeline, stagger, utils, type JSAnimation } from 'animejs';
 
 // EL RECORRIDO DE LA SEÑAL (caso marítimo)
@@ -182,3 +183,7 @@ if (svg && pasosLi.length && btn && contPuntos) {
 
 // El aviso de «esta página también está en…», si el navegador pide el otro idioma.
 sugerirIdioma();
+
+// LA GUÍA SIMULADA (arriba del diagrama) y lo demás que se toca: el kit de los casos. La sala de
+// control de src/sim/camaras.ts la monta el kit por su `data-sim`, igual que la de Kuantera.
+montarKit();

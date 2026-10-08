@@ -89,9 +89,14 @@
         decisión que separa un panel que se mira de un informe que se archiva.
       </p>
 
-      <figure class="figura">
-        <img src="/casos/campo-mapa.jpg" width="1400" height="833" loading="lazy" decoding="async"
-             alt="Panel con un mapa de la costa peruana y, debajo, la lista de técnicos a bordo con su embarcación y la hora de entrada" />
+      <figure class="anotada" data-anotada>
+        <div class="anotada-marco"><div class="anotada-lienzo"><img src="/casos/campo-mapa.jpg" width="1400" height="833" loading="lazy" decoding="async" alt="Panel con un mapa de la costa peruana y, debajo, la lista de técnicos a bordo con su embarcación y la hora de entrada" /></div></div>
+        <ol class="anotada-notas" aria-label="Qué se ve en la captura">
+          <li data-x="57" data-y="33" data-zoom="1.9">Solo aparece quien entró y todavía no salió: lo que está pasando, no lo que pasó.</li>
+          <li data-x="40" data-y="67" data-zoom="1.7">Quién, desde qué hora, en qué embarcación y para qué empresa.</li>
+          <li data-x="92" data-y="67" data-zoom="2.2">Cada fila centra el mapa en su posición.</li>
+          <li data-x="17" data-y="13" data-zoom="2.2">Leaflet sobre teselas abiertas.</li>
+        </ol>
         <figcaption>
           El panel de control: el mapa con quien está embarcado en este momento y, debajo, la tabla
           con su embarcación, la empresa y la hora de entrada. Cada fila lleva un botón para centrar
@@ -99,18 +104,26 @@
         </figcaption>
       </figure>
 
-      <div class="dos">
-        <figure class="figura">
-          <img src="/casos/campo-horas.png" width="1400" height="833" loading="lazy" decoding="async"
-               alt="Reporte de horas hombre por técnico y embarcación" />
-          <figcaption><b>Horas hombre por técnico y por embarcación.</b> Es la cifra que justifica el sistema: sale de las marcas de entrada y salida, no de que alguien las escriba a mano.</figcaption>
-        </figure>
-        <figure class="figura">
-          <img src="/casos/campo-ordenes.png" width="1400" height="833" loading="lazy" decoding="async"
-               alt="Listado de órdenes de trabajo con su estado" />
-          <figcaption>Las órdenes de trabajo y su estado. El trabajo en campo se cierra contra una orden; si no, las horas no cuadran con nada.</figcaption>
-        </figure>
-      </div>
+      <figure class="anotada" data-anotada>
+        <div class="anotada-marco"><div class="anotada-lienzo"><img src="/casos/campo-horas.png" width="1400" height="833" loading="lazy" decoding="async" alt="Reporte de horas hombre por técnico y embarcación" /></div></div>
+        <ol class="anotada-notas" aria-label="Qué se ve en la captura">
+          <li data-x="92" data-y="22" data-zoom="2">Quien sigue a bordo todavía no tiene hora de salida.</li>
+          <li data-x="82" data-y="39" data-zoom="2">Entrada y salida, marcadas con la posición del teléfono.</li>
+          <li data-x="92" data-y="38" data-zoom="2">Las horas salen de las marcas, no de que alguien las escriba.</li>
+          <li data-x="96" data-y="11.5" data-zoom="2.4">A PDF o a Excel, para quien factura.</li>
+        </ol>
+        <figcaption><b>Horas hombre por técnico y por embarcación.</b> Es la cifra que justifica el sistema: sale de las marcas de entrada y salida, no de que alguien las escriba a mano.</figcaption>
+      </figure>
+      <figure class="anotada" data-anotada>
+        <div class="anotada-marco"><div class="anotada-lienzo"><img src="/casos/campo-ordenes.png" width="1400" height="833" loading="lazy" decoding="async" alt="Listado de órdenes de trabajo con su estado" /></div></div>
+        <ol class="anotada-notas" aria-label="Qué se ve en la captura">
+          <li data-x="25" data-y="28" data-zoom="2">Cada orden con su código: el trabajo en campo se cierra contra ella.</li>
+          <li data-x="43" data-y="28" data-zoom="2">El primer y el último abordaje de la orden.</li>
+          <li data-x="81" data-y="28" data-zoom="2">Su responsable (aquí, todavía nadie).</li>
+          <li data-x="90" data-y="35" data-zoom="2">Y su estado: pendiente o en progreso.</li>
+        </ol>
+        <figcaption>Las órdenes de trabajo y su estado. El trabajo en campo se cierra contra una orden; si no, las horas no cuadran con nada.</figcaption>
+      </figure>
 
       <h2>Permisos por recurso, porque no todos ven lo mismo</h2>
       <p>
@@ -133,7 +146,7 @@
         Estas capturas salen de levantarlo entero fuera de la infraestructura del cliente, con datos
         inventados. Lo que apareció por el camino:
       </p>
-      <ul class="lecciones">
+      <ol class="lecciones">
         <li><b>La lista de orígenes permitidos estaba escrita en el código</b>, con los dominios del
         cliente. Desde cualquier otro sitio, el sistema responde con un error del servidor que no
         dice lo que pasa. Eso pertenece a una variable de entorno.</li>
@@ -141,7 +154,7 @@
         justo lo que hay que revisar antes de repartir roles de verdad.</li>
         <li><b>El servidor de desarrollo no es el de producción.</b> Compilar y servir con nginx, como
         en el servidor real, quita una clase entera de sorpresas.</li>
-      </ul>
+      </ol>
 
       <section class="cierre">
         <h2>¿Tienes gente trabajando donde no llega la oficina?</h2>

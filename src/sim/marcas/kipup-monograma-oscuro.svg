@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Kip-Up">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M26 17 V83" stroke="#F8F5F0" stroke-width="16"/>
+    <path d="M33 55 L70 85" stroke="#F8F5F0" stroke-width="16"/>
+    <path d="M33 55 Q50 50 70 28" stroke="#E63946" stroke-width="15"/>
+  </g>
+  <path d="M88 9 L60 15 Q67 21 70.5 27.5 Q76 32 81 37 Z" fill="#E63946"/>
+</svg>

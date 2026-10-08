@@ -71,11 +71,12 @@ export interface Galeria {
 }
 
 const S = P.galeria.secuencia;
-// El clip de la captura: cerrado (todo recortado por abajo) y abierto. `round` conserva las
-// esquinas redondeadas de la imagen mientras se destapa. Las dos cadenas llevan los mismos números
+// El clip de la vitrina: cerrado (todo recortado por abajo) y abierto. `round` conserva las
+// esquinas redondeadas del marco mientras se destapa (10 px, su radio; el del teléfono es mayor y
+// lo recorta su propio borde). Las dos cadenas llevan los mismos números
 // en el mismo orden y con la misma unidad: es lo que Anime.js necesita para interpolar un valor
 // compuesto sin sorpresas.
-const CLIP = { cerrado: 'inset(0px 0px 100% 0px round 6px)', abierto: 'inset(0px 0px 0% 0px round 6px)' };
+const CLIP = { cerrado: 'inset(0px 0px 100% 0px round 10px)', abierto: 'inset(0px 0px 0% 0px round 10px)' };
 
 export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
   const { tl } = m;
@@ -115,11 +116,13 @@ export function montarGaleria(m: Maestro, reduce: boolean): Galeria {
     const fin = G.fin(i);       // empieza a salir (ver `retrasoSalida` en geometriaGaleria)
     const titulo = busca(el, ['h2']);
     const trozos = partir(titulo[0]);
-    // La BARRA DE AVANCE (.avance) entra y sale con la captura: es su barra, va pegada a su borde
-    // superior y en la misma celda del grid. Aquí solo se le da la opacidad y el destape; cuánto
-    // ha avanzado lo escribe esquemas.ts en el tramo quieto, con scaleX (otra propiedad: no se
-    // pisan). Donde el esquema se ve, base.css la deja en display:none y esto no pinta nada.
-    const captura = busca(el, ['.captura', '.avance']);
+    // Se destapa la VITRINA (el marco con el vídeo), no la .captura: la .captura es la celda entera
+    // del grid, más alta que el marco, y el destape recorría medio hueco vacío antes de tocarlo.
+    // La BARRA DE AVANCE (.avance) entra y sale con ella: en vertical va justo debajo del marco.
+    // Aquí solo se le da la opacidad y el destape; cuánto ha avanzado lo escribe esquemas.ts en el
+    // tramo quieto, con scaleX (otra propiedad: no se pisan). Donde el esquema se ve, base.css la
+    // deja en display:none y esto no pinta nada.
+    const captura = busca(el, ['.vitrina', '.avance']);
     // El detalle va dentro de su desplegable (<details class="por-dentro">): se anima el envoltorio,
     // que es el hijo directo de la tarjeta y el que base.css deja a opacidad 0 en reposo.
     const parrafos = busca(el, ['.que', '.pila', '.por-dentro']);

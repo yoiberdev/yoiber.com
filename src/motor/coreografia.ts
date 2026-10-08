@@ -3,7 +3,6 @@ import { PM } from '../params-motor';
 import { emisivoDelAcento, M } from './geometria';
 
 import type { Maestro, Tramo } from '../core/maestro';
-import { tiempoRegresoMotor, tiemposDentro } from '../core/geometria-galeria';
 import type { Rig } from './rig';
 
 const GRA = Math.PI / 180;
@@ -143,8 +142,6 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
   // de la lista; si la geometría les cambia el nombre, el gesto desaparece y nada revienta.
   const aletas = porId.get('aletas')?.p.obj;
   const inyector = porId.get('inyector')?.p.obj;
-  const iInyector = sitios.findIndex((s) => s.p.id === 'inyector');
-  const iAletas = sitios.findIndex((s) => s.p.id === 'aletas');
 
   // ============================================================ t = 0: el estado de partida
   // Con scrub, "el principio" es un sitio al que se vuelve, no un sitio del que se sale.
@@ -223,221 +220,28 @@ export function montarCoreografia(m: Maestro, rig: Rig): Coreografia {
     .add(cam, { zoom: [H.zoom[0], H.zoom[1]], duration: dH, ease: 'out(2)' }, 'HERO_OUT')
     .add(estado, { luz: [H.luz[0], H.luz[1]], duration: dH, ease: 'linear' }, 'HERO_OUT');
 
-  // ============================================================ GALERIA: plato giratorio de fondo
-  // Velocidad angular CONSTANTE (linear) durante todo el tramo. Cualquier otra curva se lee como
-  // que el objeto frena, y aquí no frena: gira mientras hablan otros.
-  const G = C.galeria;
-  const dG = m.duracion('GALERIA');
-  const yGal = H.rotY[1] + G.giro;
-  // EL DESVÍO NO ES UN TWEEN SOBRE `raiz.x`. Lo era, y ese es el fallo: `apartar` estaba escrito en
-  // unidades de motor y la timeline no sabe cuánto mide el encuadre, que en un móvil de pie tiene
-  // 7,4 u de ancho y 16 de alto. La timeline mueve un escalar 0..1 y `aplicar()` lo convierte en
-  // desplazamiento mirando la cámara de verdad: a un lado si hay sitio, arriba si no lo hay.
-  // La ESCALA sí se queda aquí: no depende del encuadre.
-  // El regreso empieza cuando la captura de la última tarjeta empieza a irse (core/geometria-galeria)
-  // y acaba justo al entrar COMO. Sin tarjetas en el marcado, se queda en el último `vuelve` de PM.
-  const nTarjetas = document.querySelectorAll('#galeria-tarjetas .tarjeta').length;
-  const finGaleria = m.L.GALERIA + m.duracion('GALERIA');
-  const iniRegreso = Math.round(nTarjetas ? Math.min(finGaleria - 1, tiempoRegresoMotor(m, nTarjetas)) : en('GALERIA', 1 - G.vuelve));
-  const durRegreso = Math.max(1, finGaleria - iniRegreso);
-  tl.add(raiz, { rotateY: [H.rotY[1], yGal], duration: dG, ease: 'linear' }, 'GALERIA')
-    .add(estado, { aparta: [0, 1], duration: dur('GALERIA', 0, G.entra), ease: 'inOut(2)' }, en('GALERIA', G.espera))
-    .add(raiz, { scale: [H.escala[1], G.escala], duration: dur('GALERIA', 0, G.entra), ease: 'inOut(2)' }, en('GALERIA', G.espera))
-    .add(estado, { luz: [H.luz[1], G.luz], duration: dur('GALERIA', 0, G.entra), ease: 'linear' }, en('GALERIA', G.espera))
-    // El regreso al centro —desvío, escala y luz— va PEGADO AL FINAL del capítulo, en
-    // 1 − `vuelve` = 0,977, que es justo cuando la quinta tarjeta empieza a irse (la aritmética,
-    // en PM.coreo.galeria.vuelve): antes de eso el motor no puede volver al medio sin escribirse
-    // encima de ella, y la ronda anterior arrancaba en 0,90, a mitad de su tramo quieto.
-    .add(estado, { aparta: [1, 0], duration: durRegreso, ease: 'inOut(2)' }, iniRegreso)
-    .add(raiz, { scale: [G.escala, H.escala[1]], duration: durRegreso, ease: 'inOut(2)' }, iniRegreso)
-    .add(estado, { luz: [G.luz, H.luz[1]], duration: durRegreso, ease: 'linear' }, iniRegreso);
-  // EL VUELCO: el eje entero se pone de cara a la cámara y vuelve (PM.coreo.galeria.vuelco).
-  // Cuatro tramos y una pausa: se recuesta montado sobre `aparta`, sube LINEAL mientras hablan las
-  // tarjetas 1 y 2, se queda quieto 700 unidades con la corona de frente y se endereza al doble de
-  // velocidad para estar de pie en el instante en que la quinta tarjeta se asienta. Entre
-  // `meseta[0]` y `meseta[1]` no hay ni un tween sobre `raiz`: eso ES la pausa, igual que `quieto`
-  // en COMO. Y el escalar `vuelco` es el que enciende el encuadre por pose (aplicar(), punto 3d):
-  // sin él la máquina se sale del cuadro en el bulto de +20° y encoge un cuarto en el ápice.
-  const U = G.vuelco;
-  tl.add(raiz, { rotateX: [H.rotX[1], U.apoyo], duration: dur('GALERIA', U.recostar[0], U.recostar[1]), ease: 'inOut(2)' }, en('GALERIA', U.recostar[0]))
-    .add(estado, { vuelco: [0, 1], duration: dur('GALERIA', U.recostar[0], U.recostar[1]), ease: 'inOut(2)' }, en('GALERIA', U.recostar[0]))
-    .add(raiz, { rotateX: [U.apoyo, U.cima], duration: dur('GALERIA', U.subir[0], U.subir[1]), ease: 'linear' }, en('GALERIA', U.subir[0]))
-    .add(raiz, { rotateX: [U.cima, H.rotX[1]], duration: dur('GALERIA', U.enderezar[0], U.enderezar[1]), ease: 'linear' }, en('GALERIA', U.enderezar[0]))
-    // el escalar se suelta con rotX ya en reposo, donde la corrección vale 1: no se ve apagarse
-    .add(estado, { vuelco: [1, 0], duration: dur('GALERIA', U.enderezar[1], U.suelta), ease: 'linear' }, en('GALERIA', U.enderezar[1]));
-  tl.add(estado, { dentro: [0, 1], duration: dur('GALERIA', U.dentro[0], U.dentro[1]), ease: 'inOut(2)' }, en('GALERIA', U.dentro[0]))
-    .add(estado, { dentro: [1, 0], duration: dur('GALERIA', U.fuera[0], U.fuera[1]), ease: 'inOut(2)' }, en('GALERIA', U.fuera[0]));
-
-  // UN LATIDO POR TARJETA, en el instante en que se asienta (core/geometria-galeria, estaciones).
-  // Eran ocho repartidos a ojo por el capítulo, alineados con un contador "n / 8" que ya no existe:
-  // cinco proyectos, cinco latidos, y cada uno anuncia la capa del motor que viene con su tarjeta.
-  // Cada latido son DOS tweens seguidos y no dos fotogramas clave dentro de uno: medido, con
-  // keyframes el valor no era idéntico de ida y de vuelta justo en la junta.
-  const dentroT = nTarjetas ? tiemposDentro(m, nTarjetas) : null;
-  const latidos = dentroT ? dentroT.estaciones
-    : Array.from({ length: G.pulsos }, (_, i) => en('GALERIA', (i + 0.5) / G.pulsos));
-  for (const tl0 of latidos) {
-    const t0 = Math.round(tl0);
-    tl.add(estado, { pulso: [0, 1], duration: G.pulsoSube, ease: 'out(3)' }, t0)
-      .add(estado, { pulso: [1, 0], duration: G.pulsoBaja, ease: 'in(2)' }, t0 + G.pulsoSube);
-  }
-
-  // ============================================================ GALERIA: EL PRIMER DESPIECE
-  // «¿Qué lleva dentro?». Visto desde arriba (el vuelco ya lo ha tumbado), cada tarjeta le quita
-  // una capa al motor, y la quinta lo vuelve a cerrar (PM.coreo.galeria.capas). Los instantes son
-  // las estaciones de la galería: la capa llega cuando su tarjeta se asienta, no a una fracción
-  // fija del capítulo. Sin cinco tarjetas en el marcado no hay estaciones y no hay despiece.
-  //   · TAPA (tarjeta 2) y PERIFERIA (tarjeta 3): cada pieza huye por su escalar `fuga` (lineal) y
-  //     aplicar() 3e la mueve, la gira y la encoge sobre su grupo `flota`.
-  //   · LAMAS (tarjeta 3): un escalar y 29 matrices (aplicar 1b), en ola por azimut.
-  //   · CORAZÓN (tarjeta 4): los 36 tubos se abren en espiral, directo en la timeline.
-  if (dentroT) {
-    const K1 = G.capas;
-    const estacion = { T1: dentroT.T1, T2: dentroT.T2, T3: dentroT.T3 };
-    sitios.forEach((s, i) => {
-      const h = K1.huyen[s.p.id];
-      if (!h) return;
-      tl.add(estado.fuga[i], { f: [0, 1], duration: K1.duracion, ease: 'linear' }, Math.round(estacion[h.estacion] + h.desfase))
-        .add(estado.fuga[i], { f: [1, 0], duration: K1.vuelta, ease: 'linear' }, Math.round(dentroT.R + h.vuelve));
-    });
-    const LA = K1.lamas;
-    const lamasIda = Math.round(dentroT.T2 + LA.desfase);
-    const lamasVuelta = Math.round(dentroT.R + LA.vuelve[0]);
-    const lamasDur = LA.vuelve[1] - LA.vuelve[0];
-    tl.add(estado, { lamas: [0, 1], duration: LA.duracion, ease: 'linear' }, lamasIda)
-      .add(estado, { lamas: [1, 0], duration: lamasDur, ease: 'linear' }, lamasVuelta);
-    if (aletas) {
-      tl.add(aletas, { rotateY: [0, LA.anillo], duration: LA.duracion, ease: 'out(3)' }, lamasIda)
-        .add(aletas, { rotateY: [LA.anillo, 0], duration: lamasDur, ease: 'inOut(3)' }, lamasVuelta);
-    }
-    // La espiral reparte el retardo por AZIMUT (el índice del tubo no es su ángulo, ver `reparto`):
-    // al abrirse arranca por el azimut más alto; al cerrarse, al revés.
-    const CO = K1.corona;
-    const espiral = (span: number, inversa: boolean) => (_o: unknown, i = 0): number => {
-      const k = (rig.azimutes[i] ?? 0) / 360;
-      return (inversa ? k : 1 - k) * span;
-    };
-    tl.add(rig.tubos, { z: [0, CO.fuera], duration: CO.duracion, ease: `outBack(${CO.rebote})`, delay: espiral(CO.espiral, false) }, Math.round(dentroT.T3))
-      .add(estado, { flor: [0, 1], duration: CO.flor, ease: 'linear' }, Math.round(dentroT.T3))
-      .add(rig.tubos, { z: [CO.fuera, 0], duration: CO.vuelve, ease: 'inOut(3)', delay: espiral(CO.espiralVuelta, true) }, Math.round(dentroT.R))
-      // `flor` baja con la curva exacta del ÚLTIMO tubo que se cierra (el de más retardo), no antes:
-      // cerrándose a su aire, el encuadre daba la corona por cerrada con los tubos todavía abiertos
-      // y dejaba crecer el motor fuera de su banda (900x1000: 2 108 px sobre la captura).
-      .add(estado, { flor: [1, 0], duration: CO.vuelve, ease: 'inOut(3)' }, Math.round(dentroT.R + CO.espiralVuelta));
-  }
-
-  // ============================================================ COMO: el despiece
-  const K = C.como;
-  const yAbre = yGal + K.giroAbre;
-  const yPar = yAbre + K.giroParallax;
-  const yFin = yPar + K.giroFinal;
-
-  // 1. abrir el plano: se inclina y la cámara retrocede para que quepa el despiece
-  tl.add(raiz, {
-    rotateY: [yGal, yAbre], rotateX: [H.rotX[1], K.rotX], y: [0, K.bajar], x: [0, K.desplazar],
-    duration: dur('COMO', K.abrir[0], K.abrir[1]), ease: 'inOut(2)',
-  }, en('COMO', K.abrir[0]))
-    .add(cam, { zoom: [H.zoom[1], K.zoom], duration: dur('COMO', K.abrir[0], K.abrir[1]), ease: 'inOut(2)' }, en('COMO', K.abrir[0]))
-    // `abierto` va con el zoom, ida y vuelta: es el escalar con el que la composición vertical le
-    // hace sitio al despiece entre las dos bandas de rótulos (ver aplicar(), punto 3c).
-    .add(estado, { abierto: [0, 1], duration: dur('COMO', K.abrir[0], K.abrir[1]), ease: 'inOut(2)' }, en('COMO', K.abrir[0]));
-
-  // 2. separar: de arriba abajo, 70 ms entre pieza y pieza. `outQuint` sale disparada y aterriza
-  //    sin rebote: es el gesto de "esto se desmonta", no el de "esto salta".
-  sitios.forEach((s, i) => {
-    tl.add(s.p.obj, {
-      x: [s.reposo.x, s.abierta.x], y: [s.reposo.y, s.abierta.y], z: [s.reposo.z, s.abierta.z],
-      duration: K.dur, ease: 'outQuint',
-    }, en('COMO', K.separar[0], i * K.paso));
-  });
-  // el anillo de aletas se abre y la placa de inyectores se inclina, cada uno en su turno del
-  // escalonado (el mismo instante en que esa pieza empieza a separarse)
-  if (aletas) {
-    tl.add(aletas, {
-      scaleX: [1, PM.aletasAbrir], scaleZ: [1, PM.aletasAbrir],
-      duration: K.dur, ease: 'outQuint',
-    }, en('COMO', K.separar[0], iAletas * K.paso));
-    // Y cada aleta gira sobre su propio eje radial, escalonada (ver PM.aletasGiro). Es UN escalar
-    // en la timeline y 29 matrices por fotograma: el reparto se calcula en `aplicar`, no con
-    // `stagger`, porque el retardo va por AZIMUT y no por índice.
-    tl.add(estado, { aletas: [0, 1], duration: K.dur * 1.35, ease: 'out(3)' }, en('COMO', K.separar[0], iAletas * K.paso));
-  }
-  if (inyector) tl.add(estado, { inclina: [0, 1], duration: K.dur, ease: 'outQuint' }, en('COMO', K.separar[0], iInyector * K.paso));
-  // y la corona florece: cada tubo se separa de la campana hacia fuera, desde el centro
-  tl.add(rig.tubos, {
-    // mismo criterio angular que en la entrada (aquí abre por el frente, que es lo que se ve):
-    // con `stagger(..., { from: 'center' })` la corona florecía por un costado, igual que entraba.
-    z: [0, K.tuboFuera], duration: K.dur, ease: 'outQuint', delay: reparto(K.repartoTubo, 'frente'),
-  }, en('COMO', K.separar[0], 8 * K.paso));
-
-  // 3. rótulos y guías: un escalar por pieza. El DOM lo pinta rotulos.ts leyendo estos escalares.
-  rig.piezas.forEach((_, i) => {
-    tl.add(estado.rotulos[i], { t: [0, 1], duration: K.durRotulo, ease: 'out(3)' }, en('COMO', K.rotulos[0], i * K.pasoRotulo));
-  });
-
-  // 4. parallax: gira con todo abierto. Es lo que hace que el despiece se lea en profundidad y no
-  //    como una lista. Los rótulos siguen a sus piezas solos, porque se proyectan cada fotograma.
-  tl.add(raiz, { rotateY: [yAbre, yPar], duration: dur('COMO', K.parallax[0], K.parallax[1]), ease: 'inOut(2)' }, en('COMO', K.parallax[0]));
-
-  // 5. la marca: los rótulos se recogen (del último al primero), el motor se apaga y la placa de
-  //    identificación viene al frente. El conjunto se queda QUIETO mientras se lee: girando, la
-  //    marca deja de reconocerse (es el hallazgo del análisis del logo).
-  rig.piezas.forEach((_, i) => {
-    const j = rig.piezas.length - 1 - i;
-    tl.add(estado.rotulos[j], { t: [1, 0], duration: K.durCierraRotulo, ease: 'in(2)' }, en('COMO', K.cerrar, i * K.pasoCierraRotulo));
-  });
-  tl.add(estado, { apagado: [0, 1], duration: dur('COMO', K.logo[0], K.quieto[0]), ease: 'inOut(2)' }, en('COMO', K.logo[0]))
-    .add(estado, { logo: [0, 1], duration: dur('COMO', K.logo[0], K.quieto[0]), ease: 'inOut(3)' }, en('COMO', K.logo[0]))
-    // entre quieto[0] y quieto[1] no hay ni un tween sobre `raiz`: eso ES la pausa.
-    .add(estado, { logo: [1, 0], duration: dur('COMO', K.quieto[1], K.recomponer[0] + 0.08), ease: 'inOut(3)' }, en('COMO', K.quieto[1]))
-    .add(estado, { apagado: [1, 0], duration: dur('COMO', K.quieto[1], K.recomponer[0] + 0.06), ease: 'out(2)' }, en('COMO', K.quieto[1]));
-
-  // 6. recomponer: vuelve a estar montado, de pie y a tamaño, listo para el cierre.
-  sitios.forEach((s, i) => {
-    tl.add(s.p.obj, {
-      x: [s.abierta.x, s.reposo.x], y: [s.abierta.y, s.reposo.y], z: [s.abierta.z, s.reposo.z],
-      // 0,93 y no 0,97: con el escalonado de 40 ms la última pieza aterrizaba 210 unidades
-      // DESPUÉS de COMO_END, o sea con CIERRE ya empezado y el motor levantándose.
-      duration: dur('COMO', K.recomponer[0], 0.93), ease: 'inOut(3)',
-    }, en('COMO', K.recomponer[0], (sitios.length - 1 - i) * 40));
-  });
-  if (aletas) {
-    tl.add(aletas, {
-      scaleX: [PM.aletasAbrir, 1], scaleZ: [PM.aletasAbrir, 1],
-      duration: dur('COMO', K.recomponer[0], 0.93), ease: 'inOut(3)',
-    }, en('COMO', K.recomponer[0], (sitios.length - 1 - iAletas) * 40));
-    tl.add(estado, { aletas: [1, 0], duration: dur('COMO', K.recomponer[0], 0.93), ease: 'inOut(3)' }, en('COMO', K.recomponer[0], (sitios.length - 1 - iAletas) * 40));
-  }
-  if (inyector) {
-    tl.add(estado, { inclina: [1, 0], duration: dur('COMO', K.recomponer[0], 0.93), ease: 'inOut(3)' }, en('COMO', K.recomponer[0], (sitios.length - 1 - iInyector) * 40));
-  }
-  tl.add(rig.tubos, { z: [K.tuboFuera, 0], duration: dur('COMO', K.recomponer[0], 0.93), ease: 'inOut(3)', delay: reparto(K.repartoTubo * 0.6, 'detras') }, en('COMO', K.recomponer[0]))
-    // LA CÁMARA VUELVE DESPUÉS QUE LAS PIEZAS, no a la vez. Arrancando las dos juntas, el encuadre
-    // ya se había cerrado (zoom 0,58 -> 1) cuando el anillo de bancada todavía estaba en su sitio
-    // del despiece, a y = 3,6 por encima del resto: el anillo salía CORTADO por el borde de arriba
-    // (captura esc-18). Con 0,06 de retraso las piezas van por delante del encuadre y no hay un
-    // solo fotograma con nada tocando el borde.
-    .add(raiz, { rotateY: [yPar, yFin], rotateX: [K.rotX, 0], y: [K.bajar, 0], x: [K.desplazar, 0], duration: dur('COMO', K.recomponer[0] + 0.06, 1), ease: 'inOut(2)' }, en('COMO', K.recomponer[0] + 0.06))
-    .add(cam, { zoom: [K.zoom, H.zoom[1]], duration: dur('COMO', K.recomponer[0] + 0.06, 1), ease: 'inOut(2)' }, en('COMO', K.recomponer[0] + 0.06))
-    .add(estado, { abierto: [1, 0], duration: dur('COMO', K.recomponer[0] + 0.06, 1), ease: 'inOut(2)' }, en('COMO', K.recomponer[0] + 0.06));
-
-  // ============================================================ CIERRE: encendido y salida
+  // ============================================================ DESPEGUE: encendido y salida
+  // Era el final de la página (CIERRE), después del despiece. Desde el 27/09/2026 el motor solo está
+  // en la portada (Yoiber: «el cohete, solo en la portada»): se ensambla en HERO_OUT y aquí, justo
+  // después, enciende, se levanta y se va, dejándole la pantalla a los proyectos. Los números son los
+  // mismos (PM.coreo.cierre, fracciones de su tramo); el giro de partida es el de la portada.
   const Z = C.cierre;
-  tl.add(estado, { rpm: [0, 1], duration: dur('CIERRE', Z.previo[0], Z.previo[1]), ease: 'in(2)' }, en('CIERRE', Z.previo[0]))
-    .add(estado, { vibra: [0, 1], duration: dur('CIERRE', Z.previo[0], Z.previo[1]), ease: 'in(2)' }, en('CIERRE', Z.previo[0]))
-    .add(estado, { brillo: [0, 1], duration: dur('CIERRE', Z.brillo[0], Z.brillo[1]), ease: 'in(2)' }, en('CIERRE', Z.brillo[0]))
-    .add(estado, { penacho: [0, 1], duration: dur('CIERRE', Z.penacho[0], Z.penacho[1]), ease: 'out(2)' }, en('CIERRE', Z.penacho[0]))
+  const yHero = H.rotY[1];
+  tl.add(estado, { rpm: [0, 1], duration: dur('DESPEGUE', Z.previo[0], Z.previo[1]), ease: 'in(2)' }, en('DESPEGUE', Z.previo[0]))
+    .add(estado, { vibra: [0, 1], duration: dur('DESPEGUE', Z.previo[0], Z.previo[1]), ease: 'in(2)' }, en('DESPEGUE', Z.previo[0]))
+    .add(estado, { brillo: [0, 1], duration: dur('DESPEGUE', Z.brillo[0], Z.brillo[1]), ease: 'in(2)' }, en('DESPEGUE', Z.brillo[0]))
+    .add(estado, { penacho: [0, 1], duration: dur('DESPEGUE', Z.penacho[0], Z.penacho[1]), ease: 'out(2)' }, en('DESPEGUE', Z.penacho[0]))
     // se levanta ANTES de encender: el penacho mide 9,5 u y sin este hueco sale cortado por abajo
     // (comprobado en captura: el chorro se salía del cuadro y se leía como una bombilla)
-    .add(raiz, { y: [0, Z.subir], duration: dur('CIERRE', 0, Z.salida[0]), ease: 'inOut(2)' }, 'CIERRE')
+    .add(raiz, { y: [0, Z.subir], duration: dur('DESPEGUE', 0, Z.salida[0]), ease: 'inOut(2)' }, 'DESPEGUE')
     // sube: `in(3)` es una aceleración de verdad, que es justo lo que tiene que parecer
-    .add(raiz, { y: [Z.subir, Z.alturaSalida], scale: [H.escala[1], Z.escalaSalida], duration: dur('CIERRE', Z.salida[0], Z.salida[1]), ease: 'in(3)' }, en('CIERRE', Z.salida[0]))
-    .add(estado, { estira: [0, 1], duration: dur('CIERRE', Z.salida[0], Z.salida[1]), ease: 'in(2)' }, en('CIERRE', Z.salida[0]))
+    .add(raiz, { y: [Z.subir, Z.alturaSalida], scale: [H.escala[1], Z.escalaSalida], duration: dur('DESPEGUE', Z.salida[0], Z.salida[1]), ease: 'in(3)' }, en('DESPEGUE', Z.salida[0]))
+    .add(estado, { estira: [0, 1], duration: dur('DESPEGUE', Z.salida[0], Z.salida[1]), ease: 'in(2)' }, en('DESPEGUE', Z.salida[0]))
     // ya en el aire, el temblor desaparece: lo que temblaba era el amarre
-    .add(estado, { vibra: [1, 0], duration: dur('CIERRE', Z.salida[0], Z.salida[0] + 0.12), ease: 'out(2)' }, en('CIERRE', Z.salida[0]))
-    .add(raiz, { rotateY: [yFin, yFin + 8], duration: dur('CIERRE', 0, Z.salida[1]), ease: 'inOut(2)' }, 'CIERRE')
-    .add(cam, { zoom: [H.zoom[1], Z.zoom[1]], duration: dur('CIERRE', 0, Z.salida[1]), ease: 'out(2)' }, 'CIERRE')
-    .add(estado, { salida: [0, 1], duration: dur('CIERRE', Z.fundido[0], Z.fundido[1]), ease: 'in(2)' }, en('CIERRE', Z.fundido[0]));
+    .add(estado, { vibra: [1, 0], duration: dur('DESPEGUE', Z.salida[0], Z.salida[0] + 0.12), ease: 'out(2)' }, en('DESPEGUE', Z.salida[0]))
+    .add(raiz, { rotateY: [yHero, yHero + 8], duration: dur('DESPEGUE', 0, Z.salida[1]), ease: 'inOut(2)' }, 'DESPEGUE')
+    .add(cam, { zoom: [H.zoom[1], Z.zoom[1]], duration: dur('DESPEGUE', 0, Z.salida[1]), ease: 'out(2)' }, 'DESPEGUE')
+    .add(estado, { salida: [0, 1], duration: dur('DESPEGUE', Z.fundido[0], Z.fundido[1]), ease: 'in(2)' }, en('DESPEGUE', Z.fundido[0]));
 
   // ============================================================ CANAL DERIVADO
   // Todo lo de aquí abajo es función pura de (`estado`, `tiempo`). Ni un `+=`, ni un `Math.random`,

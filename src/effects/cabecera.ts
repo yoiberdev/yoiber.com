@@ -7,8 +7,9 @@ import { tiempoConVida } from './galeria';
 // LA CABECERA — #cabecera, fija arriba (fila 11 del informe)
 // ================================================================================================
 // Antes no había ni un enlace en toda la página fuera del pie: nada decía "aquí hay más" ni daba
-// forma de saltar. La cabecera es lo mínimo: el monograma (vuelve al principio) y tres enlaces
-// —Proyectos, Por dentro, Contacto— que llevan a la primera tarjeta, al despiece y al pie.
+// forma de saltar. La cabecera es lo mínimo: el monograma (vuelve al principio) y dos enlaces
+// —Proyectos, Contacto— que llevan a la primera tarjeta y al pie (hubo un tercero, «Por dentro», al
+// despiece del motor; se fue con él el 27/09/2026).
 //
 // CUÁNDO ENTRA. Con el texto del hero: mismo instante (INTRO_ON + intro.texto.delay) y misma curva,
 // como hijo del maestro. Es la misma razón que tiene el texto para entrar tarde (effects/hero.ts):
@@ -25,8 +26,8 @@ import { tiempoConVida } from './galeria';
 //
 // ADÓNDE LLEVA CADA UNO. El scroll se calcula desde el maestro (scroller.pxParaTiempo), no desde
 // los id de las secciones: "Proyectos" aterriza en la primera tarjeta ya entera (el mismo cálculo
-// que #bajar, `tiempoPrimeraTarjeta`), y "Por dentro" en el 40 % de COMO, donde el despiece ya
-// está abierto. "Contacto" es el pie, que está fuera del maestro: su borde de arriba. Los cuatro
+// que #bajar, `tiempoPrimeraTarjeta`). "Contacto" es el pie, que está fuera del maestro: su borde
+// de arriba. Los tres
 // VIAJAN (core/viaje.ts) con destinos que se releen en cada fotograma. Antes eran scrollTo y
 // scrollIntoView, y saltaban en un fotograma: el `scroll-behavior: smooth` que se suponía que los
 // suavizaba estaba en el body, y el navegador solo atiende al del elemento raíz.
@@ -64,7 +65,6 @@ export function montarCabecera(
   const destinos: Record<string, () => void> = {
     inicio: () => ir(0),
     proyectos: () => ir(() => pxParaTiempo(tiempoPrimeraTarjeta(m))),
-    dentro: () => ir(() => pxParaTiempo(m.L.COMO + m.duracion('COMO') * P.cabecera.dentro)),
     contacto: () => ir(() => (pie ? pie.getBoundingClientRect().top + window.scrollY : 0)),
   };
   // Un solo escuchador en la cabecera: el destino lo dice `data-ir` del enlace pulsado. Sin

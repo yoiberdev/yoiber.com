@@ -1,0 +1,119 @@
+/* EL ESCRITORIO DE LAS AUTOMATIZACIONES (sim/automatizaciones.ts). Diseño a 1000x625 px en em
+   (1 em = 16 px de diseño): papel cálido, tarjetas blancas y el azul del flujo. El teléfono imita la
+   reserva de Citas (crema), la agenda es una semana de 09:00 a 13:00 y el chat es el grupo del
+   negocio. Todo está colocado a mano sobre la escena de 1000x625: no hay nada que se recoloque. */
+.sim-auto {
+  --sim-acento: #5c9dff;
+  --au-papel: #efe9df; --au-tinta: #1d2230; --au-gris: #6d7383; --au-linea: #e1dbd0; --au-azul: #2f6fed; --au-verde: #1f9d63;
+  background: var(--au-papel); color: var(--au-tinta);
+  font-family: var(--etiqueta, system-ui, sans-serif);
+}
+.sim-auto .sim-nota { left: 15.7em; bottom: 0.75em; max-width: 28.5em; }
+.sim-auto .sim-onda { color: var(--au-azul); }
+.au { position: absolute; inset: 0; background-image: radial-gradient(rgb(29 34 48 / 0.07) 0.07em, transparent 0.08em); background-size: 1.25em 1.25em; }
+.au p { margin: 0; }
+.au-cables { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.au-cables path { fill: none; stroke: #b9c6de; stroke-width: 1.5; stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
+.au-pulso { position: absolute; width: 0.75em; height: 0.75em; margin: -0.375em 0 0 -0.375em; border-radius: 50%; background: var(--au-azul); box-shadow: 0 0 0 0.3em rgb(47 111 237 / 0.2); opacity: 0; }
+
+/* El teléfono. */
+.au-tel {
+  position: absolute; left: 2.75em; top: 1.625em; width: 16.375em; height: 35.8125em; padding: 0.55em;
+  border-radius: 2.5em; background: #15161a; box-shadow: 0 1.4em 2.6em -1em rgb(29 34 48 / 0.45);
+}
+.au-pantalla { position: relative; height: 100%; border-radius: 2em; overflow: hidden; background: #fbf8f3; }
+.au-reserva, .au-listo, .au-bloqueo { position: absolute; inset: 0; padding: 1em 1em 1.2em; }
+/* El formulario un 12 % más grande: a su tamaño natural dejaba un tercio de la pantalla vacío. */
+.au-reserva { font-size: 1.12em; padding: 0.9em 0.9em 1em; }
+.au-nota { margin-top: 0.8em !important; font-size: 0.66em; color: var(--au-gris); text-align: center; }
+.au-barra { display: flex; justify-content: space-between; align-items: center; font-size: 0.7em; font-weight: 600; margin-bottom: 1.1em !important; }
+.au-barra i { width: 1.8em; height: 0.8em; border-radius: 0.25em; border: 0.12em solid var(--au-tinta); }
+.au-ceja { font-size: 0.6em; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--au-gris); }
+.au-titulo { margin: 0.2em 0 0.3em !important; font-size: 1.45em; font-weight: 700; letter-spacing: -0.02em; }
+.au-rot { display: flex; align-items: center; gap: 0.5em; margin-top: 0.85em !important; margin-bottom: 0.35em !important; font-size: 0.7em; font-weight: 600; color: var(--au-gris); }
+.au-libres { padding: 0.1em 0.5em; border-radius: 999px; background: rgb(31 157 99 / 0.12); color: var(--au-verde); transition: box-shadow 0.3s; }
+.au.mira-agenda .au-libres { box-shadow: 0 0 0 0.18em rgb(31 157 99 / 0.35); }
+.au-select { position: relative; height: 2.3em; padding: 0 0.8em; display: flex; align-items: center; border: 0.0625em solid var(--au-linea); border-radius: 0.6em; background: #fff; font-size: 0.85em; }
+.au-select::after { content: ''; position: absolute; right: 0.9em; top: 50%; width: 0.45em; height: 0.45em; margin-top: -0.35em; border: solid var(--au-gris); border-width: 0 0.12em 0.12em 0; transform: rotate(45deg); }
+.au-dias { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4em; }
+.au-dia { display: grid; justify-items: center; padding: 0.45em 0; border: 0.0625em solid var(--au-linea); border-radius: 0.6em; background: #fff; font-size: 0.72em; color: var(--au-gris); transition: background 0.2s, color 0.2s, border-color 0.2s; }
+.au-dia b { font-size: 1.35em; color: var(--au-tinta); transition: color 0.2s; }
+.au-dia.elegido { background: var(--au-azul); border-color: var(--au-azul); color: #dce6ff; }
+.au-dia.elegido b { color: #fff; }
+.au-horas { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4em; min-height: 4.4em; }
+.au-elige { position: absolute; inset: 0; display: grid; place-items: center; border: 0.08em dashed var(--au-linea); border-radius: 0.6em; font-size: 0.75em; color: var(--au-gris); transition: opacity 0.25s; }
+.au.con-horas .au-elige { opacity: 0; }
+.au-hora { display: grid; place-items: center; height: 2em; border: 0.0625em solid var(--au-linea); border-radius: 0.5em; background: #fff; font-size: 0.8em; font-weight: 600; transition: background 0.2s, color 0.2s; }
+.au-hora.elegida { background: var(--au-azul); border-color: var(--au-azul); color: #fff; }
+.au-campo { display: flex; align-items: center; height: 2.3em; padding: 0 0.8em; border: 0.0625em solid var(--au-linea); border-radius: 0.6em; background: #fff; font-size: 0.85em; transition: border-color 0.2s, box-shadow 0.2s; }
+.au-campo.foco { border-color: var(--au-azul); box-shadow: 0 0 0 0.2em rgb(47 111 237 / 0.15); }
+.au-cursor { width: 0.08em; height: 1.1em; margin-left: 0.08em; background: var(--au-azul); opacity: 0; }
+.sim.corriendo .au-campo.foco .au-cursor { animation: au-parpadeo 0.9s steps(1) infinite; }
+@keyframes au-parpadeo { 50% { opacity: 1; } }
+.au-reservar { margin-top: 1.1em !important; height: 2.6em; display: grid; place-items: center; border-radius: 0.7em; background: var(--au-tinta); color: #fff; font-size: 0.9em; font-weight: 700; transition: transform 0.12s; }
+.au-reservar.pulsado { transform: scale(0.96); }
+.au-listo { display: grid; align-content: center; justify-items: center; gap: 0.5em; text-align: center; font-size: 0.9em; }
+.au-tic { display: grid; place-items: center; width: 3.6em; height: 3.6em; border-radius: 50%; background: rgb(31 157 99 / 0.12); margin-bottom: 0.4em; }
+.au-tic svg { width: 1.9em; height: 1.9em; }
+.au-tic path { fill: none; stroke: var(--au-verde); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.au-suave { color: var(--au-gris); font-size: 0.85em; }
+.au-bloqueo { background: linear-gradient(160deg, #273a63, #121a2c 70%); color: #fff; text-align: center; padding-top: 3.2em; }
+.au-bl-hora { font-size: 3.4em; font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
+.au-bl-fecha { margin: 0.4em 0 1.4em !important; font-size: 0.85em; color: rgb(255 255 255 / 0.75); }
+.au-aviso { margin-top: 0.6em; padding: 0.75em 0.85em; border-radius: 1em; background: rgb(255 255 255 / 0.9); color: var(--au-tinta); text-align: left; font-size: 0.78em; box-shadow: 0 0.6em 1.2em rgb(0 0 0 / 0.25); }
+.au-av-app { display: flex; align-items: center; gap: 0.45em; margin-bottom: 0.3em !important; font-size: 0.82em; color: var(--au-gris); }
+.au-av-app i { width: 1.2em; height: 1.2em; border-radius: 0.3em; background: linear-gradient(135deg, #5c9dff, #2f6fed); }
+.au-av-app span { margin-left: auto; }
+.au-av-tit { font-weight: 700; margin-bottom: 0.15em !important; }
+.au-estrellas { display: flex; gap: 0.3em; margin-top: 0.5em !important; }
+.au-estrellas i { width: 1.25em; height: 1.25em; background: #d9d4cb; clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); transition: background 0.2s; }
+.au-estrellas i.on { background: #f3b323; }
+
+/* Las tarjetas del negocio. */
+.au-cal, .au-flujo, .au-tg { position: absolute; border-radius: 1em; background: #fff; box-shadow: 0 1em 2em -1.2em rgb(29 34 48 / 0.35), 0 0 0 0.0625em rgb(29 34 48 / 0.06); }
+.au-cab { display: flex; align-items: center; gap: 0.5em; font-size: 0.85em; font-weight: 700; }
+.au-cab span { color: var(--au-gris); font-weight: 500; }
+.au-cal { left: 21.25em; top: 1.625em; width: 22.5em; height: 19.875em; padding: 0.9em 1em; transition: box-shadow 0.3s; }
+.au.mira-agenda .au-cal { box-shadow: 0 1em 2em -1.2em rgb(29 34 48 / 0.35), 0 0 0 0.16em rgb(31 157 99 / 0.45); }
+.au-g { width: 1.1em; height: 1.1em; border-radius: 0.25em; background: conic-gradient(#4285f4 0 25%, #34a853 0 50%, #fbbc05 0 75%, #ea4335 0); }
+.au-reloj { margin-left: auto; padding: 0.25em 0.6em; border-radius: 999px; background: var(--au-tinta); color: #fff !important; font: 500 0.95em/1 var(--mono, monospace) !important; }
+.au-rejilla { margin-top: 0.7em; }
+.au-cols { display: grid; grid-template-columns: 2.6em repeat(5, 1fr); font-size: 0.66em; font-weight: 600; color: var(--au-gris); text-align: center; padding-bottom: 0.4em !important; border-bottom: 0.1em solid var(--au-linea); }
+.au-cols span:first-child { visibility: hidden; }
+.au-cuerpo { position: relative; height: 12.8em; }
+.au-filas { position: absolute; inset: 0; display: grid; grid-template-rows: repeat(4, 1fr); }
+.au-filas span { border-top: 0.0625em solid var(--au-linea); font: 0.6em/1 var(--mono, monospace); color: var(--au-gris); padding-top: 0.3em; }
+.au-eventos { position: absolute; left: 2.6em; right: 0; top: 0; bottom: 0; }
+.au-evento {
+  position: absolute; left: calc(var(--d) * 20% + 0.12em); width: calc(20% - 0.24em);
+  /* 1,6 em de la escena por media hora; la letra del evento es 0,58, así que en su em son 2,76. */
+  top: calc(var(--h) * 2.76em + 0.17em); height: calc(var(--l) * 2.76em - 0.34em);
+  padding: 0.2em 0.35em; overflow: hidden; border-radius: 0.35em; border-left: 0.2em solid #8aa4cf;
+  background: #e8eef9; font-size: 0.58em; font-weight: 600; line-height: 1.2; color: #34466b;
+}
+.au-evento.ocupa { transition: box-shadow 0.3s; }
+.au.mira-agenda .au-evento.ocupa { box-shadow: 0 0 0 0.25em rgb(31 157 99 / 0.35); }
+.au-evento.nueva { background: var(--au-azul); border-left-color: #0f3fae; color: #fff; }
+
+.au-flujo { left: 21.25em; top: 22.5em; width: 22.5em; height: 8em; padding: 0.9em 1em; }
+.au-pista { position: relative; height: 4.4em; margin-top: 0.5em; display: grid; grid-template-columns: repeat(6, 1fr); }
+.au-linea { position: absolute; left: 8.33%; right: 8.33%; top: 1.1em; height: 0.12em; background: var(--au-linea); }
+.au-nodo { position: relative; display: grid; justify-items: center; align-content: start; gap: 0.35em; }
+.au-nodo i { width: 2.2em; height: 2.2em; border-radius: 50%; border: 0.14em solid var(--au-linea); background: #fff; transition: background 0.25s, border-color 0.25s; }
+.au-nodo b { font-size: 0.6em; font-weight: 600; color: var(--au-gris); white-space: nowrap; transition: color 0.25s; }
+.au-nodo.hecho i { background: var(--au-azul); border-color: var(--au-azul); box-shadow: inset 0 0 0 0.4em #fff; }
+.au-nodo.hecho b { color: var(--au-tinta); }
+.au.repite-aviso .au-nodo:nth-child(5) i { box-shadow: inset 0 0 0 0.4em #fff, 0 0 0 0.3em rgb(47 111 237 / 0.25); }
+.au-bola { position: absolute; top: 1.16em; width: 0.9em; height: 0.9em; margin: -0.45em 0 0 -0.45em; border-radius: 50%; background: var(--au-azul); box-shadow: 0 0 0 0.3em rgb(47 111 237 / 0.2); opacity: 0; transition: opacity 0.2s; }
+.au-bola.encendida { opacity: 1; }
+
+.au-tg { left: 45.25em; top: 1.625em; width: 14.75em; height: 28.875em; overflow: hidden; display: flex; flex-direction: column; }
+.au-tg-cab { display: flex; align-items: center; gap: 0.6em; padding: 0.8em 0.9em; border-bottom: 0.0625em solid var(--au-linea); }
+.au-tg-cab i { width: 2em; height: 2em; border-radius: 50%; background: linear-gradient(135deg, #5fb2ec, #2f86d1); }
+.au-tg-cab span { display: grid; font-size: 0.8em; }
+.au-tg-cab small { font-size: 0.8em; color: var(--au-gris); }
+.au-chat { flex: 1; padding: 0.8em 0.7em; display: grid; align-content: start; gap: 0.6em; background: #e4ebf1; }
+.au-msj { display: grid; gap: 0.15em; padding: 0.65em 0.75em; border-radius: 0.2em 0.9em 0.9em 0.9em; background: #fff; font-size: 0.74em; box-shadow: 0 0.1em 0.2em rgb(29 34 48 / 0.08); }
+.au-msj b { color: var(--au-azul); }
+.au-msj small { justify-self: end; font-size: 0.82em; color: var(--au-gris); }
+.au-msj0 { opacity: 0.6; }

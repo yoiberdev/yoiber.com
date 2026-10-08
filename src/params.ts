@@ -18,7 +18,7 @@ export const P = {
     // el tramo INTRO es "el logo entrando", así que se acaban a la vez. Antes eran 4 000 ms con un
     // título de texto partido que duraba eso; ahora manda la coreografía de yoiber.com.
     introDuration: LOGO.arranque + LOGO.entrada, // 5100
-    alturas: { HERO_OUT: 2, GALERIA: 10, COMO: 5, CIERRE: 2 } as Record<string, number>, // en alturas de viewport; 1 altura = 1000 unidades del maestro
+    alturas: { HERO_OUT: 2, DESPEGUE: 1.25, GALERIA: 14, CIERRE: 2 } as Record<string, number>, // en alturas de viewport; 1 altura = 1000 unidades del maestro. GALERIA: dos por tarjeta (siete desde el 07/10/2026, con el ajolote), así que cada tarjeta conserva su tramo de 2 000
     // El suavizado lo hace core/scroller.ts con un Timer propio por tiempo (no el `sync` de
     // onScroll: ver allí por qué). `sync` sigue siendo el factor; estos dos son su mecánica.
     suavizado: {
@@ -125,6 +125,10 @@ export const P = {
     // motor se descubre a medio ensamblar, que se lee mucho mejor que en su estado de partida.
     telonSube: 600,
     telonBaja: 400,
+    // Y por arriba (27/09/2026): se tapa pasada la entrada de GALERIA, cuando el despegue ya lo ha
+    // fundido del todo, con la misma holgura para que no parpadee.
+    telonTapa: 100,
+    telonHolgura: 200,
     // Espera antes de pedir el trozo 3D tras ensamblarse el logo, en ms. La flotación arranca a los
     // 500 ms; con 1400 lleva casi un segundo a la vista cuando llega la parada del analizador.
     esperaTrasIntro: 1400,
@@ -154,9 +158,11 @@ export const P = {
     sinFotogramas: 1500,  // ms sin un solo fotograma dibujado -> se rinde (ver core/escena.ts)
     origen: 'propio',
   },
-  // LA GALERÍA. `arranque` es la fracción del capítulo que se le regala al motor para que se
-  // aparte ANTES de que entre la primera tarjeta. Sin él, la tarjeta aparece encima de la campana:
-  // el desvío del motor empieza al 10 % del tramo y las tarjetas empezaban al 0 %.
+  // LA GALERÍA. `arranque` es la fracción del capítulo antes de la primera tarjeta. Era 0,18 para que
+  // el motor se apartara ANTES de que entrara nada; desde el 27/09/2026 el motor despega en su propio
+  // tramo (DESPEGUE) y ya no está cuando llega la galería: 0. El respiro ya lo pone el despegue, que
+  // saca el motor de cuadro hacia el 70 % de su tramo (medido con 1,5 alturas y un 5 % de arranque:
+  // casi una pantalla entera de scroll en blanco antes del primer título; por eso DESPEGUE mide 1,25).
   // Dónde aterrizan "Ver los proyectos", el enlace Proyectos y la parada de la sub-nav ya no es un
   // número de aquí: lo calcula galeria.ts (tiempoConVida), en la primera tarjeta con su esquema
   // trazado y la vida encendida. Antes era `margenBajar: 250`, que caía con el esquema al 1,6 % y
@@ -164,7 +170,7 @@ export const P = {
   galeria: {
     // EL ARCO DEL CONTADOR en segmentos (galeria.ts, tanda 5): grados de hueco entre uno y otro.
     arco: { hueco: 14 },
-    arranque: 0.18,
+    arranque: 0,
     // LA MINI-SECUENCIA DE CADA TARJETA (effects/galeria.ts). Antes la tarjeta entraba en bloque
     // (opacidad + 26 px); ahora cada pieza entra por su turno: título, captura destapándose de
     // arriba abajo, los tres párrafos escalonados, y el acceso y el aviso al final.
@@ -356,15 +362,15 @@ export const P = {
     origen: 'propio',
   },
 
-  // EL CIERRE (effects/cierre.ts, tanda 4): la frase del despegue, en fracciones del tramo CIERRE.
-  // Entra con el penacho (PM.coreo.cierre.penacho empieza en 0,14) y la última pieza acaba de
-  // entrar en 0,10 + 0,03·2 + 0,13 = 0,29; se va y la última acaba en 0,59 + 0,02·2 + 0,10 = 0,73,
-  // antes del fundido a negro (0,74). Entre medias, casi la mitad del tramo, quieta y legible.
+  // EL CIERRE (effects/cierre.ts, tanda 4): la frase final, en fracciones del tramo CIERRE. La
+  // última pieza acaba de entrar en 0,10 + 0,03·2 + 0,13 = 0,29; se va y la última acaba en
+  // 0,80 + 0,02·2 + 0,10 = 0,94, justo antes de que suba el pie. Entre medias, la mitad del tramo
+  // quieta y legible (desde el 27/09/2026 no hay motor detrás que la eche antes).
   cierre: {
     entra: 0.1,
     pieza: 0.13,         // lo que tarda en entrar cada pieza (titular, frase, enlace)
     escalon: 0.03,
-    sale: 0.59,
+    sale: 0.8,           // se queda hasta casi el final: sin motor detrás, el cierre es la frase
     piezaSalida: 0.1,
     escalonSalida: 0.02,
     y: 24,               // px que sube cada pieza al entrar (y otros tantos al irse)

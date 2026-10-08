@@ -1,5 +1,5 @@
-import '@fontsource-variable/space-grotesk';
-import '@fontsource-variable/jetbrains-mono';
+import '@fontsource-variable/instrument-sans';
+import '@fontsource/fragment-mono';
 import './styles/base.css';
 import { sugerirIdioma } from './comun/idioma';
 import { animate, createScope, type JSAnimation, type Scope } from 'animejs';
@@ -17,6 +17,7 @@ import { montarHero } from './effects/hero';
 import { montarFondoIntro } from './effects/fondo-intro';
 import { montarCabecera, tiempoPrimeraTarjeta } from './effects/cabecera';
 import { montarGaleria, tiempoConVida } from './effects/galeria';
+import { montarVitrinas } from './effects/vitrinas';
 import { montarVidaEsquemas } from './effects/vida-esquemas';
 import { montarLogoIntro } from './effects/logo-intro';
 import { montarLogoSalida } from './effects/logo-salida';
@@ -26,14 +27,15 @@ import { montarCierre } from './effects/cierre';
 
 // Los nombres del titular de capítulo (#capitulo-nombre, effects/titulo.ts). INTRO y HERO_OUT van
 // vacíos: ahí el logo está en pantalla y es él quien dice de quién es la página.
-const NOMBRES: Record<string, string> = { INTRO: '', HERO_OUT: '', GALERIA: 'Proyectos', COMO: 'Por dentro', CIERRE: 'Encendido' };
+// DESPEGUE va vacío por lo mismo (es el motor yéndose) y CIERRE también: la frase del cierre ya lo dice
+// todo, y «Encendido» era el nombre del encendido del motor, que ya no está ahí.
+const NOMBRES: Record<string, string> = { INTRO: '', HERO_OUT: '', DESPEGUE: '', GALERIA: 'Proyectos', CIERRE: '' };
 // Las paradas de la sub-nav (core/subnav.ts): una por tramo, en su `ini`. HERO_OUT no tiene
 // titular (es el logo yéndose) pero sí parada: es el principio de la página.
 const PARADAS: Parada[] = [
   { X: 'HERO_OUT', nombre: 'Inicio' },
   { X: 'GALERIA', nombre: NOMBRES.GALERIA },
-  { X: 'COMO', nombre: NOMBRES.COMO },
-  { X: 'CIERRE', nombre: NOMBRES.CIERRE },
+  { X: 'CIERRE', nombre: 'Hablemos' },
 ];
 
 // Las secciones son espaciadores: su altura fija cuánto scroll dura cada tramo.
@@ -69,7 +71,9 @@ function montar(self?: Scope): () => void {
   const cabecera = montarCabecera(m, reduce, (t) => scroller.pxParaTiempo(t), viaje.irA);
   // Antes de tl.init(): la galería añade sus tweens al maestro y init() los tiene que ver.
   const galeria = montarGaleria(m, reduce);
-  // La frase del despegue, también con tweens en el maestro (y su salida viaja al contacto).
+  // Las grabaciones de cada proyecto: carga perezosa y solo anda la de la tarjeta que manda.
+  const vitrinas = montarVitrinas(m, galeria, reduce);
+  // La frase final, también con tweens en el maestro (y su salida viaja al contacto).
   const cierre = montarCierre(m, reduce, (d) => viaje.irA(d));
   const vidaEsquemas = montarVidaEsquemas(reduce);
   // El acento vigente (core/acento.ts) se decide desde el reloj con el reparto de la galería.
@@ -172,6 +176,7 @@ function montar(self?: Scope): () => void {
     tema.actualizar(proxy.currentTime);
     acento.actualizar(proxy.currentTime);
     galeria.actualizar(proxy.currentTime);
+    vitrinas.actualizar(proxy.currentTime);
     vidaEsquemas.actualizar(galeria.esquemaDe(proxy.currentTime));
     hero.actualizar(proxy.currentTime);
     cierre.actualizar(proxy.currentTime);
@@ -191,7 +196,6 @@ function montar(self?: Scope): () => void {
   // cabecera.ts, para que los dos caminos al mismo sitio lleven al mismo sitio.
   const destinos: Record<string, () => number> = {
     GALERIA: () => scroller.pxParaTiempo(tiempoPrimeraTarjeta(m)),
-    COMO: () => scroller.pxParaTiempo(m.L.COMO + m.duracion('COMO') * P.cabecera.dentro),
   };
   // LAS ESTACIONES de la sub-nav (sus rayitas, adonde lleva un clic en la barra y donde encaja el
   // imán): además de las paradas, cada tarjeta entera con su esquema vivo y el final del maestro.
@@ -272,6 +276,7 @@ function montar(self?: Scope): () => void {
     escena.revertir();
     vidaEsquemas.revertir();
     galeria.revertir();
+    vitrinas.revertir();
     cierre.revertir();
     acento.revertir();
     cabecera.revertir();

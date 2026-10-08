@@ -3,26 +3,20 @@ import { P } from '../params';
 import type { Maestro } from '../core/maestro';
 import type { Destino } from '../core/viaje';
 
-// EL CIERRE — la frase del despegue (tanda 4)
+// EL CIERRE — la frase final (tanda 4)
 // ================================================================================================
-// CIERRE («Encendido») eran dos alturas de scroll sin una sola frase, justo antes del contacto y en
-// el momento de más emoción de la página: el motor enciende, se estira y sale. Ahora, mientras el
-// penacho crece, entra una frase con UNA salida (al contacto del pie, con el viaje) y se va antes de
-// que el motor se funda a negro. Es la técnica de animejs.com —contenido que entra con el maestro
-// mientras la escena sale—, no su contenido: ni su texto, ni su rejilla de enlaces.
+// CIERRE eran dos alturas de scroll sin una sola frase, justo antes del contacto. Ahora entra una
+// frase con UNA salida (al contacto del pie, con el viaje) y se va justo antes de que suba el pie.
+// Hasta el 27/09/2026 esto pasaba mientras el motor despegaba; desde entonces el motor despega en
+// la portada (tramo DESPEGUE) y el cierre es solo la frase, centrada sobre el fondo.
 //
 // LA FRASE ES PROVISIONAL. La tiene que escribir Yoiber; vive en index.html (#cierre-capa) y este
 // módulo no sabe lo que dice: anima lo que haya dentro de `.cierre-texto`.
 //
-// DÓNDE VA. Es una capa fija como la de la galería, y la hoja decide el sitio (base.css):
-//   · en apaisado, en la columna libre de la izquierda, debajo del titular: el motor del despegue
-//     mide la mitad del ALTO de ancho y va centrado, así que la columna es 50vw − 26vh;
-//   · en vertical, en compacto o con poco ancho, el motor ocupa todo el ancho y el penacho la mitad
-//     de abajo: la frase va ARRIBA, bajo el titular, sobre una placa del color del fondo. Tapa la
-//     cabeza del motor, que ya se está yendo por arriba, y deja el penacho a la vista.
+// DÓNDE VA. Es una capa fija como la de la galería, y la hoja decide el sitio (base.css): centrada.
 //
-// CUÁNDO. Fracciones de CIERRE en P.cierre: entra con el penacho y acaba de entrar antes del 30 %,
-// se va escalonada y termina antes del 74 %, donde empieza el fundido a negro (PM.coreo.cierre).
+// CUÁNDO. Fracciones de CIERRE en P.cierre: acaba de entrar antes del 30 %, se queda, y se va
+// escalonada antes del 95 %, cuando el pie empieza a subir.
 // Todo hijo del maestro con [desde, hasta] explícitos: al subir se deshace por el mismo camino.
 //
 // FUERA DE SU TRAMO, `visibility: hidden` (la clase `activa` la pone `actualizar` por tiempo del

@@ -1,0 +1,118 @@
+/* EL KIT DE LOS CASOS (src/casos/kit.ts): cifras, recorridos, capturas anotadas, balance y lecciones.
+   Sobre los tokens de pagina.css (--fg, --muted, --line, --placa, --acento). Sin JavaScript cada pieza
+   es su HTML: una lista numerada, una imagen con su pie; las reglas de «vivo» solo se aplican cuando
+   el módulo ha montado la pieza. */
+
+/* ---- CIFRAS: una franja de números grandes bajo la entradilla ---- */
+.cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 1px; margin: 2.5rem 0 0.5rem; padding: 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--line); }
+.cifras > div { display: grid; align-content: start; gap: 0.35rem; padding: 1.2rem 1.3rem 1.3rem; background: var(--bg); }
+.cifras dt { order: 2; color: var(--muted); font-size: 0.9rem; line-height: 1.45; }
+.cifras dd { order: 1; margin: 0; font: 600 clamp(2rem, 4vw, 2.8rem)/1 var(--etiqueta); letter-spacing: -0.03em; color: var(--fg); font-variant-numeric: tabular-nums; }
+.cifras dd small { font-size: 0.45em; font-weight: 500; letter-spacing: 0; color: var(--acento); margin-left: 0.2em; }
+
+/* ---- RECORRIDO: pestañas con una línea de avance ---- */
+.recorrido { margin: 1.75rem 0 2.5rem; }
+.recorrido > ol { margin: 0; padding-left: 1.2rem; display: grid; gap: 1.2rem; }
+.recorrido > ol > li h3 { margin: 0 0 0.4rem; font-size: 1.1rem; }
+.recorrido > ol > li p { margin: 0 0 0.6rem; max-width: 64ch; color: var(--muted); line-height: 1.65; }
+.recorrido > ol > li p b { color: var(--fg); font-weight: 600; }
+.recorrido-vivo > ol { padding: 0; list-style: none; }
+.recorrido-vivo > ol > li { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 1.5rem 2rem; align-items: center; min-height: 13rem; padding: 1.6rem 1.7rem; border: 1px solid var(--line); border-radius: 14px; background: var(--placa); outline: none; }
+.recorrido-vivo > ol > li:focus-visible { outline: 2px solid var(--acento); outline-offset: 3px; }
+.recorrido-vivo > ol > li h3 { font-size: 1.35rem; letter-spacing: -0.01em; }
+.recorrido-pestanas { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
+.recorrido-linea { position: absolute; left: 1.1rem; right: 1.1rem; top: 1.05rem; height: 2px; background: var(--line); }
+.recorrido-linea i { display: block; height: 100%; background: var(--acento); transform-origin: left center; transform: scaleX(0); }
+.recorrido-pestanas button {
+  position: relative; display: grid; justify-items: start; gap: 0.45rem; padding: 0 0.2rem 0.6rem; border: 0; background: none;
+  color: var(--muted); font: 500 0.85rem/1.3 var(--etiqueta); text-align: left; cursor: pointer;
+}
+.recorrido-pestanas .n {
+  display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--line); color: var(--muted); font-weight: 700; font-variant-numeric: tabular-nums; transition: all 0.25s;
+}
+.recorrido-pestanas button.hecho .n { border-color: var(--acento); color: var(--acento); }
+.recorrido-pestanas button[aria-selected="true"] { color: var(--fg); }
+.recorrido-pestanas button[aria-selected="true"] .n { background: var(--acento); border-color: var(--acento); color: #1f1e1d; }
+.recorrido-pestanas button:focus-visible { outline: 2px solid var(--acento); outline-offset: 4px; border-radius: 6px; }
+.recorrido-pestanas .avance { position: absolute; left: 0.2rem; right: 0.6rem; bottom: 0; height: 2px; overflow: hidden; }
+.recorrido-pestanas .avance i { display: block; height: 100%; background: color-mix(in srgb, var(--acento) 70%, transparent); transform-origin: left center; transform: scaleX(0); }
+/* La muestra de cada paso: un trozo de código, unas etiquetas de estado o un esquema pequeño. */
+.muestra { margin: 0; padding: 1rem 1.1rem; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); font: 0.82rem/1.65 var(--mono); color: var(--muted); overflow-x: auto; white-space: pre; }
+.muestra .k { color: #9ecbff; } .muestra .v { color: var(--acento); } .muestra .c { color: #6f6f6b; }
+.estados { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.estados li { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.4rem 0.8rem; border-radius: 999px; border: 1px solid var(--line); font-size: 0.85rem; color: var(--fg); }
+.estados li::before { content: ''; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--muted); }
+.estados .ok::before { background: #4fd6a8; } .estados .va::before { background: #9ecbff; } .estados .ojo::before { background: var(--acento); } .estados .no::before { background: var(--alerta); }
+@media (max-width: 760px) {
+  .recorrido-pestanas { grid-auto-flow: row; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .recorrido-pestanas .t { display: none; }
+  .recorrido-vivo > ol > li { grid-template-columns: 1fr; padding: 1.2rem; }
+}
+
+/* ---- CAPTURA ANOTADA: puntos sobre la imagen, la cámara se acerca a la nota ---- */
+.anotada { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; margin: 2rem 0 2.8rem; }
+.anotada-marco { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.anotada-lienzo { position: relative; transform-origin: 0 0; }
+.anotada-lienzo img { display: block; width: 100%; height: auto; }
+.anotada figcaption { max-width: 68ch; color: var(--muted); font-size: 0.92rem; line-height: 1.6; }
+.anotada figcaption b { color: var(--fg); font-weight: 600; }
+.anotada-notas { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.45rem; color: var(--muted); font-size: 0.92rem; line-height: 1.55; }
+.anotada-viva .anotada-notas { padding: 0; list-style: none; counter-reset: nota; }
+.anotada-viva .anotada-notas li {
+  counter-increment: nota; position: relative; padding: 0.6rem 0.8rem 0.6rem 2.6rem; border-radius: 10px; border: 1px solid transparent;
+  cursor: pointer; transition: background 0.2s, border-color 0.2s, color 0.2s; outline: none;
+}
+.anotada-viva .anotada-notas li::before {
+  content: counter(nota); position: absolute; left: 0.7rem; top: 0.6rem; display: grid; place-items: center; width: 1.4rem; height: 1.4rem;
+  border-radius: 50%; background: var(--placa-borde); color: var(--fg); font-size: 0.72rem; font-weight: 700;
+}
+.anotada-viva .anotada-notas li:hover, .anotada-viva .anotada-notas li.activa, .anotada-viva .anotada-notas li:focus-visible { background: var(--placa); border-color: var(--line); color: var(--fg); }
+.anotada-viva .anotada-notas li.activa::before { background: var(--acento); color: #1f1e1d; }
+.anotada-viva .anotada-notas li:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+.anotada-punto {
+  position: absolute; z-index: 2; width: 1.7rem; height: 1.7rem; margin: -0.85rem 0 0 -0.85rem; padding: 0; border-radius: 50%;
+  border: 2px solid #fff; background: #1f1e1d; color: #fff; font: 700 0.75rem/1 var(--etiqueta); cursor: pointer;
+  box-shadow: 0 0 0 4px rgb(255 209 102 / 0.35), 0 4px 10px rgb(0 0 0 / 0.35); transform-origin: center; transition: background 0.2s, color 0.2s;
+}
+.anotada-punto.activa { background: var(--acento); color: #1f1e1d; box-shadow: 0 0 0 6px rgb(255 209 102 / 0.45), 0 4px 10px rgb(0 0 0 / 0.35); }
+.anotada-punto:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+/* Mientras una nota manda, los demás puntos se apagan un poco. */
+.anotada.con-activa .anotada-punto:not(.activa) { opacity: 0.55; }
+@media (min-width: 1000px) {
+  .anotada { grid-template-columns: minmax(0, 1fr) 19rem; gap: 1rem 1.5rem; align-items: start; }
+  .anotada figcaption { grid-column: 1 / -1; }
+  .anotada-notas { grid-column: 2; grid-row: 1; }
+}
+
+/* ---- BALANCE: lo que ya hace y lo que todavía no ---- */
+.balance { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem; margin: 1.5rem 0 1rem; }
+.balance > section { padding: 1.3rem 1.4rem; border-radius: 14px; border: 1px solid var(--line); background: var(--placa); }
+.balance h3 { display: flex; align-items: center; gap: 0.55rem; margin: 0 0 0.8rem; font-size: 1.05rem; }
+.balance h3::before { content: ''; width: 0.65rem; height: 0.65rem; border-radius: 50%; background: #4fd6a8; box-shadow: 0 0 0 4px rgb(79 214 168 / 0.18); }
+.balance .falta h3::before { background: var(--acento); box-shadow: 0 0 0 4px rgb(255 209 102 / 0.18); }
+.balance ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.6rem; }
+.balance li { position: relative; padding-left: 1.4rem; color: var(--muted); line-height: 1.55; }
+.balance li::before { content: '✓'; position: absolute; left: 0; color: #4fd6a8; font-weight: 700; }
+.balance .falta li::before { content: '…'; color: var(--acento); }
+.balance li b { color: var(--fg); font-weight: 600; }
+
+/* ---- LECCIONES: tarjetas numeradas ---- */
+.lecciones { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; max-width: none; margin: 1.5rem 0 1rem; padding: 0; list-style: none; counter-reset: leccion; }
+.lecciones > li { counter-increment: leccion; position: relative; margin: 0; padding: 1.3rem 1.3rem 1.3rem; border-radius: 14px; border: 1px solid var(--line); background: var(--placa); color: var(--muted); line-height: 1.6; }
+.lecciones > li::before { content: counter(leccion, decimal-leading-zero); display: block; margin-bottom: 0.6rem; font: 600 1.6rem/1 var(--mono); color: var(--acento); }
+.lecciones > li b { color: var(--fg); font-weight: 600; }
+
+/* ---- LA GRABACIÓN REAL, plegada debajo de la simulación ---- */
+.grabacion { margin: 1rem 0 2.5rem; border: 1px solid var(--line); border-radius: 12px; background: var(--placa); }
+.grabacion > summary { padding: 0.9rem 1.1rem; cursor: pointer; font-weight: 600; list-style: none; }
+.grabacion > summary::-webkit-details-marker { display: none; }
+.grabacion > summary::before { content: '▸'; display: inline-block; margin-right: 0.6rem; color: var(--acento); transition: transform 0.2s; }
+.grabacion[open] > summary::before { transform: rotate(90deg); }
+.grabacion > summary small { margin-left: 0.5rem; color: var(--muted); font-weight: 400; }
+.grabacion .figura { margin: 0; padding: 0 1.1rem 1.1rem; }
+.grabacion > summary:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; border-radius: 10px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .recorrido-pestanas .n, .anotada-viva .anotada-notas li, .grabacion > summary::before { transition: none; }
+}

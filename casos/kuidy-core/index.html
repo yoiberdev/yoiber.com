@@ -82,16 +82,28 @@
         </p>
       </header>
 
+      <dl class="cifras">
+        <div><dt>casillas para añadir un campo: nombre, clave y tipo</dt><dd data-hasta="3">3</dd></div>
+        <div><dt>líneas de código, migraciones o despliegues por cada campo nuevo</dt><dd data-hasta="0">0</dd></div>
+        <div><dt>validador, el mismo en el navegador y en la API</dt><dd data-hasta="1">1</dd></div>
+        <div><dt>papeles por proyecto: propietario, administrador, miembro y lector</dt><dd data-hasta="4">4</dd></div>
+      </dl>
+
       <h2>Cómo se ve</h2>
       <p>
         Un módulo son sus campos y sus registros. Arriba, la definición: nombre, clave, tipo y si es
         obligatorio. Abajo, los datos ya cargados, con una columna por campo.
       </p>
 
-      <figure class="figura">
-        <img src="/casos/kuidy-modulo.png" width="1400" height="875" loading="lazy" decoding="async"
-             alt="Módulo Activos con la lista de sus siete campos y, debajo, la tabla de registros" />
-        <figcaption>El módulo «Activos» de la demo: siete campos de cuatro tipos distintos y sus registros debajo.</figcaption>
+      <figure class="anotada" data-anotada>
+        <div class="anotada-marco"><div class="anotada-lienzo"><img src="/casos/kuidy-modulo.png" width="1400" height="875" loading="lazy" decoding="async" alt="Módulo Activos con la lista de sus siete campos y, debajo, la tabla de registros" /></div></div>
+        <ol class="anotada-notas" aria-label="Qué se ve en la captura">
+          <li data-x="12" data-y="26" data-zoom="2">Cada campo: nombre, clave, tipo y si es obligatorio.</li>
+          <li data-x="10" data-y="64" data-zoom="1.9">Siete campos de cinco tipos: texto, lista, fecha, número y sí/no.</li>
+          <li data-x="91" data-y="18.5" data-zoom="2.2">Añadir un campo es rellenar tres casillas.</li>
+          <li data-x="45" data-y="86" data-zoom="1.6">Los registros, con una columna por campo.</li>
+        </ol>
+        <figcaption>El módulo «Activos» de la demo: siete campos de cinco tipos distintos y sus registros debajo.</figcaption>
       </figure>
 
       <p>
@@ -99,39 +111,63 @@
         código: el campo se guarda como <i>definición</i>, y todo lo demás sale de ahí.
       </p>
 
-      <div class="dos">
-        <figure class="figura">
-          <img src="/casos/kuidy-disenador.png" width="1400" height="875" loading="lazy" decoding="async"
-               alt="Diálogo Agregar campo con nombre, clave JSON, tipo fecha y casilla de obligatorio" />
-          <figcaption>El campo se declara: su nombre, la clave con la que viaja en los datos y su tipo.</figcaption>
-        </figure>
-        <figure class="figura">
-          <img src="/casos/kuidy-formulario.png" width="1400" height="875" loading="lazy" decoding="async"
-               alt="Formulario de alta que ya incluye el campo recién creado como selector de fecha" />
-          <figcaption><b>Y ya está en el formulario</b>, con el control que le toca y su validación. Los registros que ya existían muestran un guion en la columna nueva.</figcaption>
-        </figure>
-      </div>
+      <figure class="anotada" data-anotada>
+        <div class="anotada-marco"><div class="anotada-lienzo"><img src="/casos/kuidy-disenador.png" width="1400" height="875" loading="lazy" decoding="async" alt="Diálogo Agregar campo con nombre, clave JSON, tipo fecha y casilla de obligatorio" /></div></div>
+        <ol class="anotada-notas" aria-label="Qué se ve en la captura">
+          <li data-x="50" data-y="38.5" data-zoom="2">El nombre, como lo verá quien usa el sistema.</li>
+          <li data-x="50" data-y="48.5" data-zoom="2">La clave con la que viaja en los datos, en JSON.</li>
+          <li data-x="50" data-y="61.5" data-zoom="2">El tipo, que decide el control y la validación.</li>
+          <li data-x="38" data-y="71" data-zoom="2.2">Crear campo: sin migración ni despliegue, se guarda como definición.</li>
+        </ol>
+        <figcaption>El campo se declara: su nombre, la clave con la que viaja en los datos y su tipo.</figcaption>
+      </figure>
+      <figure class="anotada" data-anotada>
+        <div class="anotada-marco"><div class="anotada-lienzo"><img src="/casos/kuidy-formulario.png" width="1400" height="875" loading="lazy" decoding="async" alt="Formulario de alta que ya incluye el campo recién creado como selector de fecha" /></div></div>
+        <ol class="anotada-notas" aria-label="Qué se ve en la captura">
+          <li data-x="40" data-y="27" data-zoom="2">El campo nuevo ya está, con su control de fecha.</li>
+          <li data-x="50" data-y="17" data-zoom="2">Los obligatorios, marcados: el mismo validador corre en el navegador y en la API.</li>
+          <li data-x="50" data-y="46" data-zoom="2">Una lista solo acepta sus opciones.</li>
+          <li data-x="22" data-y="90.5" data-zoom="2">Los registros de antes muestran un guion en la columna nueva.</li>
+        </ol>
+        <figcaption><b>Y ya está en el formulario</b>, con el control que le toca y su validación. Los registros que ya existían muestran un guion en la columna nueva.</figcaption>
+      </figure>
 
       <h2>Cómo funciona por dentro</h2>
-      <p>
-        La idea es vieja y buena: <b>separar la definición de los datos</b>. Los proyectos, módulos y
-        campos viven en tablas normales de PostgreSQL, y los registros en una sola tabla con una
-        columna <code>jsonb</code> y su índice GIN. Así se añade un campo sin tocar el esquema de la
-        base, y los metadatos siguen siendo consultables como cualquier otra tabla.
-      </p>
-      <p>
-        Lo que hace que esto no sea un caos es el <b>validador que se construye al vuelo</b>: con la
-        definición de campos de un módulo se arma un esquema de validación en tiempo de ejecución, y
-        es el mismo criterio el que corre en el navegador, para avisar mientras se escribe, y en la
-        API, que es la que manda. Un número no entra como texto, una fecha tiene que tener forma de
-        fecha y un desplegable solo acepta sus opciones, sin que nadie haya escrito ese código para
-        ese campo concreto.
-      </p>
-      <p>
-        Las contraseñas se guardan con <b>argon2id</b>, la sesión es un JWT de siete días, y el
-        acceso se decide por membresía en cada proyecto con cuatro papeles: propietario, administrador,
-        miembro y lector. El lector que intenta escribir recibe un no del servidor, no de la interfaz.
-      </p>
+      <p>La idea es vieja y buena: <b>separar la definición de los datos</b>. De ahí salen los tres pasos por los que pasa cada campo.</p>
+      <div class="recorrido" data-recorrido aria-label="Cómo funciona por dentro">
+        <ol>
+          <li data-titulo="Se define">
+            <div>
+              <h3>Se define</h3>
+              <p>Los proyectos, módulos y campos viven en <b>tablas normales de PostgreSQL</b>. Un campo es una fila con su nombre, su clave, su tipo y si es obligatorio: son datos, y se consultan como cualquier otra tabla.</p>
+            </div>
+            <pre class="muestra" aria-label="Un campo, como definición"><span class="c">// el campo que se acaba de crear</span>
+{
+  <span class="k">"nombre"</span>: <span class="v">"Garantía hasta"</span>,
+  <span class="k">"clave"</span>:  <span class="v">"garantia-hasta"</span>,
+  <span class="k">"tipo"</span>:   <span class="v">"date"</span>,
+  <span class="k">"requerido"</span>: <span class="v">false</span>
+}</pre>
+          </li>
+          <li data-titulo="Se valida">
+            <div>
+              <h3>Se valida, igual en los dos lados</h3>
+              <p>Con la definición de campos de un módulo se <b>arma un esquema de validación en tiempo de ejecución</b>, y es el mismo criterio el que corre en el navegador, para avisar mientras se escribe, y en la API, que es la que manda. Un número no entra como texto, una fecha tiene que tener forma de fecha y un desplegable solo acepta sus opciones, sin que nadie haya escrito ese código para ese campo concreto.</p>
+            </div>
+            <ul class="estados" aria-label="Lo que comprueba"><li class="ok">número como número</li><li class="ok">fecha con forma de fecha</li><li class="ok">lista: solo sus opciones</li><li class="no">obligatorio vacío</li></ul>
+          </li>
+          <li data-titulo="Se guarda">
+            <div>
+              <h3>Se guarda sin tocar el esquema</h3>
+              <p>Los registros van en <b>una sola tabla con una columna jsonb y su índice GIN</b>: añadir un campo no cambia la base. Las contraseñas se guardan con argon2id, la sesión es un JWT de siete días y el acceso se decide por membresía en cada proyecto. El lector que intenta escribir recibe un no <b>del servidor</b>, no de la interfaz.</p>
+            </div>
+            <pre class="muestra" aria-label="Un registro guardado"><span class="c">-- registros.datos (jsonb)</span>
+{ <span class="k">"codigo"</span>: <span class="v">"ACT-001"</span>,
+  <span class="k">"nombre"</span>: <span class="v">"Compresor Atlas ficticio"</span>,
+  <span class="k">"garantia-hasta"</span>: <span class="v">null</span> }</pre>
+          </li>
+        </ol>
+      </div>
       <ul class="pila-tec">
         <li>TypeScript estricto</li><li>Hono</li><li>Drizzle</li><li>PostgreSQL · JSONB</li><li>React 19</li><li>Zod</li><li>monorepo pnpm</li>
       </ul>
@@ -147,13 +183,26 @@
       </ul>
 
       <h2>Qué es y qué no es</h2>
-      <p>
-        Es el motor con el que monto sistemas internos a medida sin repetir trabajo, y de ahí sale su
-        alcance: <b>todavía no hay relaciones entre módulos, ni informes, ni importación</b>, y el tipo
-        de un campo no se cambia una vez creado. Está escrito así a propósito: prefiero que lo que hay
-        sea sólido y que lo que falta se note, a prometer una plataforma entera y que se caiga en la
-        primera demo.
-      </p>
+      <p>Es el motor con el que monto sistemas internos a medida sin repetir trabajo, y de ahí sale su alcance. Está escrito así a propósito: prefiero que lo que hay sea sólido y que lo que falta se note, a prometer una plataforma entera y que se caiga en la primera demo.</p>
+      <div class="balance">
+        <section class="hace">
+          <h3>Lo que ya hace</h3>
+          <ul>
+            <li>Módulos y campos <b>definidos desde la interfaz</b></li>
+            <li>El <b>mismo validador</b> en el navegador y en la API</li>
+            <li>Permisos por proyecto con <b>cuatro papeles</b>, decididos en el servidor</li>
+            <li>Registros en <b>jsonb con índice GIN</b>, sin migraciones por campo</li>
+          </ul>
+        </section>
+        <section class="falta">
+          <h3>Todavía no</h3>
+          <ul>
+            <li><b>Relaciones</b> entre módulos</li>
+            <li><b>Informes</b> e <b>importación</b></li>
+            <li>Cambiar el <b>tipo</b> de un campo una vez creado</li>
+          </ul>
+        </section>
+      </div>
 
       <section class="cierre">
         <h2>¿Tu equipo lleva su trabajo en hojas de cálculo?</h2>

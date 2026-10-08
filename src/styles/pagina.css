@@ -24,7 +24,8 @@
   --control: #ffd166;
   --datos: #b9a1ff;
   --alerta: #ff6b6b;
-  --mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --etiqueta: 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --mono: 'Fragment Mono', ui-monospace, monospace;
   color-scheme: dark;
 }
 
@@ -34,7 +35,7 @@ html, body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
-  font-family: 'Space Grotesk Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Instrument Sans Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -54,12 +55,12 @@ a { color: var(--fg); }
 .barra .mono-a { fill: color-mix(in srgb, var(--fg) 58%, var(--bg)); }
 .barra .mono-b { fill: color-mix(in srgb, var(--fg) 40%, var(--bg)); }
 .barra .mono-c { fill: var(--fg); }
-.barra .vuelta { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+.barra .vuelta { font-family: var(--etiqueta); font-size: 0.8rem; color: var(--muted); }
 .barra a:hover .vuelta, .barra a:focus-visible .vuelta { color: var(--fg); }
 /* EL SELECTOR DE IDIOMA, a la derecha de la barra. Cada página apunta a su gemela, no a una portada
    de idiomas: quien lee el caso del ERP en español y pulsa, quiere ese mismo caso en inglés. */
 .barra .idioma {
-  margin-left: auto; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.04em;
+  margin-left: auto; font-family: var(--etiqueta); font-size: 0.75rem; letter-spacing: 0.04em;
   color: var(--muted); text-decoration: none; border: 1px solid var(--line); border-radius: 999px;
   padding: 0.35rem 0.75rem;
 }
@@ -70,7 +71,7 @@ a { color: var(--fg); }
 
 .kicker {
   margin: 0 0 0.75rem;
-  font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
+  font-family: var(--etiqueta); font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--acento);
 }
 h1 {
@@ -86,7 +87,7 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
 
 /* ---------- el diagrama ---------- */
 .lienzo { margin: 2.5rem 0 0.5rem; overflow-x: auto; }
-.aviso-desliza { margin: 0 0 1.5rem; font-family: var(--mono); font-size: 0.75rem; color: var(--muted-2); }
+.aviso-desliza { margin: 0 0 1.5rem; font-family: var(--etiqueta); font-size: 0.75rem; color: var(--muted-2); }
 @media (min-width: 1000px) { .aviso-desliza { display: none; } }
 
 #diagrama { display: block; width: 100%; min-width: 900px; height: auto; }
@@ -148,7 +149,7 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
 .mandos { margin-top: 1.75rem; display: flex; align-items: center; gap: 1.4rem; flex-wrap: wrap; }
 #btn-play {
   background: transparent; border: 1px solid var(--line); color: var(--muted);
-  border-radius: 999px; padding: 0.55rem 1.25rem; font: inherit; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;
+  border-radius: 999px; padding: 0.55rem 1.25rem; font: inherit; font-family: var(--etiqueta); font-size: 0.8rem; cursor: pointer;
   transition: border-color 0.2s, color 0.2s;
 }
 #btn-play:hover, #btn-play:focus-visible { border-color: var(--acento); color: var(--fg); }
@@ -162,7 +163,7 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
 .fichas li { border: 1px solid var(--line); border-radius: 10px; padding: 1.1rem 1.2rem; background: color-mix(in srgb, var(--placa) 60%, transparent); }
 .fichas h3 { margin: 0 0 0.5rem; font-size: 1rem; letter-spacing: -0.01em; }
 .fichas p { margin: 0; color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
-.fichas .clave { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--acento); display: block; margin-bottom: 0.4rem; }
+.fichas .clave { font-family: var(--etiqueta); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--acento); display: block; margin-bottom: 0.4rem; }
 
 /* ---------- de dónde sale cada pieza ---------- */
 .origen { width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 0.9rem; }
@@ -208,7 +209,7 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
 /* ---------- la pila, en la voz de máquina ---------- */
 .pila-tec { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.25rem 0 0; padding: 0; list-style: none; }
 .pila-tec li {
-  font-family: var(--mono); font-size: 0.78rem; color: var(--muted);
+  font-family: var(--etiqueta); font-size: 0.78rem; color: var(--muted);
   border: 1px solid var(--line); border-radius: 999px; padding: 0.3rem 0.7rem;
 }
 
@@ -224,7 +225,7 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
 [hidden] { display: none !important; }
 .formulario { display: grid; gap: 1.1rem; max-width: 34rem; margin: 2rem 0 0; }
 .campo { display: grid; gap: 0.4rem; }
-.campo label { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.campo label { font-family: var(--etiqueta); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .campo input, .campo textarea {
   font: inherit; font-size: 1rem; color: var(--fg); background: var(--placa);
   border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem 0.85rem; width: 100%;
@@ -236,7 +237,7 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
    tabulador, pero NO con display:none, que algunos robots sí miran. */
 .trampa { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .formulario button {
-  justify-self: start; font: inherit; font-family: var(--mono); font-size: 0.85rem;
+  justify-self: start; font: inherit; font-family: var(--etiqueta); font-size: 0.85rem;
   color: var(--bg); background: var(--acento); border: 0; border-radius: 999px;
   padding: 0.7rem 1.5rem; cursor: pointer;
 }
@@ -254,4 +255,16 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
 .vias { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; gap: 0.8rem; }
 .vias a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 0.1rem; }
 .vias a:hover, .vias a:focus-visible { border-bottom-color: var(--acento); }
-.vias .etiqueta { display: block; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+.vias .etiqueta { display: block; font-family: var(--etiqueta); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+
+/* LA GUÍA SIMULADA del caso marítimo (src/sim/camaras.ts en modo guía, montada por casos/maritimo.ts):
+   el marco guarda la proporción de la escena (1000x625) y es su contenedor de tamaño; debajo, la
+   fila de pasos y los mandos. */
+.guia-sim { --sim-acento: #5fd4e6; margin: 1.75rem 0 3rem; }
+.guia-sim-marco {
+  position: relative; aspect-ratio: 1000 / 625; container-type: inline-size; overflow: hidden;
+  border: 1px solid var(--line); border-radius: 12px; background: #0b1422;
+  box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 0.35);
+}
+/* La de Kuantera es clara: el marco sigue su fondo mientras carga la escena. */
+.guia-sim-marco.guia-sim-clara { background: #f3f6f8; }
