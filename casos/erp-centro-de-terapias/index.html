@@ -77,13 +77,13 @@
         <h1>Veinte módulos alrededor de la agenda del día</h1>
         <p class="entradilla">
           Un centro de terapias con varias sedes: pacientes, sesiones, especialistas, camillas,
-          cobros con comprobante electrónico y personal. El sistema tiene veinte módulos, pero
-          <b>hay uno que se mira cada hora</b>, y todo lo demás existe para que ese esté al día.
+          cobros con comprobante electrónico y personal. De sus veinte módulos, <b>el que se mira
+          cada hora es la agenda</b>, y los demás existen para que esté al día.
         </p>
       </header>
 
       <dl class="cifras">
-        <div><dt>módulos que se usan de verdad, alrededor de la agenda del día</dt><dd data-hasta="20">20</dd></div>
+        <div><dt>módulos en uso, alrededor de la agenda del día</dt><dd data-hasta="20">20</dd></div>
         <div><dt>formas de mirar el día: por especialista, por camilla o por paciente</dt><dd data-hasta="3">3</dd></div>
         <div><dt>pantallas revisadas texto a texto: ninguna nombra al cliente</dt><dd data-hasta="8">8</dd></div>
       </dl>
@@ -107,10 +107,10 @@
           <li data-x="73" data-y="15.5" data-zoom="2.2">La sede, arriba: el centro tiene varias.</li>
         </ol>
         <figcaption>
-          <b>La agenda del día es el corazón del sistema.</b> Una columna por especialista y la sesión
-          en su franja, con la sede arriba. Se puede mirar por especialista, por camilla o por
-          paciente, comparar lo <i>planificado</i> con lo <i>real</i> y apretar o soltar la densidad
-          de la rejilla, porque no es lo mismo revisar el día en recepción que a media mañana.
+          <b>La agenda del día.</b> Una columna por especialista y la sesión en su franja, con la sede
+          arriba. Se puede mirar por especialista, por camilla o por paciente, comparar lo
+          <i>planificado</i> con lo <i>real</i> y apretar o soltar la densidad de la rejilla según el
+          momento del día.
         </figcaption>
       </figure>
 
@@ -135,7 +135,7 @@
           <li data-x="24" data-y="52" data-zoom="2">Cada contacto con su canal y su prioridad.</li>
           <li data-x="33" data-y="18" data-zoom="2">Del tablero a la cotización, la cita y la caja, sin salir del módulo.</li>
         </ol>
-        <figcaption>Quien contesta el teléfono y quien atiende son el mismo equipo: el embudo de contactos vive dentro del sistema, no en una hoja aparte.</figcaption>
+        <figcaption>Quien contesta el teléfono y quien atiende son el mismo equipo, así que el embudo de contactos está dentro del sistema, junto a las citas y la caja.</figcaption>
       </figure>
 
       <figure class="anotada" data-anotada>
@@ -149,8 +149,8 @@
         </ol>
         <figcaption>
           Los módulos, agrupados por área: pacientes, programación, paquetes, inventario, botica,
-          recepción, facturación, recursos humanos, proyectos. <b>Veinte piezas que se usan de
-          verdad</b>, no un menú de intenciones.
+          recepción, facturación, recursos humanos y proyectos. <b>Son veinte y todos están en
+          uso.</b>
         </figcaption>
       </figure>
 
@@ -163,11 +163,10 @@
         <li>Django</li><li>ASGI · Daphne</li><li>Redis</li><li>PostgreSQL</li><li>Docker</li><li>nginx</li>
       </ul>
 
-      <h2>Lo que se aprende al sacar un sistema de la red donde nació</h2>
+      <h2>Lo que salió al levantarlo fuera de la red del cliente</h2>
       <p>
-        Para tomar estas capturas hubo que levantarlo entero fuera de la infraestructura del cliente.
-        Nada de esto se ve hasta que lo intentas, y es exactamente lo que separa un sistema que se
-        puede mover de uno que no:
+        Para tomar estas capturas hubo que levantarlo entero fuera de la infraestructura del cliente,
+        y aparecieron tres problemas que no se ven hasta que lo intentas:
       </p>
       <ol class="lecciones">
         <li><b>Los nombres de máquina con guion bajo no son dominios válidos</b>, y Django rechaza esa

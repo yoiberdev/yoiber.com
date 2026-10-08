@@ -77,9 +77,9 @@
         <h1>Twenty modules around the day's schedule</h1>
         <p class="entradilla">
           A therapy center with several locations: patients, sessions, specialists, treatment beds,
-          payments with an electronic invoice, and staff. The system has twenty modules, but
-          <b>there is one that gets looked at every hour</b>, and everything else exists to keep it
-          up to date.
+          payments with an electronic invoice, and staff. The system has twenty modules, and
+          <b>one of them gets looked at every hour</b>: the day's schedule. Everything else exists to
+          keep it up to date.
         </p>
       </header>
 
@@ -95,11 +95,11 @@
         <img src="/casos/erp-agenda.png" width="1400" height="833" loading="lazy" decoding="async"
              alt="The day's schedule with one column per specialist, their hours and the sessions placed in their time slot" />
         <figcaption>
-          <b>The day's schedule is the heart of the system.</b> One column per specialist and each
-          session in its slot, with the location at the top. You can look at it by specialist, by
-          treatment bed or by patient, compare what was <i>planned</i> against what <i>happened</i>,
-          and tighten or loosen the density of the grid, because going over the day at the front
-          desk is not the same as checking it mid-morning.
+          <b>The day's schedule.</b> One column per specialist and each session in its slot, with
+          the location at the top. You can look at it by specialist, by treatment bed or by patient,
+          compare what was <i>planned</i> against what <i>happened</i>, and tighten or loosen the
+          density of the grid, because going over the whole day at the front desk needs a different
+          view from a quick check mid-morning.
         </figcaption>
       </figure>
 
@@ -114,7 +114,7 @@
         <figure class="figura">
           <img src="/casos/erp-crm.png" width="1400" height="833" loading="lazy" decoding="async"
                alt="Consultations dashboard with the contact funnel and its metrics" />
-          <figcaption>The people who answer the phone and the people who treat patients are the same team: the contact funnel lives inside the system, not in a spreadsheet on the side.</figcaption>
+          <figcaption>The people who answer the phone and the people who treat patients are the same team, so the contact funnel lives inside the same system.</figcaption>
         </figure>
       </div>
 
@@ -123,8 +123,8 @@
              alt="The system's home screen with its modules grouped by area" />
         <figcaption>
           The modules, grouped by area: patients, scheduling, packages, inventory, pharmacy, front
-          desk, invoicing, human resources, projects. <b>Twenty pieces that are actually used</b>,
-          not a menu of good intentions.
+          desk, invoicing, human resources, projects. <b>Twenty modules, and all of them are in
+          use</b>.
         </figcaption>
       </figure>
 
@@ -137,11 +137,10 @@
         <li>Django</li><li>ASGI · Daphne</li><li>Redis</li><li>PostgreSQL</li><li>Docker</li><li>nginx</li>
       </ul>
 
-      <h2>What you learn taking a system out of the network it was born in</h2>
+      <h2>Running it outside the client's network</h2>
       <p>
-        To take these screenshots the whole thing had to run outside the client's infrastructure.
-        None of this shows up until you try, and it is exactly what separates a system you can move
-        from one you cannot:
+        To take these screenshots the whole system had to run outside the client's infrastructure.
+        These problems only show up when you try, and each one makes a system harder to move:
       </p>
       <ul class="lecciones">
         <li><b>Host names with an underscore are not valid domains</b>, and Django rejects that
@@ -153,9 +152,8 @@
         their own certificates, so outside that network not even the proxy would start.</li>
       </ul>
       <p>
-        None of the three is a serious fault in production, and every one of them is a lost
-        afternoon when you have to migrate, make a backup you can actually restore, or show the
-        system to someone.
+        None of the three is a serious fault in production, but each one costs an afternoon when
+        you have to migrate, make a backup you can restore, or show the system to someone.
       </p>
 
       <section class="cierre">

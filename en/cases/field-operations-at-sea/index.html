@@ -15,7 +15,7 @@
     <meta property="og:url" content="https://yoiber.com/en/cases/field-operations-at-sea/" />
     <meta property="og:site_name" content="Yoiber" />
     <meta property="og:title" content="Who is on board right now" />
-    <meta property="og:description" content="Technicians board vessels, clock in with their location and close work orders. The map does not show the history: it shows the present." />
+    <meta property="og:description" content="Technicians board vessels, clock in with their location and close work orders. The map shows who is on board at this moment." />
     <meta property="og:image" content="https://yoiber.com/casos/campo-og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -75,19 +75,17 @@
         <p class="kicker">Case · field operations</p>
         <h1>Who is on board right now</h1>
         <p class="entradilla">
-          Technicians who board vessels to do maintenance. They clock in with their phone's
-          location, work on an order and clock out. From the office,
-          <b>that was the question that had to be answered in one second</b>: who is on board, on
-          which vessel and since when.
+          Technicians board vessels to do maintenance: they clock in with their phone's location,
+          work on an order and clock out. The office needed
+          <b>one question answered in one second</b>: who is on board, on which vessel and since
+          when.
         </p>
       </header>
 
-      <h2>The detail that makes it a product</h2>
+      <h2>What the map shows</h2>
       <p>
-        The map <b>does not plot every attendance record</b>: only the ones with a clock-in and no
-        clock-out yet. That is, it does not tell you what happened, it tells you what is happening.
-        It looks like a detail, and it is the decision that separates a dashboard people watch from
-        a report that gets filed away.
+        The map <b>only plots open attendance records</b>: the ones with a clock-in and no
+        clock-out yet. It shows who is on board right now.
       </p>
 
       <figure class="figura">
@@ -104,7 +102,7 @@
         <figure class="figura">
           <img src="/casos/campo-horas.png" width="1400" height="833" loading="lazy" decoding="async"
                alt="Man-hours report per technician and vessel" />
-          <figcaption><b>Man-hours per technician and per vessel.</b> This is the number that justifies the system: it comes from the clock-in and clock-out records, not from someone typing them in by hand.</figcaption>
+          <figcaption><b>Man-hours per technician and per vessel.</b> This is the number that justifies the system. It is calculated from the clock-in and clock-out records, so nobody types the hours in by hand.</figcaption>
         </figure>
         <figure class="figura">
           <img src="/casos/campo-ordenes.png" width="1400" height="833" loading="lazy" decoding="async"
@@ -113,7 +111,7 @@
         </figure>
       </div>
 
-      <h2>Permissions per resource, because not everyone sees the same thing</h2>
+      <h2>Permissions per resource</h2>
       <p>
         A technician, a supervisor and whoever does the invoicing need different screens of the same
         system. Permissions are granted per resource and grouped into roles, and the frontend router
@@ -129,17 +127,17 @@
         <li>Node · Express</li><li>Prisma</li><li>MySQL</li><li>React · Vite</li><li>Leaflet</li><li>Docker</li>
       </ul>
 
-      <h2>What you learn taking a system out of the network it was born in</h2>
+      <h2>Running it outside the client's network</h2>
       <p>
-        These screenshots come from running the whole thing outside the client's infrastructure,
-        with made-up data. What turned up along the way:
+        These screenshots come from running the whole system outside the client's infrastructure,
+        with made-up data. This is what turned up along the way:
       </p>
       <ul class="lecciones">
         <li><b>The list of allowed origins was written into the code</b>, with the client's domains
         in it. From anywhere else, the system answers with a server error that does not say what is
         wrong. That belongs in an environment variable.</li>
         <li><b>A master permission that opens every route</b> is convenient while you are developing,
-        and it is exactly what you have to review before handing out real roles.</li>
+        and it has to be reviewed before handing out real roles.</li>
         <li><b>The development server is not the production one.</b> Building and serving with
         nginx, as on the real server, removes a whole class of surprises.</li>
       </ul>

@@ -75,17 +75,16 @@
         <p class="kicker">Caso · producto de Kip-Up</p>
         <h1>La boleta sale del sistema y SUNAT la acepta</h1>
         <p class="entradilla">
-          En Perú una venta no termina cuando el cliente paga: termina cuando SUNAT acepta el
-          comprobante, y cada uno tiene <b>tres días calendario</b> para llegar. Kuantera es la pieza
-          que hace ese viaje —armar el documento, firmarlo y enviarlo— y <b>está escrita desde cero,
-          sin pasar por ningún intermediario</b>.
+          En Perú una venta queda cerrada cuando SUNAT acepta el comprobante, y cada comprobante
+          tiene <b>tres días calendario</b> para llegar. Kuantera lo arma, lo firma y lo envía.
+          <b>Está escrita desde cero y no pasa por ningún intermediario</b>.
         </p>
       </header>
 
       <dl class="cifras">
         <div><dt>días para que SUNAT reciba cada comprobante; si no llega, deja de valer</dt><dd data-hasta="3">3</dd></div>
         <div><dt>intermediarios entre el negocio y SUNAT: emite él, con su certificado</dt><dd data-hasta="0">0</dd></div>
-        <div><dt>estados de verdad en el panel, no un «listo» que no dice nada</dt><dd data-hasta="5">5</dd></div>
+        <div><dt>estados en el panel: en cola, enviado, aceptado, observado y rechazado</dt><dd data-hasta="5">5</dd></div>
         <div><dt>casos probados contra el entorno de pruebas de SUNAT</dt><dd data-hasta="6">6</dd></div>
       </dl>
 
@@ -99,14 +98,14 @@
         <div class="guia-sim-marco guia-sim-clara" data-sim="kuantera"></div>
       </div>
       <details class="grabacion">
-        <summary>Ver la grabación real contra SUNAT <small>15 s · la simulación, hecha de verdad</small></summary>
+        <summary>Ver la grabación real contra SUNAT <small>15 s · el mismo flujo que la simulación</small></summary>
         <figure class="figura video">
           <video src="/casos/kuantera-emitir.mp4" poster="/casos/kuantera-cartel.png"
                  width="1000" height="565" controls muted loop playsinline preload="none"></video>
           <figcaption>
             Emisión real contra el <b>entorno de pruebas de SUNAT</b>: la boleta B001-16 sale por
-            S/ 36.00, entra «en cola», y al final SUNAT contesta <b>código 0, aceptada</b>. Lo que se
-            guarda no es un «enviado»: es la constancia, el XML firmado y el PDF.
+            S/ 36.00, entra «en cola», y al final SUNAT contesta <b>código 0, aceptada</b>. Queda
+            guardada con la constancia, el XML firmado y el PDF.
           </figcaption>
         </figure>
       </details>
@@ -114,9 +113,9 @@
       <h2>El viaje de una boleta</h2>
       <p>
         Un comprobante electrónico peruano es un XML con una firma dentro, envuelto en un ZIP y
-        entregado por SOAP. Aquí no hay una librería que haga eso: está escrito en el proyecto, en
-        <code>packages/sunat</code>, porque es justo la parte donde se decide si el comprobante vale o
-        lo rechazan por una cifra mal puesta.
+        entregado por SOAP. Todo eso está escrito en el propio proyecto, en <code>packages/sunat</code>,
+        sin librerías de terceros, porque ahí se decide si el comprobante vale o lo rechazan por una
+        cifra mal puesta.
       </p>
       <div class="recorrido" data-recorrido aria-label="El viaje de una boleta">
         <ol>
@@ -135,7 +134,7 @@
           <li data-titulo="Se firma">
             <div>
               <h3>Se firma, con lo del negocio</h3>
-              <p><b>La firma es lo que no se negocia.</b> Cada comprobante se firma con el certificado digital y la clave SOL <i>del negocio que emite</i>, nunca con los míos ni con los de la agencia: el emisor ante SUNAT es él. Usar credenciales propias para emitir por otros obligaría a inscribirse como proveedor de servicios electrónicos, que es otro negocio y otra responsabilidad.</p>
+              <p>Cada comprobante se firma con el certificado digital y la clave SOL <b>del negocio que emite</b>, nunca con los míos ni con los de la agencia, porque ante SUNAT el emisor es el negocio. Firmar por otros con credenciales propias obligaría a inscribirse como proveedor de servicios electrónicos, que es otro negocio y otra responsabilidad.</p>
             </div>
             <pre class="muestra" aria-label="Fragmento de la firma"><span class="k">&lt;ds:Signature&gt;</span>
   <span class="k">&lt;ds:CanonicalizationMethod</span>
@@ -147,21 +146,21 @@
           <li data-titulo="Se envía">
             <div>
               <h3>Se envía sin frenar la venta</h3>
-              <p>La API acepta el comprobante, lo numera y lo devuelve al momento; <b>un proceso aparte lo manda a SUNAT y reintenta</b> si el servicio está caído, que pasa más de lo que uno esperaría. La caja no se queda esperando a un servidor ajeno.</p>
+              <p>La API acepta el comprobante, lo numera y lo devuelve al momento; <b>un proceso aparte lo manda a SUNAT y reintenta</b> si el servicio está caído, que pasa más de lo que uno esperaría.</p>
             </div>
             <ul class="estados" aria-label="Estados del envío"><li class="va">En cola</li><li class="va">Enviado</li><li class="ojo">Reintento si SUNAT no contesta</li></ul>
           </li>
           <li data-titulo="SUNAT responde">
             <div>
               <h3>SUNAT responde</h3>
-              <p>Vuelve una constancia con su código: aceptado, aceptado con observaciones o rechazado. Por eso el panel enseña <b>estados de verdad</b> y, si hay un rechazo, el comprobante se vuelve a emitir con el mismo número en vez de gastar otro.</p>
+              <p>Vuelve una constancia con su código: aceptado, aceptado con observaciones o rechazado. El panel enseña esa respuesta tal como llega y, si es un rechazo, el comprobante se vuelve a emitir <b>con el mismo número</b> en vez de gastar otro.</p>
             </div>
             <ul class="estados" aria-label="Respuestas de SUNAT"><li class="ok">Aceptado · código 0</li><li class="ojo">Observado</li><li class="no">Rechazado</li></ul>
           </li>
           <li data-titulo="Se guarda">
             <div>
               <h3>Se guarda, y cada uno ve lo suyo</h3>
-              <p>Constancia, XML firmado y PDF quedan con el comprobante, y un aviso diario vigila los plazos. Cada empresa ve solo lo suyo, y eso se sostiene <b>en la base de datos, no en el código</b>: seguridad a nivel de fila, y el rol de la API no puede saltársela. Si una consulta olvida filtrar por empresa, no devuelve datos ajenos: devuelve vacío.</p>
+              <p>Constancia, XML firmado y PDF quedan con el comprobante, y un aviso diario vigila los plazos. Cada empresa ve solo lo suyo por la <b>seguridad a nivel de fila de PostgreSQL</b>, que el rol de la API no puede saltarse: si una consulta olvida filtrar por empresa, devuelve vacío en vez de datos ajenos.</p>
             </div>
             <ul class="estados" aria-label="Lo que se guarda"><li class="ok">Constancia</li><li class="ok">XML firmado</li><li class="ok">PDF y ticket</li><li class="va">RLS por empresa</li></ul>
           </li>
@@ -176,25 +175,21 @@
         <section class="hace">
           <h3>Probado contra el entorno de pruebas de SUNAT</h3>
           <ul>
-            <li><b>Factura y boleta</b>, con IGV incluido o sin él según el caso</li>
-            <li><b>Notas de crédito y débito</b></li>
-            <li><b>Detracción y recargo al consumo</b></li>
-            <li>Envío en segundo plano con <b>reintentos y plazos vigilados</b></li>
-            <li>Cada empresa aislada <b>en la base de datos</b></li>
+            <li>Factura y boleta, con IGV incluido o sin él según el caso</li>
+            <li>Notas de crédito y débito</li>
+            <li>Detracción y recargo al consumo</li>
+            <li>Envío en segundo plano con reintentos y plazos vigilados</li>
+            <li>Cada empresa aislada en la base de datos</li>
           </ul>
         </section>
         <section class="falta">
           <h3>Todavía no</h3>
           <ul>
             <li>Emitir con un <b>RUC real en producción</b>. Hasta que eso ocurra, no diré que está terminada.</li>
-            <li>Las <b>bolsas plásticas</b>: SUNAT rechaza el comprobante si su número no coincide con la cantidad de la línea. Está anotado como error, con su XML, para corregirlo.</li>
+            <li>Las <b>bolsas plásticas</b>: SUNAT rechaza el comprobante si su número no coincide con la cantidad de la línea. Lo encontré emitiendo comprobantes de prueba y está anotado como error, con su XML, para corregirlo.</li>
           </ul>
         </section>
       </div>
-      <p>
-        Lo de las bolsas <b>lo encontré emitiendo, no leyendo la norma</b>. Esa es la diferencia entre
-        decir que algo funciona y haberlo visto funcionar.
-      </p>
 
       <section class="cierre">
         <h2>¿Emites comprobantes y te pelas con el facturador?</h2>

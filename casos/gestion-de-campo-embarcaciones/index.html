@@ -15,7 +15,7 @@
     <meta property="og:url" content="https://yoiber.com/casos/gestion-de-campo-embarcaciones/" />
     <meta property="og:site_name" content="Yoiber" />
     <meta property="og:title" content="Quién está a bordo ahora mismo" />
-    <meta property="og:description" content="Técnicos que suben a embarcaciones, marcan con su posición y cierran órdenes de trabajo. El mapa no enseña el historial: enseña el presente." />
+    <meta property="og:description" content="Técnicos que suben a embarcaciones, marcan con su posición y cierran órdenes de trabajo. El mapa enseña quién está a bordo en este momento." />
     <meta property="og:image" content="https://yoiber.com/casos/campo-og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -76,23 +76,21 @@
         <h1>Quién está a bordo ahora mismo</h1>
         <p class="entradilla">
           Técnicos que suben a embarcaciones a hacer mantenimiento. Marcan su entrada con la posición
-          del teléfono, trabajan sobre una orden y marcan la salida. Desde la oficina,
-          <b>la pregunta que había que responder en un segundo era esa</b>: quién está a bordo, en
-          qué barco y desde cuándo.
+          del teléfono, trabajan sobre una orden y marcan la salida. Desde la oficina había que saber
+          <b>en un segundo</b> quién está a bordo, en qué barco y desde cuándo.
         </p>
       </header>
 
-      <h2>El detalle que hace al producto</h2>
+      <h2>Qué enseña el mapa</h2>
       <p>
-        El mapa <b>no pinta todas las asistencias</b>: solo las que tienen entrada y todavía no tienen
-        salida. Es decir, no cuenta lo que pasó, cuenta lo que está pasando. Parece un detalle y es la
-        decisión que separa un panel que se mira de un informe que se archiva.
+        El mapa <b>solo pinta las asistencias abiertas</b>, las que tienen entrada y todavía no tienen
+        salida. Así enseña lo que está pasando ahora y no se llena con jornadas ya cerradas.
       </p>
 
       <figure class="anotada" data-anotada>
         <div class="anotada-marco"><div class="anotada-lienzo"><img src="/casos/campo-mapa.jpg" width="1400" height="833" loading="lazy" decoding="async" alt="Panel con un mapa de la costa peruana y, debajo, la lista de técnicos a bordo con su embarcación y la hora de entrada" /></div></div>
         <ol class="anotada-notas" aria-label="Qué se ve en la captura">
-          <li data-x="57" data-y="33" data-zoom="1.9">Solo aparece quien entró y todavía no salió: lo que está pasando, no lo que pasó.</li>
+          <li data-x="57" data-y="33" data-zoom="1.9">Solo aparece quien entró y todavía no salió.</li>
           <li data-x="40" data-y="67" data-zoom="1.7">Quién, desde qué hora, en qué embarcación y para qué empresa.</li>
           <li data-x="92" data-y="67" data-zoom="2.2">Cada fila centra el mapa en su posición.</li>
           <li data-x="17" data-y="13" data-zoom="2.2">Leaflet sobre teselas abiertas.</li>
@@ -109,10 +107,10 @@
         <ol class="anotada-notas" aria-label="Qué se ve en la captura">
           <li data-x="92" data-y="22" data-zoom="2">Quien sigue a bordo todavía no tiene hora de salida.</li>
           <li data-x="82" data-y="39" data-zoom="2">Entrada y salida, marcadas con la posición del teléfono.</li>
-          <li data-x="92" data-y="38" data-zoom="2">Las horas salen de las marcas, no de que alguien las escriba.</li>
+          <li data-x="92" data-y="38" data-zoom="2">Las horas se calculan con las marcas; nadie las escribe.</li>
           <li data-x="96" data-y="11.5" data-zoom="2.4">A PDF o a Excel, para quien factura.</li>
         </ol>
-        <figcaption><b>Horas hombre por técnico y por embarcación.</b> Es la cifra que justifica el sistema: sale de las marcas de entrada y salida, no de que alguien las escriba a mano.</figcaption>
+        <figcaption><b>Horas hombre por técnico y por embarcación.</b> Es la cifra que se lleva quien factura, y sale de las marcas de entrada y salida sin que nadie la escriba a mano.</figcaption>
       </figure>
       <figure class="anotada" data-anotada>
         <div class="anotada-marco"><div class="anotada-lienzo"><img src="/casos/campo-ordenes.png" width="1400" height="833" loading="lazy" decoding="async" alt="Listado de órdenes de trabajo con su estado" /></div></div>
@@ -141,17 +139,17 @@
         <li>Node · Express</li><li>Prisma</li><li>MySQL</li><li>React · Vite</li><li>Leaflet</li><li>Docker</li>
       </ul>
 
-      <h2>Lo que se aprende al sacar un sistema de la red donde nació</h2>
+      <h2>Lo que salió al levantarlo fuera de la red del cliente</h2>
       <p>
-        Estas capturas salen de levantarlo entero fuera de la infraestructura del cliente, con datos
-        inventados. Lo que apareció por el camino:
+        Estas capturas salen de una copia levantada entera fuera de la infraestructura del cliente,
+        con datos inventados. Por el camino aparecieron tres cosas:
       </p>
       <ol class="lecciones">
         <li><b>La lista de orígenes permitidos estaba escrita en el código</b>, con los dominios del
         cliente. Desde cualquier otro sitio, el sistema responde con un error del servidor que no
         dice lo que pasa. Eso pertenece a una variable de entorno.</li>
         <li><b>Un permiso maestro que abre todas las rutas</b> es cómodo mientras se desarrolla y es
-        justo lo que hay que revisar antes de repartir roles de verdad.</li>
+        justo lo que hay que revisar antes de repartir roles reales.</li>
         <li><b>El servidor de desarrollo no es el de producción.</b> Compilar y servir con nginx, como
         en el servidor real, quita una clase entera de sorpresas.</li>
       </ol>

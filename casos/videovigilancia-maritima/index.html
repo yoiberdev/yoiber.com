@@ -79,9 +79,8 @@
         <h1>Vídeo en directo desde barcos que pierden el enlace</h1>
         <p class="entradilla">
           Una empresa de control industrial necesitaba ver desde tierra las cámaras de embarcaciones
-          de pesca que faenan a cientos de kilómetros de la costa. El problema no era el vídeo:
-          <b>era el enlace, que se cae varias veces al día</b>. Este es el recorrido de la señal y
-          por qué está montado así.
+          de pesca que faenan a cientos de kilómetros de la costa. Lo difícil era el enlace, <b>que
+          se cae varias veces al día</b>. Este es el recorrido de la señal y por qué está montado así.
         </p>
       </header>
 
@@ -100,14 +99,13 @@
       <p>
         El sistema vive en un PC industrial a bordo, en un enlace por satélite y en un servidor en
         tierra. Una captura de la pantalla del operador enseñaría un reproductor de vídeo, que es
-        justo la parte fácil: por eso la de arriba es una simulación que se detiene en lo difícil.
-        Lo que se puede enseñar de verdad es el <b>recorrido de la señal</b>:
+        la parte fácil; por eso la simulación de arriba se detiene en lo difícil. Lo que sí se puede
+        enseñar es el <b>recorrido de la señal</b>:
         qué habla con qué, con qué protocolo y qué pasa cuando el barco se queda sin enlace.
       </p>
       <p>
         El diagrama se dibuja solo, en seis capítulos. Fíjate en el momento en que el trazo del
-        enlace se corta en rojo: eso pasa de verdad, y explica casi todas las decisiones técnicas
-        del proyecto.
+        enlace se corta en rojo: ese corte explica casi todas las decisiones técnicas del proyecto.
       </p>
 
       <div class="lienzo">
@@ -251,7 +249,7 @@
           </li>
           <li data-paso="5">
             <h3>5 · El control viaja por otro camino</h3>
-            <p>Órdenes y telemetría no van con el vídeo: usan <b>MQTT</b> sobre Mosquitto, con temas
+            <p>Órdenes y telemetría van aparte, por <b>MQTT</b> sobre Mosquitto, con temas
             por dispositivo y cámara. Es ligero y sobrevive a las desconexiones. El núcleo es una
             <b>API con arquitectura hexagonal</b>, con el dominio sin una sola importación de
             infraestructura, y <b>PostgreSQL</b> para la flota.</p>
@@ -259,7 +257,7 @@
           <li data-paso="6">
             <h3>6 · Y solo entonces, la pantalla</h3>
             <p>El operador abre el navegador y ve la cámara de un barco que está a cientos de
-            kilómetros. Todo lo anterior existe para que ese último paso parezca trivial.</p>
+            kilómetros.</p>
           </li>
         </ol>
 
@@ -269,14 +267,14 @@
         </div>
       </section>
 
-      <h2>Las cuatro decisiones que lo sostienen</h2>
+      <h2>Cuatro decisiones técnicas</h2>
       <ul class="fichas">
         <li>
           <span class="clave">Transporte</span>
           <h3>SRT en vez de TCP</h3>
           <p>En un enlace con pérdida, un transporte que reintenta en orden se atasca y la imagen se
-          congela. SRT va sobre UDP y recupera lo perdido sin bloquear lo que ya viene detrás: se
-          degrada la calidad, no la sesión.</p>
+          congela. SRT va sobre UDP y recupera lo perdido sin bloquear lo que ya viene detrás. Con
+          mal enlace baja la calidad y la sesión sigue abierta.</p>
         </li>
         <li>
           <span class="clave">Sin cobertura</span>
@@ -288,34 +286,33 @@
           <span class="clave">Dos caminos</span>
           <h3>El control no viaja con el vídeo</h3>
           <p>Las órdenes y la telemetría van por MQTT, con un tema por dispositivo y cámara. Si el
-          vídeo cae, el barco sigue respondiendo; y una orden pesa unos bytes, no unos megas.</p>
+          vídeo cae, el barco sigue respondiendo, y una orden pesa unos pocos bytes.</p>
         </li>
         <li>
           <span class="clave">Núcleo</span>
           <h3>El dominio no sabe de cámaras</h3>
           <p>La API es hexagonal: el dominio no importa infraestructura. Cambiar de broker, de base
-          o de fabricante de cámara toca los adaptadores, no las reglas del negocio.</p>
+          o de fabricante de cámara solo toca los adaptadores.</p>
         </li>
       </ul>
 
       <h2>Una flota entera no cabe en un servidor</h2>
       <p>
-        El vídeo no se transcodifica solo: cada servidor en tierra aguanta un número acotado de
-        grabaciones a la vez, y pasado ese número se queda sin máquina. Por eso el crecimiento no es
-        comprar un servidor más grande, sino <b>añadir un servidor esclavo por cada lote de
-        grabaciones</b>, cada uno con su grupo de embarcaciones asignado.
+        Transcodificar vídeo gasta máquina: cada servidor en tierra aguanta un número acotado de
+        grabaciones a la vez. Por eso el sistema crece <b>añadiendo un servidor esclavo por cada lote
+        de grabaciones</b>, cada uno con su grupo de embarcaciones asignado, en vez de comprar un
+        servidor más grande.
       </p>
       <p>
-        Esa es la vía por la que el sistema pasa de vigilar unos cuantos barcos a vigilar la flota
-        completa: sumar barcos es sumar servidores, con el mismo núcleo, el mismo broker y la misma
-        pantalla para el operador. Todo lo demás del recorrido —el agente a bordo, SRT, la cola
-        local, MQTT— ya está pensado para eso: cada barco habla con su servidor y no con todos.
+        Así se pasa de vigilar unos cuantos barcos a vigilar la flota completa: sumar barcos es sumar
+        servidores, con el mismo núcleo, el mismo broker y la misma pantalla para el operador. El
+        resto del recorrido (el agente a bordo, SRT, la cola local y MQTT) ya funciona así, porque
+        cada barco habla solo con su servidor.
       </p>
 
       <h2>De dónde sale cada pieza del diagrama</h2>
       <p>
-        El recorrido no es una idealización: cada elemento del dibujo está sacado del código del
-        sistema, no de cómo debería ser.
+        Cada elemento del dibujo está sacado del código del sistema:
       </p>
       <table class="origen">
         <tbody>
