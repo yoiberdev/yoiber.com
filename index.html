@@ -334,7 +334,7 @@
         </svg>
         <details class="por-dentro" open>
           <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
-          <p class="detalle">El envío no frena la venta: la API numera y responde al momento, y un proceso aparte lo manda a SUNAT y reintenta si el servicio cae. Cada empresa ve solo lo suyo, y eso lo garantiza la base de datos, no el código.</p>
+          <p class="detalle">El envío no frena la venta: la API numera y responde al momento, y un proceso aparte lo manda a SUNAT y reintenta si el servicio cae. La base de datos se encarga, fila por fila, de que cada empresa vea solo lo suyo.</p>
         </details>
         <p class="acceso"><a href="/casos/kuantera/">Ver el caso</a> · la boleta aceptada, paso a paso</p>
         <p class="aviso">Producto de Kip-Up. Simulación con una panadería inventada en el entorno de pruebas de SUNAT; todavía sin un RUC real en producción.</p>
@@ -352,7 +352,7 @@
             </span>
         </figure>
         <span class="avance" aria-hidden="true"></span>
-        <p class="que">De la mesa a la cocina y a la caja, sincronizado en tiempo real: plano de mesas, pantalla de cocina e impresión de tickets.</p>
+        <p class="que">El pedido pasa de la mesa a la cocina y a la caja al momento, con plano de mesas, pantalla de cocina e impresión de tickets.</p>
         <p class="pila">Next.js · Prisma · Socket.IO · ESC/POS</p>
         <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="comandas">
           <rect data-paso="mesa" x="1" y="19" width="76" height="26" rx="3" />
@@ -417,7 +417,7 @@
             </span>
         </figure>
         <span class="avance" aria-hidden="true"></span>
-        <p class="que">Citas que se reservan, se recuerdan y piden reseña solas: el cliente elige hora desde el móvil, la cita entra en el calendario del negocio y lo demás pasa sin nadie detrás.</p>
+        <p class="que">El cliente elige hora desde el móvil y la cita entra en el calendario del negocio. El recordatorio y el pedido de reseña salen solos, sin nadie detrás.</p>
         <p class="pila">n8n · PostgreSQL · Google Calendar · Telegram</p>
         <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="flujo">
           <line data-paso="linea" x1="1" y1="32" x2="326" y2="32" />
@@ -463,7 +463,7 @@
         </svg>
         <details class="por-dentro" open>
           <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
-          <p class="detalle">El vídeo sale por SRT, que va sobre UDP y recupera lo perdido sin atascarse: con mal enlace baja la calidad, no se corta la sesión. Lo que no puede salir espera en una cola SQLite a bordo, y las órdenes viajan aparte por MQTT, así que el barco sigue respondiendo aunque el vídeo caiga.</p>
+          <p class="detalle">El vídeo sale por SRT, que va sobre UDP y recupera lo perdido sin atascarse: con mal enlace baja la calidad y la sesión sigue. Lo que no puede salir espera en una cola SQLite a bordo, y las órdenes viajan aparte por MQTT, así que el barco sigue respondiendo aunque el vídeo caiga.</p>
         </details>
         <p class="acceso"><a href="/casos/videovigilancia-maritima/">Ver el caso</a> · el recorrido de la señal, paso a paso</p>
         <p class="aviso">Simulación con una flota inventada: la pantalla real es del cliente y no se enseña.</p>

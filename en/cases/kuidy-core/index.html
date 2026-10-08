@@ -75,8 +75,8 @@
         <p class="kicker">Case · my own product</p>
         <h1>You define a field and the form is already there</h1>
         <p class="entradilla">
-          Every company that hires me asks for the same system with a different form: different
-          fields, different rules, a different screen. <b>KUIDY-CORE is what I wrote to stop
+          Every company that hires me asks for the same system with a different form, with its own
+          fields and rules. <b>KUIDY-CORE is what I wrote to stop
           coding that form over and over</b>: you define the modules and their fields from the
           interface, and a generic engine draws the screen, validates what you type and saves it.
         </p>
@@ -84,7 +84,7 @@
 
       <h2>What it looks like</h2>
       <p>
-        A module is its fields and its records. At the top, the definition: name, key, type and
+        A module is made of fields and records. At the top, the definition: name, key, type and
         whether it is required. Below, the data already loaded, with one column per field.
       </p>
 
@@ -95,8 +95,8 @@
       </figure>
 
       <p>
-        Adding a field means filling in three boxes. No migration, no deploy, not a line of code:
-        the field is saved as a <i>definition</i>, and everything else comes from there.
+        Adding a field means filling in three boxes, with no migration, deploy or code: the field is
+        saved as a <i>definition</i> and everything else is derived from it.
       </p>
 
       <div class="dos">
@@ -108,28 +108,28 @@
         <figure class="figura">
           <img src="/casos/kuidy-formulario.png" width="1400" height="875" loading="lazy" decoding="async"
                alt="New record form that already includes the field just created, as a date picker" />
-          <figcaption><b>And there it is in the form</b>, with the right control and its validation. Records that already existed show a dash in the new column.</figcaption>
+          <figcaption><b>The form already includes it</b>, with the right control and its validation. Records that already existed show a dash in the new column.</figcaption>
         </figure>
       </div>
 
       <h2>How it works inside</h2>
       <p>
-        The idea is old and good: <b>keep the definition apart from the data</b>. Projects, modules
-        and fields live in ordinary PostgreSQL tables, and the records live in a single table with a
+        The design <b>keeps the definition apart from the data</b>. Projects, modules and fields
+        live in ordinary PostgreSQL tables, and the records live in a single table with a
         <code>jsonb</code> column and its GIN index. That way a field can be added without touching
         the database schema, and the metadata is still queryable like any other table.
       </p>
       <p>
-        What keeps this from turning into a mess is the <b>validator that is built on the fly</b>: a
-        module's field definitions are turned into a validation schema at runtime, and the same rules
-        run in the browser, to warn you while you type, and in the API, which is the one that
-        decides. A number does not get in as text, a date has to look like a date and a dropdown only
-        accepts its own options, without anyone having written that code for that particular field.
+        The data stays consistent thanks to a <b>validator that is built on the fly</b>: a module's
+        field definitions are turned into a validation schema at runtime, and the same rules run in
+        the browser, to warn you while you type, and in the API, which has the final say. A number
+        cannot be saved as text, a date has to be a valid date and a dropdown only accepts its own
+        options, and nobody wrote that code for that particular field.
       </p>
       <p>
         Passwords are stored with <b>argon2id</b>, the session is a seven-day JWT, and access is
         decided by membership in each project with four roles: owner, admin, member and viewer. A
-        viewer who tries to write gets a no from the server, not from the interface.
+        viewer who tries to write is rejected by the server itself.
       </p>
       <ul class="pila-tec">
         <li>strict TypeScript</li><li>Hono</li><li>Drizzle</li><li>PostgreSQL · JSONB</li><li>React 19</li><li>Zod</li><li>pnpm monorepo</li>
@@ -137,8 +137,8 @@
 
       <h2>Try it yourself</h2>
       <p>
-        The demo is open and its data is made up. Sign in, open a module, <b>create a field</b> and
-        look at the form: that is the whole product in half a minute.
+        The demo is open and its data is made up. In half a minute you can sign in, open a module,
+        <b>create a field</b> and see it in the form.
       </p>
       <p>
         The demo interface is in Spanish. Open the “Activos” (assets) module and click
@@ -152,25 +152,24 @@
       <h2>What it is and what it is not</h2>
       <p>
         It is the engine I use to build custom internal systems without redoing the same work, and
-        that is where its scope comes from: <b>there are still no relations between modules, no
-        reports and no import</b>, and a field's type cannot be changed once it has been created. It
-        is written that way on purpose: I would rather what is there be solid and what is missing be
-        obvious than promise a whole platform and have it fall over in the first demo.
+        its scope follows from that: <b>there are still no relations between modules, no reports
+        and no import</b>, and a field's type cannot be changed once it has been created. I keep it
+        small on purpose: what is there should be solid, and what is missing should be obvious.
       </p>
 
       <section class="cierre">
         <h2>Does your team run its work out of spreadsheets?</h2>
         <p>
-          That is where this pays off: turning that sheet into a system with permissions, validation
-          and a record of who did what, without waiting three months or paying per seat.
+          This turns that sheet into a system with permissions, validation and a record of who did
+          what, without waiting three months or paying per seat.
         </p>
         <a class="accion" href="/en/contact/">Let's talk →</a>
       </section>
 
       <footer class="pie-caso">
         <p>
-          My own product. The screenshots come from the public demo, whose data — plants, assets,
-          tickets and people — is made up. The credentials above are demo credentials and are
+          My own product. The screenshots come from the public demo, whose data (plants, assets,
+          tickets and people) is made up. The credentials above are demo credentials and are
           published on purpose.
         </p>
       </footer>

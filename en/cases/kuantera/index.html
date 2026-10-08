@@ -75,54 +75,52 @@
         <p class="kicker">Case · a Kip-Up product</p>
         <h1>The receipt leaves the system and the tax office accepts it</h1>
         <p class="entradilla">
-          In Peru a sale isn't over when the customer pays: it's over when SUNAT, the tax office,
-          accepts the receipt — and each one has <b>three calendar days</b> to get there. Kuantera is
-          the piece that makes that trip: it builds the document, signs it and sends it, and it is
-          <b>written from scratch, with no middleman in between</b>.
+          In Peru a sale is only complete once SUNAT, the tax office, accepts the receipt, and each
+          receipt has <b>three calendar days</b> to get there. Kuantera builds the document, signs it
+          and sends it, and it is <b>written from scratch, with no middleman</b>.
         </p>
       </header>
 
       <h2>What it looks like</h2>
       <p>
-        Fifteen seconds, from an empty screen to the receipt filed: pick the customer, add a line,
-        and on submit the server signs and sends. The status updates on its own.
+        Fifteen seconds from an empty screen to a filed receipt: you pick the customer, add a line
+        and submit, and the server signs and sends it. The status updates on its own.
       </p>
 
       <figure class="figura video">
         <video src="/casos/kuantera-emitir.mp4" poster="/casos/kuantera-cartel.png"
                width="1000" height="565" controls muted loop playsinline preload="none"></video>
         <figcaption>
-          A real issue against <b>the tax office's test environment</b>: receipt B001-16 goes out for
-          S/ 36.00, sits «in the queue», and at the end SUNAT answers <b>code 0, accepted</b>. What's
-          stored isn't a «sent» flag: it's the official acknowledgement, the signed XML and the PDF.
+          An actual run against <b>the tax office's test environment</b>: receipt B001-16 goes out for
+          S/ 36.00, sits «in the queue», and at the end SUNAT answers <b>code 0, accepted</b>. The
+          system stores the official acknowledgement, the signed XML and the PDF.
         </figcaption>
       </figure>
 
       <h2>How it works inside</h2>
       <p>
         A Peruvian electronic receipt is a <b>UBL 2.1 XML</b> with a digital signature inside it,
-        wrapped in a ZIP and handed over by SOAP. There is no library doing that here: it is written
-        in the project, in <code>packages/sunat</code>, because that is exactly where it's decided
-        whether the document is valid or gets rejected over one misplaced figure.
+        wrapped in a ZIP and sent over SOAP. No third-party library does that here: it is written in
+        the project, in <code>packages/sunat</code>, because that code decides whether the document
+        is valid or gets rejected over one misplaced figure.
       </p>
       <p>
-        <b>The signature is the part that isn't negotiable.</b> Every receipt is signed with the
-        digital certificate and tax-office credentials of <i>the business issuing it</i>, never mine
-        nor the agency's: before SUNAT, the issuer is them. Using your own credentials to issue on
-        behalf of others would mean registering as an electronic service provider, which is a
-        different business and a different liability.
+        <b>Each business issues under its own name.</b> Every receipt is signed with the digital
+        certificate and tax-office credentials of <i>the business issuing it</i>, never mine or the agency's,
+        because for SUNAT the issuer is that business. Issuing on behalf of others with your own
+        credentials would mean registering as an electronic service provider, which is a different
+        business with a different liability.
       </p>
       <p>
         Sending doesn't block the sale. The API accepts the receipt, numbers it and returns it right
         away; <b>a separate worker delivers it to SUNAT and retries</b> when the service is down,
-        which happens more often than you'd expect. That's why the panel shows honest states — queued,
-        sent, accepted, observed, rejected — instead of a «done» that means nothing.
+        which happens more often than you'd expect. So the panel shows each receipt's actual state:
+        queued, sent, accepted, observed or rejected.
       </p>
       <p>
-        Each company sees only its own data, and that holds <b>in the database, not in the code</b>:
-        the tables use row-level security and the role the API connects with cannot bypass it. If a
-        query ever forgets to filter by company, it doesn't return someone else's rows — it returns
-        nothing.
+        Each company sees only its own data, and <b>the database itself enforces that</b>: the
+        tables use row-level security and the role the API connects with cannot bypass it. If a
+        query forgets to filter by company, it returns nothing instead of another company's rows.
       </p>
       <ul class="pila-tec">
         <li>TypeScript</li><li>NestJS</li><li>Prisma · PostgreSQL</li><li>RLS</li><li>pg-boss</li><li>UBL 2.1</li><li>XML-DSig</li><li>SOAP</li><li>React</li>
@@ -132,21 +130,19 @@
       <p>
         It's tested against <b>the tax office's test environment</b>: invoices, receipts, credit and
         debit notes, withholding and service charge. What <b>hasn't happened yet</b> is issuing with a
-        real taxpayer ID in production, and until that day I won't call it finished.
+        real taxpayer ID in production, and I won't call it finished until that happens.
       </p>
       <p>
-        And one thing I learned while preparing this case: when plastic bags are involved, SUNAT
-        rejects the document if the number of bags doesn't match the quantity on the line. <b>I found
-        it by issuing, not by reading the spec</b>, and it's filed as a bug with its XML attached.
-        That's the difference between saying something works and having watched it work.
+        One thing I learned while preparing this case: when plastic bags are involved, SUNAT rejects
+        the document if the number of bags doesn't match the quantity on the line. <b>I ran into it
+        while issuing</b>, and it's filed as a bug with its XML attached.
       </p>
 
       <section class="cierre">
         <h2>Do you issue tax receipts and fight your invoicing tool?</h2>
         <p>
-          Systems that file with the tax office from the inside, without copying data into another
-          screen and without depending on a third party for the part that decides whether the sale
-          exists.
+          Systems that file receipts with the tax office themselves, without copying data into
+          another screen and without depending on a third party for that step.
         </p>
         <a class="accion" href="/en/contact/">Let's talk →</a>
       </section>

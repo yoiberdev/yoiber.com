@@ -80,22 +80,23 @@
         <h1>Live video from vessels that keep losing the link</h1>
         <p class="entradilla">
           An industrial control company needed to watch, from shore, the cameras on fishing vessels
-          working hundreds of kilometres off the coast. The problem was not the video:
-          <b>it was the link, which drops several times a day</b>. This is the path the signal takes
-          and why it is built this way.
+          working hundreds of kilometres off the coast. The hard part was
+          <b>the link, which drops several times a day</b>. This is the path the signal takes and
+          why it is built this way.
         </p>
       </header>
 
       <h2>Why this case has no screenshots</h2>
       <p>
-        The system lives in an industrial PC on board, in a satellite link and in a server on shore.
-        A screenshot of the operator's screen would show a video player, which is exactly the easy
-        part. What is really worth showing is the <b>path the signal takes</b>: what talks to what,
-        over which protocol, and what happens when the boat loses its link.
+        The system runs on an industrial PC on board, over a satellite link and on a server on
+        shore. A screenshot of the operator's screen would only show a video player, the easiest
+        part of the system. The interesting part is the <b>path the signal takes</b>: what talks to
+        what, over which protocol, and what happens when the boat loses its link.
       </p>
       <p>
-        The diagram draws itself, in six chapters. Watch the moment the link line breaks and turns
-        red: that happens for real, and it explains almost every technical decision in the project.
+        The diagram draws itself in six steps. Watch for the moment the link line breaks and turns
+        red: on the real boats that happens several times a day, and it explains almost every
+        technical decision in the project.
       </p>
 
       <div class="lienzo">
@@ -213,23 +214,24 @@
       <section class="relato" aria-live="polite">
         <ol class="pasos" id="pasos">
           <li data-paso="1">
-            <h3>1 · The camera speaks more than one language</h3>
+            <h3>1 · Three ways to talk to the camera</h3>
             <p>The cameras on board give video over <b>RTSP</b>, but snapshots and events need the
             <b>vendor's native SDK</b>, which is a C library. The agent calls it from Python with
-            <b>ctypes</b>. <b>ONVIF</b> is there to discover them and configure them.</p>
+            <b>ctypes</b>. <b>ONVIF</b> is used to discover and configure them.</p>
           </li>
           <li data-paso="2">
             <h3>2 · The agent decides what goes out, and when</h3>
-            <p>A process on the vessel's industrial PC, written in <b>Python</b> and with a version
-            in <b>Go</b>. It keeps state in a local <b>SQLite</b> database because the boat spends
-            hours without a link: whatever could not be sent waits there instead of being lost.</p>
+            <p>The agent is a process on the vessel's industrial PC, written in <b>Python</b>, with a
+            second version in <b>Go</b>. It keeps state in a local <b>SQLite</b> database because the
+            boat spends hours without a link, and whatever could not be sent waits there until the
+            link comes back.</p>
           </li>
           <li data-paso="3">
-            <h3>3 · The real problem: the link drops</h3>
+            <h3>3 · Sending video over a link that drops</h3>
             <p>Between the boat and the coast there is satellite or intermittent 4G, with packet
-            loss and high latency. A protocol on top of TCP stalls there. That is why the video goes
-            out over <b>SRT</b>, which runs on UDP and recovers what was lost without blocking the
-            rest. The agent pushes it with <b>FFmpeg</b> in sender mode.</p>
+            loss and high latency. A protocol on top of TCP stalls there, so the video goes out over
+            <b>SRT</b>, which runs on UDP and recovers what was lost without blocking the rest. The
+            agent pushes it with <b>FFmpeg</b> in sender mode.</p>
           </li>
           <li data-paso="4">
             <h3>4 · On shore, translate it for the browser</h3>
@@ -239,15 +241,15 @@
           </li>
           <li data-paso="5">
             <h3>5 · Control travels by another route</h3>
-            <p>Commands and telemetry do not travel with the video: they use <b>MQTT</b> over
+            <p>Commands and telemetry travel separately from the video, over <b>MQTT</b> with
             Mosquitto, with topics per device and per camera. It is light and it survives
             disconnections. The core is an <b>API with a hexagonal architecture</b>, with a domain
             that does not import infrastructure at all, and <b>PostgreSQL</b> for the fleet.</p>
           </li>
           <li data-paso="6">
-            <h3>6 · And only then, the screen</h3>
-            <p>The operator opens the browser and sees the camera of a boat that is hundreds of
-            kilometres away. Everything before it exists so that last step looks trivial.</p>
+            <h3>6 · The operator's screen</h3>
+            <p>The operator opens a browser and watches the camera of a boat hundreds of kilometres
+            away. The React app only has to play the HLS stream.</p>
           </li>
         </ol>
 
@@ -257,54 +259,52 @@
         </div>
       </section>
 
-      <h2>The four decisions that hold it up</h2>
+      <h2>Four design decisions</h2>
       <ul class="fichas">
         <li>
           <span class="clave">Transport</span>
           <h3>SRT instead of TCP</h3>
           <p>On a lossy link, a transport that retries in order stalls and the picture freezes. SRT
-          runs on UDP and recovers what was lost without blocking what is already coming behind
-          it: the quality degrades, not the session.</p>
+          runs on UDP and recovers what was lost without blocking the packets coming behind it, so
+          on a bad link the picture loses quality and the session stays up.</p>
         </li>
         <li>
           <span class="clave">No coverage</span>
           <h3>A queue inside the boat</h3>
           <p>The boat spends hours without a link. Whatever could not be sent waits in an SQLite
-          database on board and goes out when the signal comes back, instead of being lost or
-          blocking the agent.</p>
+          database on board and goes out when the signal comes back. Nothing is lost, and the agent
+          keeps working in the meantime.</p>
         </li>
         <li>
           <span class="clave">Two routes</span>
-          <h3>Control does not travel with the video</h3>
+          <h3>Control travels separately from the video</h3>
           <p>Commands and telemetry go over MQTT, with one topic per device and camera. If the video
-          drops, the boat still answers; and a command weighs a few bytes, not a few megabytes.</p>
+          drops, the boat still answers, and a command is only a few bytes.</p>
         </li>
         <li>
           <span class="clave">Core</span>
           <h3>The domain knows nothing about cameras</h3>
           <p>The API is hexagonal: the domain imports no infrastructure. Changing the broker, the
-          database or the camera vendor touches the adapters, not the business rules.</p>
+          database or the camera vendor means changing only the adapters.</p>
         </li>
       </ul>
 
       <h2>A whole fleet does not fit on one server</h2>
       <p>
-        Video does not transcode itself: each server on shore handles a limited number of recordings
-        at a time, and past that number it runs out of hardware. So growth is not buying a bigger
-        server, it is <b>adding one slave server per batch of recordings</b>, each with its own group
-        of vessels assigned to it.
+        Transcoding needs hardware: each server on shore can handle only a limited number of
+        recordings at a time before it runs out. So the system grows by <b>adding one slave server
+        per batch of recordings</b>, each with its own group of vessels assigned to it.
       </p>
       <p>
-        That is how the system goes from watching a few boats to watching the whole fleet: adding
-        boats means adding servers, with the same core, the same broker and the same screen for the
-        operator. Everything else along the path — the agent on board, SRT, the local queue, MQTT —
-        is already built for that: each boat talks to its own server, not to all of them.
+        That is how it goes from watching a few boats to watching the whole fleet: more boats means
+        more servers, with the same core, the same broker and the same screen for the operator. The
+        rest of the path (the agent on board, SRT, the local queue, MQTT) already works that way,
+        because each boat talks only to its own server.
       </p>
 
       <h2>Where each piece of the diagram comes from</h2>
       <p>
-        The path is not an idealisation: every element in the drawing is taken from the code of
-        the system, not from how it ought to be.
+        Every element in the drawing is taken from the system's code.
       </p>
       <table class="origen">
         <tbody>
