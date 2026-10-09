@@ -216,29 +216,55 @@
       <section id="despegue" data-label="DESPEGUE" data-chapter="despegue"></section>
     </div>
 
-    <!-- LOS PROYECTOS (10/10/2026). Una dirección: que una empresa contrate a Yoiber. Primero cuatro
-         sistemas de verdad contados como flujos al estilo de n8n que se ejecutan al llegar
-         (src/proyectos/proyectos.ts), después dos herramientas presentadas como producto y al final
-         un estante corto con lo personal. Cada .objeto abre su ficha (#ficha) con la simulación, la
-         grabación o la captura; los dibujos son decorado (aria-hidden) y lo que dicen ya está en el
-         texto. -->
+    <!-- LOS PROYECTOS (10/10/2026, tercera vuelta). Arriba «Ahora mismo» con datos vivos
+         (src/proyectos/ahora.ts); debajo el muro: el trabajo andando, el nombre y una frase. El resto
+         (cómo está hecho, la pila, los enlaces y el flujo de los cuatro sistemas) va en la ficha
+         (#ficha), que lo lee del .objeto-mas de cada uno. Las vistas son decorado (aria-hidden). -->
     <section id="proyectos" aria-labelledby="proyectos-titulo" tabindex="-1">
-    <section class="grupo casos" data-grupo="sistemas" aria-labelledby="proyectos-titulo">
+    <section id="ahora" class="ahora" aria-labelledby="ahora-titulo">
+      <h2 id="ahora-titulo" class="ahora-titulo"><i aria-hidden="true"></i>Ahora mismo</h2>
+      <div class="ahora-celda ahora-sismo" hidden>
+        <p class="ahora-que">El último sismo en el Perú</p>
+        <p class="ahora-dato"></p>
+        <a class="ahora-fuente" href="https://sismos.yoiber.dev" target="_blank" rel="noopener">Lo vio Remezón</a>
+      </div>
+      <div class="ahora-celda ahora-apps">
+        <p class="ahora-que">Mis apps, respondiendo ahora</p>
+        <ul class="ahora-lista">
+          <li data-ping="https://sismos.yoiber.dev/">Remezón</li>
+          <li data-ping="https://doramas.yoiber.dev/">Daebon</li>
+          <li data-ping="https://anime.yoiber.dev/">Tsuzuku</li>
+          <li data-ping="https://nazca.yoiber.dev/">Nazca</li>
+          <li data-ping="https://ajolote.yoiber.dev/">Ajolote</li>
+        </ul>
+      </div>
+      <div class="ahora-celda ahora-yo" hidden>
+        <p class="ahora-que">Lo que estoy viendo y oyendo</p>
+        <p class="ahora-dato ahora-viendo" hidden></p>
+        <p class="ahora-dato ahora-oyendo" hidden></p>
+      </div>
+    </section>
+    <section class="grupo" data-grupo="obra" aria-labelledby="proyectos-titulo">
       <header class="proyectos-cabeza">
-        <h2 id="proyectos-titulo" class="grupo-titulo"><span>Sistemas que funcionan solos</span></h2>
-        <p class="proyectos-frase">Cuatro trabajos reales, cada uno dibujado como el flujo que corre por dentro. Se ejecutan cuando llegas, con datos de ejemplo, y los puedes volver a correr.</p>
+        <h2 id="proyectos-titulo" class="grupo-titulo"><span>Lo que hice</span></h2>
+        <p class="proyectos-frase">Toca cualquiera para verlo por dentro.</p>
       </header>
-      <article class="objeto caso caso-principal" id="p-campo" style="--acento: #f6a96b" data-imagen="/casos/campo-mapa.jpg" data-marco="navegador" data-url="gestión de campo · mapa" data-proporcion="1400 / 833">
-        <div class="caso-texto">
-          <h3>Control de horas hombre a bordo</h3>
-          <div class="caso-cuerpo">
-          <p>Una empresa de servicios manda técnicos a dar soporte a las embarcaciones de sus clientes y cobra por horas hombre. Antes esas horas salían de lo que cada técnico anotaba. Ahora cada embarcación lleva pegado un código QR: el técnico lo escanea con su teléfono al subir y al bajar, y quedan la hora y el lugar. Para marcar tiene que estar en el barco.</p>
-          <p>De esas marcas salen solas las horas de cada técnico en cada embarcación. Con eso se le cobra al cliente y se le paga al personal, y nadie discute cuántas horas fueron. Hasta entonces nadie había logrado controlarlas con exactitud ni comprobar que el técnico de verdad estuvo a bordo.</p>
-            <p class="pila">React Native · Node · Express · Prisma · MySQL · Leaflet</p>
-            <p class="caso-acciones"><button class="objeto-abrir boton" type="button" aria-haspopup="dialog">Ver las capturas</button><a class="boton boton-borde" href="/casos/gestion-de-campo-embarcaciones/">Leer el caso</a></p>
+      <ul class="muro">
+      <li class="obra objeto obra-ancha" id="p-campo" style="--acento: #f6a96b" data-imagen="/casos/campo-mapa.jpg" data-marco="navegador" data-url="gestión de campo · mapa" data-proporcion="1400 / 833">
+        <div class="vista obra-captura" aria-hidden="true">
+            <img data-src="/casos/campo-mapa.jpg" alt="" width="1400" height="833" decoding="async" />
           </div>
-        </div>
-        <div class="flujo-ventana">
+        <h3>Horas a bordo</h3>
+        <p class="que">Cada técnico marca con un QR pegado en el barco.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Horas a bordo: verlo por dentro"></button>
+        <div class="objeto-mas">
+          <p class="larga">Cada embarcación lleva pegado un código QR: el técnico lo escanea con su teléfono al subir y al bajar, y quedan la hora y el lugar. De esas marcas salen solas las horas hombre de cada técnico en cada embarcación, para cobrarle al cliente y pagarle al personal.</p>
+          <p class="detalle">La app la usan los técnicos en el teléfono, con el escaneo del QR y la posición por GPS. El servidor calcula las horas por técnico y por embarcación a partir de las marcas de entrada y salida, sin que nadie las escriba a mano, y los permisos van por recurso. La oficina ve en un mapa quién está a bordo de qué embarcación y desde cuándo.</p>
+          <p class="acceso"><a href="/casos/gestion-de-campo-embarcaciones/">Leer el caso</a></p>
+          <p class="aviso">El sistema es del cliente: las capturas son de una copia levantada aparte, con datos inventados.</p>
+          <p class="pila">React Native · Node · Express · Prisma · MySQL · Leaflet</p>
+          <div class="mas-flujo">
+<div class="flujo-ventana">
         <div class="flujo" style="--alto: 300" aria-hidden="true">
           <svg class="flujo-cables" viewBox="0 0 1000 300"><g style="--t: 0.70s"><path class="cable" d="M116 130 C172.5 130 172.5 130 229 130" /><path class="cable-vivo" d="M116 130 C172.5 130 172.5 130 229 130" pathLength="1" /><text class="cable-item" x="172" y="122">1 ítem</text></g><g style="--t: 1.60s"><path class="cable" d="M301 130 C357.5 130 357.5 130 414 130" /><path class="cable-vivo" d="M301 130 C357.5 130 357.5 130 414 130" pathLength="1" /><text class="cable-item" x="358" y="122">1 ítem</text></g><g style="--t: 2.50s"><path class="cable" d="M486 130 C542.5 130 542.5 130 599 130" /><path class="cable-vivo" d="M486 130 C542.5 130 542.5 130 599 130" pathLength="1" /><text class="cable-item" x="542" y="122">1 ítem</text></g><g style="--t: 3.40s"><path class="cable" d="M671 130 C747.5 130 747.5 62 824 62" /><path class="cable-vivo" d="M671 130 C747.5 130 747.5 62 824 62" pathLength="1" /><text class="cable-item" x="768" y="55">1 ítem</text></g><g style="--t: 3.40s"><path class="cable" d="M671 130 C747.5 130 747.5 212 824 212" /><path class="cable-vivo" d="M671 130 C747.5 130 747.5 212 824 212" pathLength="1" /><text class="cable-item" x="740" y="225">1 ítem</text></g></svg>
           <div class="nodo nodo-disparo" style="--x: 8.0%; --y: 43.33%; --t: 0.15s">
@@ -274,24 +300,40 @@
         </div>
         </div>
         <p class="flujo-pie"><button class="flujo-correr" type="button"><svg class="relleno" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.5v13l10.5-6.5z"/></svg>Ejecutar otra vez</button><span>Datos de ejemplo</span></p>
-        <div class="objeto-mas">
-          <p class="larga">Cada embarcación lleva pegado un código QR: el técnico lo escanea con su teléfono al subir y al bajar, y quedan la hora y el lugar. De esas marcas salen solas las horas hombre de cada técnico en cada embarcación, para cobrarle al cliente y pagarle al personal.</p>
-          <p class="detalle">La app la usan los técnicos en el teléfono, con el escaneo del QR y la posición por GPS. El servidor calcula las horas por técnico y por embarcación a partir de las marcas de entrada y salida, sin que nadie las escriba a mano, y los permisos van por recurso. La oficina ve en un mapa quién está a bordo de qué embarcación y desde cuándo.</p>
-          <p class="acceso"><a href="/casos/gestion-de-campo-embarcaciones/">Leer el caso</a></p>
-          <p class="aviso">El sistema es del cliente: las capturas son de una copia levantada aparte, con datos inventados.</p>
-        </div>
-      </article>
-      <article class="objeto caso" id="p-kuantera" style="--acento: #4fd6a8" data-sim="kuantera" data-marco="navegador" data-url="app.kuantera.com · simulación" data-cartel="/proyectos/kuantera-cartel.webp" data-proporcion="1000 / 625">
-        <div class="caso-texto">
-          <h3>Boletas y facturas directas a SUNAT</h3>
-          <div class="caso-cuerpo">
-          <p>Facturación electrónica escrita desde cero: arma el comprobante, lo firma con el certificado del negocio, lo manda a SUNAT y guarda la constancia.</p>
-          <p>La venta no espera a SUNAT. La caja recibe su número al momento y otro proceso hace el envío; si SUNAT no responde, reintenta solo hasta que acepta. Cada empresa ve solo sus comprobantes, y eso lo impone la base de datos fila por fila.</p>
-            <p class="pila">NestJS · PostgreSQL con RLS · UBL 2.1 · XML-DSig</p>
-            <p class="caso-acciones"><button class="objeto-abrir boton" type="button" aria-haspopup="dialog">Ver la simulación</button><a class="boton boton-borde" href="/casos/kuantera/">Leer el caso</a></p>
           </div>
         </div>
-        <div class="flujo-ventana">
+      </li>
+      <li class="obra objeto" id="p-remezon" style="--acento: #ff6a3d" data-video="/proyectos/remezon" data-marco="navegador" data-url="sismos.yoiber.dev" data-cartel="/proyectos/remezon-cartel.webp" data-proporcion="1000 / 626">
+        <div class="vista obra-captura" aria-hidden="true">
+            <img data-src="/proyectos/remezon-cartel.webp" alt="" width="1000" height="626" decoding="async" />
+            <video class="obra-video" data-video="/proyectos/remezon" muted loop playsinline preload="none"></video>
+          </div>
+        <h3>Remezón</h3>
+        <p class="que">Los sismos del Perú en vivo, a su profundidad real.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Remezón: verlo por dentro"></button>
+        <div class="objeto-mas">
+          <p class="larga">Los sismos del Perú en vivo y en 3D, cada uno a la profundidad donde empezó. Los datos son los reportes del IGP y la página los vuelve a pedir cada minuto. Si tocas un sismo, la cámara baja hasta él.</p>
+          <p class="detalle">Debajo del relieve están los 5 937 sismos fuertes que hubo desde 1973. Mirados de costado dibujan la placa de Nazca: entra bajo la costa, pasa por debajo de los Andes y sigue hasta más de 600 km de hondo, cerca de la frontera con Brasil.</p>
+          <p class="acceso"><a href="https://sismos.yoiber.dev" target="_blank" rel="noopener">Visitarla</a> · <a href="https://github.com/yoiberdev/remezon" target="_blank" rel="noopener">Ver el código</a></p>
+          <p class="aviso">La vista es el corte real: los 188 sismos de magnitud 6 o más desde 1973, en el orden en que pasaron.</p>
+          <p class="pila">Nuxt 4 · Vue · TresJS · three.js</p>
+        </div>
+      </li>
+      <li class="obra objeto" id="p-kuantera" style="--acento: #4fd6a8" data-sim="kuantera" data-marco="navegador" data-url="app.kuantera.com · simulación" data-cartel="/proyectos/kuantera-cartel.webp" data-proporcion="1000 / 625">
+        <div class="vista obra-captura" aria-hidden="true">
+            <img data-src="/proyectos/kuantera-cartel.webp" alt="" width="1000" height="625" decoding="async" />
+          </div>
+        <h3>Kuantera</h3>
+        <p class="que">Boletas y facturas que llegan solas a SUNAT.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Kuantera: verlo por dentro"></button>
+        <div class="objeto-mas">
+          <p class="larga">Facturación electrónica directa a SUNAT, escrita desde cero: arma el comprobante, lo firma con el certificado del negocio, lo envía y guarda la constancia.</p>
+          <p class="detalle">El envío no frena la venta: la API numera y responde al momento, y un proceso aparte lo manda a SUNAT y reintenta si el servicio cae. La base de datos se encarga, fila por fila, de que cada empresa vea solo lo suyo.</p>
+          <p class="acceso"><a href="/casos/kuantera/">Leer el caso</a></p>
+          <p class="aviso">Producto de Kip-Up. Simulación con una panadería inventada en el entorno de pruebas de SUNAT; todavía sin un RUC real en producción.</p>
+          <p class="pila">NestJS · PostgreSQL con RLS · UBL 2.1 · XML-DSig</p>
+          <div class="mas-flujo">
+<div class="flujo-ventana">
         <div class="flujo" style="--alto: 205" aria-hidden="true">
           <svg class="flujo-cables" viewBox="0 0 1000 205"><g style="--t: 0.70s"><path class="cable" d="M116 90 C180.0 90 180.0 90 244 90" /><path class="cable-vivo" d="M116 90 C180.0 90 180.0 90 244 90" pathLength="1" /><text class="cable-item" x="180" y="82">1 ítem</text></g><g style="--t: 1.60s"><path class="cable" d="M316 90 C380.0 90 380.0 90 444 90" /><path class="cable-vivo" d="M316 90 C380.0 90 380.0 90 444 90" pathLength="1" /><text class="cable-item" x="380" y="82">1 ítem</text></g><g style="--t: 2.50s"><path class="cable" d="M516 90 C580.0 90 580.0 90 644 90" /><path class="cable-vivo" d="M516 90 C580.0 90 580.0 90 644 90" pathLength="1" /><text class="cable-item" x="580" y="82">1 ítem</text></g><g style="--t: 4.70s"><path class="cable" d="M716 90 C780.0 90 780.0 90 844 90" /><path class="cable-vivo" d="M716 90 C780.0 90 780.0 90 844 90" pathLength="1" /><text class="cable-item" x="780" y="82">1 ítem</text></g></svg>
           <div class="nodo nodo-disparo" style="--x: 8.0%; --y: 43.90%; --t: 0.15s">
@@ -322,24 +364,54 @@
         </div>
         </div>
         <p class="flujo-pie"><button class="flujo-correr" type="button"><svg class="relleno" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.5v13l10.5-6.5z"/></svg>Ejecutar otra vez</button><span>Datos de ejemplo</span></p>
-        <div class="objeto-mas">
-          <p class="larga">Facturación electrónica directa a SUNAT, escrita desde cero: arma el comprobante, lo firma con el certificado del negocio, lo envía y guarda la constancia.</p>
-          <p class="detalle">El envío no frena la venta: la API numera y responde al momento, y un proceso aparte lo manda a SUNAT y reintenta si el servicio cae. La base de datos se encarga, fila por fila, de que cada empresa vea solo lo suyo.</p>
-          <p class="acceso"><a href="/casos/kuantera/">Leer el caso</a></p>
-          <p class="aviso">Producto de Kip-Up. Simulación con una panadería inventada en el entorno de pruebas de SUNAT; todavía sin un RUC real en producción.</p>
-        </div>
-      </article>
-      <article class="objeto caso" id="p-comandas" style="--acento: #ff7a85" data-sim="comandas" data-marco="navegador" data-url="comandas.kipups.com · simulación" data-cartel="/proyectos/comandas-cartel.webp" data-proporcion="1000 / 625">
-        <div class="caso-texto">
-          <h3>Del pedido en la mesa a la boleta</h3>
-          <div class="caso-cuerpo">
-          <p>El mozo toma el pedido en la mesa y la cocina lo ve al instante en su pantalla, con el ticket impreso. Cuando sale el plato, la caja ya tiene la cuenta: se divide por personas o por productos, sale la boleta y se descuenta el stock.</p>
-          <p>El stock se descuenta una sola vez aunque el pedido llegue dos veces.</p>
-            <p class="pila">Next.js · Prisma · Socket.IO · ESC/POS</p>
-            <p class="caso-acciones"><button class="objeto-abrir boton" type="button" aria-haspopup="dialog">Ver la simulación</button><a class="boton boton-borde" href="https://comandas-dev.kipups.com" target="_blank" rel="noopener">Abrir el entorno de pruebas</a></p>
           </div>
         </div>
-        <div class="flujo-ventana">
+      </li>
+      <li class="obra objeto" id="p-daebon" style="--acento: #ffe45a" data-video="/proyectos/daebon" data-marco="movil" data-url="" data-cartel="/proyectos/daebon-cartel.webp" data-proporcion="540 / 1200">
+        <div class="vista obra-telefono" aria-hidden="true">
+            <span class="tel"><img data-src="/proyectos/daebon-cartel.webp" alt="" width="540" height="1200" decoding="async" /><video class="obra-video" data-video="/proyectos/daebon" muted loop playsinline preload="none"></video></span>
+          </div>
+        <h3>Daebon</h3>
+        <p class="que">Mis doramas, armados como un guion coreano.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Daebon: verlo por dentro"></button>
+        <div class="objeto-mas">
+          <p class="larga">Mi lista de doramas, hecha como un guion coreano: cada drama es un libreto engrapado, lo que ya salió y me falta va con resaltador, y cada ficha dice en qué plataforma está en Perú.</p>
+          <p class="detalle">La clave de TMDB no viaja en la app: la guarda un servidor en Node sin dependencias, que responde siete rutas fijas ya en español. En español, TMDB devuelve muchos títulos y actores coreanos en hangul, y el servidor elige el inglés antes que dejar algo ilegible. La semana agrupa los dramas como la tele coreana, por los días en que salen.</p>
+          <p class="acceso"><a href="https://doramas.yoiber.dev" target="_blank" rel="noopener">Abrirla</a> · <a href="https://github.com/yoiberdev/daebon" target="_blank" rel="noopener">Ver el código</a></p>
+          <p class="aviso">Grabación de la web con una lista de prueba. También hay app de Android. No tiene episodios: cada ficha lleva a donde se pueden ver legalmente.</p>
+          <p class="pila">Svelte 5 · TypeScript · Capacitor · Node · TMDB</p>
+        </div>
+      </li>
+      <li class="obra objeto" id="p-tsuzuku" style="--acento: #2bb5f0" data-video="/proyectos/tsuzuku" data-marco="movil" data-url="" data-cartel="/proyectos/tsuzuku-cartel.webp" data-proporcion="540 / 1200">
+        <div class="vista obra-telefono" aria-hidden="true">
+            <span class="tel"><img data-src="/proyectos/tsuzuku-cartel.webp" alt="" width="540" height="1200" decoding="async" /><video class="obra-video" data-video="/proyectos/tsuzuku" muted loop playsinline preload="none"></video></span>
+          </div>
+        <h3>Tsuzuku</h3>
+        <p class="que">Mi lista de anime, con aviso cuando sale el capítulo.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Tsuzuku: verlo por dentro"></button>
+        <div class="objeto-mas">
+          <p class="larga">Mi lista de anime: en qué episodio voy de cada uno, el calendario de estrenos en mi hora y dónde verlo legal. En Android me avisa cuando sale el siguiente.</p>
+          <p class="detalle">AniList permite 30 consultas por minuto, así que cada respuesta se guarda un rato y dos pantallas que piden lo mismo comparten la consulta. Los avisos se programan en el propio teléfono con las fechas de estreno, sin servidor. Las sinopsis llegan en inglés y Google las traduce una sola vez por anime.</p>
+          <p class="acceso"><a href="https://anime.yoiber.dev" target="_blank" rel="noopener">Abrirla</a> · <a href="https://github.com/yoiberdev/tsuzuku" target="_blank" rel="noopener">Ver el código</a></p>
+          <p class="aviso">Grabación de la web con una lista de prueba. También hay app de Android.</p>
+          <p class="pila">Svelte 5 · TypeScript · Capacitor · AniList GraphQL</p>
+        </div>
+      </li>
+      <li class="obra objeto obra-ancha" id="p-comandas" style="--acento: #ff7a85" data-sim="comandas" data-marco="navegador" data-url="comandas.kipups.com · simulación" data-cartel="/proyectos/comandas-cartel.webp" data-proporcion="1000 / 625">
+        <div class="vista obra-captura" aria-hidden="true">
+            <img data-src="/proyectos/comandas-cartel.webp" alt="" width="1000" height="625" decoding="async" />
+          </div>
+        <h3>Comandas</h3>
+        <p class="que">El pedido pasa de la mesa a la cocina al instante.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Comandas: verlo por dentro"></button>
+        <div class="objeto-mas">
+          <p class="larga">El pedido pasa de la mesa a la cocina y a la caja al momento, con plano de mesas, pantalla de cocina e impresión de tickets.</p>
+          <p class="detalle">La cuenta se divide por personas o por productos y el descuento de stock es idempotente dentro de una transacción. La imagen se publica por rama y el servidor se actualiza solo.</p>
+          <p class="acceso"><a href="https://comandas-dev.kipups.com" target="_blank" rel="noopener">Abrir el entorno de pruebas</a></p>
+          <p class="aviso">Producto de Kip-Up. Simulación con una cevichería inventada; fotos de los platos de Wikimedia Commons (<a href="/proyectos/platos/creditos.txt">créditos</a>).</p>
+          <p class="pila">Next.js · Prisma · Socket.IO · ESC/POS</p>
+          <div class="mas-flujo">
+<div class="flujo-ventana">
         <div class="flujo" style="--alto: 300" aria-hidden="true">
           <svg class="flujo-cables" viewBox="0 0 1000 300"><g style="--t: 0.70s"><path class="cable" d="M116 130 C172.5 130 172.5 130 229 130" /><path class="cable-vivo" d="M116 130 C172.5 130 172.5 130 229 130" pathLength="1" /><text class="cable-item" x="172" y="122">1 ítem</text></g><g style="--t: 1.60s"><path class="cable" d="M301 130 C357.5 130 357.5 130 414 130" /><path class="cable-vivo" d="M301 130 C357.5 130 357.5 130 414 130" pathLength="1" /><text class="cable-item" x="358" y="122">1 ítem</text></g><g style="--t: 2.50s"><path class="cable" d="M486 130 C542.5 130 542.5 130 599 130" /><path class="cable-vivo" d="M486 130 C542.5 130 542.5 130 599 130" pathLength="1" /><text class="cable-item" x="542" y="122">1 ítem</text></g><g style="--t: 3.40s"><path class="cable" d="M671 130 C747.5 130 747.5 62 824 62" /><path class="cable-vivo" d="M671 130 C747.5 130 747.5 62 824 62" pathLength="1" /><text class="cable-item" x="768" y="55">1 ítem</text></g><g style="--t: 3.40s"><path class="cable" d="M671 130 C747.5 130 747.5 212 824 212" /><path class="cable-vivo" d="M671 130 C747.5 130 747.5 212 824 212" pathLength="1" /><text class="cable-item" x="740" y="225">1 ítem</text></g></svg>
           <div class="nodo nodo-disparo" style="--x: 8.0%; --y: 43.33%; --t: 0.15s">
@@ -375,24 +447,41 @@
         </div>
         </div>
         <p class="flujo-pie"><button class="flujo-correr" type="button"><svg class="relleno" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.5v13l10.5-6.5z"/></svg>Ejecutar otra vez</button><span>Datos de ejemplo</span></p>
-        <div class="objeto-mas">
-          <p class="larga">El pedido pasa de la mesa a la cocina y a la caja al momento, con plano de mesas, pantalla de cocina e impresión de tickets.</p>
-          <p class="detalle">La cuenta se divide por personas o por productos y el descuento de stock es idempotente dentro de una transacción. La imagen se publica por rama y el servidor se actualiza solo.</p>
-          <p class="acceso"><a href="https://comandas-dev.kipups.com" target="_blank" rel="noopener">Abrir el entorno de pruebas</a></p>
-          <p class="aviso">Producto de Kip-Up. Simulación con una cevichería inventada; fotos de los platos de Wikimedia Commons (<a href="/proyectos/platos/creditos.txt">créditos</a>).</p>
-        </div>
-      </article>
-      <article class="objeto caso" id="p-contenido" style="--acento: #f2c14e" data-sim="contenido" data-marco="navegador" data-url="contenido.kipups.com · simulación" data-cartel="/proyectos/contenido-cartel.webp" data-proporcion="1000 / 625">
-        <div class="caso-texto">
-          <h3>Lo que vendió cada video de TikTok</h3>
-          <div class="caso-cuerpo">
-          <p>Un negocio anuncia en TikTok y no sabe qué video le trajo ventas. Aquí cada video nace con un código; los mensajes que llegan por su anuncio se registran con ese código, y cuando alguien compra, la venta queda pegada al video. A fin de mes se ve, en soles, lo que vendió cada uno.</p>
-          <p>Los avisos de TikTok llegan firmados y se comprueban antes de tocar la base. A TikTok solo vuelve la venta, cifrada, y nunca un dato de salud.</p>
-            <p class="pila">NestJS · PostgreSQL con RLS · React · TikTok API for Business</p>
-            <p class="caso-acciones"><button class="objeto-abrir boton" type="button" aria-haspopup="dialog">Ver la simulación</button><a class="boton boton-borde" href="https://contenido-dev.kipups.com" target="_blank" rel="noopener">Abrir el entorno de pruebas</a></p>
           </div>
         </div>
-        <div class="flujo-ventana">
+      </li>
+      <li class="obra objeto" id="p-nazca" style="--acento: #e8b878">
+        <div class="vista vista-linea" aria-hidden="true">
+          <span class="na-luz"></span>
+          <svg class="na-figura" viewBox="-20 -20 1040 561" aria-hidden="true" focusable="false"><path pathLength="1" d="M451.0 226.7 L6.8 289.1 L4.9 289.0 L3.1 288.4 L1.6 287.3 L0.5 285.8 L0.0 284.0 L0.0 282.1 L0.6 280.3 L1.8 278.8 L3.3 277.8 L5.1 277.2 L449.3 214.8 L458.1 204.0 L472.4 199.9 L398.8 8.1 L398.4 6.3 L398.6 4.4 L399.4 2.7 L400.6 1.3 L402.2 0.4 L404.1 0.0 L405.9 0.2 L407.7 1.0 L409.0 2.2 L410.0 3.8 L483.6 195.6 L499.8 197.9 L440.8 51.9 L440.4 50.0 L440.6 48.2 L441.3 46.5 L442.5 45.0 L444.1 44.1 L446.0 43.6 L447.8 43.8 L449.6 44.5 L451.0 45.8 L451.9 47.4 L510.9 193.4 L527.2 195.9 L481.7 88.7 L481.3 86.9 L481.4 85.0 L482.1 83.3 L483.3 81.9 L484.9 80.9 L486.7 80.4 L488.6 80.5 L490.3 81.2 L491.8 82.5 L492.8 84.0 L538.3 191.2 L554.6 193.9 L522.6 121.9 L522.1 120.1 L522.2 118.2 L522.9 116.5 L524.1 115.0 L525.6 114.0 L527.4 113.5 L529.3 113.6 L531.1 114.3 L532.5 115.5 L533.5 117.0 L565.6 189.0 L591.5 187.3 L583.7 147.0 L583.6 145.1 L584.1 143.3 L585.2 141.8 L586.7 140.6 L588.4 140.0 L590.3 139.9 L592.1 140.4 L593.7 141.5 L594.8 143.0 L595.4 144.7 L603.3 185.0 L610.1 184.4 L603.0 133.5 L603.0 131.7 L603.6 129.9 L604.7 128.4 L606.3 127.3 L608.1 126.8 L609.9 126.8 L611.7 127.4 L613.2 128.5 L614.3 130.1 L614.8 131.9 L622.0 182.7 L628.7 181.5 L625.2 140.5 L625.3 138.7 L626.0 136.9 L627.2 135.5 L628.8 134.5 L630.6 134.0 L632.5 134.2 L634.2 134.9 L635.6 136.1 L636.6 137.7 L637.1 139.5 L640.7 180.4 L665.0 175.0 L686.1 153.8 L794.3 136.7 L796.2 136.7 L798.0 137.3 L799.5 138.4 L800.6 139.9 L801.2 141.7 L801.2 143.6 L800.6 145.3 L799.5 146.9 L798.0 148.0 L796.2 148.5 L688.0 165.7 L688.8 172.5 L855.0 149.1 L856.9 149.2 L858.6 149.8 L860.1 150.9 L861.2 152.4 L861.7 154.2 L861.7 156.1 L861.1 157.9 L860.0 159.4 L858.4 160.4 L856.6 161.0 L690.5 184.3 L691.5 191.1 L993.2 148.7 L995.1 148.7 L996.9 149.4 L998.4 150.5 L999.5 152.0 L1000.0 153.8 L1000.0 155.7 L999.4 157.5 L998.2 159.0 L996.7 160.0 L994.9 160.6 L693.1 203.0 L694.1 209.8 L897.5 181.2 L899.4 181.2 L901.2 181.8 L902.7 183.0 L903.7 184.5 L904.3 186.3 L904.3 188.2 L903.6 189.9 L902.5 191.4 L901.0 192.5 L899.2 193.0 L695.7 221.6 L696.8 228.4 L883.7 205.5 L885.6 205.5 L887.4 206.2 L888.8 207.3 L889.9 208.9 L890.4 210.7 L890.3 212.5 L889.7 214.3 L888.5 215.8 L887.0 216.8 L885.2 217.4 L698.3 240.3 L699.5 247.0 L828.9 233.4 L830.8 233.5 L832.6 234.2 L834.0 235.4 L835.0 237.0 L835.5 238.8 L835.4 240.6 L834.7 242.4 L833.6 243.9 L832.0 244.9 L830.2 245.4 L700.8 259.0 L681.0 264.3 L656.9 263.0 L742.9 312.6 L744.3 313.8 L745.3 315.4 L745.8 317.2 L745.7 319.0 L745.1 320.8 L743.9 322.3 L742.3 323.3 L740.5 323.8 L738.6 323.7 L736.9 323.0 L650.9 273.3 L637.5 263.6 L685.6 317.0 L686.6 318.6 L687.1 320.4 L687.0 322.3 L686.4 324.1 L685.2 325.5 L683.6 326.5 L681.8 327.0 L679.9 326.9 L678.2 326.2 L676.7 325.1 L628.6 271.6 L610.7 262.9 L652.8 400.4 L653.0 402.3 L652.7 404.1 L651.8 405.8 L650.5 407.1 L648.8 407.9 L646.9 408.2 L645.1 407.8 L643.4 407.0 L642.1 405.6 L641.3 403.9 L599.2 266.4 L586.3 261.4 L636.8 449.9 L637.0 451.7 L636.6 453.6 L635.7 455.2 L634.3 456.4 L632.6 457.2 L630.7 457.4 L628.9 457.0 L627.3 456.1 L626.0 454.7 L625.3 453.0 L574.7 264.5 L561.9 259.8 L620.5 513.4 L620.6 515.2 L620.1 517.1 L619.1 518.6 L617.7 519.8 L616.0 520.5 L614.1 520.7 L612.3 520.2 L610.7 519.2 L609.5 517.8 L608.8 516.1 L550.2 262.5 L502.4 248.0 L469.7 237.0 Z" /></svg>
+          <p class="na-pie"><b>Una sola línea</b><small>cerrada, que no se cruza</small></p>
+        </div>
+        <h3>Nazca</h3>
+        <p class="que">Un vuelo al amanecer sobre las líneas de Nazca.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Nazca: verlo por dentro"></button>
+        <div class="objeto-mas">
+          <p class="larga">Un vuelo al amanecer sobre la pampa de Nazca. Las figuras están tapadas por la arena: el cursor las va descubriendo, y cuando aparece casi entera, la línea se termina de trazar sola.</p>
+          <p class="detalle">El colibrí, la araña y el mono están dibujados a partir de fotos aéreas como una sola línea cerrada que no se cruza, igual que los geoglifos reales. Todo es código: el terreno, las figuras, el cielo y las fuentes, sin imágenes.</p>
+          <p class="acceso"><a href="https://nazca.yoiber.dev" target="_blank" rel="noopener">Visitarla</a> · <a href="https://github.com/yoiberdev/nazca" target="_blank" rel="noopener">Ver el código</a></p>
+          <p class="aviso">La vista es el colibrí con su trazo real, el mismo de la escena.</p>
+          <p class="pila">Svelte 5 · Threlte · three.js</p>
+        </div>
+      </li>
+      <li class="obra objeto" id="p-contenido" style="--acento: #f2c14e" data-sim="contenido" data-marco="navegador" data-url="contenido.kipups.com · simulación" data-cartel="/proyectos/contenido-cartel.webp" data-proporcion="1000 / 625">
+        <div class="vista obra-captura" aria-hidden="true">
+            <img data-src="/proyectos/contenido-cartel.webp" alt="" width="1000" height="625" decoding="async" />
+          </div>
+        <h3>Contenido</h3>
+        <p class="que">Cuánto vendió cada video de TikTok, en soles.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Contenido: verlo por dentro"></button>
+        <div class="objeto-mas">
+          <p class="larga">Del vídeo de TikTok a la venta en soles: el taller donde nace cada vídeo con su código, los mensajes que llegan por cada anuncio y, cada mes, lo que vendió cada vídeo.</p>
+          <p class="detalle">Los avisos de TikTok llegan firmados y se comprueban antes de tocar la base, y cada negocio ve solo lo suyo porque lo impone PostgreSQL. La regla de las 48 horas de TikTok la hace cumplir el servidor, y a TikTok solo vuelven las ventas, cifradas y nunca de salud.</p>
+          <p class="acceso"><a href="https://contenido-dev.kipups.com" target="_blank" rel="noopener">Abrir el entorno de pruebas</a></p>
+          <p class="aviso">Producto de Kip-Up, en demo. Simulación con la misma cevichería inventada de Comandas; TikTok, en modo de pruebas.</p>
+          <p class="pila">NestJS · PostgreSQL con RLS · React · TikTok API for Business</p>
+          <div class="mas-flujo">
+<div class="flujo-ventana">
         <div class="flujo" style="--alto: 300" aria-hidden="true">
           <svg class="flujo-cables" viewBox="0 0 1000 300"><g style="--t: 0.70s"><path class="cable" d="M116 130 C172.5 130 172.5 130 229 130" /><path class="cable-vivo" d="M116 130 C172.5 130 172.5 130 229 130" pathLength="1" /><text class="cable-item" x="172" y="122">1 ítem</text></g><g style="--t: 1.60s"><path class="cable" d="M301 130 C357.5 130 357.5 130 414 130" /><path class="cable-vivo" d="M301 130 C357.5 130 357.5 130 414 130" pathLength="1" /><text class="cable-item" x="358" y="122">1 ítem</text></g><g style="--t: 2.50s"><path class="cable" d="M486 130 C542.5 130 542.5 130 599 130" /><path class="cable-vivo" d="M486 130 C542.5 130 542.5 130 599 130" pathLength="1" /><text class="cable-item" x="542" y="122">1 ítem</text></g><g style="--t: 3.40s"><path class="cable" d="M671 130 C747.5 130 747.5 62 824 62" /><path class="cable-vivo" d="M671 130 C747.5 130 747.5 62 824 62" pathLength="1" /><text class="cable-item" x="768" y="55">1 ítem</text></g><g style="--t: 3.40s"><path class="cable" d="M671 130 C747.5 130 747.5 212 824 212" /><path class="cable-vivo" d="M671 130 C747.5 130 747.5 212 824 212" pathLength="1" /><text class="cable-item" x="740" y="225">1 ítem</text></g></svg>
           <div class="nodo nodo-disparo" style="--x: 8.0%; --y: 43.33%; --t: 0.15s">
@@ -428,30 +517,10 @@
         </div>
         </div>
         <p class="flujo-pie"><button class="flujo-correr" type="button"><svg class="relleno" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.5v13l10.5-6.5z"/></svg>Ejecutar otra vez</button><span>Datos de ejemplo</span></p>
-        <div class="objeto-mas">
-          <p class="larga">Del vídeo de TikTok a la venta en soles: el taller donde nace cada vídeo con su código, los mensajes que llegan por cada anuncio y, cada mes, lo que vendió cada vídeo.</p>
-          <p class="detalle">Los avisos de TikTok llegan firmados y se comprueban antes de tocar la base, y cada negocio ve solo lo suyo porque lo impone PostgreSQL. La regla de las 48 horas de TikTok la hace cumplir el servidor, y a TikTok solo vuelven las ventas, cifradas y nunca de salud.</p>
-          <p class="acceso"><a href="https://contenido-dev.kipups.com" target="_blank" rel="noopener">Abrir el entorno de pruebas</a></p>
-          <p class="aviso">Producto de Kip-Up, en demo. Simulación con la misma cevichería inventada de Comandas; TikTok, en modo de pruebas.</p>
+          </div>
         </div>
-      </article>
-      <article class="objeto caso-corto" id="p-erp" style="--acento: #6fd3e0" data-imagen="/casos/erp-agenda.png" data-marco="navegador" data-url="erp · agenda" data-proporcion="1400 / 833">
-        <h3>ERP de un centro de terapias</h3>
-        <p>También hice el ERP con el que un centro de terapias de varias sedes trabaja cada día: agenda por especialista, historia de sesiones, CRM y comprobantes ante SUNAT.</p>
-        <p class="caso-acciones"><button class="objeto-abrir boton boton-borde" type="button" aria-haspopup="dialog">Ver la agenda</button><a class="boton boton-borde" href="/casos/erp-centro-de-terapias/">Leer el caso</a></p>
-        <p class="pila">Django REST Framework · React · PostgreSQL · Redis</p>
-        <div class="objeto-mas">
-          <p class="larga">El sistema con el que un centro de terapias con varias sedes trabaja todos los días: agenda por especialista, historia de sesiones, un CRM y comprobantes electrónicos ante SUNAT, en un solo lugar.</p>
-          <p class="detalle">La facturación electrónica pasa por Tefacturo y Rapifac, y se entra con la cuenta de Google. Hay roles y permisos, tableros con indicadores y reportes en PDF y Excel. El sistema anterior, en PHP, siguió funcionando en paralelo mientras se migraba por etapas.</p>
-          <p class="acceso"><a href="/casos/erp-centro-de-terapias/">Leer el caso</a></p>
-          <p class="aviso">Capturas de una copia levantada aparte, con la marca cambiada y pacientes generados por los datos de prueba: nadie de ahí existe.</p>
-        </div>
-      </article>
-    </section>
-    <section class="grupo herramientas" data-grupo="abierto" aria-labelledby="g-abierto">
-      <h2 class="grupo-titulo" id="g-abierto"><span>Herramientas abiertas</span></h2>
-      <p class="grupo-entrada">Dos programas que cualquiera puede bajar y leer.</p>
-      <article class="objeto producto producto-kuidy" id="p-lyrics" data-ancho="3" style="--acento: #ff6f91">
+      </li>
+      <li class="obra objeto" id="p-lyrics" style="--acento: #ff6f91">
         <div class="vista vista-kuidy" aria-hidden="true">
           <svg class="ku-escena" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice" focusable="false">
             <defs>
@@ -474,25 +543,51 @@
           </div>
           <span class="ku-sonando"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 17.5V5.5l10-2v12" /><circle cx="6.5" cy="17.5" r="2.5" /><circle cx="16.5" cy="15.5" r="2.5" /></svg>Sonando ahora</span>
         </div>
-        <div class="producto-texto">
-          <h3>Kuidy Lyrics</h3>
-          <p class="producto-frase">La letra de lo que suena, flotando encima de cualquier ventana de Windows, también encima del juego en pantalla completa.</p>
-          <ul class="producto-datos">
-            <li>Funciona con Spotify o con cualquier reproductor, sin conectar nada.</li>
-            <li>Romaji para las canciones en japonés, sin internet.</li>
-            <li>Pesa 20 MB porque es un solo programa en Rust.</li>
-          </ul>
-          <p class="caso-acciones"><a class="boton" href="https://github.com/yoiberdev/kuidy-lyrics/releases/tag/rs-v0.4.0" target="_blank" rel="noopener">Descargar para Windows</a><a class="boton boton-borde" href="https://github.com/yoiberdev/kuidy-lyrics" target="_blank" rel="noopener">Ver el código</a></p>
-          <p class="pila">Rust · Windows.Media.Control · romaji sin conexión</p>
-        </div>
+        <h3>Kuidy Lyrics</h3>
+        <p class="que">La letra de la canción, encima del juego.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Kuidy Lyrics: verlo por dentro"></button>
         <div class="objeto-mas">
           <p class="larga">Letras sincronizadas que flotan encima de cualquier ventana de Windows, juegos en pantalla completa incluidos, y se resaltan línea a línea con la música.</p>
           <p class="detalle">La reescribí en Rust, sin Electron ni un navegador dentro: pesa 20 MB en vez de 392 y corre en un solo proceso. Le pregunta a Windows qué está sonando, así que funciona con Spotify o con cualquier reproductor sin conectar nada, y el romaji de las canciones en japonés se calcula en local.</p>
           <p class="acceso"><a href="https://github.com/yoiberdev/kuidy-lyrics" target="_blank" rel="noopener">Ver el código</a> · <a href="https://github.com/yoiberdev/kuidy-lyrics/releases/tag/rs-v0.4.0" target="_blank" rel="noopener">Descargar para Windows</a></p>
           <p class="aviso">Código abierto. La letra de la vista es inventada.</p>
+          <p class="pila">Rust · Windows.Media.Control · romaji sin conexión</p>
         </div>
-      </article>
-      <article class="objeto producto producto-docu" id="p-docugraph" data-ancho="3" style="--acento: #b8e986">
+      </li>
+      <li class="obra objeto" id="p-km0" style="--acento: #9fe07a" data-video="/proyectos/km0" data-marco="movil" data-url="" data-cartel="/proyectos/km0-cartel.webp" data-proporcion="540 / 1200">
+        <div class="vista obra-telefono" aria-hidden="true">
+            <span class="tel"><img data-src="/proyectos/km0-cartel.webp" alt="" width="540" height="1200" decoding="async" /><video class="obra-video" data-video="/proyectos/km0" muted loop playsinline preload="none"></video></span>
+          </div>
+        <h3>km 0</h3>
+        <p class="que">Para cuando le doy a «iniciar» tarde.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="km 0: verlo por dentro"></button>
+        <div class="objeto-mas">
+          <p class="larga">Salgo a caminar y a medio camino me acuerdo de darle a «iniciar». km 0 graba como Strava y, si empecé tarde, trae de Health Connect el tramo que ya había caminado y pone la placa KM 0 donde de verdad salí.</p>
+          <p class="detalle">Graba con la pantalla apagada desde un servicio en Kotlin, y cada punto se escribe en un archivo apenas llega: si Android cierra la app a mitad de camino, la actividad se guarda con lo que había. El tramo de antes sale de un recorrido de Health Connect o de los pasos; si no hay ninguno, se dibuja en el mapa.</p>
+          <p class="acceso"><a href="https://github.com/yoiberdev/km0" target="_blank" rel="noopener">Ver el código</a></p>
+          <p class="aviso">Capturas de la app en el emulador de Android.</p>
+          <p class="pila">Svelte · Capacitor · Kotlin · Health Connect · MapLibre</p>
+        </div>
+      </li>
+      <li class="obra objeto obra-ancha" id="p-ajolote" style="--acento: #ff9bd2" data-video="/proyectos/ajolote" data-marco="navegador" data-url="ajolote.yoiber.dev" data-cartel="/proyectos/ajolote-cartel.webp" data-proporcion="1000 / 626">
+        <div class="vista vista-cueva" aria-hidden="true">
+          <div class="cu-tanque">
+            <img class="cu-cartel" data-src="/proyectos/ajolote-cartel.webp" alt="" width="1000" height="626" decoding="async" />
+            <video class="cu-video" data-video="/proyectos/ajolote" muted loop playsinline preload="none"></video>
+          </div>
+        </div>
+        <h3>Ajolote</h3>
+        <p class="que">Mi mascota, en una cueva de bloques.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Ajolote: verlo por dentro"></button>
+        <div class="objeto-mas">
+          <p class="larga">Mi mascota en la web: un ajolote de bloques que vive en su cueva. Donde apuntes, la cámara enfoca; si le haces clic, da una voltereta y cambia de color.</p>
+          <p class="detalle">Todo es código: la cueva son 6627 bloques pintados píxel a píxel, sin una sola imagen. La hice primero en React y la rehice en Svelte: pesa un tercio menos.</p>
+          <p class="acceso"><a href="https://ajolote.yoiber.dev" target="_blank" rel="noopener">Visitarlo</a> · <a href="https://github.com/yoiberdev/ajolote" target="_blank" rel="noopener">Ver el código</a></p>
+          <p class="aviso">Como en el juego, el azul es el raro: sale una vez de cada doce clics.</p>
+          <p class="pila">Svelte · three.js · Threlte · GLSL</p>
+        </div>
+      </li>
+      <li class="obra objeto" id="p-docugraph" style="--acento: #b8e986">
         <div class="vista vista-terminal" aria-hidden="true">
           <div class="te-barra"><i></i><i></i><i></i><span>agente · docugraph-mcp</span></div>
           <div class="te-cuerpo">
@@ -503,172 +598,18 @@
             <span class="te-cursor"></span>
           </div>
         </div>
-        <div class="producto-texto">
-          <h3>DocuGraph MCP</h3>
-          <p class="producto-frase">Tu agente de IA le pregunta a un PDF de miles de páginas y recibe el párrafo exacto con su número de página.</p>
-          <ul class="producto-datos">
-            <li>Responde en 25 ms.</li>
-            <li>Sin red ni claves de API.</li>
-            <li>133 pruebas y licencia MIT.</li>
-          </ul>
-          <p class="caso-acciones"><a class="boton" href="https://github.com/yoiberdev/docugraph-mcp" target="_blank" rel="noopener">Ver el código</a></p>
-          <p class="pila">Rust · Model Context Protocol</p>
-        </div>
+        <h3>DocuGraph</h3>
+        <p class="que">Para que una IA lea un manual de 3 000 páginas.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="DocuGraph: verlo por dentro"></button>
         <div class="objeto-mas">
           <p class="larga">Un servidor MCP para que un agente de IA le pregunte a un PDF de miles de páginas y reciba unos 400 tokens de evidencia con el número de página.</p>
           <p class="detalle">Responde en 25 ms, sin red ni claves de API, y el agente recibe la evidencia que necesita en vez de leerse el manual entero. Tiene 133 pruebas en la integración continua y licencia MIT.</p>
           <p class="acceso"><a href="https://github.com/yoiberdev/docugraph-mcp" target="_blank" rel="noopener">Ver el código</a></p>
           <p class="aviso">Código abierto. El diálogo de la terminal es un ejemplo.</p>
-        </div>
-      </article>
-    </section>
-    <section class="grupo estante" data-grupo="personal" aria-labelledby="g-personal">
-      <h2 class="grupo-titulo" id="g-personal"><span>Lo que hago por gusto</span></h2>
-      <p class="grupo-entrada">Apps que uso yo y escenas en 3D. Tócalas para verlas andando.</p>
-      <ul class="mesa">
-      <li class="objeto pieza pieza-ancha" id="p-remezon" data-grupo="visual" data-ancho="3" style="--acento: #ff6a3d" data-video="/proyectos/remezon" data-marco="navegador" data-url="sismos.yoiber.dev" data-cartel="/proyectos/remezon-cartel.webp" data-proporcion="1000 / 626">
-        <div class="vista vista-corte" aria-hidden="true">
-          <svg class="co-corte" viewBox="0 -50 1000 625" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
-            <g class="co-rejilla"><line x1="-600" x2="1600" y1="80.6" y2="80.6" /><text x="992" y="75.6">100 km</text><line x1="-600" x2="1600" y1="161.3" y2="161.3" /><text x="992" y="156.3">200 km</text><line x1="-600" x2="1600" y1="241.9" y2="241.9" /><text x="992" y="236.9">300 km</text><line x1="-600" x2="1600" y1="322.6" y2="322.6" /><text x="992" y="317.6">400 km</text><line x1="-600" x2="1600" y1="403.2" y2="403.2" /><text x="992" y="398.2">500 km</text><line x1="-600" x2="1600" y1="483.9" y2="483.9" /><text x="992" y="478.9">600 km</text></g>
-            <rect class="co-mar" x="-600" y="0" width="793.5" height="40" />
-            <path class="co-tierra" d="M-24.2,40 L-24.2,31.9 -8.1,32.2 8.1,32.8 24.2,33.3 40.3,33.9 56.5,34.5 72.6,33.2 88.7,28.6 104.8,20.6 121.0,13.1 137.1,7.0 153.2,3.6 169.4,1.1 185.5,-2.1 201.6,-7.1 217.7,-14.4 233.9,-21.4 250.0,-28.0 266.1,-32.4 282.3,-34.8 298.4,-34.8 314.5,-34.2 330.6,-33.6 346.8,-33.5 362.9,-33.9 379.0,-34.5 395.2,-34.7 411.3,-34.3 427.4,-33.5 443.5,-32.8 459.7,-32.1 475.8,-31.5 491.9,-31.1 508.1,-30.9 524.2,-30.8 540.3,-30.7 556.5,-28.5 572.6,-25.3 588.7,-19.6 604.8,-14.7 621.0,-10.3 637.1,-8.2 653.2,-6.5 669.4,-5.1 685.5,-3.8 701.6,-3.3 717.7,-3.0 733.9,-2.8 750.0,-2.6 766.1,-2.6 782.3,-2.5 798.4,-2.3 814.5,-2.2 830.6,-2.1 846.8,-2.0 862.9,-2.0 879.0,-1.9 895.2,-1.8 911.3,-1.8 927.4,-1.7 943.5,-1.7 959.7,-1.6 975.8,-1.6 991.9,-1.6 1008.1,-1.5 1024.2,-1.5 L1024.2,40 Z" />
-            <path class="co-borde" d="M-24.2,31.9 L-8.1,32.2 L8.1,32.8 L24.2,33.3 L40.3,33.9 L56.5,34.5 L72.6,33.2 L88.7,28.6 L104.8,20.6 L121.0,13.1 L137.1,7.0 L153.2,3.6 L169.4,1.1 L185.5,-2.1 L201.6,-7.1 L217.7,-14.4 L233.9,-21.4 L250.0,-28.0 L266.1,-32.4 L282.3,-34.8 L298.4,-34.8 L314.5,-34.2 L330.6,-33.6 L346.8,-33.5 L362.9,-33.9 L379.0,-34.5 L395.2,-34.7 L411.3,-34.3 L427.4,-33.5 L443.5,-32.8 L459.7,-32.1 L475.8,-31.5 L491.9,-31.1 L508.1,-30.9 L524.2,-30.8 L540.3,-30.7 L556.5,-28.5 L572.6,-25.3 L588.7,-19.6 L604.8,-14.7 L621.0,-10.3 L637.1,-8.2 L653.2,-6.5 L669.4,-5.1 L685.5,-3.8 L701.6,-3.3 L717.7,-3.0 L733.9,-2.8 L750.0,-2.6 L766.1,-2.6 L782.3,-2.5 L798.4,-2.3 L814.5,-2.2 L830.6,-2.1 L846.8,-2.0 L862.9,-2.0 L879.0,-1.9 L895.2,-1.8 L911.3,-1.8 L927.4,-1.7 L943.5,-1.7 L959.7,-1.6 L975.8,-1.6 L991.9,-1.6 L1008.1,-1.5 L1024.2,-1.5" />
-            <g class="co-sismos"><circle class="co-in" cx="236.3" cy="79.0" r="5.0" style="--t: 0.020" /><circle class="co-in" cx="387.2" cy="89.5" r="4.0" style="--t: 0.024" /><circle class="co-su" cx="138.8" cy="10.5" r="9.4" style="--t: 0.028" /><circle class="co-su" cx="126.2" cy="4.8" r="8.1" style="--t: 0.031" /><circle class="co-in" cx="625.2" cy="130.6" r="4.0" style="--t: 0.035" /><circle class="co-in" cx="641.7" cy="79.0" r="4.7" style="--t: 0.042" /><circle class="co-in" cx="402.0" cy="79.0" r="4.0" style="--t: 0.051" /><circle class="co-in" cx="281.2" cy="76.6" r="4.0" style="--t: 0.060" /><circle class="co-su" cx="402.5" cy="26.6" r="6.0" style="--t: 0.069" /><circle class="co-su" cx="262.3" cy="42.7" r="7.1" style="--t: 0.116" /><circle class="co-in" cx="503.1" cy="167.7" r="4.0" style="--t: 0.125" /><circle class="co-su" cx="216.5" cy="26.6" r="4.0" style="--t: 0.153" /><circle class="co-su" cx="506.0" cy="26.6" r="5.4" style="--t: 0.162" /><circle class="co-in" cx="234.3" cy="76.6" r="4.3" style="--t: 0.168" /><circle class="co-in" cx="530.9" cy="56.5" r="4.3" style="--t: 0.171" /><circle class="co-in" cx="497.4" cy="103.5" r="5.0" style="--t: 0.174" /><circle class="co-in" cx="803.7" cy="157.3" r="6.0" style="--t: 0.177" /><circle class="co-su" cx="445.3" cy="11.3" r="6.4" style="--t: 0.181" /><circle class="co-in" cx="475.6" cy="138.7" r="5.0" style="--t: 0.184" /><circle class="co-in" cx="379.2" cy="117.7" r="7.1" style="--t: 0.188" /><circle class="co-in" cx="532.5" cy="84.0" r="7.4" style="--t: 0.192" /><circle class="co-pr" cx="743.9" cy="482.7" r="4.7" style="--t: 0.197" /><circle class="co-su" cx="707.9" cy="44.3" r="6.0" style="--t: 0.201" /><circle class="co-in" cx="357.5" cy="91.2" r="4.3" style="--t: 0.208" /><circle class="co-in" cx="312.1" cy="94.2" r="5.7" style="--t: 0.218" /><circle class="co-pr" cx="762.9" cy="483.8" r="6.0" style="--t: 0.225" /><circle class="co-in" cx="364.8" cy="88.5" r="4.0" style="--t: 0.231" /><circle class="co-su" cx="237.1" cy="45.9" r="5.4" style="--t: 0.238" /><circle class="co-pr" cx="850.6" cy="490.7" r="5.0" style="--t: 0.245" /><circle class="co-in" cx="664.1" cy="85.2" r="6.7" style="--t: 0.255" /><circle class="co-su" cx="837.0" cy="11.4" r="5.4" style="--t: 0.260" /><circle class="co-su" cx="831.1" cy="8.1" r="8.1" style="--t: 0.262" /><circle class="co-su" cx="816.6" cy="6.9" r="4.0" style="--t: 0.264" /><circle class="co-su" cx="262.0" cy="23.1" r="4.0" style="--t: 0.266" /><circle class="co-in" cx="161.5" cy="49.2" r="4.7" style="--t: 0.269" /><circle class="co-in" cx="500.4" cy="194.7" r="4.0" style="--t: 0.271" /><circle class="co-su" cx="297.1" cy="29.4" r="6.0" style="--t: 0.273" /><circle class="co-su" cx="752.2" cy="8.1" r="5.4" style="--t: 0.275" /><circle class="co-su" cx="741.1" cy="8.1" r="4.0" style="--t: 0.277" /><circle class="co-su" cx="106.7" cy="26.0" r="4.0" style="--t: 0.280" /><circle class="co-su" cx="241.8" cy="26.7" r="7.7" style="--t: 0.285" /><circle class="co-su" cx="223.5" cy="13.0" r="4.7" style="--t: 0.289" /><circle class="co-in" cx="739.0" cy="137.3" r="4.7" style="--t: 0.294" /><circle class="co-pr" cx="803.7" cy="478.5" r="7.7" style="--t: 0.299" /><circle class="co-in" cx="254.5" cy="57.1" r="5.0" style="--t: 0.306" /><circle class="co-in" cx="627.8" cy="123.4" r="6.0" style="--t: 0.312" /><circle class="co-su" cx="527.2" cy="19.5" r="6.0" style="--t: 0.318" /><circle class="co-su" cx="645.0" cy="11.5" r="6.0" style="--t: 0.324" /><circle class="co-pr" cx="695.0" cy="482.9" r="7.4" style="--t: 0.330" /><circle class="co-su" cx="286.9" cy="28.3" r="4.0" style="--t: 0.334" /><circle class="co-su" cx="145.2" cy="19.9" r="4.7" style="--t: 0.337" /><circle class="co-su" cx="532.7" cy="16.7" r="5.7" style="--t: 0.339" /><circle class="co-su" cx="538.4" cy="16.0" r="7.7" style="--t: 0.341" /><circle class="co-su" cx="186.3" cy="40.3" r="5.0" style="--t: 0.344" /><circle class="co-in" cx="390.7" cy="103.0" r="6.7" style="--t: 0.346" /><circle class="co-su" cx="132.9" cy="17.3" r="4.0" style="--t: 0.348" /><circle class="co-in" cx="478.2" cy="84.3" r="7.4" style="--t: 0.351" /><circle class="co-su" cx="176.4" cy="45.9" r="4.3" style="--t: 0.356" /><circle class="co-in" cx="687.6" cy="77.8" r="5.0" style="--t: 0.366" /><circle class="co-in" cx="260.2" cy="85.7" r="5.0" style="--t: 0.375" /><circle class="co-pr" cx="785.8" cy="461.9" r="4.3" style="--t: 0.384" /><circle class="co-pr" cx="654.3" cy="480.6" r="7.1" style="--t: 0.390" /><circle class="co-pr" cx="756.7" cy="509.1" r="11.5" style="--t: 0.394" /><circle class="co-pr" cx="666.3" cy="524.2" r="4.3" style="--t: 0.397" /><circle class="co-in" cx="489.0" cy="160.9" r="4.0" style="--t: 0.400" /><circle class="co-pr" cx="745.5" cy="476.9" r="4.3" style="--t: 0.403" /><circle class="co-in" cx="412.4" cy="119.5" r="5.0" style="--t: 0.406" /><circle class="co-in" cx="673.0" cy="78.2" r="6.4" style="--t: 0.410" /><circle class="co-su" cx="173.2" cy="48.3" r="5.7" style="--t: 0.414" /><circle class="co-su" cx="664.8" cy="19.7" r="7.4" style="--t: 0.419" /><circle class="co-su" cx="665.3" cy="13.5" r="5.7" style="--t: 0.424" /><circle class="co-su" cx="164.6" cy="8.1" r="9.1" style="--t: 0.427" /><circle class="co-su" cx="701.6" cy="26.6" r="4.0" style="--t: 0.431" /><circle class="co-su" cx="491.9" cy="26.6" r="5.0" style="--t: 0.434" /><circle class="co-su" cx="132.4" cy="26.6" r="9.8" style="--t: 0.437" /><circle class="co-su" cx="139.6" cy="26.6" r="4.3" style="--t: 0.440" /><circle class="co-su" cx="123.5" cy="26.6" r="4.0" style="--t: 0.443" /><circle class="co-su" cx="119.3" cy="26.6" r="4.3" style="--t: 0.446" /><circle class="co-pr" cx="765.9" cy="486.0" r="4.3" style="--t: 0.449" /><circle class="co-in" cx="371.5" cy="91.8" r="4.7" style="--t: 0.452" /><circle class="co-in" cx="380.9" cy="93.2" r="4.7" style="--t: 0.455" /><circle class="co-in" cx="657.1" cy="90.3" r="8.1" style="--t: 0.458" /><circle class="co-pr" cx="677.2" cy="472.6" r="6.4" style="--t: 0.461" /><circle class="co-su" cx="546.3" cy="26.6" r="5.4" style="--t: 0.465" /><circle class="co-in" cx="614.1" cy="132.7" r="6.0" style="--t: 0.470" /><circle class="co-su" cx="612.2" cy="26.6" r="8.1" style="--t: 0.475" /><circle class="co-in" cx="363.9" cy="109.8" r="4.7" style="--t: 0.479" /><circle class="co-in" cx="246.9" cy="70.3" r="6.7" style="--t: 0.484" /><circle class="co-in" cx="733.2" cy="139.2" r="4.0" style="--t: 0.488" /><circle class="co-in" cx="769.5" cy="158.4" r="5.0" style="--t: 0.493" /><circle class="co-in" cx="362.2" cy="103.3" r="6.0" style="--t: 0.498" /><circle class="co-su" cx="620.3" cy="18.5" r="5.4" style="--t: 0.509" /><circle class="co-su" cx="201.5" cy="26.6" r="12.2" style="--t: 0.520" /><circle class="co-su" cx="219.2" cy="26.6" r="4.3" style="--t: 0.523" /><circle class="co-su" cx="256.1" cy="19.4" r="6.4" style="--t: 0.526" /><circle class="co-in" cx="187.6" cy="50.0" r="6.0" style="--t: 0.529" /><circle class="co-su" cx="237.8" cy="26.6" r="9.4" style="--t: 0.532" /><circle class="co-in" cx="603.7" cy="129.5" r="4.0" style="--t: 0.535" /><circle class="co-pr" cx="778.3" cy="430.9" r="7.1" style="--t: 0.546" /><circle class="co-pr" cx="793.9" cy="451.5" r="4.0" style="--t: 0.559" /><circle class="co-su" cx="197.8" cy="26.6" r="4.0" style="--t: 0.565" /><circle class="co-pr" cx="817.9" cy="450.1" r="7.7" style="--t: 0.571" /><circle class="co-su" cx="551.9" cy="8.1" r="4.0" style="--t: 0.594" /><circle class="co-su" cx="542.1" cy="13.6" r="4.3" style="--t: 0.596" /><circle class="co-su" cx="503.0" cy="8.1" r="4.3" style="--t: 0.598" /><circle class="co-su" cx="531.8" cy="8.1" r="4.7" style="--t: 0.601" /><circle class="co-in" cx="410.5" cy="104.8" r="4.0" style="--t: 0.603" /><circle class="co-su" cx="420.7" cy="31.9" r="5.0" style="--t: 0.605" /><circle class="co-in" cx="603.3" cy="92.7" r="9.1" style="--t: 0.608" /><circle class="co-in" cx="766.2" cy="155.6" r="4.3" style="--t: 0.610" /><circle class="co-in" cx="272.5" cy="86.3" r="4.0" style="--t: 0.614" /><circle class="co-su" cx="149.2" cy="18.5" r="6.4" style="--t: 0.620" /><circle class="co-su" cx="158.1" cy="22.7" r="4.0" style="--t: 0.627" /><circle class="co-su" cx="247.3" cy="18.5" r="5.0" style="--t: 0.631" /><circle class="co-in" cx="616.4" cy="122.7" r="4.3" style="--t: 0.633" /><circle class="co-pr" cx="819.4" cy="520.1" r="4.3" style="--t: 0.635" /><circle class="co-su" cx="158.3" cy="31.5" r="10.8" style="--t: 0.638" /><circle class="co-su" cx="141.0" cy="18.9" r="5.4" style="--t: 0.640" /><circle class="co-su" cx="134.8" cy="28.2" r="4.0" style="--t: 0.642" /><circle class="co-su" cx="156.3" cy="24.2" r="4.0" style="--t: 0.645" /><circle class="co-in" cx="692.3" cy="99.1" r="6.7" style="--t: 0.647" /><circle class="co-in" cx="347.6" cy="99.2" r="4.7" style="--t: 0.653" /><circle class="co-in" cx="632.9" cy="124.2" r="5.4" style="--t: 0.662" /><circle class="co-su" cx="150.4" cy="16.9" r="4.0" style="--t: 0.669" /><circle class="co-su" cx="226.0" cy="12.1" r="4.0" style="--t: 0.674" /><circle class="co-su" cx="283.8" cy="16.9" r="4.3" style="--t: 0.678" /><circle class="co-in" cx="490.2" cy="160.4" r="4.3" style="--t: 0.683" /><circle class="co-su" cx="314.5" cy="29.8" r="4.7" style="--t: 0.687" /><circle class="co-in" cx="557.8" cy="106.5" r="4.0" style="--t: 0.691" /><circle class="co-in" cx="283.1" cy="81.8" r="4.3" style="--t: 0.694" /><circle class="co-pr" cx="802.3" cy="468.7" r="5.7" style="--t: 0.698" /><circle class="co-in" cx="787.4" cy="166.7" r="7.7" style="--t: 0.702" /><circle class="co-in" cx="398.3" cy="95.2" r="5.0" style="--t: 0.706" /><circle class="co-in" cx="622.7" cy="118.5" r="7.4" style="--t: 0.711" /><circle class="co-su" cx="143.4" cy="19.4" r="7.1" style="--t: 0.715" /><circle class="co-su" cx="470.7" cy="21.5" r="4.0" style="--t: 0.720" /><circle class="co-su" cx="181.3" cy="34.7" r="5.4" style="--t: 0.724" /><circle class="co-in" cx="401.7" cy="85.4" r="4.7" style="--t: 0.728" /><circle class="co-in" cx="307.8" cy="88.7" r="4.3" style="--t: 0.731" /><circle class="co-in" cx="597.8" cy="116.6" r="4.3" style="--t: 0.735" /><circle class="co-in" cx="516.6" cy="104.0" r="4.0" style="--t: 0.739" /><circle class="co-su" cx="366.5" cy="5.6" r="4.0" style="--t: 0.744" /><circle class="co-su" cx="238.0" cy="8.1" r="4.7" style="--t: 0.750" /><circle class="co-su" cx="165.4" cy="32.3" r="7.7" style="--t: 0.756" /><circle class="co-su" cx="139.3" cy="16.1" r="4.3" style="--t: 0.762" /><circle class="co-su" cx="293.9" cy="23.4" r="5.0" style="--t: 0.769" /><circle class="co-in" cx="299.5" cy="81.5" r="6.7" style="--t: 0.775" /><circle class="co-in" cx="393.2" cy="104.8" r="5.4" style="--t: 0.780" /><circle class="co-pr" cx="707.6" cy="488.9" r="9.4" style="--t: 0.785" /><circle class="co-pr" cx="729.2" cy="500.5" r="9.4" style="--t: 0.789" /><circle class="co-pr" cx="761.8" cy="486.1" r="6.4" style="--t: 0.794" /><circle class="co-su" cx="699.2" cy="16.6" r="10.1" style="--t: 0.798" /><circle class="co-su" cx="621.4" cy="8.1" r="4.0" style="--t: 0.800" /><circle class="co-su" cx="710.8" cy="12.9" r="6.4" style="--t: 0.803" /><circle class="co-su" cx="726.6" cy="24.1" r="7.1" style="--t: 0.806" /><circle class="co-in" cx="570.9" cy="97.6" r="4.3" style="--t: 0.808" /><circle class="co-su" cx="448.7" cy="9.7" r="4.7" style="--t: 0.811" /><circle class="co-pr" cx="737.3" cy="493.5" r="5.4" style="--t: 0.813" /><circle class="co-su" cx="622.6" cy="10.5" r="4.0" style="--t: 0.817" /><circle class="co-su" cx="193.4" cy="35.2" r="5.4" style="--t: 0.822" /><circle class="co-in" cx="340.5" cy="68.5" r="5.0" style="--t: 0.826" /><circle class="co-su" cx="624.8" cy="13.7" r="4.3" style="--t: 0.831" /><circle class="co-su" cx="155.6" cy="31.5" r="7.7" style="--t: 0.836" /><circle class="co-in" cx="344.5" cy="93.5" r="5.0" style="--t: 0.840" /><circle class="co-pr" cx="687.7" cy="508.1" r="7.7" style="--t: 0.845" /><circle class="co-in" cx="629.9" cy="89.1" r="4.7" style="--t: 0.850" /><circle class="co-pr" cx="797.1" cy="460.0" r="6.7" style="--t: 0.853" /><circle class="co-in" cx="753.6" cy="116.9" r="9.1" style="--t: 0.856" /><circle class="co-in" cx="528.6" cy="215.3" r="7.4" style="--t: 0.860" /><circle class="co-su" cx="507.9" cy="14.5" r="4.7" style="--t: 0.863" /><circle class="co-in" cx="673.6" cy="98.9" r="10.8" style="--t: 0.866" /><circle class="co-su" cx="287.6" cy="30.6" r="4.0" style="--t: 0.869" /><circle class="co-in" cx="451.7" cy="150.0" r="4.3" style="--t: 0.880" /><circle class="co-su" cx="355.2" cy="27.4" r="4.7" style="--t: 0.894" /><circle class="co-in" cx="642.4" cy="101.6" r="9.1" style="--t: 0.903" /><circle class="co-in" cx="634.6" cy="88.7" r="5.7" style="--t: 0.910" /><circle class="co-in" cx="508.2" cy="190.3" r="8.1" style="--t: 0.917" /><circle class="co-pr" cx="774.8" cy="502.2" r="5.7" style="--t: 0.923" /><circle class="co-in" cx="527.1" cy="54.8" r="6.7" style="--t: 0.931" /><circle class="co-in" cx="301.4" cy="75.0" r="4.7" style="--t: 0.940" /><circle class="co-pr" cx="853.5" cy="489.5" r="6.0" style="--t: 0.946" /><circle class="co-pr" cx="804.9" cy="500.9" r="5.7" style="--t: 0.950" /><circle class="co-su" cx="169.6" cy="21.8" r="4.0" style="--t: 0.954" /><circle class="co-su" cx="169.9" cy="19.4" r="8.1" style="--t: 0.957" /><circle class="co-su" cx="150.5" cy="14.5" r="4.3" style="--t: 0.961" /><circle class="co-su" cx="236.5" cy="46.8" r="4.7" style="--t: 0.972" /><circle class="co-in" cx="538.8" cy="101.6" r="4.0" style="--t: 0.986" /><circle class="co-in" cx="292.8" cy="79.8" r="6.4" style="--t: 0.995" /></g>
-            <g class="co-marca" style="--t: 0.528"><circle class="co-onda" cx="201.5" cy="26.6" r="9" /><text x="187.5" y="30.6" text-anchor="end">M 8.4 · Arequipa, 2001</text></g><g class="co-marca" style="--t: 0.398"><circle class="co-onda" cx="756.7" cy="509.1" r="9" /><text x="742.7" y="513.1" text-anchor="end">M 8.2 · a 631 km, 1994</text></g>
-          </svg>
-          <p class="co-anio"><b></b></p>
-          <p class="co-pie"><b>La placa de Nazca</b><small>dibujada por sus propios sismos</small></p>
-        </div>
-        <div class="objeto-pie">
-          <h3>Remezón</h3>
-          <p class="que">Los sismos del Perú en vivo y en 3D, cada uno a la profundidad donde empezó.</p>
-          <p class="pila">Nuxt 4 · Vue · TresJS · three.js</p>
-        </div>
-        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Remezón: abrir la ficha"></button>
-        <div class="objeto-mas">
-          <p class="larga">Los sismos del Perú en vivo y en 3D, cada uno a la profundidad donde empezó. Los datos son los reportes del IGP y la página los vuelve a pedir cada minuto. Si tocas un sismo, la cámara baja hasta él.</p>
-          <p class="detalle">Debajo del relieve están los 5 937 sismos fuertes que hubo desde 1973. Mirados de costado dibujan la placa de Nazca: entra bajo la costa, pasa por debajo de los Andes y sigue hasta más de 600 km de hondo, cerca de la frontera con Brasil.</p>
-          <p class="acceso"><a href="https://sismos.yoiber.dev" target="_blank" rel="noopener">Visitarla</a> · <a href="https://github.com/yoiberdev/remezon" target="_blank" rel="noopener">Ver el código</a></p>
-          <p class="aviso">La vista es el corte real: los 188 sismos de magnitud 6 o más desde 1973, en el orden en que pasaron.</p>
+          <p class="pila">Rust · Model Context Protocol</p>
         </div>
       </li>
-      <li class="objeto pieza" id="p-daebon" data-grupo="apps" data-ancho="2" style="--acento: #ffe45a" data-video="/proyectos/daebon" data-marco="movil" data-url="" data-cartel="/proyectos/daebon-cartel.webp" data-proporcion="540 / 1200">
-        <div class="vista vista-guion" aria-hidden="true">
-          <div class="gu-libreto">
-            <span class="gu-lomo"><i></i><i></i></span>
-            <div class="gu-tapa">
-              <small>S#1. Mi lista (noche)</small>
-              <svg class="gu-daebon" viewBox="52 -860 1826 971" aria-hidden="true" focusable="false"><path d="M247 -407H112V-567Q102 -579 86.5 -590.0Q71 -601 52 -608L61 -644Q65 -651 73 -651Q94 -651 129.0 -650.0Q164 -649 197.5 -647.0Q231 -645 249 -642L247 -563ZM423 -570 220 -562V-641Q228 -641 242.5 -642.0Q257 -643 273.5 -643.5Q290 -644 304.0 -645.0Q318 -646 325 -647L354 -667Q374 -668 401.0 -666.5Q428 -665 444 -662Q462 -658 462 -640Q462 -618 456.5 -601.0Q451 -584 443 -576Q436 -570 423 -570ZM753 111Q750 98 747.0 67.0Q744 36 741.5 -2.0Q739 -40 738.0 -73.5Q737 -107 737 -125V-755Q729 -771 709.0 -786.5Q689 -802 666 -812L680 -852Q682 -856 686.0 -858.0Q690 -860 698 -860Q722 -859 753.0 -854.0Q784 -849 813.0 -841.5Q842 -834 860 -825Q876 -818 875 -796L871 -737V-164Q871 -130 865.5 -79.0Q860 -28 850.0 23.5Q840 75 826 111ZM554 49Q551 35 548.0 7.0Q545 -21 542.5 -54.5Q540 -88 539.0 -118.0Q538 -148 538 -165V-689Q530 -704 511.5 -718.0Q493 -732 471 -742L486 -781Q489 -789 504 -789Q527 -788 555.5 -783.0Q584 -778 611.0 -770.5Q638 -763 654 -755Q668 -748 668 -727L664 -673V-201Q664 -169 659.0 -122.5Q654 -76 645.0 -29.5Q636 17 623 49ZM798 -387 627 -383V-468L798 -472ZM553 -238Q507 -220 455.5 -205.0Q404 -190 354.5 -180.5Q305 -171 264 -167Q254 -166 242.5 -165.5Q231 -165 222 -165Q182 -165 155.5 -185.5Q129 -206 118 -240Q116 -249 114.0 -264.0Q112 -279 112 -296V-480H247V-293Q247 -273 267 -273Q297 -273 333.0 -276.0Q369 -279 407.5 -284.0Q446 -289 483.5 -296.0Q521 -303 553 -312ZM1293 -67H1155V-98Q1143 -109 1124.5 -119.5Q1106 -130 1086 -137L1095 -171Q1097 -181 1111 -181Q1135 -181 1166.5 -179.0Q1198 -177 1228.0 -174.5Q1258 -172 1276 -168Q1295 -162 1295 -140L1293 -83ZM1695 80 1256 84 1309 2Q1332 2 1364.5 2.0Q1397 2 1433.0 1.5Q1469 1 1502.0 0.5Q1535 0 1559 -1L1603 -25Q1630 -26 1663.5 -23.0Q1697 -20 1716 -16Q1737 -11 1737 8Q1737 33 1730.5 50.0Q1724 67 1717 73Q1710 80 1695 80ZM1256 84Q1203 83 1179.0 58.5Q1155 34 1155 -13V-78H1293V-23Q1293 -10 1298.5 -4.0Q1304 2 1317 2ZM1725 -356Q1747 -355 1773.5 -351.5Q1800 -348 1823.5 -343.5Q1847 -339 1860 -334Q1878 -327 1878 -308Q1878 -286 1866.5 -268.0Q1855 -250 1844 -245Q1832 -247 1806.5 -248.0Q1781 -249 1754.5 -249.5Q1728 -250 1711 -250Q1694 -250 1653.5 -249.5Q1613 -249 1559.5 -248.5Q1506 -248 1448.0 -247.5Q1390 -247 1337.0 -246.0Q1284 -245 1244.5 -244.0Q1205 -243 1189 -242Q1176 -241 1152.5 -237.5Q1129 -234 1106.0 -229.5Q1083 -225 1068 -221Q1037 -234 1004.5 -257.0Q972 -280 949 -302Q942 -309 946 -318L956 -337Q988 -332 1025.5 -329.0Q1063 -326 1093 -325Q1108 -325 1143.0 -325.0Q1178 -325 1226.0 -325.5Q1274 -326 1329.0 -326.5Q1384 -327 1439.0 -328.0Q1494 -329 1542.5 -330.0Q1591 -331 1627.0 -332.5Q1663 -334 1678 -335ZM1483 -303H1347V-472H1483ZM1550 -751Q1542 -763 1525.5 -774.5Q1509 -786 1492 -794L1506 -829Q1508 -833 1512.0 -835.0Q1516 -837 1524 -836Q1544 -835 1574.0 -830.0Q1604 -825 1632.5 -818.0Q1661 -811 1675 -805Q1690 -800 1690 -781L1688 -733ZM1153 -708Q1146 -719 1127.0 -731.0Q1108 -743 1091 -750L1101 -785Q1103 -792 1118 -792Q1137 -793 1168.5 -790.5Q1200 -788 1230.5 -784.0Q1261 -780 1276 -776Q1292 -772 1292 -751L1291 -696ZM1173 -407Q1165 -425 1161.0 -447.5Q1157 -470 1157 -486L1153 -708L1291 -703L1288 -504Q1289 -463 1276.5 -440.0Q1264 -417 1250 -407ZM1670 -514H1550V-751L1688 -736L1685 -615Q1685 -589 1680.5 -560.0Q1676 -531 1670 -514ZM1598 -603 1271 -601V-684L1598 -686ZM1688 -506Q1698 -500 1698 -489Q1698 -473 1694.0 -459.5Q1690 -446 1685 -438Q1657 -438 1616.5 -438.0Q1576 -438 1529.5 -438.0Q1483 -438 1436.0 -437.5Q1389 -437 1346.5 -436.5Q1304 -436 1272 -435L1280 -518L1593 -520H1661Z" /></svg>
-              <hr />
-              <b>Daebon</b>
-              <span>tus doramas, escena por escena</span>
-            </div>
-            <span class="gu-sello"><svg class="gu-fin" viewBox="19 -796 933 877" aria-hidden="true" focusable="false"><path d="M799 -493Q821 -492 847.5 -488.5Q874 -485 897.5 -480.5Q921 -476 934 -471Q952 -464 952 -445Q952 -423 940.5 -405.0Q929 -387 918 -382Q906 -384 880.5 -385.0Q855 -386 828.5 -386.5Q802 -387 785 -387Q768 -387 727.5 -386.5Q687 -386 633.5 -385.5Q580 -385 522.0 -384.5Q464 -384 411.0 -383.0Q358 -382 318.5 -381.0Q279 -380 263 -379Q250 -378 226.5 -374.5Q203 -371 180.0 -366.5Q157 -362 142 -358Q111 -371 78.5 -394.0Q46 -417 23 -439Q16 -446 20 -455L30 -474Q62 -469 99.5 -466.0Q137 -463 167 -462Q182 -462 217.0 -462.0Q252 -462 300.0 -462.5Q348 -463 403.0 -463.5Q458 -464 513.0 -465.0Q568 -466 616.5 -467.0Q665 -468 701.0 -469.5Q737 -471 752 -472ZM329 -682Q323 -682 313.0 -682.0Q303 -682 292.0 -682.0Q281 -682 272.0 -681.5Q263 -681 258 -681Q245 -680 224.5 -676.0Q204 -672 190 -667Q168 -681 145.5 -699.5Q123 -718 108 -736Q101 -745 105 -752L115 -769Q136 -765 161.0 -762.5Q186 -760 205 -760Q214 -760 230.5 -760.0Q247 -760 266.0 -760.5Q285 -761 302.0 -761.5Q319 -762 329 -763ZM454 -686 304 -683 328 -763 377 -789Q388 -795 401 -789Q415 -782 437.0 -770.5Q459 -759 469 -752Q477 -746 472 -734ZM284 -434Q273 -437 274 -455Q283 -483 289.0 -523.5Q295 -564 299.0 -607.0Q303 -650 304 -683L381 -709L454 -686Q447 -645 431.0 -598.5Q415 -552 393.5 -509.0Q372 -466 347 -435Q337 -423 326 -425ZM690 -687Q686 -687 678.5 -687.0Q671 -687 663.5 -687.0Q656 -687 649.5 -686.5Q643 -686 640 -686Q627 -685 607.5 -681.5Q588 -678 575 -673Q553 -686 531.0 -704.5Q509 -723 493 -740Q487 -748 490 -756L500 -774Q521 -770 545.5 -768.5Q570 -767 589 -767Q597 -767 610.5 -767.0Q624 -767 639.0 -767.5Q654 -768 667.5 -768.5Q681 -769 690 -769ZM812 -691 666 -688 689 -769 738 -794Q750 -799 762 -794Q775 -787 795.0 -776.0Q815 -765 825 -758Q833 -752 828 -740ZM649 -441Q639 -444 640 -461Q648 -489 653.0 -529.5Q658 -570 661.5 -612.5Q665 -655 666 -688L741 -714L812 -691Q806 -651 791.5 -605.5Q777 -560 757.5 -518.0Q738 -476 715 -445Q706 -435 694 -435ZM752 77 355 80 401 2Q421 2 451.5 2.0Q482 2 516.5 1.5Q551 1 582.0 0.5Q613 0 633 -1L663 -16Q689 -17 721.0 -14.0Q753 -11 770 -7Q790 -4 790 16Q790 35 784.0 50.0Q778 65 773 70Q766 77 752 77ZM733 -223 375 -219V-293Q391 -293 416.5 -293.0Q442 -293 472.0 -293.5Q502 -294 532.0 -294.5Q562 -295 586.5 -295.5Q611 -296 624 -297L655 -311Q678 -310 706.0 -308.0Q734 -306 752 -302Q770 -298 770 -281Q770 -263 765.0 -249.5Q760 -236 754 -230Q747 -223 733 -223ZM355 80Q295 81 266.5 55.5Q238 30 238 -16V-123H377V-23Q377 -10 382.5 -4.0Q388 2 401 2ZM377 -110H238V-215Q229 -228 213.5 -239.5Q198 -251 180 -259L189 -297Q193 -304 201 -304Q223 -304 257.5 -302.5Q292 -301 326.5 -299.0Q361 -297 379 -293L377 -219ZM718 -78 336 -71V-148Q356 -148 385.5 -148.0Q415 -148 448.5 -148.5Q482 -149 514.5 -150.0Q547 -151 574.0 -151.5Q601 -152 617 -153L647 -168Q669 -167 697.0 -165.0Q725 -163 740 -160Q750 -159 754.5 -152.5Q759 -146 759 -138Q759 -121 754.0 -106.5Q749 -92 743 -87Q734 -78 718 -78Z" /></svg></span>
-          </div>
-          <span class="gu-resaltador"></span>
-        </div>
-        <div class="objeto-pie">
-          <h3>Daebon</h3>
-          <p class="que">Mi lista de doramas, hecha como un guion coreano.</p>
-          <p class="pila">Svelte 5 · TypeScript · Capacitor · Node · TMDB</p>
-        </div>
-        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Daebon: abrir la ficha"></button>
-        <div class="objeto-mas">
-          <p class="larga">Mi lista de doramas, hecha como un guion coreano: cada drama es un libreto engrapado, lo que ya salió y me falta va con resaltador, y cada ficha dice en qué plataforma está en Perú.</p>
-          <p class="detalle">La clave de TMDB no viaja en la app: la guarda un servidor en Node sin dependencias, que responde siete rutas fijas ya en español. En español, TMDB devuelve muchos títulos y actores coreanos en hangul, y el servidor elige el inglés antes que dejar algo ilegible. La semana agrupa los dramas como la tele coreana, por los días en que salen.</p>
-          <p class="acceso"><a href="https://doramas.yoiber.dev" target="_blank" rel="noopener">Abrirla</a> · <a href="https://github.com/yoiberdev/daebon" target="_blank" rel="noopener">Ver el código</a></p>
-          <p class="aviso">Grabación de la web con una lista de prueba. También hay app de Android. No tiene episodios: cada ficha lleva a donde se pueden ver legalmente.</p>
-        </div>
-      </li>
-      <li class="objeto pieza" id="p-tsuzuku" data-grupo="apps" data-ancho="2" style="--acento: #2bb5f0" data-video="/proyectos/tsuzuku" data-marco="movil" data-url="" data-cartel="/proyectos/tsuzuku-cartel.webp" data-proporcion="540 / 1200">
-        <div class="vista vista-revista" aria-hidden="true">
-          <div class="re-portada">
-            <span class="re-trama"></span>
-            <b class="re-logo">TSUZUKU</b>
-            <span class="re-numero">Nº 1 · semanal</span>
-            <span class="re-vineta"><img data-src="/proyectos/tsuzuku-cartel.webp" alt="" width="540" height="1200" decoding="async" /></span>
-            <svg class="re-tsuzuku" viewBox="14 -886 2896 923" aria-hidden="true" focusable="false"><path d="M81 -262Q164 -258 251 -258Q517 -258 633 -302Q708 -330 708 -414Q708 -456 664.0 -484.5Q620 -513 518 -513Q430 -513 305.0 -495.5Q180 -478 66 -443L14 -665Q187 -699 309.5 -713.0Q432 -727 537 -727Q745 -727 857.5 -652.0Q970 -577 970 -418Q970 -318 930.0 -237.0Q890 -156 804 -110Q710 -59 557.5 -39.0Q405 -19 188 -16Q179 -79 156.0 -137.5Q133 -196 81 -262ZM1891 -650Q1860 -750 1798 -853L1927 -886Q1989 -790 2022 -684ZM1970 -418Q1970 -318 1930.0 -237.0Q1890 -156 1804 -110Q1710 -59 1557.5 -39.0Q1405 -19 1188 -16Q1179 -79 1156.0 -137.5Q1133 -196 1081 -262Q1164 -258 1251 -258Q1517 -258 1633 -302Q1708 -330 1708 -414Q1708 -456 1664.0 -484.5Q1620 -513 1518 -513Q1430 -513 1305.0 -495.5Q1180 -478 1066 -443L1014 -665Q1187 -699 1309.5 -713.0Q1432 -727 1537 -727Q1617 -727 1678 -717Q1654 -767 1628 -809L1757 -843Q1815 -751 1846 -659Q1970 -583 1970 -418ZM2119 -323Q2063 -360 2063 -394Q2063 -419 2095 -443L2130 -467Q2424 -664 2577 -795Q2675 -771 2750.5 -755.0Q2826 -739 2910 -728Q2702 -589 2416 -413Q2408 -408 2408 -403Q2408 -397 2418 -391Q2660 -253 2904 -98Q2841 -75 2787.5 -47.0Q2734 -19 2659 25L2639 37Q2576 -13 2394.5 -137.5Q2213 -262 2119 -323Z" /></svg>
-            <span class="re-cinta">EP. 7 SALE MAÑANA</span>
-          </div>
-        </div>
-        <div class="objeto-pie">
-          <h3>Tsuzuku</h3>
-          <p class="que">Mi lista de anime, con el calendario de estrenos y dónde verlo legal.</p>
-          <p class="pila">Svelte 5 · TypeScript · Capacitor · AniList GraphQL</p>
-        </div>
-        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Tsuzuku: abrir la ficha"></button>
-        <div class="objeto-mas">
-          <p class="larga">Mi lista de anime: en qué episodio voy de cada uno, el calendario de estrenos en mi hora y dónde verlo legal. En Android me avisa cuando sale el siguiente.</p>
-          <p class="detalle">AniList permite 30 consultas por minuto, así que cada respuesta se guarda un rato y dos pantallas que piden lo mismo comparten la consulta. Los avisos se programan en el propio teléfono con las fechas de estreno, sin servidor. Las sinopsis llegan en inglés y Google las traduce una sola vez por anime.</p>
-          <p class="acceso"><a href="https://anime.yoiber.dev" target="_blank" rel="noopener">Abrirla</a> · <a href="https://github.com/yoiberdev/tsuzuku" target="_blank" rel="noopener">Ver el código</a></p>
-          <p class="aviso">Grabación de la web con una lista de prueba. También hay app de Android.</p>
-        </div>
-      </li>
-      <li class="objeto pieza" id="p-km0" data-grupo="apps" data-ancho="2" style="--acento: #9fe07a" data-video="/proyectos/km0" data-marco="movil" data-url="" data-cartel="/proyectos/km0-cartel.webp" data-proporcion="540 / 1200">
-        <div class="vista vista-recorrido" aria-hidden="true">
-          <svg class="km-mapa" viewBox="0 0 400 320" preserveAspectRatio="xMidYMid slice">
-            <path class="km-calle" d="M0 70 H400 M0 150 H400 M0 232 H400 M70 0 V300 M170 0 V300 M268 0 V300 M350 0 V300" />
-            <path class="km-rio" d="M-10 300 C80 270 120 318 210 290 S330 262 410 282" />
-            <path class="km-antes" pathLength="1" d="M70 232 V150 H170" />
-            <path class="km-despues" pathLength="1" d="M170 150 V70 H268 V150 H350" />
-          </svg>
-          <span class="km-placa"><b>KM</b><b>0</b></span>
-          <span class="km-tu">Aquí le diste a «iniciar»</span>
-          <p class="km-cifra"><b>+2,67 km</b><small>de antes, ya sumados</small></p>
-        </div>
-        <div class="objeto-pie">
-          <h3>km 0</h3>
-          <p class="que">Si empecé a grabar tarde, recupera el tramo que ya había caminado.</p>
-          <p class="pila">Svelte · Capacitor · Kotlin · Health Connect · MapLibre</p>
-        </div>
-        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="km 0: abrir la ficha"></button>
-        <div class="objeto-mas">
-          <p class="larga">Salgo a caminar y a medio camino me acuerdo de darle a «iniciar». km 0 graba como Strava y, si empecé tarde, trae de Health Connect el tramo que ya había caminado y pone la placa KM 0 donde de verdad salí.</p>
-          <p class="detalle">Graba con la pantalla apagada desde un servicio en Kotlin, y cada punto se escribe en un archivo apenas llega: si Android cierra la app a mitad de camino, la actividad se guarda con lo que había. El tramo de antes sale de un recorrido de Health Connect o de los pasos; si no hay ninguno, se dibuja en el mapa.</p>
-          <p class="acceso"><a href="https://github.com/yoiberdev/km0" target="_blank" rel="noopener">Ver el código</a></p>
-          <p class="aviso">Capturas de la app en el emulador de Android.</p>
-        </div>
-      </li>
-      <li class="objeto pieza" id="p-ajolote" data-grupo="visual" data-ancho="3" style="--acento: #ff9bd2" data-video="/proyectos/ajolote" data-marco="navegador" data-url="ajolote.yoiber.dev" data-cartel="/proyectos/ajolote-cartel.webp" data-proporcion="1000 / 626">
-        <div class="vista vista-cueva" aria-hidden="true">
-          <div class="cu-tanque">
-            <img class="cu-cartel" data-src="/proyectos/ajolote-cartel.webp" alt="" width="1000" height="626" decoding="async" />
-            <video class="cu-video" data-video="/proyectos/ajolote" muted loop playsinline preload="none"></video>
-          </div>
-        </div>
-        <div class="objeto-pie">
-          <h3>Ajolote</h3>
-          <p class="que">Mi mascota en la web: un ajolote de bloques que vive en su cueva.</p>
-          <p class="pila">Svelte · three.js · Threlte · GLSL</p>
-        </div>
-        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Ajolote: abrir la ficha"></button>
-        <div class="objeto-mas">
-          <p class="larga">Mi mascota en la web: un ajolote de bloques que vive en su cueva. Donde apuntes, la cámara enfoca; si le haces clic, da una voltereta y cambia de color.</p>
-          <p class="detalle">Todo es código: la cueva son 6627 bloques pintados píxel a píxel, sin una sola imagen. La hice primero en React y la rehice en Svelte: pesa un tercio menos.</p>
-          <p class="acceso"><a href="https://ajolote.yoiber.dev" target="_blank" rel="noopener">Visitarlo</a> · <a href="https://github.com/yoiberdev/ajolote" target="_blank" rel="noopener">Ver el código</a></p>
-          <p class="aviso">Como en el juego, el azul es el raro: sale una vez de cada doce clics.</p>
-        </div>
-      </li>
-      <li class="objeto pieza" id="p-nazca" data-grupo="visual" data-ancho="3" style="--acento: #e8b878">
-        <div class="vista vista-linea" aria-hidden="true">
-          <span class="na-luz"></span>
-          <svg class="na-figura" viewBox="-20 -20 1040 561" aria-hidden="true" focusable="false"><path pathLength="1" d="M451.0 226.7 L6.8 289.1 L4.9 289.0 L3.1 288.4 L1.6 287.3 L0.5 285.8 L0.0 284.0 L0.0 282.1 L0.6 280.3 L1.8 278.8 L3.3 277.8 L5.1 277.2 L449.3 214.8 L458.1 204.0 L472.4 199.9 L398.8 8.1 L398.4 6.3 L398.6 4.4 L399.4 2.7 L400.6 1.3 L402.2 0.4 L404.1 0.0 L405.9 0.2 L407.7 1.0 L409.0 2.2 L410.0 3.8 L483.6 195.6 L499.8 197.9 L440.8 51.9 L440.4 50.0 L440.6 48.2 L441.3 46.5 L442.5 45.0 L444.1 44.1 L446.0 43.6 L447.8 43.8 L449.6 44.5 L451.0 45.8 L451.9 47.4 L510.9 193.4 L527.2 195.9 L481.7 88.7 L481.3 86.9 L481.4 85.0 L482.1 83.3 L483.3 81.9 L484.9 80.9 L486.7 80.4 L488.6 80.5 L490.3 81.2 L491.8 82.5 L492.8 84.0 L538.3 191.2 L554.6 193.9 L522.6 121.9 L522.1 120.1 L522.2 118.2 L522.9 116.5 L524.1 115.0 L525.6 114.0 L527.4 113.5 L529.3 113.6 L531.1 114.3 L532.5 115.5 L533.5 117.0 L565.6 189.0 L591.5 187.3 L583.7 147.0 L583.6 145.1 L584.1 143.3 L585.2 141.8 L586.7 140.6 L588.4 140.0 L590.3 139.9 L592.1 140.4 L593.7 141.5 L594.8 143.0 L595.4 144.7 L603.3 185.0 L610.1 184.4 L603.0 133.5 L603.0 131.7 L603.6 129.9 L604.7 128.4 L606.3 127.3 L608.1 126.8 L609.9 126.8 L611.7 127.4 L613.2 128.5 L614.3 130.1 L614.8 131.9 L622.0 182.7 L628.7 181.5 L625.2 140.5 L625.3 138.7 L626.0 136.9 L627.2 135.5 L628.8 134.5 L630.6 134.0 L632.5 134.2 L634.2 134.9 L635.6 136.1 L636.6 137.7 L637.1 139.5 L640.7 180.4 L665.0 175.0 L686.1 153.8 L794.3 136.7 L796.2 136.7 L798.0 137.3 L799.5 138.4 L800.6 139.9 L801.2 141.7 L801.2 143.6 L800.6 145.3 L799.5 146.9 L798.0 148.0 L796.2 148.5 L688.0 165.7 L688.8 172.5 L855.0 149.1 L856.9 149.2 L858.6 149.8 L860.1 150.9 L861.2 152.4 L861.7 154.2 L861.7 156.1 L861.1 157.9 L860.0 159.4 L858.4 160.4 L856.6 161.0 L690.5 184.3 L691.5 191.1 L993.2 148.7 L995.1 148.7 L996.9 149.4 L998.4 150.5 L999.5 152.0 L1000.0 153.8 L1000.0 155.7 L999.4 157.5 L998.2 159.0 L996.7 160.0 L994.9 160.6 L693.1 203.0 L694.1 209.8 L897.5 181.2 L899.4 181.2 L901.2 181.8 L902.7 183.0 L903.7 184.5 L904.3 186.3 L904.3 188.2 L903.6 189.9 L902.5 191.4 L901.0 192.5 L899.2 193.0 L695.7 221.6 L696.8 228.4 L883.7 205.5 L885.6 205.5 L887.4 206.2 L888.8 207.3 L889.9 208.9 L890.4 210.7 L890.3 212.5 L889.7 214.3 L888.5 215.8 L887.0 216.8 L885.2 217.4 L698.3 240.3 L699.5 247.0 L828.9 233.4 L830.8 233.5 L832.6 234.2 L834.0 235.4 L835.0 237.0 L835.5 238.8 L835.4 240.6 L834.7 242.4 L833.6 243.9 L832.0 244.9 L830.2 245.4 L700.8 259.0 L681.0 264.3 L656.9 263.0 L742.9 312.6 L744.3 313.8 L745.3 315.4 L745.8 317.2 L745.7 319.0 L745.1 320.8 L743.9 322.3 L742.3 323.3 L740.5 323.8 L738.6 323.7 L736.9 323.0 L650.9 273.3 L637.5 263.6 L685.6 317.0 L686.6 318.6 L687.1 320.4 L687.0 322.3 L686.4 324.1 L685.2 325.5 L683.6 326.5 L681.8 327.0 L679.9 326.9 L678.2 326.2 L676.7 325.1 L628.6 271.6 L610.7 262.9 L652.8 400.4 L653.0 402.3 L652.7 404.1 L651.8 405.8 L650.5 407.1 L648.8 407.9 L646.9 408.2 L645.1 407.8 L643.4 407.0 L642.1 405.6 L641.3 403.9 L599.2 266.4 L586.3 261.4 L636.8 449.9 L637.0 451.7 L636.6 453.6 L635.7 455.2 L634.3 456.4 L632.6 457.2 L630.7 457.4 L628.9 457.0 L627.3 456.1 L626.0 454.7 L625.3 453.0 L574.7 264.5 L561.9 259.8 L620.5 513.4 L620.6 515.2 L620.1 517.1 L619.1 518.6 L617.7 519.8 L616.0 520.5 L614.1 520.7 L612.3 520.2 L610.7 519.2 L609.5 517.8 L608.8 516.1 L550.2 262.5 L502.4 248.0 L469.7 237.0 Z" /></svg>
-          <p class="na-pie"><b>Una sola línea</b><small>cerrada, que no se cruza</small></p>
-        </div>
-        <div class="objeto-pie">
-          <h3>Nazca</h3>
-          <p class="que">Un vuelo al amanecer sobre la pampa de Nazca, destapando las figuras con la luz.</p>
-          <p class="pila">Svelte 5 · Threlte · three.js</p>
-        </div>
-        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Nazca: abrir la ficha"></button>
-        <div class="objeto-mas">
-          <p class="larga">Un vuelo al amanecer sobre la pampa de Nazca. Las figuras están tapadas por la arena: el cursor las va descubriendo, y cuando aparece casi entera, la línea se termina de trazar sola.</p>
-          <p class="detalle">El colibrí, la araña y el mono están dibujados a partir de fotos aéreas como una sola línea cerrada que no se cruza, igual que los geoglifos reales. Todo es código: el terreno, las figuras, el cielo y las fuentes, sin imágenes.</p>
-          <p class="acceso"><a href="https://nazca.yoiber.dev" target="_blank" rel="noopener">Visitarla</a> · <a href="https://github.com/yoiberdev/nazca" target="_blank" rel="noopener">Ver el código</a></p>
-          <p class="aviso">La vista es el colibrí con su trazo real, el mismo de la escena.</p>
-        </div>
-      </li>
-      <li class="objeto pieza" id="p-sebas" data-grupo="visual" data-ancho="3" style="--acento: #ff8a5b" data-video="/proyectos/sebas" data-marco="navegador" data-url="sebas.yoiber.dev" data-cartel="/proyectos/sebas-cartel.webp" data-proporcion="1000 / 626">
+      <li class="obra objeto" id="p-sebas" style="--acento: #ff8a5b" data-video="/proyectos/sebas" data-marco="navegador" data-url="sebas.yoiber.dev" data-cartel="/proyectos/sebas-cartel.webp" data-proporcion="1000 / 626">
         <div class="vista vista-edicion" aria-hidden="true">
           <div class="ed-visor">
             <img class="ed-cartel" data-src="/proyectos/sebas-cartel.webp" alt="" width="1000" height="626" decoding="async" />
@@ -681,17 +622,36 @@
             <span class="ed-cabezal"></span>
           </div>
         </div>
-        <div class="objeto-pie">
-          <h3>Web de Sebastian Murazzo</h3>
-          <p class="que">El portafolio de un creador de contenido, contado al bajar.</p>
-          <p class="pila">Vite · TypeScript · three.js · Anime.js</p>
-        </div>
-        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Web de Sebastian Murazzo: abrir la ficha"></button>
+        <h3>Web de Sebastian</h3>
+        <p class="que">La web de un creador de contenido, contada al bajar.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Web de Sebastian: verlo por dentro"></button>
         <div class="objeto-mas">
           <p class="larga">El portafolio de un creador de contenido, contado al bajar: su kit de grabación en 3D se abre pieza a pieza, un editor simulado monta un vídeo y sus trabajos pasan en un iPhone.</p>
           <p class="detalle">Todo lo que se mueve cuelga de un solo reloj, el del scroll: bajar y subir dan exactamente lo mismo. Abrir la página pesa 256 kB; el 3D, los vídeos y el editor llegan después.</p>
           <p class="acceso"><a href="https://sebas.yoiber.dev" target="_blank" rel="noopener">Ver la web</a></p>
           <p class="aviso">Hecha para Sebastian Murazzo, creador de contenido. En desarrollo.</p>
+          <p class="pila">Vite · TypeScript · three.js · Anime.js</p>
+        </div>
+      </li>
+      <li class="obra objeto" id="p-erp" style="--acento: #6fd3e0" data-imagen="/casos/erp-agenda.png" data-marco="navegador" data-url="erp · agenda" data-proporcion="1400 / 833">
+        <div class="vista obra-captura" aria-hidden="true">
+            <img data-src="/casos/erp-agenda.png" alt="" width="1400" height="833" decoding="async" />
+          </div>
+        <h3>Centro de terapias</h3>
+        <p class="que">El sistema con el que trabaja cada día.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Centro de terapias: verlo por dentro"></button>
+        <div class="objeto-mas">
+          <p class="larga">El sistema con el que un centro de terapias con varias sedes trabaja todos los días: agenda por especialista, historia de sesiones, un CRM y comprobantes electrónicos ante SUNAT, en un solo lugar.</p>
+          <p class="detalle">La facturación electrónica pasa por Tefacturo y Rapifac, y se entra con la cuenta de Google. Hay roles y permisos, tableros con indicadores y reportes en PDF y Excel. El sistema anterior, en PHP, siguió funcionando en paralelo mientras se migraba por etapas.</p>
+          <p class="acceso"><a href="/casos/erp-centro-de-terapias/">Leer el caso</a></p>
+          <p class="aviso">Capturas de una copia levantada aparte, con la marca cambiada y pacientes generados por los datos de prueba: nadie de ahí existe.</p>
+          <p class="pila">Django REST Framework · React · PostgreSQL · Redis</p>
+        </div>
+      </li>
+      <li class="obra obra-secreto" aria-hidden="true">
+        <div class="vista">
+          <svg class="secreto-ajolote" viewBox="0 0 20 9" aria-hidden="true" focusable="false"><path d="M12 0h1v1h-1zM14 0h1v1h-1zM15 1h1v1h-1zM12 2h5v1h-5zM7 3h11v1H7zM0 3h1v1H0zM0 4h2v1H0zM4 4h15v1H4zM0 5h19v1H0zM0 6h2v1H0zM5 6h12v1H5zM0 7h1v1H0zM6 7h1v1H6zM8 7h1v1H8zM12 7h1v1h-1zM14 7h1v1h-1z" /></svg>
+          <p><b>Hay un secreto en esta página.</b><span>Pista: tiene branquias y anda suelto por aquí.</span></p>
         </div>
       </li>
       </ul>
@@ -705,6 +665,10 @@
         <div class="ficha-barra">
           <span class="ficha-grupo"></span>
           <span class="ficha-cuenta"></span>
+          <span class="ficha-pestanas" role="group" aria-label="Qué ver" hidden>
+            <button type="button" data-pestana="andando" aria-pressed="true">Verlo andando</button>
+            <button type="button" data-pestana="como" aria-pressed="false">Cómo funciona</button>
+          </span>
           <span class="ficha-botones">
             <button type="button" class="ficha-ant" aria-label="Proyecto anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg></button>
             <button type="button" class="ficha-sig" aria-label="Proyecto siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg></button>

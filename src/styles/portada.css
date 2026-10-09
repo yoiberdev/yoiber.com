@@ -1,13 +1,12 @@
-/* LA PORTADA DE ABAJO (10/10/2026): los proyectos, su ficha y la frase de cierre, en flujo después
-   del maestro. Primero cuatro sistemas contados como flujos que se ejecutan al llegar (el lienzo de
-   puntos de un editor de flujos, sus nodos y sus cables), después dos herramientas presentadas como
-   producto y al final un estante con lo personal, cada pieza en el formato de lo que es (el guion,
-   la revista, el corte de la placa...). Las vistas se dibujan con unidades de contenedor (cqw, cqh),
-   así que se ven igual en una columna de teléfono y en la rejilla de escritorio.
+/* LA PORTADA DE ABAJO (10/10/2026, tercera vuelta): «Ahora mismo» con datos vivos, el muro de
+   trabajos (el trabajo andando, el nombre y una frase), la ficha de cada uno y la frase de cierre,
+   en flujo después del maestro. El flujo de los cuatro sistemas vive en la ficha («Cómo funciona»).
+   Las vistas se dibujan con unidades de contenedor (cqw, cqh), así que se ven igual en una columna
+   de teléfono y en la rejilla de escritorio.
 
    LAS ANIMACIONES son CSS y solo andan con su parte en pantalla (src/proyectos/proyectos.ts pone
-   .en-vista en las vistas y .en-marcha en los flujos). Su estado de REPOSO es el final: con
-   movimiento reducido cada vista queda compuesta y cada flujo, ya ejecutado. */
+   .en-vista en las vistas; la ficha pone .en-marcha en su flujo). Su estado de REPOSO es el final:
+   con movimiento reducido cada vista queda compuesta y cada flujo, ya ejecutado. */
 
 /* ——— La sección ——— */
 
@@ -17,49 +16,131 @@
   z-index: 3;
   background-color: var(--bg);
 }
-#proyectos { padding: clamp(5rem, 10vw, 8.5rem) clamp(1.25rem, 4vw, 3.5rem) clamp(3rem, 6vw, 5rem); }
+#proyectos { padding: clamp(4rem, 8vw, 7rem) clamp(1.25rem, 4vw, 3.5rem) clamp(3rem, 6vw, 5rem); }
 #proyectos:focus { outline: none; }
 
-.grupo { max-width: 1320px; margin: 0 auto clamp(5rem, 10vw, 8.5rem); }
-.grupo-titulo { margin: 0; font-size: clamp(2.3rem, 5.4vw, 4.4rem); font-weight: 700; letter-spacing: -0.045em; line-height: 0.95; text-wrap: balance; }
-.grupo-entrada { margin: 1.1rem 0 0; max-width: 46ch; font-size: 1.12rem; line-height: 1.5; color: var(--muted); }
-
-.proyectos-cabeza {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 25rem);
-  gap: 1.25rem 4rem;
-  align-items: end;
-  margin-bottom: clamp(3.5rem, 7vw, 6rem);
-}
-.proyectos-cabeza .grupo-titulo { font-size: clamp(3.2rem, 9.5vw, 8rem); line-height: 0.86; letter-spacing: -0.055em; }
-.proyectos-frase { margin: 0; font-size: 1.12rem; line-height: 1.55; color: var(--muted); }
-
-/* La pila de tecnologías (proyectos, ficha y pie): pequeña y a 600, en la letra de la página. */
+/* La pila de tecnologías (la ficha y el pie): pequeña y a 600, en la letra de la página. */
 .pila { font-family: var(--etiqueta); font-size: 0.86rem; font-weight: 600; letter-spacing: 0.005em; line-height: 1.45; }
 
-/* ——— Los casos: el texto arriba y el flujo debajo ——— */
+/* ——— Ahora mismo: lo que está pasando mientras alguien mira la página (proyectos/ahora.ts) ——— */
 
-.caso { padding-top: clamp(2.5rem, 5vw, 4rem); border-top: 1px solid var(--line); margin-bottom: clamp(4.5rem, 9vw, 7.5rem); }
-.caso-texto { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); gap: 1.5rem clamp(2rem, 6vw, 6rem); align-items: start; }
-.caso h3 { margin: 0; font-size: clamp(1.9rem, 3.4vw, 2.9rem); font-weight: 700; letter-spacing: -0.035em; line-height: 1.02; text-wrap: balance; }
-.caso-principal h3 { font-size: clamp(2.5rem, 5.4vw, 4.6rem); letter-spacing: -0.045em; line-height: 0.95; }
-.caso-cuerpo > p { margin: 0 0 1rem; max-width: 64ch; font-size: 1.06rem; line-height: 1.62; color: color-mix(in srgb, var(--fg) 80%, var(--bg)); }
-.caso-principal .caso-cuerpo > p:first-child { font-size: 1.2rem; color: var(--fg); }
-.caso-cuerpo > .pila { margin: 1.3rem 0 0; color: var(--acento); }
-.caso-acciones { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.4rem 0 0; }
-.caso-acciones .boton { padding: 0.8rem 1.3rem; font-size: 0.95rem; cursor: pointer; font-family: inherit; }
-
-.caso-corto {
+.ahora {
+  max-width: 1320px;
+  margin: 0 auto clamp(4rem, 8vw, 6.5rem);
   display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
-  gap: 0.4rem clamp(2rem, 6vw, 6rem);
-  padding-top: 2rem;
-  border-top: 1px solid var(--line);
+  grid-template-columns: auto repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 1.25rem clamp(1.5rem, 3vw, 3rem);
+  padding: 1.4rem 0;
+  border-block: 1px solid var(--line);
 }
-.caso-corto h3 { grid-row: span 3; margin: 0; font-size: 1.6rem; letter-spacing: -0.025em; }
-.caso-corto > p { margin: 0; max-width: 64ch; line-height: 1.6; color: color-mix(in srgb, var(--fg) 80%, var(--bg)); }
-.caso-corto > .caso-acciones { margin-top: 0.8rem; }
-.caso-corto > .pila { margin-top: 0.4rem; color: var(--acento); }
+.ahora-titulo { display: flex; align-items: center; gap: 0.6rem; margin: 0.15rem 0 0; font-size: 0.95rem; font-weight: 700; white-space: nowrap; }
+.ahora-titulo i { position: relative; width: 8px; height: 8px; border-radius: 50%; background: #ff5a4e; }
+.ahora-titulo i::after { content: ''; position: absolute; inset: -5px; border: 1px solid #ff5a4e; border-radius: 50%; animation: ah-onda 2.2s ease-out infinite; }
+.ahora-celda { min-width: 0; }
+.ahora-celda[hidden] { display: none; }
+.ahora-que { margin: 0 0 0.35rem; font-size: 0.85rem; color: var(--muted); }
+.ahora-dato { margin: 0; font-size: 1.05rem; font-weight: 650; line-height: 1.35; text-wrap: balance; }
+.ahora-dato b { color: var(--acento-ui); }
+.ahora-dato + .ahora-dato { margin-top: 0.3rem; }
+.ahora-fuente { display: inline-block; margin-top: 0.4rem; font-size: 0.85rem; color: var(--muted); text-underline-offset: 3px; }
+.ahora-fuente:hover { color: var(--fg); }
+.ahora-lista { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; margin: 0; padding: 0; list-style: none; font-size: 1rem; font-weight: 650; }
+.ahora-lista li { display: inline-flex; align-items: center; gap: 0.45rem; }
+.ahora-lista li::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--line); transition: background-color 0.4s; }
+.ahora-lista li.arriba::before { background: #57d38c; }
+.ahora-lista li.abajo { color: var(--muted); }
+.ahora-lista li.abajo::before { background: #ff5a4e; }
+@keyframes ah-onda { from { opacity: 0.9; scale: 0.4; } to { opacity: 0; scale: 1.7; } }
+
+/* ——— El muro: el trabajo andando, el nombre y una frase ——— */
+
+.grupo { max-width: 1320px; margin: 0 auto clamp(4rem, 8vw, 6.5rem); }
+.proyectos-cabeza { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.75rem 2rem; }
+.grupo-titulo { margin: 0; font-size: clamp(2.8rem, 7.5vw, 6.2rem); font-weight: 700; letter-spacing: -0.05em; line-height: 0.9; }
+.proyectos-frase { margin: 0; font-size: 1.05rem; color: var(--muted); }
+
+.muro {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(2rem, 3.5vw, 2.75rem) clamp(1rem, 2vw, 1.5rem);
+  margin: clamp(2rem, 4vw, 3rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.obra { position: relative; min-width: 0; }
+.obra-ancha { grid-column: span 2; }
+
+.vista {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  container-type: size;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 16px;
+  background: #161514;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 30px 60px -36px rgb(0 0 0 / 0.95);
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.45s;
+}
+/* La ancha ocupa dos columnas con el mismo alto que sus vecinas. */
+.obra-ancha .vista { aspect-ratio: 2.74 / 1; }
+.obra.objeto:hover .vista,
+.obra.objeto:focus-within .vista {
+  transform: translateY(-6px);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--acento) 60%, transparent), 0 42px 70px -36px rgb(0 0 0 / 0.95);
+}
+.vista:not(.en-vista) *,
+.vista:not(.en-vista)::before,
+.vista:not(.en-vista)::after { animation-play-state: paused !important; }
+
+.obra h3 { margin: 1rem 0 0.2rem; font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; justify-self: start; background: linear-gradient(var(--acento), var(--acento)) 0 100% / 0 2px no-repeat; transition: background-size 0.35s; display: inline-block; }
+.obra.objeto:hover h3,
+.obra.objeto:focus-within h3 { background-size: 100% 2px; }
+.obra .que { margin: 0.35rem 0 0; max-width: 42ch; line-height: 1.45; color: var(--muted); }
+
+/* La captura de pantalla (y el vídeo encima, si hay): llena la tarjeta desde arriba a la izquierda. */
+.obra-captura img,
+.obra-captura video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+.obra-captura video { opacity: 0; transition: opacity 0.5s; }
+.obra-captura video.lista { opacity: 1; }
+
+/* El teléfono: la grabación de la app, de pie sobre el color del proyecto. */
+.obra-telefono { display: grid; place-items: center; background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--acento) 34%, #1a1917), #141312 75%); }
+.tel { position: relative; height: 88%; aspect-ratio: 540 / 1200; overflow: hidden; border-radius: 7cqh; background: #000; box-shadow: 0 0 0 0.9cqh #0d0d0c, 0 0 0 1.1cqh rgb(255 255 255 / 0.12), 0 4cqh 8cqh -2cqh rgb(0 0 0 / 0.7); }
+.tel img,
+.tel video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.tel video { opacity: 0; transition: opacity 0.5s; }
+.tel video.lista { opacity: 1; }
+
+/* La tarjeta entera es el botón de su ficha; el botón va encima y no se ve. */
+.obra .objeto-abrir {
+  position: absolute;
+  inset: -0.5rem;
+  z-index: 2;
+  border: 0;
+  border-radius: 20px;
+  background: none;
+  cursor: pointer;
+}
+.objeto-abrir:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+/* La tarjeta del secreto. */
+.obra-secreto .vista { display: grid; place-items: center; align-content: center; gap: 1.2rem; padding: 2rem; background: repeating-linear-gradient(-45deg, rgb(255 255 255 / 0.025) 0 10px, transparent 10px 20px), #171615; box-shadow: inset 0 0 0 1px var(--line); text-align: center; }
+.secreto-ajolote { width: 34%; fill: #f7b6d2; shape-rendering: crispEdges; opacity: 0.85; animation: sc-asoma 5s ease-in-out infinite; }
+.obra-secreto p { margin: 0; display: grid; gap: 0.35rem; }
+.obra-secreto b { font-size: 1.1rem; }
+.obra-secreto span { color: var(--muted); }
+@keyframes sc-asoma { 0%, 100% { translate: 0 0; } 50% { translate: 0 -6%; } }
+
+/* El detalle de cada proyecto: sin JavaScript se lee debajo; con él, lo usa la ficha. */
+.objeto-mas { margin-top: 0.75rem; font-size: 0.95rem; line-height: 1.5; color: var(--muted); }
+.objeto-mas p { margin: 0 0 0.6rem; }
+.objeto-mas .larga { display: none; }
+.objeto-mas a { color: var(--fg); }
+.objeto-mas .mas-flujo { display: none; }
+html.js .objeto-mas { display: none; }
+html:not(.js) .objeto-abrir,
+html:not(.js) .flujo-correr { display: none; }
 
 /* ——— El lienzo de un flujo: la trama de puntos de un editor de flujos ———
    Coordenadas en un lienzo de 1000 de ancho (--alto de alto). Cada nodo arranca en su --t: corre
@@ -221,27 +302,6 @@
 .flujo-correr:focus-visible { outline: 2px solid var(--acento); outline-offset: 3px; }
 .flujo-correr svg { width: 0.75rem; height: 0.75rem; color: var(--acento); }
 
-/* ——— Herramientas: cada una como lo que se baja o se instala ——— */
-
-.producto {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 2rem clamp(2rem, 5vw, 5rem);
-  align-items: center;
-  margin-top: clamp(2.5rem, 5vw, 4rem);
-}
-.producto-docu { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
-.producto-docu .vista { order: 2; }
-.producto .vista { aspect-ratio: 16 / 10; }
-.producto h3 { margin: 0; font-size: clamp(2rem, 4vw, 3.3rem); font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
-.producto-frase { margin: 1rem 0 0; max-width: 40ch; font-size: 1.2rem; line-height: 1.5; }
-.producto-datos { display: grid; gap: 0.55rem; margin: 1.3rem 0 0; padding: 0; list-style: none; color: color-mix(in srgb, var(--fg) 80%, var(--bg)); }
-.producto-datos li { position: relative; padding-left: 1.4rem; line-height: 1.5; }
-.producto-datos li::before { content: ''; position: absolute; left: 0; top: 0.72em; width: 0.65rem; height: 2px; background: var(--acento); }
-.producto .pila { margin: 1.2rem 0 0; color: var(--muted); }
-.producto .te-cuerpo { font-size: max(12px, 2.2cqw); }
-.producto .te-l { white-space: pre-wrap; }
-
 /* Kuidy: una pantalla de juego con la letra encima, como se ve en la vida real. La escena es un
    dibujo propio, no la captura de un juego; la letra es inventada. */
 .vista-kuidy { background: #0d0a14; }
@@ -273,70 +333,6 @@
 .ku-sonando svg { width: 2cqw; height: 2cqw; fill: none; stroke: var(--acento); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 @keyframes ku-canta { 0% { clip-path: inset(0 100% 0 0); } 82%, 100% { clip-path: inset(0 0 0 0); } }
 
-/* ——— El estante: lo personal, en piezas chicas que abren su ficha ——— */
-
-.mesa {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(2rem, 3.5vw, 2.75rem) clamp(1rem, 2vw, 1.6rem);
-  margin: clamp(2.25rem, 4.5vw, 3.25rem) 0 0;
-  padding: 0;
-  list-style: none;
-}
-.objeto { position: relative; min-width: 0; }
-.pieza-ancha { grid-column: span 2; }
-
-/* ——— La pieza del estante: la vista y su pie ——— */
-
-.vista {
-  position: relative;
-  aspect-ratio: 5 / 4;
-  container-type: size;
-  overflow: hidden;
-  isolation: isolate;
-  border-radius: 16px;
-  background: #161514;
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 30px 60px -36px rgb(0 0 0 / 0.95);
-  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.45s;
-}
-.pieza-ancha .vista { aspect-ratio: 2.5 / 1; }
-.pieza:hover .vista,
-.pieza:focus-within .vista {
-  transform: translateY(-6px);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--acento) 55%, transparent), 0 42px 70px -36px rgb(0 0 0 / 0.95);
-}
-.vista:not(.en-vista) *,
-.vista:not(.en-vista)::before,
-.vista:not(.en-vista)::after { animation-play-state: paused !important; }
-
-.objeto-pie { display: grid; gap: 0.35rem; margin-top: 1rem; }
-.pieza h3 { margin: 0; font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; justify-self: start; background: linear-gradient(var(--acento), var(--acento)) 0 100% / 0 2px no-repeat; transition: background-size 0.35s; }
-.pieza:hover h3,
-.pieza:focus-within h3 { background-size: 100% 2px; }
-.pieza .que { margin: 0; max-width: 46ch; line-height: 1.45; color: var(--muted); }
-.pieza .pila { margin: 0.1rem 0 0; color: var(--acento); }
-
-/* La pieza entera es el botón de su ficha; el botón va encima y no se ve. */
-.pieza .objeto-abrir {
-  position: absolute;
-  inset: -0.5rem;
-  z-index: 2;
-  border: 0;
-  border-radius: 20px;
-  background: none;
-  cursor: pointer;
-}
-.objeto-abrir:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
-
-/* El detalle de cada proyecto: sin JavaScript se lee debajo; con él, lo usa la ficha. */
-.objeto-mas { margin-top: 0.75rem; font-size: 0.95rem; line-height: 1.5; color: var(--muted); }
-.objeto-mas p { margin: 0 0 0.6rem; }
-.objeto-mas .larga { display: none; }
-.objeto-mas a { color: var(--fg); }
-html.js .objeto-mas { display: none; }
-html:not(.js) .objeto-abrir,
-html:not(.js) .flujo-correr { display: none; }
-
 /* ——— DocuGraph MCP: la terminal del agente ——— */
 
 .vista-terminal { display: grid; grid-template-rows: auto minmax(0, 1fr); background: #0f1210; }
@@ -345,7 +341,8 @@ html:not(.js) .flujo-correr { display: none; }
 .te-barra i:nth-child(2) { background: #febc2e; }
 .te-barra i:nth-child(3) { background: #28c840; }
 .te-barra span { margin-left: 1.2cqw; font: 400 1.15cqw/1 var(--mono); color: #7e8a82; }
-.te-cuerpo { padding: 3.4cqh 2.6cqw; color: #d9e6dc; font: 400 1.55cqw/1.8 var(--mono); }
+.te-cuerpo { padding: 5cqh 4cqw; color: #d9e6dc; font: 400 max(11px, 2.6cqw)/1.75 var(--mono); }
+.te-l { white-space: pre-wrap; }
 .te-l { margin: 0; white-space: pre; }
 .te-l span { display: inline-block; }
 .te-1 span { color: #a3e9bd; animation: te-1 11s infinite both; animation-timing-function: steps(36, end); }
@@ -365,180 +362,6 @@ html:not(.js) .flujo-correr { display: none; }
 @keyframes te-3 { 0%, 40% { clip-path: inset(0 100% 0 0); } 44%, 92% { clip-path: inset(0 0 0 0); opacity: 1; } 100% { clip-path: inset(0 0 0 0); opacity: 0; } }
 @keyframes te-4 { 0%, 48% { clip-path: inset(0 100% 0 0); } 70%, 92% { clip-path: inset(0 0 0 0); opacity: 1; } 100% { clip-path: inset(0 0 0 0); opacity: 0; } }
 @keyframes te-cursor { 50% { opacity: 0; } }
-
-/* ——— Daebon: el guion engrapado, con su sello ——— */
-
-.vista-guion { background: radial-gradient(circle at 30% 18%, #f7f1e4, #e2d9c6); }
-.gu-libreto {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 44cqw;
-  height: 78cqh;
-  translate: -50% -50%;
-  border-radius: 0.8cqw 1.8cqw 1.8cqw 0.8cqw;
-  background: #f1c9c1;
-  box-shadow: 0 2.4cqh 4cqh rgb(80 50 40 / 0.28), 1.6cqw 1.8cqh 0 -0.4cqw #d8cdb9;
-  rotate: -4deg;
-  animation: gu-flota 6s ease-in-out infinite alternate;
-}
-.gu-lomo { position: absolute; inset: 0 auto 0 0; width: 4.6cqw; border-radius: 0.8cqw 0 0 0.8cqw; background: #1d1b18; }
-.gu-lomo i {
-  position: absolute;
-  left: 1.7cqw;
-  width: 1.2cqw;
-  height: 6cqh;
-  border-radius: 0.6cqw;
-  background: linear-gradient(90deg, #8d8a84, #e2dfd8 50%, #8d8a84);
-}
-.gu-lomo i:first-child { top: 18%; }
-.gu-lomo i:last-child { bottom: 18%; }
-.gu-tapa { position: absolute; inset: 0 0 0 4.6cqw; display: flex; flex-direction: column; padding: 5cqh 3.6cqw; color: #1d1b18; }
-.gu-tapa small { font: 700 max(8.5px, 1.9cqw)/1.2 var(--etiqueta); letter-spacing: 0.03em; color: #c8352b; }
-.gu-daebon { width: 24cqw; height: auto; margin: 4cqh 0 2.4cqh; fill: #1d1b18; }
-.gu-tapa hr { width: 7cqw; margin: 0 0 2cqh; border: 0; border-top: 0.45cqw solid #1d1b18; }
-.gu-tapa b { font: 700 3.6cqw/1 Georgia, 'Times New Roman', serif; }
-.gu-tapa span { margin-top: 0.6em; font: italic 400 max(9px, 2.1cqw)/1.3 Georgia, 'Times New Roman', serif; color: #57524a; }
-.gu-sello {
-  position: absolute;
-  right: 3.6cqw;
-  bottom: 4.6cqh;
-  display: grid;
-  place-items: center;
-  width: 10cqw;
-  height: 10cqw;
-  border: 0.5cqw solid #c8352b;
-  border-radius: 1.6cqw;
-  outline: 1px solid #c8352b;
-  outline-offset: -1.3cqw;
-  rotate: -11deg;
-  mix-blend-mode: multiply;
-  animation: gu-sella 6s infinite both;
-}
-.gu-fin { width: 5.4cqw; height: auto; fill: #c8352b; }
-/* El resaltador sobre la mesa, junto al guion. */
-.gu-resaltador {
-  position: absolute;
-  right: 5cqw;
-  top: 12cqh;
-  width: 30cqw;
-  height: 4.2cqh;
-  border-radius: 1cqw;
-  background: linear-gradient(90deg, #2b2a28 0 24%, #ffe45a 24% 93%, #e7c936 93%);
-  rotate: 32deg;
-  box-shadow: 0 1.2cqh 1.6cqh rgb(80 60 30 / 0.25);
-}
-@keyframes gu-flota { to { transform: translateY(-1.4cqh) rotate(1.2deg); } }
-@keyframes gu-sella { 0%, 38% { opacity: 0; scale: 1.9; } 44% { opacity: 0.92; scale: 0.94; } 48%, 100% { opacity: 0.92; scale: 1; } }
-
-/* ——— Tsuzuku: la portada de la revista de manga ——— */
-
-.vista-revista { display: grid; place-items: center; background: #ebe5d8; }
-.re-portada {
-  position: relative;
-  height: 88cqh;
-  aspect-ratio: 3 / 4.1;
-  overflow: hidden;
-  border: 0.4cqw solid #17161b;
-  background: #f2ede3;
-  box-shadow: 1.4cqw 1.4cqw 0 #17161b;
-  rotate: 2.5deg;
-  animation: re-hoja 7s ease-in-out infinite alternate;
-}
-.re-trama {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(#e4007c 24%, transparent 26%) 0 0 / 1.5cqw 1.5cqw;
-  -webkit-mask: linear-gradient(140deg, #000 0 25%, transparent 65%);
-  mask: linear-gradient(140deg, #000 0 25%, transparent 65%);
-  opacity: 0.85;
-}
-.re-logo { position: absolute; left: 3cqw; top: 2.6cqh; font: 700 6.4cqw/1 var(--etiqueta); letter-spacing: -0.05em; color: #17161b; }
-.re-numero { position: absolute; left: 3.2cqw; top: 14cqh; padding: 0.25em 0.55em; background: #ffe000; color: #17161b; font: 700 max(8.5px, 1.9cqw)/1 var(--etiqueta); }
-.re-vineta { position: absolute; left: 3cqw; right: 3cqw; top: 21cqh; bottom: 17cqh; overflow: hidden; border: 0.35cqw solid #17161b; background: #fff; }
-.re-vineta img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
-.re-tsuzuku { position: absolute; left: 3cqw; bottom: 3.4cqh; width: 22cqw; height: auto; fill: #e4007c; }
-.re-cinta {
-  position: absolute;
-  right: -7cqw;
-  top: 7cqh;
-  padding: 0.55em 7cqw;
-  background: #0097d8;
-  color: #fff;
-  font: 700 max(8px, 1.7cqw)/1 var(--etiqueta);
-  letter-spacing: 0.06em;
-  rotate: 32deg;
-}
-@keyframes re-hoja { to { transform: translateY(-1.2cqh) rotate(-1.8deg); } }
-
-/* ——— km 0: el recorrido, con el tramo de antes y la placa ——— */
-
-.vista-recorrido { background: #ece6d7; }
-.km-mapa { position: absolute; inset: 0; width: 100%; height: 100%; }
-.km-calle { fill: none; stroke: #fbf8f0; stroke-width: 10; }
-.km-rio { fill: none; stroke: #aac9d5; stroke-width: 18; stroke-linecap: round; }
-.km-despues {
-  fill: none;
-  stroke: #1b2340;
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 1;
-  animation: km-traza 8s ease-in-out infinite both;
-}
-.km-antes {
-  fill: none;
-  stroke: #cf3a2b;
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-dasharray: 0.035 0.022;
-  animation: km-aparece 8s infinite both;
-}
-.km-placa {
-  position: absolute;
-  left: 17.5%;
-  top: 72.5%;
-  display: grid;
-  place-items: center;
-  width: 7.6cqw;
-  padding: 0.8cqh 0;
-  translate: -50% -112%;
-  border: 0.45cqw solid #1b2340;
-  border-radius: 0.8cqw;
-  background: #fff;
-  color: #1b2340;
-  font: 700 1.9cqw/1 var(--etiqueta);
-  animation: km-aparece 8s infinite both;
-}
-.km-placa b + b { font-size: 3.8cqw; }
-.km-tu {
-  position: absolute;
-  left: 42.5%;
-  top: 46.9%;
-  padding: 0.35em 0.65em;
-  translate: -50% -190%;
-  border-radius: 0.4em;
-  background: #1b2340;
-  color: #fff;
-  font: 600 max(9.5px, 2.1cqw)/1.1 var(--etiqueta);
-  white-space: nowrap;
-}
-.km-cifra {
-  position: absolute;
-  right: 4cqw;
-  top: 4cqh;
-  margin: 0;
-  padding: 1.6cqh 2.4cqw;
-  border-radius: 1.4cqw;
-  background: #fff;
-  box-shadow: 0 1cqh 2.4cqh rgb(80 70 50 / 0.2);
-  text-align: right;
-  animation: km-aparece 8s infinite both;
-}
-.km-cifra b { display: block; font: 700 4.2cqw/1 var(--etiqueta); color: #cf3a2b; }
-.km-cifra small { font: 500 max(9.5px, 1.9cqw)/1.2 var(--etiqueta); color: #77735f; }
-@keyframes km-traza { 0% { stroke-dashoffset: 1; } 42%, 100% { stroke-dashoffset: 0; } }
-@keyframes km-aparece { 0%, 48% { opacity: 0; transform: translateY(1cqh); } 56%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 
 /* ——— Remezón: el corte de la placa de Nazca, con sus sismos en el orden en que pasaron ———
    En el papel de la carta, como Remezón: rojo, verde y azul con los cortes del IGP (60 y 300 km).
@@ -683,6 +506,67 @@ html:not(.js) .flujo-correr { display: none; }
 @keyframes na-traza { 0% { stroke-dashoffset: 1; } 72%, 100% { stroke-dashoffset: 0; } }
 @keyframes na-luz { 0% { transform: translate(-10cqw, 30cqh); } 50% { transform: translate(40cqw, 10cqh); } 100% { transform: translate(-10cqw, 30cqh); } }
 
+/* ——— El ajolote de la página y su cardumen (proyectos/ajolote.ts) ——— */
+
+.ajolote,
+.cardumen-pez {
+  --aj-cuerpo: #f7b6d2;
+  --aj-branquias: #e8508b;
+  --aj-cola: #fbd3e4;
+  --aj-patas: #e79bbd;
+}
+[data-color='silvestre'] { --aj-cuerpo: #8a5d3b; --aj-branquias: #5b3b26; --aj-cola: #a77a55; --aj-patas: #6f4a2f; }
+[data-color='dorado'] { --aj-cuerpo: #f2c14e; --aj-branquias: #d9821a; --aj-cola: #f7d784; --aj-patas: #d9a634; }
+[data-color='cian'] { --aj-cuerpo: #9fe3ee; --aj-branquias: #3fb2cf; --aj-cola: #c9f0f6; --aj-patas: #7cc9d8; }
+[data-color='azul'] { --aj-cuerpo: #4361ee; --aj-branquias: #2b3fb0; --aj-cola: #7d93f5; --aj-patas: #3550c9; }
+.ajolote {
+  position: fixed;
+  left: 0;
+  bottom: 12px;
+  z-index: 40;
+  width: 58px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: opacity 0.5s;
+}
+.ajolote.fuera { opacity: 0; pointer-events: none; }
+.ajolote.hundido .ajolote-cuerpo { translate: 0 140%; opacity: 0; }
+.ajolote-cuerpo { transition: transform 0.35s, translate 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.45s; }
+.ajolote:focus-visible { outline: 2px solid var(--acento-ui); outline-offset: 4px; border-radius: 6px; }
+.ajolote-cuerpo { display: block; transform: scaleX(var(--mira, 1)); }
+.ajolote svg,
+.cardumen-pez svg { display: block; width: 100%; height: auto; overflow: visible; shape-rendering: crispEdges; filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.35)); }
+.aj-cuerpo { fill: var(--aj-cuerpo); }
+.aj-cola { fill: var(--aj-cola); transform-origin: 3px 5px; animation: aj-cola 0.9s ease-in-out infinite; }
+.aj-branquias { fill: var(--aj-branquias); transform-origin: 14px 2px; animation: aj-branquias 1.6s ease-in-out infinite; }
+.aj-patas { fill: var(--aj-patas); }
+.aj-ojo { fill: #141414; }
+.aj-boca { fill: var(--aj-branquias); }
+.ajolote.gira .ajolote-cuerpo { animation: aj-gira 0.7s cubic-bezier(0.3, 0.7, 0.3, 1); }
+.cardumen { position: fixed; inset: 0; z-index: 39; overflow: hidden; pointer-events: none; }
+.cardumen-pez { position: absolute; left: 0; top: var(--alto); width: calc(64px * var(--tam)); translate: -20vw 0; animation: aj-cruza var(--dura) linear var(--espera) forwards; }
+.cardumen-aviso {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  z-index: 41;
+  margin: 0;
+  padding: 0.7rem 1.15rem;
+  border-radius: 999px;
+  background: var(--fg);
+  color: var(--bg);
+  font-weight: 700;
+  translate: -50% 0;
+  animation: aj-aviso 3.4s ease both;
+}
+@keyframes aj-cola { 50% { transform: skewY(-12deg); } }
+@keyframes aj-branquias { 50% { transform: rotate(-6deg); } }
+@keyframes aj-gira { 50% { translate: 0 -26px; } 100% { rotate: 360deg; translate: 0 0; } }
+@keyframes aj-cruza { to { translate: 120vw 0; } }
+@keyframes aj-aviso { 0% { opacity: 0; translate: -50% 10px; } 10%, 85% { opacity: 1; translate: -50% 0; } 100% { opacity: 0; translate: -50% 0; } }
+
 /* ——— La ficha ——— */
 
 #ficha {
@@ -712,10 +596,18 @@ html:not(.js) .flujo-correr { display: none; }
   gap: 1rem;
   padding: 0.75rem 0.85rem 0.75rem 1.4rem;
   border-bottom: 1px solid var(--line);
-  font: 500 0.78rem/1 var(--mono);
+  font: 600 0.82rem/1 var(--etiqueta);
   color: var(--muted);
 }
-.ficha-grupo { color: var(--acento); letter-spacing: 0.08em; text-transform: uppercase; }
+.ficha-pestanas { display: inline-flex; gap: 0.25rem; margin-left: 0.5rem; padding: 3px; border: 1px solid var(--line); border-radius: 999px; }
+.ficha-pestanas[hidden] { display: none; }
+.ficha-pestanas button { padding: 0.45rem 0.85rem; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: 650 0.82rem/1 var(--etiqueta); cursor: pointer; }
+.ficha-pestanas button[aria-pressed='true'] { background: var(--fg); color: var(--bg); }
+.ficha-pestanas button:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+.ficha-flujo { width: 100%; align-self: center; }
+.ficha-flujo .flujo-ventana { margin-top: 0; }
+.ficha-flujo .flujo { min-width: 720px; }
+.ficha-grupo { color: var(--acento); }
 .ficha-cuenta { font-variant-numeric: tabular-nums; }
 .ficha-botones { display: flex; gap: 0.4rem; margin-left: auto; }
 .ficha-botones button {
@@ -852,21 +744,19 @@ html.cabecera-sobre #cabecera {
 /* ——— Pantallas más chicas ——— */
 
 @media (max-width: 1099px) {
-  .proyectos-cabeza,
-  .caso-texto,
-  .caso-corto,
-  .producto,
-  .producto-docu { grid-template-columns: minmax(0, 1fr); }
-  .caso-corto h3 { grid-row: auto; }
-  .producto-docu .vista { order: 0; }
-  .mesa { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .pieza-ancha .vista { aspect-ratio: 2.1 / 1; }
+  .ahora { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ahora-titulo { grid-column: 1 / -1; }
+  .muro { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .obra-ancha { grid-column: span 2; }
+  .obra-ancha .vista { aspect-ratio: 2.05 / 1; }
 }
 @media (max-width: 679px) {
-  .mesa { grid-template-columns: minmax(0, 1fr); }
-  .pieza-ancha { grid-column: auto; }
-  .pieza-ancha .vista { aspect-ratio: 5 / 4; }
-  .flujo-pie span::after { content: ' · desliza para ver el flujo entero'; }
+  .ahora { grid-template-columns: minmax(0, 1fr); }
+  .muro { grid-template-columns: minmax(0, 1fr); }
+  .obra-ancha { grid-column: auto; }
+  .obra-ancha .vista { aspect-ratio: 4 / 3; }
+  .ficha-pestanas { margin-left: 0; }
+  .ajolote { width: 46px; bottom: 8px; }
   #ficha { width: 100vw; height: 100dvh; border: 0; border-radius: 0; }
   .ficha-marco { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 46dvh minmax(0, 1fr); }
   .ficha-texto { border-left: 0; border-top: 1px solid var(--line); }
@@ -878,9 +768,16 @@ html.cabecera-sobre #cabecera {
   .vista *::after,
   .vista::before,
   .vista-corte,
-  .flujo * { animation: none !important; }
+  .flujo *,
+  .ahora-titulo i::after,
+  .secreto-ajolote,
+  .aj-cola,
+  .aj-branquias,
+  .ajolote.gira .ajolote-cuerpo { animation: none !important; }
   .vista,
-  .pieza h3,
+  .obra h3,
   .boton,
-  .flujo-correr { transition: none; }
+  .flujo-correr,
+  .obra-captura video,
+  .tel video { transition: none; }
 }

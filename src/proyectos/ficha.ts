@@ -15,6 +15,9 @@ import type { Sim } from '../sim/motor';
 //   · data-imagen: una captura (los casos del ERP y de gestión de campo);
 //   · nada: la vista del propio proyecto, agrandada (la terminal, la pantalla de Kuidy, el colibrí).
 // Al cerrar o al pasar a otro, la simulación se revierte y el vídeo se suelta.
+//
+// LOS CUATRO SISTEMAS traen además su flujo (.mas-flujo): la ficha muestra dos pestañas, «Verlo
+// andando» (lo de arriba) y «Cómo funciona», que pone el flujo en el lugar del medio y lo ejecuta.
 
 type MontarSim = (raiz: HTMLElement, opciones: { reduce: boolean }) => Sim;
 // Un import por escena, escrito entero: así Vite parte cada una en su trozo.
@@ -45,6 +48,8 @@ export function montarFicha(objetos: HTMLElement[], op: Opciones): () => void {
   const grupo = q<HTMLElement>('.ficha-grupo');
   const cuenta = q<HTMLElement>('.ficha-cuenta');
   const texto = q<HTMLElement>('.ficha-texto');
+  const pestanas = q<HTMLElement>('.ficha-pestanas');
+  const botonesPestana = Array.from(pestanas?.querySelectorAll<HTMLButtonElement>('[data-pestana]') ?? []);
 
   let actual: HTMLElement | null = null;
   let escena: Sim | null = null;
@@ -132,6 +137,39 @@ export function montarFicha(objetos: HTMLElement[], op: Opciones): () => void {
     }
   };
 
+  // El flujo de cómo funciona, en el lugar del medio, ejecutándose desde el principio.
+  const correrFlujo = (f: HTMLElement): void => {
+    f.classList.add('en-marcha');
+    for (const a of f.getAnimations({ subtree: true })) {
+      a.cancel();
+      a.play();
+    }
+  };
+  const mostrar = (pestana: string): void => {
+    if (!actual) return;
+    for (const b of botonesPestana) b.setAttribute('aria-pressed', String(b.dataset.pestana === pestana));
+    soltarMedio();
+    const fuente = actual.querySelector<HTMLElement>('.objeto-mas .mas-flujo');
+    if (pestana === 'como' && fuente) {
+      const caja = document.createElement('div');
+      caja.className = 'ficha-flujo';
+      caja.innerHTML = fuente.innerHTML;
+      medio.append(caja);
+      const f = caja.querySelector<HTMLElement>('.flujo');
+      if (f && !op.reduce) requestAnimationFrame(() => correrFlujo(f));
+      return;
+    }
+    armarMedio(actual);
+  };
+  const alPestana = (ev: Event): void => {
+    const b = (ev.target as Element | null)?.closest<HTMLButtonElement>('[data-pestana]');
+    if (b) mostrar(b.dataset.pestana ?? 'andando');
+  };
+  const alCorrerFlujo = (ev: Event): void => {
+    const f = (ev.target as Element | null)?.closest('.flujo-correr') ? medio.querySelector<HTMLElement>('.flujo') : null;
+    if (f && !op.reduce) correrFlujo(f);
+  };
+
   const llenar = (o: HTMLElement): void => {
     actual = o;
     const mas = o.querySelector<HTMLElement>('.objeto-mas');
@@ -147,6 +185,8 @@ export function montarFicha(objetos: HTMLElement[], op: Opciones): () => void {
     const lista = visibles();
     cuenta.textContent = `${lista.indexOf(o) + 1} / ${lista.length}`;
     texto.scrollTop = 0;
+    if (pestanas) pestanas.hidden = !o.querySelector('.objeto-mas .mas-flujo');
+    for (const b of botonesPestana) b.setAttribute('aria-pressed', String(b.dataset.pestana === 'andando'));
     soltarMedio();
     armarMedio(o);
   };
@@ -201,6 +241,8 @@ export function montarFicha(objetos: HTMLElement[], op: Opciones): () => void {
   dialogo.addEventListener('keydown', alTecla);
   dialogo.addEventListener('click', alClicDialogo);
   dialogo.addEventListener('close', alCerrar);
+  pestanas?.addEventListener('click', alPestana);
+  medio.addEventListener('click', alCorrerFlujo);
   ant.addEventListener('click', irAnt);
   sig.addEventListener('click', irSig);
   cerrar.addEventListener('click', irCerrar);
@@ -211,6 +253,8 @@ export function montarFicha(objetos: HTMLElement[], op: Opciones): () => void {
     dialogo.removeEventListener('keydown', alTecla);
     dialogo.removeEventListener('click', alClicDialogo);
     dialogo.removeEventListener('close', alCerrar);
+    pestanas?.removeEventListener('click', alPestana);
+    medio.removeEventListener('click', alCorrerFlujo);
     ant.removeEventListener('click', irAnt);
     sig.removeEventListener('click', irSig);
     cerrar.removeEventListener('click', irCerrar);
