@@ -186,9 +186,13 @@ export function montarEscena(m: Maestro, op: OpcionesEscena): Relevo {
         // mismo que abajo: arrastrar justo en el borde no hace parpadear nada.
         if (dibuja) {
           const t = op.tiempo();
-          const enPortada = t > m.L.HERO_OUT + P.motor.telonSube && t < m.L.GALERIA + P.motor.telonTapa;
+          // Desde el 09/10/2026 el maestro acaba con DESPEGUE (los proyectos van en flujo): el telón se
+          // baja en el último tramo del fundido, cuando el motor ya casi no se ve, y así nadie paga el
+          // 3D mientras lee los proyectos.
+          const fin = m.L.DESPEGUE_END;
+          const enPortada = t > m.L.HERO_OUT + P.motor.telonSube && t < fin - P.motor.telonTapa - P.motor.telonHolgura;
           if (enPortada) subirTelon();
-          else if (t < m.L.HERO_OUT + P.motor.telonBaja || t > m.L.GALERIA + P.motor.telonTapa + P.motor.telonHolgura) bajarTelon();
+          else if (t < m.L.HERO_OUT + P.motor.telonBaja || t > fin - P.motor.telonTapa) bajarTelon();
         }
         idVigila = requestAnimationFrame(mirar);
       };
