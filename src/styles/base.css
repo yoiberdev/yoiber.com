@@ -291,7 +291,8 @@ html.motor-on #stage { opacity: 0; }
 /* Los cinco colores son los medidos de siempre, repartidos por proyecto (27/09/2026): Kuantera en la
    menta de su marca, Comandas en el rojo de Kip-Up, las automatizaciones en azul, KUIDY-CORE en su
    violeta de antes y la web de Sebastian en el coral, lo más cerca del rojo de su página.
-   El séptimo (07/10/2026) es el rosa del ajolote: 8,62 sobre el mismo fondo. */
+   El séptimo (07/10/2026) es el rosa del ajolote: 8,62 sobre el mismo fondo. Los tres del 09/10/2026
+   son el amarillo del resaltador de Daebon, el cian de Tsuzuku y un verde de salida para km 0. */
 .tarjeta[data-slot="0"] { --acento: #4fd6a8; }
 .tarjeta[data-slot="1"] { --acento: #ff7a85; }
 .tarjeta[data-slot="2"] { --acento: #f2c14e; }
@@ -299,6 +300,9 @@ html.motor-on #stage { opacity: 0; }
 .tarjeta[data-slot="4"] { --acento: #c39bff; }
 .tarjeta[data-slot="5"] { --acento: #ff8a5b; }
 .tarjeta[data-slot="6"] { --acento: #ff9bd2; }
+.tarjeta[data-slot="7"] { --acento: #ffe45a; }
+.tarjeta[data-slot="8"] { --acento: #2bb5f0; }
+.tarjeta[data-slot="9"] { --acento: #9fe07a; }
 /* LA VITRINA (.captura, para que la mini-secuencia de galeria.ts la destape como destapaba la captura):
    el trabajo de cada proyecto en movimiento, en un marco de NAVEGADOR (barra con tres puntos y el
    dominio) o de TELÉFONO. Cartel y vídeo sin `src` en el marcado: los pone effects/vitrinas.ts al
