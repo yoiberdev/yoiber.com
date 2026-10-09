@@ -1,6 +1,6 @@
 // EL AJOLOTE DE LA PÁGINA (10/10/2026)
 // ================================================================================================
-// Mi mascota de ajolote.yoiber.dev, aquí en pixel art: aparece cuando la página deja atrás el logo,
+// Mi mascota de ajolote.yoiber.dev, la misma del 3D: aparece cuando la página deja atrás el logo,
 // nada abajo, sigue al puntero con calma y, si nadie lo mueve, pasea solo. Mientras alguien hace
 // scroll se sumerge (para no tapar lo que se lee) y vuelve a salir cuando se detiene. Si le haces clic da una
 // voltereta y cambia de color; el azul sale una vez de cada doce, como en el juego.
@@ -9,54 +9,18 @@
 // y cruza un cardumen entero (con uno azul, si hay suerte). La pista está en la última tarjeta del
 // muro. Con movimiento reducido no nada ni hay cardumen: se queda quieto y cambia de color igual.
 
-// El dibujo, 34 × 13, como el ajolote de Minecraft visto de costado: la cabeza grande y cuadrada,
-// las tres branquias detrás, las patas nadando hacia atrás y la cola con su aleta. Cada letra es un
-// tono: l luz, b cuerpo, d sombra, g y G branquias, t y T aleta, w brillo del ojo, e ojo, m boca.
-const MAPA = [
-  '...................Gg...g..g..g...',
-  '....................gg.lllllllll..',
-  '.....................Gblllllllllb.',
-  '..TTTT.....llllllGglllbbbbbbbbbbb.',
-  'Ttttttttt.llbllbllbggbbbbbbbwebbb.',
-  'tttbbbbbbbbbbbbbbbbbgGbbbbbbeebbb.',
-  'tttbbbbbbbbbbbbbbbbbbbbbbbbbbbblb.',
-  'tttbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.',
-  'Ttttttttt.bbbbbbbbbbbbbbbbmmmmmmm.',
-  '..TTTT.....dddddddddgGbbbbbbbbbbb.',
-  '...........d..d....gd..ddddddddd..',
-  '.........dd.dd...Gdd....dd........',
-  '.......................d..........',
-];
-// Las partes que se mueven van en su propio grupo: la cola y las branquias.
-const PARTE: Record<string, string> = { t: 'aj-cola', T: 'aj-cola', g: 'aj-branquias', G: 'aj-branquias' };
+// EL DIBUJO es el ajolote 3D de ajolote.yoiber.dev (yoiberdev/ajolote, src/scene/Axolotl.svelte), con
+// sus mismas piezas y texturas, renderizado de tres cuartos en 12 cuadros de nado: una hoja por color
+// en public/ajolote/. La animación es CSS (portada.css, .ajolote-cuerpo).
 
 // Los colores del juego: rosado, silvestre, dorado y cian; el azul es el raro.
 const COLORES = ['rosado', 'silvestre', 'dorado', 'cian'] as const;
 type Color = (typeof COLORES)[number] | 'azul';
 
-function dibujo(): SVGSVGElement {
-  const ns = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(ns, 'svg');
-  svg.setAttribute('viewBox', `0 0 ${MAPA[0]?.length ?? 34} ${MAPA.length}`);
-  svg.setAttribute('aria-hidden', 'true');
-  svg.setAttribute('focusable', 'false');
-  const grupos: Record<string, SVGGElement> = {};
-  MAPA.forEach((fila, y) => {
-    [...fila].forEach((c, x) => {
-      if (c === '.') return;
-      const parte = PARTE[c] ?? 'aj-resto';
-      const g = (grupos[parte] ??= svg.appendChild(document.createElementNS(ns, 'g')));
-      g.setAttribute('class', parte);
-      const r = document.createElementNS(ns, 'rect');
-      r.setAttribute('x', String(x));
-      r.setAttribute('y', String(y));
-      r.setAttribute('width', '1.02');
-      r.setAttribute('height', '1.02');
-      r.setAttribute('class', `aj-${c}`);
-      g.append(r);
-    });
-  });
-  return svg;
+function dibujo(): HTMLElement {
+  const cuerpo = document.createElement('span');
+  cuerpo.className = 'ajolote-cuerpo';
+  return cuerpo;
 }
 
 function otroColor(actual: Color): Color {
@@ -71,9 +35,7 @@ export function montarAjolote(reduce: boolean): () => void {
   boton.className = 'ajolote fuera';
   boton.dataset.color = 'rosado';
   boton.setAttribute('aria-label', 'El ajolote de la página. Tócalo.');
-  const cuerpo = document.createElement('span');
-  cuerpo.className = 'ajolote-cuerpo';
-  cuerpo.append(dibujo());
+  const cuerpo = dibujo();
   boton.append(cuerpo);
   document.body.append(boton);
 

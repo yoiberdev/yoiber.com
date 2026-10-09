@@ -12,7 +12,7 @@ const AHORA = {
   // Mi usuario de AniList. Si está, «viendo» sale solo de lo último que actualicé en mi lista.
   anilist: '',
   // A mano, mientras tanto. Vacío no se muestra.
-  viendo: '',
+  viendo: 'Jujutsu Kaisen',
   oyendo: '',
 };
 
