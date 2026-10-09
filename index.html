@@ -250,52 +250,53 @@
         <p class="proyectos-frase">Toca cualquiera para verlo por dentro.</p>
       </header>
       <ul class="muro">
-      <li class="obra objeto obra-ancha" id="p-campo" style="--acento: #f6a96b" data-imagen="/casos/campo-mapa.jpg" data-marco="navegador" data-url="gestión de campo · mapa" data-proporcion="1400 / 833">
+      <li class="obra objeto obra-ancha" id="p-bitacora" style="--acento: #dcf230" data-video="/proyectos/bitacora" data-marco="navegador" data-url="bitacora.kipups.com" data-cartel="/proyectos/bitacora-cartel.webp" data-proporcion="1000 / 626">
         <div class="vista obra-captura" aria-hidden="true">
-            <img data-src="/casos/campo-mapa.jpg" alt="" width="1400" height="833" decoding="async" />
+            <img data-src="/proyectos/bitacora-cartel.webp" alt="" width="1000" height="626" decoding="async" />
+            <video class="obra-video" data-video="/proyectos/bitacora" muted loop playsinline preload="none"></video>
           </div>
-        <h3>Horas a bordo</h3>
-        <p class="que">Cada técnico marca con un QR pegado en el barco.</p>
-        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Horas a bordo: verlo por dentro"></button>
+        <h3>Bitácora</h3>
+        <p class="que">Cada técnico marca donde trabaja, y sus horas salen solas.</p>
+        <button class="objeto-abrir" type="button" aria-haspopup="dialog" aria-label="Bitácora: verlo por dentro"></button>
         <div class="objeto-mas">
-          <p class="larga">Cada embarcación lleva pegado un código QR: el técnico lo escanea con su teléfono al subir y al bajar, y quedan la hora y el lugar. De esas marcas salen solas las horas hombre de cada técnico en cada embarcación, para cobrarle al cliente y pagarle al personal.</p>
-          <p class="detalle">La app la usan los técnicos en el teléfono, con el escaneo del QR y la posición por GPS. El servidor calcula las horas por técnico y por embarcación a partir de las marcas de entrada y salida, sin que nadie las escriba a mano, y los permisos van por recurso. La oficina ve en un mapa quién está a bordo de qué embarcación y desde cuándo.</p>
-          <p class="acceso"><a href="/casos/gestion-de-campo-embarcaciones/">Leer el caso</a></p>
-          <p class="aviso">El sistema es del cliente: las capturas son de una copia levantada aparte, con datos inventados.</p>
-          <p class="pila">React Native · Node · Express · Prisma · MySQL · Leaflet</p>
+          <p class="larga">Empezó como mi tesis de SENATI, con mi compañera: un código QR pegado en cada embarcación, que el técnico escaneaba al subir y al bajar. Así se supo cuántas horas pasaba cada uno en cada barco sin que nadie las anotara a mano. Bitácora es esa idea rehecha para cualquier lugar de trabajo.</p>
+          <p class="detalle">El técnico marca con un QR, un código de barras, una etiqueta NFC o en un quiosco, y confirma con la huella de su teléfono. Si no hay señal, la marca espera guardada y sale sola después. Nadie puede marcar por otro ni cambiar lo que se marcó: si falta una salida, el propio trabajador confirma la corrección. De ahí salen el registro de asistencia que pide SUNAFIL y lo que se le cobra a cada cliente, que el cliente firma desde un enlace.</p>
+          <p class="acceso"><a href="https://bitacora.kipups.com" target="_blank" rel="noopener">Probar la demostración</a> · <a href="/casos/gestion-de-campo-embarcaciones/">Cómo empezó</a></p>
+          <p class="aviso">Es un producto de Kip-Up. La demostración es de una empresa inventada: entra con admin@costasur.demo y la clave bitacora-demo.</p>
+          <p class="pila">React · NestJS · PostgreSQL · Capacitor</p>
           <div class="mas-flujo">
 <div class="flujo-ventana">
         <div class="flujo" style="--alto: 300" aria-hidden="true">
           <svg class="flujo-cables" viewBox="0 0 1000 300"><g style="--t: 0.70s"><path class="cable" d="M116 130 C172.5 130 172.5 130 229 130" /><path class="cable-vivo" d="M116 130 C172.5 130 172.5 130 229 130" pathLength="1" /><text class="cable-item" x="172" y="122">1 ítem</text></g><g style="--t: 1.60s"><path class="cable" d="M301 130 C357.5 130 357.5 130 414 130" /><path class="cable-vivo" d="M301 130 C357.5 130 357.5 130 414 130" pathLength="1" /><text class="cable-item" x="358" y="122">1 ítem</text></g><g style="--t: 2.50s"><path class="cable" d="M486 130 C542.5 130 542.5 130 599 130" /><path class="cable-vivo" d="M486 130 C542.5 130 542.5 130 599 130" pathLength="1" /><text class="cable-item" x="542" y="122">1 ítem</text></g><g style="--t: 3.40s"><path class="cable" d="M671 130 C747.5 130 747.5 62 824 62" /><path class="cable-vivo" d="M671 130 C747.5 130 747.5 62 824 62" pathLength="1" /><text class="cable-item" x="768" y="55">1 ítem</text></g><g style="--t: 3.40s"><path class="cable" d="M671 130 C747.5 130 747.5 212 824 212" /><path class="cable-vivo" d="M671 130 C747.5 130 747.5 212 824 212" pathLength="1" /><text class="cable-item" x="740" y="225">1 ítem</text></g></svg>
           <div class="nodo nodo-disparo" style="--x: 8.0%; --y: 43.33%; --t: 0.15s">
             <span class="nodo-caja"><svg class="nodo-icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1"/><path d="M14 14h2.5v2.5H14zM18 18h2.5v2.5H18zM14 20.5h1.5M20.5 14v1.5"/></svg><span class="nodo-rayo"><svg class="relleno" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13 2.5 5.5 13.5h5.5l-1 8 7.5-11h-5.5z"/></svg></span><svg class="nodo-anillo" viewBox="0 0 68 68" aria-hidden="true"><rect x="1" y="1" width="66" height="66" rx="14" pathLength="1" /></svg><span class="nodo-marca nodo-ok"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5.5 12.5 10 17l8.5-9"/></svg></span></span>
-            <b class="nodo-nombre">QR en la embarcación</b>
-            <span class="nodo-dato">E-03, pegado a bordo</span>
+            <b class="nodo-nombre">Etiqueta del lugar</b>
+            <span class="nodo-dato">QR, barras o NFC</span>
           </div>
           <div class="nodo" style="--x: 26.5%; --y: 43.33%; --t: 1.05s">
             <span class="nodo-caja"><svg class="nodo-icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6.5" y="2.5" width="11" height="19" rx="2.4"/><path d="M12 15.5V8.5M9.2 11.2 12 8.4l2.8 2.8"/></svg><svg class="nodo-anillo" viewBox="0 0 68 68" aria-hidden="true"><rect x="1" y="1" width="66" height="66" rx="14" pathLength="1" /></svg><span class="nodo-marca nodo-ok"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5.5 12.5 10 17l8.5-9"/></svg></span></span>
-            <b class="nodo-nombre">Escanea al subir</b>
-            <span class="nodo-dato">06:42 · GPS a 8 m</span>
+            <b class="nodo-nombre">Marca al llegar</b>
+            <span class="nodo-dato">06:42 · con su huella</span>
           </div>
           <div class="nodo" style="--x: 45.0%; --y: 43.33%; --t: 1.95s">
             <span class="nodo-caja"><svg class="nodo-icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6.5" y="2.5" width="11" height="19" rx="2.4"/><path d="M12 8.5v7M9.2 12.8 12 15.6l2.8-2.8"/></svg><svg class="nodo-anillo" viewBox="0 0 68 68" aria-hidden="true"><rect x="1" y="1" width="66" height="66" rx="14" pathLength="1" /></svg><span class="nodo-marca nodo-ok"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5.5 12.5 10 17l8.5-9"/></svg></span></span>
-            <b class="nodo-nombre">Escanea al bajar</b>
-            <span class="nodo-dato">14:10 · GPS a 6 m</span>
+            <b class="nodo-nombre">Marca al irse</b>
+            <span class="nodo-dato">15:10 · sin señal, sale después</span>
           </div>
           <div class="nodo" style="--x: 63.5%; --y: 43.33%; --t: 2.85s">
             <span class="nodo-caja"><svg class="nodo-icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg><svg class="nodo-anillo" viewBox="0 0 68 68" aria-hidden="true"><rect x="1" y="1" width="66" height="66" rx="14" pathLength="1" /></svg><span class="nodo-marca nodo-ok"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5.5 12.5 10 17l8.5-9"/></svg></span></span>
             <b class="nodo-nombre">Horas hombre</b>
-            <span class="nodo-dato">R. Quispe en E-03: 7 h 28 min</span>
+            <span class="nodo-dato">R. Quispe: 7 h 43 min</span>
           </div>
           <div class="nodo" style="--x: 86.0%; --y: 20.67%; --t: 3.75s">
             <span class="nodo-caja"><svg class="nodo-icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h8.5L18 6.5V21H6z"/><path d="M9 10.5h6M9 14h6M9 17.5h3.5"/></svg><svg class="nodo-anillo" viewBox="0 0 68 68" aria-hidden="true"><rect x="1" y="1" width="66" height="66" rx="14" pathLength="1" /></svg><span class="nodo-marca nodo-ok"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5.5 12.5 10 17l8.5-9"/></svg></span></span>
-            <b class="nodo-nombre">Se le cobra al cliente</b>
-            <span class="nodo-dato">E-03: 38,5 HH en la semana</span>
+            <b class="nodo-nombre">Registro para SUNAFIL</b>
+            <span class="nodo-dato">ingreso, salida y minutos extra</span>
           </div>
           <div class="nodo" style="--x: 86.0%; --y: 70.67%; --t: 3.75s">
             <span class="nodo-caja"><svg class="nodo-icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 20c.9-3.8 3.5-5.8 6.5-5.8s5.6 2 6.5 5.8"/></svg><svg class="nodo-anillo" viewBox="0 0 68 68" aria-hidden="true"><rect x="1" y="1" width="66" height="66" rx="14" pathLength="1" /></svg><span class="nodo-marca nodo-ok"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5.5 12.5 10 17l8.5-9"/></svg></span></span>
-            <b class="nodo-nombre">Se le paga al técnico</b>
-            <span class="nodo-dato">R. Quispe: 41 HH en la semana</span>
+            <b class="nodo-nombre">El cliente lo firma</b>
+            <span class="nodo-dato">valorización desde un enlace</span>
           </div>
         </div>
         </div>
@@ -723,7 +724,7 @@
           <ul class="pie-lista pie-proyectos">
             <li><a href="/casos/kuantera/">Kuantera, facturación ante SUNAT</a><span class="pila">NestJS · PostgreSQL · UBL 2.1 · firma XML-DSig</span></li>
             <li><a href="/casos/erp-centro-de-terapias/">ERP de un centro de terapias</a><span class="pila">Django · PostgreSQL · Redis · comprobantes SUNAT</span></li>
-            <li><a href="/casos/gestion-de-campo-embarcaciones/">Control de horas hombre a bordo</a><span class="pila">Node · Prisma · MySQL · React · Leaflet</span></li>
+            <li><a href="/casos/gestion-de-campo-embarcaciones/">Control de horas hombre a bordo, la tesis que dio origen a Bitácora</a><span class="pila">Node · Prisma · MySQL · React · Leaflet</span></li>
           </ul>
         </div>
       </div>
