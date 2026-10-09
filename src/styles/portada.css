@@ -1003,7 +1003,70 @@ html:not(.js) .objeto-abrir { display: none; }
 @keyframes km-traza { 0% { stroke-dashoffset: 1; } 42%, 100% { stroke-dashoffset: 0; } }
 @keyframes km-aparece { 0%, 48% { opacity: 0; transform: translateY(1cqh); } 56%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 
-/* ——— 13 y 15. El ajolote y la web de Sebastian: su grabación ——— */
+/* ——— 13. Remezón: el corte de la placa de Nazca, con sus sismos en el orden en que pasaron ———
+   Los puntos son los datos de Remezón (sismos de magnitud 6 o más desde 1973) proyectados sobre un
+   eje que cruza la costa; el script que arma el SVG vive fuera del repo. Un reloj, --co-ahora, va
+   de 0 a 1 y cada sismo aparece cuando el reloj pasa su --t (cuándo fue); el año lo acompaña. En
+   reposo el reloj vale 1.2: todos a la vista y el año en 2026. */
+
+@property --co-ahora { syntax: '<number>'; inherits: true; initial-value: 1.2; }
+@property --co-anio { syntax: '<integer>'; inherits: true; initial-value: 2026; }
+@property --co-fin { syntax: '<number>'; inherits: true; initial-value: 1; }
+
+.vista-corte {
+  --co-su: #ff6a3d;
+  --co-in: #ffd23f;
+  --co-pr: #5ab0ff;
+  background: radial-gradient(ellipse 90% 70% at 42% 0%, #121a24, #06080c 72%);
+  animation: co-reloj 12s linear infinite;
+}
+.vista-corte:not(.en-vista) { animation-play-state: paused; }
+.co-corte { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.co-rejilla line { stroke: rgb(160 180 205 / 0.13); stroke-width: 1; }
+.co-rejilla text { font: 500 14px var(--mono); fill: rgb(160 180 205 / 0.55); text-anchor: end; }
+.co-mar { fill: #123f52; opacity: 0.6; }
+.co-tierra { fill: #2b261d; }
+.co-borde { fill: none; stroke: #cdb58a; stroke-width: 1.8; stroke-linejoin: round; }
+.co-sismos circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: calc(clamp(0, (var(--co-ahora) - var(--t)) * 40, 0.9) * var(--co-fin));
+  scale: calc(1 + 1.5 * clamp(0, 1 - (var(--co-ahora) - var(--t)) * 30, 1));
+}
+.co-su { fill: var(--co-su); }
+.co-in { fill: var(--co-in); }
+.co-pr { fill: var(--co-pr); }
+.co-marca { opacity: calc(clamp(0, (var(--co-ahora) - var(--t)) * 40, 1) * var(--co-fin)); }
+.co-marca text {
+  font: 600 17px var(--etiqueta);
+  fill: #eef1f5;
+  paint-order: stroke;
+  stroke: #06080c;
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+.co-onda {
+  fill: none;
+  stroke: #eef1f5;
+  stroke-width: 1.6;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: co-onda 2.4s ease-out infinite;
+}
+.co-anio { position: absolute; top: 4cqh; right: 4cqw; margin: 0; font: 500 max(14px, 4cqw)/1 var(--mono); color: #eef1f5; }
+.co-anio b::after { counter-reset: co-anio var(--co-anio); content: counter(co-anio); font-weight: 500; }
+.co-pie { position: absolute; left: 4cqw; bottom: 5cqh; margin: 0; color: #eef1f5; }
+.co-pie b { display: block; font: 700 max(13px, 3.2cqw)/1.1 var(--etiqueta); }
+.co-pie small { font: 500 max(10px, 2cqw)/1.2 var(--etiqueta); color: #b9c2cf; }
+@keyframes co-reloj {
+  0% { --co-ahora: -0.03; --co-anio: 1973; --co-fin: 1; }
+  78% { --co-ahora: 1; --co-anio: 2026; }
+  95% { --co-ahora: 1.2; --co-fin: 1; }
+  100% { --co-ahora: 1.2; --co-anio: 2026; --co-fin: 0; }
+}
+@keyframes co-onda { from { scale: 0.5; opacity: 1; } to { scale: 2.4; opacity: 0; } }
+
+/* ——— 14 y 16. El ajolote y la web de Sebastian: su grabación ——— */
 
 .vista-cueva { background: #0f1a14; }
 .cu-tanque { position: absolute; inset: 0; }
@@ -1041,7 +1104,7 @@ html:not(.js) .objeto-abrir { display: none; }
 }
 @keyframes ed-corre { to { left: calc(100% - 1.4cqw); } }
 
-/* ——— 14. Nazca: el colibrí, una sola línea que se traza sola ——— */
+/* ——— 15. Nazca: el colibrí, una sola línea que se traza sola ——— */
 
 .vista-linea { background: radial-gradient(ellipse 120% 85% at 72% 0%, #f8c57d, #d79a5b 34%, #96663f 74%, #6a4630); }
 .vista-linea::before {
@@ -1273,7 +1336,8 @@ html.cabecera-sobre #cabecera {
   .vista *,
   .vista *::before,
   .vista *::after,
-  .vista::before { animation: none !important; }
+  .vista::before,
+  .vista-corte { animation: none !important; }
   .vista,
   .objeto h3,
   .boton { transition: none; }
