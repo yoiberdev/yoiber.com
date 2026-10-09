@@ -1,12 +1,13 @@
-/* LA PORTADA DE ABAJO (09/10/2026): los proyectos, su ficha y la frase de cierre, en flujo después
-   del maestro. Cada proyecto se enseña en el formato de lo que es (la boleta, el radar, la comanda,
-   la terminal, el guion...) y cada vista tiene su propio material: papel térmico, fósforo verde,
-   cartulina, arena. Las vistas se dibujan con unidades de contenedor (cqw, cqh), así que se ven igual
-   en una columna de teléfono y en la rejilla de escritorio.
+/* LA PORTADA DE ABAJO (10/10/2026): los proyectos, su ficha y la frase de cierre, en flujo después
+   del maestro. Primero cuatro sistemas contados como flujos que se ejecutan al llegar (el lienzo de
+   puntos de un editor de flujos, sus nodos y sus cables), después dos herramientas presentadas como
+   producto y al final un estante con lo personal, cada pieza en el formato de lo que es (el guion,
+   la revista, el corte de la placa...). Las vistas se dibujan con unidades de contenedor (cqw, cqh),
+   así que se ven igual en una columna de teléfono y en la rejilla de escritorio.
 
-   LAS ANIMACIONES son CSS y solo andan con la vista en pantalla (src/proyectos/proyectos.ts pone
-   .en-vista). Su estado de REPOSO es el final: sin animación (movimiento reducido) cada vista queda
-   compuesta y completa, la boleta impresa y sellada, el recorrido entero. */
+   LAS ANIMACIONES son CSS y solo andan con su parte en pantalla (src/proyectos/proyectos.ts pone
+   .en-vista en las vistas y .en-marcha en los flujos). Su estado de REPOSO es el final: con
+   movimiento reducido cada vista queda compuesta y cada flujo, ya ejecutado. */
 
 /* ——— La sección ——— */
 
@@ -16,99 +17,276 @@
   z-index: 3;
   background-color: var(--bg);
 }
-#proyectos {
-  padding: clamp(5rem, 10vw, 8.5rem) clamp(1.25rem, 4vw, 3.5rem) clamp(3rem, 6vw, 5rem);
-  /* La mesa de trabajo: una trama de puntos muy tenue, como una plancha de corte. */
-  background-image: radial-gradient(color-mix(in srgb, var(--fg) 7%, transparent) 1px, transparent 1.3px);
-  background-size: 22px 22px;
-}
+#proyectos { padding: clamp(5rem, 10vw, 8.5rem) clamp(1.25rem, 4vw, 3.5rem) clamp(3rem, 6vw, 5rem); }
 #proyectos:focus { outline: none; }
 
+.grupo { max-width: 1320px; margin: 0 auto clamp(5rem, 10vw, 8.5rem); }
+.grupo-titulo { margin: 0; font-size: clamp(2.3rem, 5.4vw, 4.4rem); font-weight: 700; letter-spacing: -0.045em; line-height: 0.95; text-wrap: balance; }
+.grupo-entrada { margin: 1.1rem 0 0; max-width: 46ch; font-size: 1.12rem; line-height: 1.5; color: var(--muted); }
+
 .proyectos-cabeza {
-  max-width: 1320px;
-  margin: 0 auto clamp(3rem, 6vw, 5rem);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 25rem);
   gap: 1.25rem 4rem;
   align-items: end;
+  margin-bottom: clamp(3.5rem, 7vw, 6rem);
 }
-.proyectos-ceja {
-  grid-column: 1 / -1;
-  margin: 0;
-  font: 500 0.78rem/1 var(--mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.proyectos-cabeza h2 {
-  margin: 0;
-  font-size: clamp(3.4rem, 11vw, 9rem);
-  font-weight: 700;
-  letter-spacing: -0.055em;
-  line-height: 0.86;
-}
-.proyectos-frase {
-  margin: 0;
-  font-size: 1.12rem;
-  line-height: 1.5;
-  color: var(--muted);
-}
-.filtros {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-.filtros button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.6rem 1.05rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--fg);
-  font: 600 0.92rem/1 var(--etiqueta);
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-}
-.filtros button:hover { border-color: var(--muted); }
-.filtros button[aria-pressed='true'] { background: var(--fg); border-color: var(--fg); color: var(--bg); }
-.filtros button:focus-visible { outline: 2px solid var(--acento); outline-offset: 3px; }
-.filtros .n { font-weight: 500; font-variant-numeric: tabular-nums; opacity: 0.6; }
-
-.grupo { max-width: 1320px; margin: 0 auto clamp(4rem, 8vw, 6.5rem); }
-.grupo[hidden] { display: none; }
-.grupo-titulo {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.4rem 1rem;
-  margin: 0 0 1.75rem;
-  padding-bottom: 0.9rem;
-  border-bottom: 1px solid var(--line);
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-.grupo-titulo small { font-size: 0.95rem; font-weight: 400; color: var(--muted); }
-
-.mesa {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: clamp(2.25rem, 4vw, 3.25rem) clamp(1.25rem, 2.4vw, 2rem);
-}
-.objeto { position: relative; grid-column: span 2; min-width: 0; }
-.objeto[data-ancho='3'] { grid-column: span 3; }
-.objeto[data-ancho='4'] { grid-column: span 4; }
+.proyectos-cabeza .grupo-titulo { font-size: clamp(3.2rem, 9.5vw, 8rem); line-height: 0.86; letter-spacing: -0.055em; }
+.proyectos-frase { margin: 0; font-size: 1.12rem; line-height: 1.55; color: var(--muted); }
 
 /* La pila de tecnologías (proyectos, ficha y pie): pequeña y a 600, en la letra de la página. */
 .pila { font-family: var(--etiqueta); font-size: 0.86rem; font-weight: 600; letter-spacing: 0.005em; line-height: 1.45; }
 
-/* ——— El objeto: la vista y su pie ——— */
+/* ——— Los casos: el texto arriba y el flujo debajo ——— */
+
+.caso { padding-top: clamp(2.5rem, 5vw, 4rem); border-top: 1px solid var(--line); margin-bottom: clamp(4.5rem, 9vw, 7.5rem); }
+.caso-texto { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); gap: 1.5rem clamp(2rem, 6vw, 6rem); align-items: start; }
+.caso h3 { margin: 0; font-size: clamp(1.9rem, 3.4vw, 2.9rem); font-weight: 700; letter-spacing: -0.035em; line-height: 1.02; text-wrap: balance; }
+.caso-principal h3 { font-size: clamp(2.5rem, 5.4vw, 4.6rem); letter-spacing: -0.045em; line-height: 0.95; }
+.caso-cuerpo > p { margin: 0 0 1rem; max-width: 64ch; font-size: 1.06rem; line-height: 1.62; color: color-mix(in srgb, var(--fg) 80%, var(--bg)); }
+.caso-principal .caso-cuerpo > p:first-child { font-size: 1.2rem; color: var(--fg); }
+.caso-cuerpo > .pila { margin: 1.3rem 0 0; color: var(--acento); }
+.caso-acciones { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.4rem 0 0; }
+.caso-acciones .boton { padding: 0.8rem 1.3rem; font-size: 0.95rem; cursor: pointer; font-family: inherit; }
+
+.caso-corto {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+  gap: 0.4rem clamp(2rem, 6vw, 6rem);
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+.caso-corto h3 { grid-row: span 3; margin: 0; font-size: 1.6rem; letter-spacing: -0.025em; }
+.caso-corto > p { margin: 0; max-width: 64ch; line-height: 1.6; color: color-mix(in srgb, var(--fg) 80%, var(--bg)); }
+.caso-corto > .caso-acciones { margin-top: 0.8rem; }
+.caso-corto > .pila { margin-top: 0.4rem; color: var(--acento); }
+
+/* ——— El lienzo de un flujo: la trama de puntos de un editor de flujos ———
+   Coordenadas en un lienzo de 1000 de ancho (--alto de alto). Cada nodo arranca en su --t: corre
+   (el anillo da la vuelta), queda hecho (la marca y su dato) y el cable al siguiente se enciende con
+   «1 ítem». Todo está pausado hasta que el lienzo se ve (.en-marcha, proyectos.ts), y el estado de
+   reposo es el final: con movimiento reducido se ve el flujo ya ejecutado. */
+
+.flujo-ventana {
+  margin-top: clamp(1.75rem, 3.5vw, 2.75rem);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background-color: color-mix(in srgb, var(--fg) 3%, var(--bg));
+  background-image: radial-gradient(color-mix(in srgb, var(--fg) 13%, transparent) 1px, transparent 1.4px);
+  background-size: 20px 20px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.flujo { position: relative; min-width: 860px; aspect-ratio: 1000 / var(--alto); container-type: inline-size; }
+.flujo-cables { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.cable { fill: none; stroke: color-mix(in srgb, var(--fg) 24%, transparent); stroke-width: 2; }
+.cable-vivo { fill: none; stroke: var(--acento); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+.cable-item { font: 500 12px var(--mono); fill: var(--muted); text-anchor: middle; }
+
+.nodo {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 19cqw;
+  margin: -3.2cqw 0 0 -9.5cqw;
+  display: grid;
+  justify-items: center;
+  gap: 0.55cqw;
+  text-align: center;
+}
+.nodo-caja {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 6.4cqw;
+  height: 6.4cqw;
+  border: 1.5px solid color-mix(in srgb, var(--acento) 70%, var(--line));
+  border-radius: 1.3cqw;
+  background: color-mix(in srgb, var(--fg) 7%, var(--bg));
+  color: var(--fg);
+  box-shadow: 0 0.6cqw 1.8cqw -0.8cqw rgb(0 0 0 / 0.55);
+}
+.nodo-disparo .nodo-caja { border-radius: 3.2cqw 1.3cqw 1.3cqw 3.2cqw; }
+.nodo-icono { width: 2.9cqw; height: 2.9cqw; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.relleno { fill: currentColor; stroke: none; }
+.nodo-rayo { position: absolute; left: -1.1cqw; top: 50%; width: 1.9cqw; height: 1.9cqw; margin-top: -0.95cqw; color: var(--acento); }
+.nodo-rayo svg { width: 100%; height: 100%; }
+.nodo-anillo { position: absolute; inset: -0.35cqw; width: calc(100% + 0.7cqw); height: calc(100% + 0.7cqw); overflow: visible; fill: none; stroke: var(--acento); stroke-width: 2.5; stroke-dasharray: 1; opacity: 0; }
+.nodo-marca {
+  position: absolute;
+  top: -0.8cqw;
+  right: -0.8cqw;
+  display: grid;
+  place-items: center;
+  width: 2.1cqw;
+  height: 2.1cqw;
+  border-radius: 50%;
+  background: var(--acento);
+  color: var(--bg);
+}
+.nodo-marca svg { width: 1.3cqw; height: 1.3cqw; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.nodo-mal { background: #ff6b5a; opacity: 0; }
+.nodo-nombre { margin-top: 0.4cqw; font-size: max(12px, 1.38cqw); font-weight: 650; line-height: 1.2; }
+.nodo-dato {
+  padding: 0.3cqw 0.7cqw;
+  border-radius: 0.5cqw;
+  background: color-mix(in srgb, var(--acento) 13%, transparent);
+  color: var(--acento);
+  font: 600 max(11px, 1.2cqw)/1.3 var(--etiqueta);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.nodo-dato-mal {
+  position: absolute;
+  top: calc(100% + max(15px, 1.66cqw) + 1.5cqw);
+  left: 50%;
+  translate: -50% 0;
+  background: rgb(255 107 90 / 0.14);
+  color: #ff8b7d;
+  opacity: 0;
+}
+
+.flujo .nodo-caja { animation: nd-caja 0.7s var(--t) both paused; }
+.flujo .nodo-anillo { animation: nd-anillo 0.7s var(--t) both paused; }
+.flujo .nodo-nombre { animation: nd-nombre 0.3s var(--t) both paused; }
+.flujo .nodo-ok { animation: nd-marca 0.3s calc(var(--t) + 0.6s) both paused; }
+.flujo .nodo > .nodo-dato { animation: nd-dato 0.35s calc(var(--t) + 0.62s) both paused; }
+.flujo .cable-vivo { animation: cb-vivo 0.45s var(--t) both paused; }
+.flujo .cable-item { animation: nd-dato 0.3s calc(var(--t) + 0.35s) both paused; }
+/* El envío a SUNAT: corre, falla, reintenta y pasa. */
+.flujo .nodo-reintento .nodo-caja { animation: nd-caja-re 2s var(--t) both paused; }
+.flujo .nodo-reintento .nodo-anillo { animation: nd-anillo-re 2s var(--t) both paused; }
+.flujo .nodo-reintento .nodo-mal,
+.flujo .nodo-reintento .nodo-dato-mal { animation: nd-mal 2s var(--t) both paused; }
+.flujo .nodo-reintento .nodo-ok { animation-delay: calc(var(--t) + 1.9s); }
+.flujo .nodo-reintento > .nodo-dato { animation-delay: calc(var(--t) + 1.92s); }
+.flujo.en-marcha .nodo-caja,
+.flujo.en-marcha .nodo-anillo,
+.flujo.en-marcha .nodo-nombre,
+.flujo.en-marcha .nodo-marca,
+.flujo.en-marcha .nodo-dato,
+.flujo.en-marcha .cable-vivo,
+.flujo.en-marcha .cable-item { animation-play-state: running; }
+
+@keyframes nd-caja {
+  0% { border-color: var(--line); color: var(--muted); }
+  25%, 75% { border-color: var(--acento); color: var(--fg); }
+}
+@keyframes nd-anillo {
+  0% { opacity: 1; stroke-dashoffset: 1; }
+  75% { opacity: 1; stroke-dashoffset: 0; }
+  100% { opacity: 0; stroke-dashoffset: 0; }
+}
+@keyframes nd-nombre { from { opacity: 0.4; } }
+@keyframes nd-marca { from { opacity: 0; scale: 0; } }
+@keyframes nd-dato { from { opacity: 0; translate: 0 0.6cqw; } }
+@keyframes cb-vivo { from { stroke-dashoffset: 1; } }
+@keyframes nd-caja-re {
+  0% { border-color: var(--line); color: var(--muted); }
+  10%, 26% { border-color: var(--acento); color: var(--fg); }
+  30%, 58% { border-color: #ff6b5a; }
+  62%, 90% { border-color: var(--acento); }
+}
+@keyframes nd-anillo-re {
+  0% { opacity: 1; stroke-dashoffset: 1; }
+  27% { opacity: 1; stroke-dashoffset: 0.45; }
+  30%, 60% { opacity: 0; stroke-dashoffset: 1; }
+  62% { opacity: 1; stroke-dashoffset: 1; }
+  92% { opacity: 1; stroke-dashoffset: 0; }
+  100% { opacity: 0; stroke-dashoffset: 0; }
+}
+@keyframes nd-mal {
+  0%, 28% { opacity: 0; scale: 0.6; }
+  32%, 56% { opacity: 1; scale: 1; }
+  62%, 100% { opacity: 0; scale: 0.6; }
+}
+
+.flujo-pie { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.5rem 1rem; margin: 0.75rem 0.25rem 0; font-size: 0.86rem; color: var(--muted); }
+.flujo-correr {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg);
+  font: 600 0.88rem/1 var(--etiqueta);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.flujo-correr:hover { border-color: var(--acento); }
+.flujo-correr:focus-visible { outline: 2px solid var(--acento); outline-offset: 3px; }
+.flujo-correr svg { width: 0.75rem; height: 0.75rem; color: var(--acento); }
+
+/* ——— Herramientas: cada una como lo que se baja o se instala ——— */
+
+.producto {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 2rem clamp(2rem, 5vw, 5rem);
+  align-items: center;
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+}
+.producto-docu { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
+.producto-docu .vista { order: 2; }
+.producto .vista { aspect-ratio: 16 / 10; }
+.producto h3 { margin: 0; font-size: clamp(2rem, 4vw, 3.3rem); font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+.producto-frase { margin: 1rem 0 0; max-width: 40ch; font-size: 1.2rem; line-height: 1.5; }
+.producto-datos { display: grid; gap: 0.55rem; margin: 1.3rem 0 0; padding: 0; list-style: none; color: color-mix(in srgb, var(--fg) 80%, var(--bg)); }
+.producto-datos li { position: relative; padding-left: 1.4rem; line-height: 1.5; }
+.producto-datos li::before { content: ''; position: absolute; left: 0; top: 0.72em; width: 0.65rem; height: 2px; background: var(--acento); }
+.producto .pila { margin: 1.2rem 0 0; color: var(--muted); }
+.producto .te-cuerpo { font-size: max(12px, 2.2cqw); }
+.producto .te-l { white-space: pre-wrap; }
+
+/* Kuidy: una pantalla de juego con la letra encima, como se ve en la vida real. La escena es un
+   dibujo propio, no la captura de un juego; la letra es inventada. */
+.vista-kuidy { background: #0d0a14; }
+.ku-escena { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ku-hud { position: absolute; inset: 4.5cqh 4cqw auto; display: flex; justify-content: space-between; align-items: start; }
+.ku-vida { display: flex; gap: 0.7cqw; }
+.ku-vida i { width: 4.2cqw; height: 1.3cqw; border-radius: 2px; background: #ff5c7a; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.4); }
+.ku-vida .ku-media { opacity: 0.35; }
+.ku-mapa { width: 9cqw; height: 9cqw; border: 2px solid rgb(255 255 255 / 0.45); border-radius: 50%; background: rgb(13 10 20 / 0.55) radial-gradient(#ffd166 1.6px, transparent 2px) 50% 50% / 100% 100% no-repeat; }
+.ku-letra { position: absolute; left: 6cqw; right: 6cqw; bottom: 16cqh; text-align: center; color: #fff; text-shadow: 0 2px 14px rgb(0 0 0 / 0.75); }
+.ku-l { margin: 0; font-weight: 700; }
+.ku-antes { font-size: max(11px, 2.3cqw); opacity: 0.55; }
+.ku-ahora { position: relative; display: inline-block; margin-top: 1.4cqh; font: 700 max(15px, 4.4cqw)/1.15 'Yu Gothic UI', 'Hiragino Sans', 'Noto Sans JP', 'Meiryo', var(--etiqueta); letter-spacing: 0.02em; }
+.ku-lleno { position: absolute; inset: 0; color: var(--acento); clip-path: inset(0 38% 0 0); animation: ku-canta 5.5s linear infinite; }
+.ku-romaji { margin: 0.8cqh 0 0; font-size: max(10px, 2cqw); color: rgb(255 255 255 / 0.82); }
+.ku-sonando {
+  position: absolute;
+  right: 3.5cqw;
+  bottom: 4.5cqh;
+  display: flex;
+  align-items: center;
+  gap: 0.7cqw;
+  padding: 0.9cqw 1.5cqw;
+  border-radius: 999px;
+  background: rgb(13 10 20 / 0.75);
+  color: #fff;
+  font: 600 max(10px, 1.6cqw)/1 var(--etiqueta);
+}
+.ku-sonando svg { width: 2cqw; height: 2cqw; fill: none; stroke: var(--acento); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+@keyframes ku-canta { 0% { clip-path: inset(0 100% 0 0); } 82%, 100% { clip-path: inset(0 0 0 0); } }
+
+/* ——— El estante: lo personal, en piezas chicas que abren su ficha ——— */
+
+.mesa {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(2rem, 3.5vw, 2.75rem) clamp(1rem, 2vw, 1.6rem);
+  margin: clamp(2.25rem, 4.5vw, 3.25rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.objeto { position: relative; min-width: 0; }
+.pieza-ancha { grid-column: span 2; }
+
+/* ——— La pieza del estante: la vista y su pie ——— */
 
 .vista {
   position: relative;
@@ -121,10 +299,9 @@
   box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 30px 60px -36px rgb(0 0 0 / 0.95);
   transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.45s;
 }
-.objeto[data-ancho='3'] .vista { aspect-ratio: 16 / 10; }
-.objeto[data-ancho='4'] .vista { aspect-ratio: 2.1 / 1; }
-.objeto:hover .vista,
-.objeto:focus-within .vista {
+.pieza-ancha .vista { aspect-ratio: 2.5 / 1; }
+.pieza:hover .vista,
+.pieza:focus-within .vista {
   transform: translateY(-6px);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--acento) 55%, transparent), 0 42px 70px -36px rgb(0 0 0 / 0.95);
 }
@@ -132,23 +309,15 @@
 .vista:not(.en-vista)::before,
 .vista:not(.en-vista)::after { animation-play-state: paused !important; }
 
-.objeto-pie {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: 0.35rem 1rem;
-  margin-top: 1.1rem;
-}
-.objeto h3 { margin: 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
-.objeto-num { font: 400 0.78rem/1 var(--mono); color: var(--muted); }
-.objeto .que { grid-column: 1 / -1; margin: 0; max-width: 46ch; line-height: 1.45; color: var(--muted); }
-.objeto .pila { grid-column: 1 / -1; margin: 0.15rem 0 0; color: var(--acento); }
-.objeto h3 { background: linear-gradient(var(--acento), var(--acento)) 0 100% / 0 2px no-repeat; transition: background-size 0.35s; justify-self: start; }
-.objeto:hover h3,
-.objeto:focus-within h3 { background-size: 100% 2px; }
+.objeto-pie { display: grid; gap: 0.35rem; margin-top: 1rem; }
+.pieza h3 { margin: 0; font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; justify-self: start; background: linear-gradient(var(--acento), var(--acento)) 0 100% / 0 2px no-repeat; transition: background-size 0.35s; }
+.pieza:hover h3,
+.pieza:focus-within h3 { background-size: 100% 2px; }
+.pieza .que { margin: 0; max-width: 46ch; line-height: 1.45; color: var(--muted); }
+.pieza .pila { margin: 0.1rem 0 0; color: var(--acento); }
 
-/* Todo el objeto es el botón de su ficha; el botón va encima y no se ve. */
-.objeto-abrir {
+/* La pieza entera es el botón de su ficha; el botón va encima y no se ve. */
+.pieza .objeto-abrir {
   position: absolute;
   inset: -0.5rem;
   z-index: 2;
@@ -165,593 +334,10 @@
 .objeto-mas .larga { display: none; }
 .objeto-mas a { color: var(--fg); }
 html.js .objeto-mas { display: none; }
-html:not(.js) .objeto-abrir { display: none; }
+html:not(.js) .objeto-abrir,
+html:not(.js) .flujo-correr { display: none; }
 
-/* ——— 1. Kuantera: la boleta que sale de la impresora y recibe la constancia ——— */
-
-.vista-boleta { background: radial-gradient(120% 95% at 50% 0%, #2d2c29, #121110 72%); }
-.bo-impresora {
-  position: absolute;
-  left: 50%;
-  top: 4cqh;
-  z-index: 2;
-  width: 54cqw;
-  height: 10cqh;
-  translate: -50% 0;
-  border-radius: 1.6cqw 1.6cqw 0.6cqw 0.6cqw;
-  background: linear-gradient(#3d3c38, #252421);
-  box-shadow: 0 1.2cqh 2cqh rgb(0 0 0 / 0.55), inset 0 1px 0 rgb(255 255 255 / 0.08);
-}
-.bo-ranura { position: absolute; left: 7%; right: 7%; bottom: 1.6cqh; height: 0.9cqh; border-radius: 1cqh; background: #0b0b0a; }
-.bo-led {
-  position: absolute;
-  right: 5%;
-  top: 2.2cqh;
-  width: 1.1cqw;
-  height: 1.1cqw;
-  border-radius: 50%;
-  background: var(--acento);
-  box-shadow: 0 0 1.4cqw var(--acento);
-  animation: bo-led 1.1s steps(2) infinite;
-}
-.bo-papel {
-  position: absolute;
-  left: 50%;
-  top: 12.4cqh;
-  z-index: 1;
-  width: 42cqw;
-  padding: 4cqh 2.8cqw 3.2cqh;
-  translate: -50% 0;
-  background: #fbfaf4;
-  color: #262422;
-  font: 400 max(9px, 1.75cqw)/1.42 var(--mono);
-  box-shadow: 0 2.4cqh 3cqh rgb(0 0 0 / 0.38);
-  animation: bo-imprime 7.5s infinite both;
-  animation-timing-function: steps(18, end);
-}
-/* El borde de abajo, cortado en dientes como el de un ticket. */
-.bo-papel::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 100%;
-  height: 1.3cqw;
-  background:
-    linear-gradient(135deg, #fbfaf4 33%, transparent 34%) 0 0 / 1.6cqw 1.3cqw,
-    linear-gradient(225deg, #fbfaf4 33%, transparent 34%) 0 0 / 1.6cqw 1.3cqw;
-}
-.bo-papel p { margin: 0; }
-.bo-neg { letter-spacing: 0.06em; color: #111; }
-.bo-tipo { margin: 0.7em 0 !important; text-align: center; }
-.bo-sep { margin: 0.55em 0 !important; border-top: 1px dashed #bdb9af; }
-.bo-l { display: flex; justify-content: space-between; gap: 1em; }
-.bo-tot { color: #111; letter-spacing: 0.04em; }
-.bo-qr {
-  display: block;
-  width: 8cqw;
-  height: 8cqw;
-  margin: 0.9em auto 0;
-  background:
-    linear-gradient(#262422 0 0) 0 0 / 2.6cqw 2.6cqw no-repeat,
-    linear-gradient(#262422 0 0) 100% 0 / 2.6cqw 2.6cqw no-repeat,
-    linear-gradient(#262422 0 0) 0 100% / 2.6cqw 2.6cqw no-repeat,
-    repeating-conic-gradient(#262422 0 25%, #fbfaf4 0 50%) 0 0 / 1.3cqw 1.3cqw;
-}
-.bo-sello {
-  position: absolute;
-  right: 9cqw;
-  bottom: 12cqh;
-  z-index: 3;
-  display: grid;
-  justify-items: center;
-  padding: 1.2cqh 1.8cqw;
-  border: 0.45cqw solid var(--acento);
-  border-radius: 1cqw;
-  background: rgb(14 14 13 / 0.6);
-  color: var(--acento);
-  font: 600 1.6cqw/1.15 var(--etiqueta);
-  letter-spacing: 0.12em;
-  rotate: -12deg;
-  backdrop-filter: blur(2px);
-  animation: bo-sello 7.5s infinite both;
-}
-.bo-sello b { font-size: 1.75em; letter-spacing: 0.06em; }
-.bo-sello small { font: 400 0.85em var(--mono); letter-spacing: 0; }
-@keyframes bo-led { 50% { opacity: 0.25; } }
-@keyframes bo-imprime {
-  0% { transform: translateY(-96%); opacity: 1; }
-  34% { transform: translateY(0); }
-  90% { transform: translateY(0); opacity: 1; }
-  97% { transform: translateY(0); opacity: 0; }
-  100% { transform: translateY(-96%); opacity: 0; }
-}
-@keyframes bo-sello {
-  0%, 38% { opacity: 0; scale: 2.3; }
-  43% { opacity: 1; scale: 0.94; animation-timing-function: ease-out; }
-  47% { scale: 1; }
-  90% { opacity: 1; scale: 1; }
-  97%, 100% { opacity: 0; scale: 1; }
-}
-
-/* ——— 2. Vídeo desde barcos: el radar, con un barco que pierde el enlace y vuelve ——— */
-
-.vista-radar { background: radial-gradient(circle at 50% 44%, #0e2219, #060c09 75%); }
-.ra-pantalla {
-  position: absolute;
-  left: 50%;
-  top: 44%;
-  width: min(76cqh, 80cqw);
-  aspect-ratio: 1;
-  translate: -50% -50%;
-  overflow: hidden;
-  border-radius: 50%;
-  background: radial-gradient(circle, #10301f, #07160f 72%);
-  box-shadow: inset 0 0 0 1px #2c6b4f, 0 0 5cqw rgb(60 210 140 / 0.12);
-}
-.ra-costa { position: absolute; inset: 0; width: 100%; height: 100%; }
-.ra-costa path { fill: rgb(90 220 160 / 0.13); stroke: rgb(90 220 160 / 0.5); stroke-width: 0.4; }
-.ra-aro { position: absolute; inset: 0; border: 1px solid rgb(90 220 160 / 0.32); border-radius: 50%; }
-.ra-aro2 { inset: 17%; }
-.ra-aro3 { inset: 34%; }
-.ra-cruz {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(rgb(90 220 160 / 0.22), rgb(90 220 160 / 0.22)) 50% 0 / 1px 100% no-repeat,
-    linear-gradient(rgb(90 220 160 / 0.22), rgb(90 220 160 / 0.22)) 0 50% / 100% 1px no-repeat;
-}
-.ra-barrido {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: conic-gradient(from 0deg, rgb(110 240 170 / 0.5), rgb(110 240 170 / 0) 75deg, transparent);
-  animation: ra-gira 4s linear infinite;
-}
-.ra-blip {
-  position: absolute;
-  left: var(--x);
-  top: var(--y);
-  width: 1.5cqw;
-  height: 1.5cqw;
-  margin: -0.75cqw;
-  border-radius: 50%;
-  background: #74f3b6;
-  box-shadow: 0 0 1.4cqw #74f3b6;
-  animation: ra-ping 4s ease-out infinite;
-  animation-delay: var(--d);
-}
-.ra-blip i {
-  position: absolute;
-  left: 2.2cqw;
-  top: -0.9cqw;
-  font: 400 max(9.5px, 1.6cqw)/1 var(--mono);
-  font-style: normal;
-  color: #94f6c6;
-  white-space: nowrap;
-}
-.ra-caido { animation: ra-ping 4s ease-out infinite, ra-caido 9s steps(1) infinite; }
-.ra-caido i { animation: ra-caido-t 9s steps(1) infinite; }
-.ra-estado {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 4cqh;
-  height: 1.4em;
-  margin: 0;
-  font: 400 max(10px, 1.75cqw)/1.4 var(--mono);
-  text-align: center;
-}
-.ra-estado span { position: absolute; inset: 0; }
-.ra-mal { color: #ff9a8f; animation: ra-mal 9s steps(1) infinite; }
-.ra-bien { color: #94f6c6; opacity: 0; animation: ra-bien 9s steps(1) infinite; }
-@keyframes ra-gira { to { rotate: 360deg; } }
-@keyframes ra-ping {
-  0% { box-shadow: 0 0 0 0 rgb(116 243 182 / 0.7); opacity: 1; }
-  45% { box-shadow: 0 0 0 2.2cqw rgb(116 243 182 / 0); opacity: 0.6; }
-  100% { opacity: 0.6; }
-}
-@keyframes ra-caido {
-  0% { background: #ff6b5e; }
-  8% { background: #3a1513; }
-  16% { background: #ff6b5e; }
-  24% { background: #3a1513; }
-  32% { background: #ff6b5e; }
-  56% { background: #74f3b6; }
-}
-@keyframes ra-caido-t { 0% { color: #ff9a8f; } 56% { color: #94f6c6; } }
-@keyframes ra-mal { 0% { opacity: 1; } 56% { opacity: 0; } }
-@keyframes ra-bien { 0% { opacity: 0; } 56% { opacity: 1; } }
-
-/* ——— 3. Comandas: la comanda que llega al riel de la cocina ——— */
-
-.vista-comanda { background: linear-gradient(#2a2723, #191816); }
-.co-riel {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 17cqh;
-  height: 3.4cqh;
-  background: linear-gradient(#dedbd3, #908d87 60%, #5c5a56);
-  box-shadow: 0 0.8cqh 1.4cqh rgb(0 0 0 / 0.5);
-}
-.co-ticket {
-  position: absolute;
-  top: 19.6cqh;
-  width: 44cqw;
-  padding: 3.4cqh 2.8cqw 4cqh;
-  background: #fffdf5;
-  color: #2a2723;
-  font: 400 max(10px, 2.55cqw)/1.45 var(--mono);
-  box-shadow: 0 2cqh 2.6cqh rgb(0 0 0 / 0.38);
-  transform-origin: 50% 0;
-}
-.co-ticket b { display: block; font: 700 max(11px, 2.9cqw)/1.2 var(--etiqueta); letter-spacing: 0.04em; }
-.co-ticket small { display: block; margin-bottom: 0.7em; font-family: var(--etiqueta); color: #8b867c; }
-.co-ticket p { margin: 0; }
-.co-ticket em { display: block; padding-left: 1.7em; font-style: normal; font-size: 0.86em; color: #b4552f; }
-.co-viejo { left: 3cqw; opacity: 0.5; rotate: -3deg; scale: 0.9; }
-.co-nuevo { left: 52cqw; animation: co-entra 8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite both; }
-.co-pinza {
-  position: absolute;
-  left: 50%;
-  top: -2.8cqh;
-  width: 8cqw;
-  height: 4.2cqh;
-  translate: -50% 0;
-  border-radius: 0.6cqw;
-  background: linear-gradient(#d4d1c9, #8f8c86);
-}
-.co-estado {
-  display: inline-block;
-  margin-top: 0.9em;
-  padding: 0.25em 0.65em;
-  border-radius: 0.3em;
-  background: #ffe7ad;
-  color: #6b4a00;
-  font: 700 0.82em/1.2 var(--etiqueta);
-  letter-spacing: 0.06em;
-}
-.co-listo {
-  position: absolute;
-  left: 60cqw;
-  bottom: 8cqh;
-  padding: 1cqh 2.4cqw;
-  border: 0.5cqw solid var(--acento);
-  border-radius: 0.8cqw;
-  background: rgb(25 24 22 / 0.55);
-  color: var(--acento);
-  font: 700 4.4cqw/1 var(--etiqueta);
-  letter-spacing: 0.14em;
-  rotate: -10deg;
-  backdrop-filter: blur(2px);
-  animation: co-listo 8s infinite both;
-}
-@keyframes co-entra {
-  0% { transform: translateX(62cqw) rotate(7deg); }
-  17% { transform: translateX(0) rotate(-3.5deg); }
-  23% { transform: translateX(0) rotate(1.8deg); }
-  29%, 100% { transform: translateX(0) rotate(0); }
-}
-@keyframes co-listo {
-  0%, 56% { opacity: 0; scale: 2.1; }
-  62% { opacity: 1; scale: 0.94; }
-  66%, 93% { opacity: 1; scale: 1; }
-  100% { opacity: 0; scale: 1; }
-}
-
-/* ——— 4. Contenido: el vídeo vertical y lo que vendió ——— */
-
-.vista-vertical {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 5cqw;
-  padding: 6cqh 6cqw;
-  background: radial-gradient(120% 120% at 0% 0%, #3a2b10, #151311 65%);
-}
-.ve-fono {
-  height: 86cqh;
-  aspect-ratio: 9 / 16;
-  padding: 0.9cqw;
-  border-radius: 3cqw;
-  background: #0b0b0b;
-  box-shadow: 0 2cqh 4cqh rgb(0 0 0 / 0.55);
-}
-.ve-video {
-  position: relative;
-  height: 100%;
-  overflow: hidden;
-  border-radius: 2.3cqw;
-  background: #2a1d12;
-}
-/* La foto del ceviche (la misma de la simulación de Comandas), con un zoom lento como de vídeo. */
-.ve-foto { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: ve-zoom 6s ease-in-out infinite alternate; }
-.ve-video::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 55%, rgb(0 0 0 / 0.6)); }
-.ve-play {
-  position: absolute;
-  left: 50%;
-  top: 72%;
-  z-index: 1;
-  width: 7cqw;
-  height: 7cqw;
-  translate: -50% -50%;
-  border-radius: 50%;
-  background: rgb(0 0 0 / 0.45);
-}
-.ve-play::after {
-  content: '';
-  position: absolute;
-  left: 39%;
-  top: 30%;
-  border-left: 2.4cqw solid #fff;
-  border-top: 1.4cqw solid transparent;
-  border-bottom: 1.4cqw solid transparent;
-}
-.ve-codigo {
-  position: absolute;
-  z-index: 1;
-  left: 1.4cqw;
-  top: 1.4cqw;
-  padding: 0.2em 0.45em;
-  border-radius: 0.3em;
-  background: rgb(0 0 0 / 0.6);
-  color: #fff;
-  font: 400 max(9px, 1.8cqw)/1.2 var(--mono);
-}
-.ve-leyenda {
-  position: absolute;
-  left: 1.6cqw;
-  right: 1.6cqw;
-  z-index: 1;
-  bottom: 1.8cqw;
-  color: #fff;
-  font: 600 max(9.5px, 2cqw)/1.25 var(--etiqueta);
-  text-shadow: 0 1px 2px rgb(0 0 0 / 0.7);
-}
-.ve-cifras p { margin: 0 0 3cqh; }
-.ve-cifras small { display: block; margin-bottom: 0.3em; font: 500 max(10.5px, 2.6cqw)/1.25 var(--etiqueta); color: var(--muted); }
-.ve-cifras b { font: 700 7.4cqw/1 var(--etiqueta); letter-spacing: -0.03em; color: var(--fg); }
-.ve-cifras .ve-soles { color: var(--acento); }
-.ve-barras { display: flex; align-items: flex-end; gap: 1.2cqw; height: 24cqh; }
-.ve-barras i {
-  flex: 1;
-  height: var(--h);
-  border-radius: 0.5cqw 0.5cqw 0 0;
-  background: color-mix(in srgb, var(--acento) 28%, transparent);
-  transform-origin: bottom;
-  animation: ve-crece 6s cubic-bezier(0.2, 0.8, 0.2, 1) infinite both;
-}
-.ve-barras i:nth-child(2) { animation-delay: 0.12s; }
-.ve-barras i:nth-child(3) { animation-delay: 0.24s; }
-.ve-barras i:nth-child(4) { animation-delay: 0.36s; }
-.ve-barras i:nth-child(5) { animation-delay: 0.48s; }
-.ve-barras i:nth-child(6) { animation-delay: 0.6s; }
-.ve-barras .ve-este { background: var(--acento); }
-@keyframes ve-zoom { to { transform: scale(1.12) translateY(-2%); } }
-@keyframes ve-crece { 0% { scale: 1 0; } 25%, 92% { scale: 1 1; } 100% { scale: 1 1; opacity: 0.6; } }
-
-/* ——— 5. Automatizaciones: el chat del bot del negocio ——— */
-
-.vista-chat { display: flex; flex-direction: column; background: #0e1621; }
-.ch-cabeza {
-  display: flex;
-  align-items: center;
-  gap: 1.8cqw;
-  padding: 2.6cqh 3cqw;
-  background: #17212b;
-  color: #e8edf2;
-  font: 600 max(11px, 2.8cqw)/1 var(--etiqueta);
-}
-.ch-avatar {
-  display: grid;
-  place-items: center;
-  width: 6.4cqw;
-  height: 6.4cqw;
-  border-radius: 50%;
-  background: var(--acento);
-  color: #0e1621;
-  font: 700 max(9px, 2.2cqw)/1 var(--etiqueta);
-}
-.ch-cabeza small { margin-left: auto; font-size: 0.82em; font-weight: 500; color: #6c8eae; }
-.ch-burbujas {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1.8cqh;
-  margin: 0;
-  padding: 3cqh 3cqw;
-  list-style: none;
-  background: radial-gradient(rgb(255 255 255 / 0.03) 1px, transparent 1.5px) 0 0 / 2.4cqw 2.4cqw;
-}
-.ch-burbujas li {
-  align-self: flex-start;
-  max-width: 80%;
-  padding: 1.3cqh 2.2cqw;
-  border-radius: 1.8cqw 1.8cqw 1.8cqw 0.4cqw;
-  background: #182533;
-  color: #e8edf2;
-  font: 400 max(10.5px, 2.75cqw)/1.36 var(--etiqueta);
-  animation: ch-entra 9s cubic-bezier(0.2, 0.8, 0.2, 1) infinite both;
-}
-.ch-burbujas b { color: #9fc6ff; }
-.ch-b2 { animation-delay: 1s !important; }
-.ch-b3 { align-self: flex-end !important; border-radius: 1.8cqw 1.8cqw 0.4cqw 1.8cqw !important; background: #2b5278 !important; animation-delay: 2s !important; }
-.ch-b4 { animation-delay: 3s !important; }
-.ch-escribe {
-  position: absolute;
-  left: 3cqw;
-  bottom: 3cqh;
-  display: flex;
-  gap: 0.7cqw;
-  padding: 1.3cqh 1.8cqw;
-  border-radius: 1.8cqw;
-  background: #182533;
-  animation: ch-escribe 9s infinite both;
-}
-.ch-escribe i { width: 1cqw; height: 1cqw; border-radius: 50%; background: #6c8eae; animation: ch-punto 0.9s ease-in-out infinite; }
-.ch-escribe i:nth-child(2) { animation-delay: 0.15s; }
-.ch-escribe i:nth-child(3) { animation-delay: 0.3s; }
-@keyframes ch-entra {
-  0% { opacity: 0; transform: translateY(2.4cqh) scale(0.96); }
-  6% { opacity: 1; transform: none; }
-  88% { opacity: 1; transform: none; }
-  95%, 100% { opacity: 0; transform: none; }
-}
-@keyframes ch-escribe { 0%, 48% { opacity: 0; } 52%, 86% { opacity: 1; } 92%, 100% { opacity: 0; } }
-@keyframes ch-punto { 50% { transform: translateY(-0.6cqw); opacity: 0.5; } }
-
-/* ——— 6. ERP: la agenda del día por especialista ——— */
-
-.vista-agenda {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  background: #f2f6f7;
-  color: #22343a;
-  font-family: var(--etiqueta);
-}
-.ag-cabeza {
-  display: grid;
-  grid-template-columns: 11cqw repeat(3, minmax(0, 1fr));
-  align-items: center;
-  padding: 2.4cqh 2cqw;
-  border-bottom: 1px solid #d5dfe2;
-  color: #4b6168;
-  font: 600 max(10px, 1.8cqw)/1 var(--etiqueta);
-}
-.ag-cabeza b { font-size: max(12px, 2.3cqw); color: #13252b; }
-.ag-cuerpo { --fila: 15cqh; position: relative; margin: 0 2cqw; }
-.ag-hora {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(var(--f) * var(--fila) + 0.8cqh);
-  padding-top: 0.6cqh;
-  border-top: 1px solid #e1e8ea;
-  color: #7d9298;
-  font: 400 max(9px, 1.45cqw)/1 var(--mono);
-}
-.ag-sesion {
-  position: absolute;
-  left: calc(11cqw + var(--c) * (100cqw - 15cqw) / 3 + 0.5cqw);
-  width: calc((100cqw - 15cqw) / 3 - 1cqw);
-  top: calc(var(--i) * var(--fila) + 1.4cqh);
-  height: calc(var(--l) * var(--fila) - 1cqh);
-  padding: 1cqh 1cqw;
-  border-left: 0.55cqw solid #2a9aa8;
-  border-radius: 0.8cqw;
-  background: #cfeff3;
-  color: #0f3a40;
-  font: 600 max(10px, 1.75cqw)/1.25 var(--etiqueta);
-  animation: ag-cae 9s cubic-bezier(0.2, 0.8, 0.2, 1) infinite both;
-  animation-delay: calc(var(--k) * 0.35s);
-}
-.ag-b { border-left-color: #e8894d; background: #ffe5d2; color: #5c2c0b; }
-.ag-c { border-left-color: #7a62e0; background: #e7e1ff; color: #2d1f6b; }
-.ag-pagada::after { content: ' ✓'; color: #1b7a3a; }
-.ag-ahora {
-  position: absolute;
-  left: 9cqw;
-  right: 0;
-  top: calc(2.3 * var(--fila));
-  height: 2px;
-  background: #e5484d;
-}
-.ag-ahora::before {
-  content: '';
-  position: absolute;
-  left: -0.6cqw;
-  top: -0.5cqw;
-  width: 1.2cqw;
-  height: 1.2cqw;
-  border-radius: 50%;
-  background: #e5484d;
-}
-@keyframes ag-cae {
-  0% { opacity: 0; transform: translateY(-2cqh); }
-  7% { opacity: 1; transform: none; }
-  90% { opacity: 1; }
-  97%, 100% { opacity: 0; }
-}
-
-/* ——— 7. Gestión de campo: la marca de ingreso a bordo ——— */
-
-.vista-marcacion { background: #b8d2dc; }
-.ma-mapa { position: absolute; inset: 0; }
-.ma-mapa svg { display: block; width: 100%; height: 100%; }
-.ma-tierra { fill: #f1ece0; stroke: #c9bfa9; stroke-width: 0.3; }
-.ma-muelle { stroke: #8a8070; stroke-width: 1.2; stroke-linecap: round; }
-.ma-barco {
-  position: absolute;
-  left: 50%;
-  top: 47%;
-  width: 7cqw;
-  height: 2.8cqw;
-  background: #2f3b45;
-  clip-path: polygon(0 0, 78% 0, 100% 50%, 78% 100%, 0 100%);
-}
-.ma-pin {
-  position: absolute;
-  left: 53.5%;
-  top: 47%;
-  width: 3.2cqw;
-  height: 3.2cqw;
-  translate: -50% -120%;
-  border-radius: 50% 50% 50% 0;
-  background: var(--acento);
-  rotate: -45deg;
-  box-shadow: 0 0.6cqh 1cqh rgb(0 0 0 / 0.25);
-}
-.ma-pin i {
-  position: absolute;
-  inset: -1cqw;
-  border: 0.35cqw solid var(--acento);
-  border-radius: 50%;
-  animation: ma-onda 2.2s ease-out infinite;
-}
-.ma-tarjeta {
-  position: absolute;
-  left: 5cqw;
-  bottom: 8cqh;
-  width: 40cqw;
-  padding: 2.4cqh 2.6cqw;
-  border-radius: 1.8cqw;
-  background: #fff;
-  color: #1f2b2e;
-  font-family: var(--etiqueta);
-  box-shadow: 0 2cqh 4cqh rgb(30 40 40 / 0.25);
-  animation: ma-sube 8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite both;
-}
-.ma-tarjeta small { display: block; font: 600 max(9.5px, 1.5cqw)/1.2 var(--etiqueta); letter-spacing: 0.06em; text-transform: uppercase; color: #6d7d80; }
-.ma-tarjeta b { display: block; margin: 0.35em 0 0.2em; font-size: 2.6cqw; }
-.ma-tarjeta span { display: block; font-size: max(10.5px, 1.8cqw); color: #4e5f63; }
-.ma-tarjeta .ma-ok {
-  display: inline-block;
-  margin-top: 1cqh;
-  padding: 0.3em 0.75em;
-  border-radius: 99px;
-  background: #d9f5df;
-  color: #1b7a3a;
-  font-weight: 700;
-  animation: ma-ok 8s infinite both;
-}
-.ma-horas {
-  position: absolute;
-  right: 4cqw;
-  top: 6cqh;
-  margin: 0;
-  padding: 1.8cqh 2.4cqw;
-  border-radius: 1.6cqw;
-  background: #1f2b2e;
-  text-align: right;
-}
-.ma-horas small { display: block; font: 500 max(9.5px, 1.45cqw)/1.2 var(--etiqueta); color: #a9b8bb; }
-.ma-horas b { font: 700 4.6cqw/1.1 var(--etiqueta); color: var(--acento); }
-@keyframes ma-onda { 0% { transform: scale(0.4); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
-@keyframes ma-sube { 0% { opacity: 0; transform: translateY(4cqh); } 12%, 92% { opacity: 1; transform: none; } 100% { opacity: 0; transform: none; } }
-@keyframes ma-ok { 0%, 30% { opacity: 0; transform: scale(0.8); } 36%, 100% { opacity: 1; transform: none; } }
-
-/* ——— 8. DocuGraph MCP: la terminal del agente ——— */
+/* ——— DocuGraph MCP: la terminal del agente ——— */
 
 .vista-terminal { display: grid; grid-template-rows: auto minmax(0, 1fr); background: #0f1210; }
 .te-barra { display: flex; align-items: center; gap: 0.8cqw; padding: 1.8cqh 1.6cqw; background: #1a1e1b; }
@@ -780,56 +366,7 @@ html:not(.js) .objeto-abrir { display: none; }
 @keyframes te-4 { 0%, 48% { clip-path: inset(0 100% 0 0); } 70%, 92% { clip-path: inset(0 0 0 0); opacity: 1; } 100% { clip-path: inset(0 0 0 0); opacity: 0; } }
 @keyframes te-cursor { 50% { opacity: 0; } }
 
-/* ——— 9. Kuidy Lyrics: la letra flotando encima del juego ——— */
-
-.vista-letra { background: linear-gradient(#24193f, #5e3364 52%, #e98760); }
-.le-juego { position: absolute; inset: 0; }
-.le-sol {
-  position: absolute;
-  left: 58%;
-  top: 30%;
-  width: 22cqw;
-  height: 22cqw;
-  border-radius: 50%;
-  background: radial-gradient(circle, #ffd7a3, #ff9e6b 60%, transparent 62%);
-  filter: blur(0.2cqw);
-}
-.le-cerro {
-  position: absolute;
-  left: -10%;
-  right: 30%;
-  bottom: 0;
-  height: 42cqh;
-  border-radius: 50% 60% 0 0;
-  background: #2c1d3d;
-}
-.le-cerro2 { left: 35%; right: -15%; height: 32cqh; background: #3b2550; }
-.le-hud { position: absolute; left: 3cqw; top: 3cqh; font: 400 max(9px, 2.1cqw)/1 var(--mono); color: #ffcf9a; letter-spacing: 0.06em; }
-.le-ventana {
-  position: absolute;
-  left: 7cqw;
-  right: 7cqw;
-  bottom: 9cqh;
-  padding: 2.4cqh 3cqw;
-  border-radius: 2cqw;
-  background: rgb(12 10 18 / 0.5);
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12), 0 2cqh 4cqh rgb(0 0 0 / 0.35);
-  backdrop-filter: blur(8px);
-  text-align: center;
-  font-family: var(--etiqueta);
-}
-.le-v { margin: 0.35em 0; font-size: max(10px, 2.8cqw); line-height: 1.2; color: rgb(255 255 255 / 0.42); }
-.le-v1 { font-size: max(13px, 4.4cqw); font-weight: 700; letter-spacing: -0.01em; }
-.le-v1 span {
-  background: linear-gradient(90deg, var(--acento) 50%, rgb(255 255 255 / 0.4) 50%) 0 0 / 200% 100% no-repeat;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: le-canta 5.5s linear infinite;
-}
-@keyframes le-canta { 0% { background-position: 100% 0; } 82%, 100% { background-position: 0 0; } }
-
-/* ——— 10. Daebon: el guion engrapado, con su sello ——— */
+/* ——— Daebon: el guion engrapado, con su sello ——— */
 
 .vista-guion { background: radial-gradient(circle at 30% 18%, #f7f1e4, #e2d9c6); }
 .gu-libreto {
@@ -894,7 +431,7 @@ html:not(.js) .objeto-abrir { display: none; }
 @keyframes gu-flota { to { transform: translateY(-1.4cqh) rotate(1.2deg); } }
 @keyframes gu-sella { 0%, 38% { opacity: 0; scale: 1.9; } 44% { opacity: 0.92; scale: 0.94; } 48%, 100% { opacity: 0.92; scale: 1; } }
 
-/* ——— 11. Tsuzuku: la portada de la revista de manga ——— */
+/* ——— Tsuzuku: la portada de la revista de manga ——— */
 
 .vista-revista { display: grid; place-items: center; background: #ebe5d8; }
 .re-portada {
@@ -934,7 +471,7 @@ html:not(.js) .objeto-abrir { display: none; }
 }
 @keyframes re-hoja { to { transform: translateY(-1.2cqh) rotate(-1.8deg); } }
 
-/* ——— 12. km 0: el recorrido, con el tramo de antes y la placa ——— */
+/* ——— km 0: el recorrido, con el tramo de antes y la placa ——— */
 
 .vista-recorrido { background: #ece6d7; }
 .km-mapa { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -1003,7 +540,7 @@ html:not(.js) .objeto-abrir { display: none; }
 @keyframes km-traza { 0% { stroke-dashoffset: 1; } 42%, 100% { stroke-dashoffset: 0; } }
 @keyframes km-aparece { 0%, 48% { opacity: 0; transform: translateY(1cqh); } 56%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 
-/* ——— 13. Remezón: el corte de la placa de Nazca, con sus sismos en el orden en que pasaron ———
+/* ——— Remezón: el corte de la placa de Nazca, con sus sismos en el orden en que pasaron ———
    Los puntos son los datos de Remezón (sismos de magnitud 6 o más desde 1973) proyectados sobre un
    eje que cruza la costa; el script que arma el SVG vive fuera del repo. Un reloj, --co-ahora, va
    de 0 a 1 y cada sismo aparece cuando el reloj pasa su --t (cuándo fue); el año lo acompaña. En
@@ -1066,7 +603,7 @@ html:not(.js) .objeto-abrir { display: none; }
 }
 @keyframes co-onda { from { scale: 0.5; opacity: 1; } to { scale: 2.4; opacity: 0; } }
 
-/* ——— 14 y 16. El ajolote y la web de Sebastian: su grabación ——— */
+/* ——— El ajolote y la web de Sebastian: su grabación ——— */
 
 .vista-cueva { background: #0f1a14; }
 .cu-tanque { position: absolute; inset: 0; }
@@ -1104,7 +641,7 @@ html:not(.js) .objeto-abrir { display: none; }
 }
 @keyframes ed-corre { to { left: calc(100% - 1.4cqw); } }
 
-/* ——— 15. Nazca: el colibrí, una sola línea que se traza sola ——— */
+/* ——— Nazca: el colibrí, una sola línea que se traza sola ——— */
 
 .vista-linea { background: radial-gradient(ellipse 120% 85% at 72% 0%, #f8c57d, #d79a5b 34%, #96663f 74%, #6a4630); }
 .vista-linea::before {
@@ -1312,21 +849,21 @@ html.cabecera-sobre #cabecera {
 /* ——— Pantallas más chicas ——— */
 
 @media (max-width: 1099px) {
+  .proyectos-cabeza,
+  .caso-texto,
+  .caso-corto,
+  .producto,
+  .producto-docu { grid-template-columns: minmax(0, 1fr); }
+  .caso-corto h3 { grid-row: auto; }
+  .producto-docu .vista { order: 0; }
   .mesa { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .objeto,
-  .objeto[data-ancho='3'] { grid-column: span 1; }
-  .objeto[data-ancho='4'] { grid-column: span 2; }
-  .objeto[data-ancho='3'] .vista { aspect-ratio: 5 / 4; }
-  .proyectos-cabeza { grid-template-columns: minmax(0, 1fr); }
+  .pieza-ancha .vista { aspect-ratio: 2.1 / 1; }
 }
 @media (max-width: 679px) {
   .mesa { grid-template-columns: minmax(0, 1fr); }
-  .objeto,
-  .objeto[data-ancho='3'],
-  .objeto[data-ancho='4'] { grid-column: span 1; }
-  .objeto[data-ancho='4'] .vista { aspect-ratio: 5 / 4; }
-  .objeto[data-ancho='4'] .te-cuerpo { font-size: 2.6cqw; white-space: normal; }
-  .objeto[data-ancho='4'] .te-l { white-space: pre-wrap; }
+  .pieza-ancha { grid-column: auto; }
+  .pieza-ancha .vista { aspect-ratio: 5 / 4; }
+  .flujo-pie span::after { content: ' · desliza para ver el flujo entero'; }
   #ficha { width: 100vw; height: 100dvh; border: 0; border-radius: 0; }
   .ficha-marco { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 46dvh minmax(0, 1fr); }
   .ficha-texto { border-left: 0; border-top: 1px solid var(--line); }
@@ -1337,8 +874,10 @@ html.cabecera-sobre #cabecera {
   .vista *::before,
   .vista *::after,
   .vista::before,
-  .vista-corte { animation: none !important; }
+  .vista-corte,
+  .flujo * { animation: none !important; }
   .vista,
-  .objeto h3,
-  .boton { transition: none; }
+  .pieza h3,
+  .boton,
+  .flujo-correr { transition: none; }
 }

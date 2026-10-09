@@ -5,22 +5,20 @@ import type { Sim } from '../sim/motor';
 // ================================================================================================
 // Al tocar un proyecto se abre su ficha: a la izquierda su trabajo andando, a la derecha qué es, la
 // pila, cómo está hecho, sus enlaces y el aviso. Con las flechas (de la ficha o del teclado) se pasa
-// al anterior y al siguiente, entre los que deja ver el filtro. El texto sale del propio marcado de
+// al anterior y al siguiente. El texto sale del propio marcado de
 // cada proyecto (.objeto-mas), que es lo que se lee sin JavaScript: una sola fuente.
 //
 // QUÉ SE ENSEÑA. El medio lo dicen los data-* del .objeto:
-//   · data-sim: una de las simulaciones de src/sim (Kuantera, las cámaras, Comandas...), que se pide
+//   · data-sim: una de las simulaciones de src/sim (Kuantera, Comandas, Contenido), que se pide
 //     al abrir y se monta encima del cartel, como en las páginas de caso;
 //   · data-video: la grabación (MP4, o WebM donde no hay H.264), en marco de teléfono o de navegador;
 //   · data-imagen: una captura (los casos del ERP y de gestión de campo);
-//   · nada: la vista del propio proyecto, agrandada (la terminal, la letra, el colibrí).
+//   · nada: la vista del propio proyecto, agrandada (la terminal, la pantalla de Kuidy, el colibrí).
 // Al cerrar o al pasar a otro, la simulación se revierte y el vídeo se suelta.
 
 type MontarSim = (raiz: HTMLElement, opciones: { reduce: boolean }) => Sim;
 // Un import por escena, escrito entero: así Vite parte cada una en su trozo.
 const SIMS: Record<string, () => Promise<MontarSim>> = {
-  camaras: () => import('../sim/camaras').then((m) => m.montarCamaras),
-  automatizaciones: () => import('../sim/automatizaciones').then((m) => m.montarAutomatizaciones),
   kuantera: () => import('../sim/kuantera').then((m) => m.montarKuantera),
   comandas: () => import('../sim/comandas').then((m) => m.montarComandas),
   contenido: () => import('../sim/contenido').then((m) => m.montarContenido),
