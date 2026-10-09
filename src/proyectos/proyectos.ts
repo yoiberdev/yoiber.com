@@ -1,23 +1,26 @@
 import { animate, stagger, utils } from 'animejs';
 import { montarFicha } from './ficha';
+import { montarAhora } from './ahora';
+import { montarAjolote } from './ajolote';
 
-// LOS PROYECTOS — #proyectos, en flujo después del maestro (09/10/2026)
+// LOS PROYECTOS — #proyectos, en flujo después del maestro (10/10/2026, tercera vuelta)
 // ================================================================================================
-// Quince proyectos a la vista, cada uno en el formato de lo que es (portada.css). Este módulo hace
-// cuatro cosas, ninguna atada al reloj del maestro:
-//   · ENTRADA: cada objeto sube y aparece la primera vez que asoma (IntersectionObserver), con un
-//     escalón entre los de la misma fila. Una sola vez: después se quedan.
-//   · EN VISTA: las animaciones CSS de cada vista solo andan mientras se ve (clase .en-vista), y los
-//     vídeos de las vistas (el ajolote, la web de Sebastian) se piden y se reproducen igual.
-//   · LAS IMÁGENES de las vistas llevan data-src: se piden al acercarse.
-//   · LOS FILTROS por grupo, y la FICHA (ficha.ts) al tocar un proyecto.
+// «Ahora mismo» (ahora.ts), el muro de trabajos y el ajolote que vive en la página (ajolote.ts).
+// Este módulo, además:
+//   · ENTRADA: cada tarjeta sube y aparece la primera vez que asoma, con un escalón entre las de la
+//     misma fila. Una sola vez: después se quedan.
+//   · EN VISTA: las animaciones CSS de cada vista solo andan mientras se ve (clase .en-vista), y las
+//     grabaciones se piden y se reproducen igual; las imágenes (data-src) se piden al acercarse.
+//   · LA CABECERA lleva fondo cuando tiene contenido debajo.
+//   · LA FICHA (ficha.ts) al tocar un trabajo.
 // Con movimiento reducido no hay entrada ni bucles (portada.css los apaga): todo quieto y completo.
 
 export function montarProyectos(reduce: boolean): () => void {
   const seccion = document.querySelector<HTMLElement>('#proyectos');
   if (!seccion) return () => undefined;
   const objetos = Array.from(seccion.querySelectorAll<HTMLElement>('.objeto'));
-  const vistas = objetos.map((o) => o.querySelector<HTMLElement>('.vista')).filter((v): v is HTMLElement => !!v);
+  const tarjetas = Array.from(seccion.querySelectorAll<HTMLElement>('.obra'));
+  const vistas = tarjetas.map((o) => o.querySelector<HTMLElement>('.vista')).filter((v): v is HTMLElement => !!v);
   const limpiezas: (() => void)[] = [];
 
   // ——— Medios perezosos ———
@@ -69,12 +72,12 @@ export function montarProyectos(reduce: boolean): () => void {
 
   // ——— Entrada ———
   if (!reduce) {
-    const bajoElBorde = objetos.filter((o) => o.getBoundingClientRect().top > window.innerHeight * 0.9);
+    const bajoElBorde = tarjetas.filter((o) => o.getBoundingClientRect().top > window.innerHeight * 0.9);
     utils.set(bajoElBorde, { opacity: 0, y: 48 });
     const pendientes = new Set(bajoElBorde);
     let tanda: HTMLElement[] = [];
     let espera = 0;
-    // Los que asoman en el mismo instante entran juntos, con un escalón entre ellos.
+    // Las que asoman en el mismo instante entran juntas, con un escalón entre ellas.
     const soltar = (): void => {
       espera = 0;
       const lote = tanda.sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left);
@@ -98,7 +101,7 @@ export function montarProyectos(reduce: boolean): () => void {
     limpiezas.push(() => {
       entrada.disconnect();
       window.clearTimeout(espera);
-      utils.set(objetos, { opacity: 1, y: 0 });
+      utils.set(tarjetas, { opacity: 1, y: 0 });
     });
   }
 
@@ -124,29 +127,9 @@ export function montarProyectos(reduce: boolean): () => void {
     html.classList.remove('cabecera-sobre');
   });
 
-  // ——— Filtros ———
-  const botones = Array.from(seccion.querySelectorAll<HTMLButtonElement>('.filtros [data-filtro]'));
-  const grupos = Array.from(seccion.querySelectorAll<HTMLElement>('.grupo'));
-  const filtrar = (ev: Event): void => {
-    const b = (ev.target as Element | null)?.closest<HTMLButtonElement>('[data-filtro]');
-    if (!b) return;
-    const f = b.dataset.filtro ?? 'todo';
-    for (const x of botones) x.setAttribute('aria-pressed', String(x === b));
-    const visibles: HTMLElement[] = [];
-    for (const g of grupos) {
-      const mostrar = f === 'todo' || g.dataset.grupo === f;
-      g.hidden = !mostrar;
-      if (mostrar) visibles.push(...g.querySelectorAll<HTMLElement>('.objeto'));
-    }
-    if (!reduce) animate(visibles, { opacity: [0, 1], y: [24, 0], duration: 600, ease: 'out(3)', delay: stagger(45) });
-  };
-  const filtros = seccion.querySelector<HTMLElement>('.filtros');
-  filtros?.addEventListener('click', filtrar);
-  limpiezas.push(() => {
-    filtros?.removeEventListener('click', filtrar);
-    for (const g of grupos) g.hidden = false;
-    for (const x of botones) x.setAttribute('aria-pressed', String(x.dataset.filtro === 'todo'));
-  });
+  // ——— Lo que vive en la página ———
+  limpiezas.push(montarAhora());
+  limpiezas.push(montarAjolote(reduce));
 
   // ——— La ficha ———
   limpiezas.push(montarFicha(objetos, { reduce, conVideo, ext }));
