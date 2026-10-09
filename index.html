@@ -236,8 +236,9 @@
     <!-- EL PIE. En flujo, después de los espaciadores: cuando el maestro se acaba (el motor ya se
          ha fundido con el fondo al final de CIERRE) el pie sube por encima de todas las capas fijas
          menos la cabecera, que se queda también aquí.
-         Sus bloques entran con el scroll desde effects/pie.ts, fuera del maestro. Los cinco
-         proyectos son los mismos que las tarjetas, con el mismo enlace de cada .acceso. -->
+         Sus bloques entran con el scroll desde effects/pie.ts, fuera del maestro. Los proyectos son
+         los mismos que las tarjetas, con el mismo enlace de cada .acceso, y después lo abierto que no
+         tiene tarjeta (Nazca, DocuGraph MCP, Kuidy Lyrics). -->
     <footer id="pie" tabindex="-1">
       <div class="pie-bloque pie-cabecera">
         <h2>Yoiber</h2>
@@ -259,7 +260,6 @@
           <h3>Casos</h3>
           <ul class="pie-lista pie-proyectos">
             <li><a href="/casos/kuantera/">Kuantera, facturación ante SUNAT</a><span class="pila">NestJS · PostgreSQL · UBL 2.1 · firma XML-DSig</span></li>
-            <li><a href="/casos/kuidy-core/">KUIDY-CORE, el motor de formularios</a><span class="pila">TypeScript · Hono · PostgreSQL JSONB · React</span></li>
             <li><a href="/casos/videovigilancia-maritima/">Vídeo en directo desde barcos</a><span class="pila">SRT · MQTT · FastAPI · sistemas embarcados</span></li>
             <li><a href="/casos/erp-centro-de-terapias/">ERP de un centro de terapias</a><span class="pila">Django · PostgreSQL · Redis · comprobantes SUNAT</span></li>
             <li><a href="/casos/gestion-de-campo-embarcaciones/">Gestión de campo en embarcaciones</a><span class="pila">Node · Prisma · MySQL · React · Leaflet</span></li>
@@ -275,15 +275,21 @@
             <li><a href="/casos/videovigilancia-maritima/">Vídeo desde barcos</a><span class="pila">Python · Go · SRT · HLS · MQTT</span></li>
             <li><a href="https://sebas.yoiber.dev" target="_blank" rel="noopener">Web de Sebastian Murazzo</a><span class="pila">Vite · TypeScript · three.js · Anime.js</span></li>
             <li><a href="https://ajolote.yoiber.dev" target="_blank" rel="noopener">Ajolote</a><span class="pila">Svelte · three.js · Threlte · GLSL</span></li>
+            <li><a href="https://doramas.yoiber.dev" target="_blank" rel="noopener">Daebon</a><span class="pila">Svelte · Capacitor · Node · TMDB</span></li>
+            <li><a href="https://anime.yoiber.dev" target="_blank" rel="noopener">Tsuzuku</a><span class="pila">Svelte · Capacitor · AniList GraphQL</span></li>
+            <li><a href="https://github.com/yoiberdev/km0" target="_blank" rel="noopener">km 0</a><span class="pila">Svelte · Kotlin · Health Connect</span></li>
+            <li><a href="https://nazca.yoiber.dev" target="_blank" rel="noopener">Nazca</a><span class="pila">Svelte · Threlte · three.js</span></li>
+            <li><a href="https://github.com/yoiberdev/docugraph-mcp" target="_blank" rel="noopener">DocuGraph MCP</a><span class="pila">Rust · MCP · código abierto</span></li>
+            <li><a href="https://github.com/yoiberdev/kuidy-lyrics" target="_blank" rel="noopener">Kuidy Lyrics</a><span class="pila">Rust · Windows · código abierto</span></li>
           </ul>
         </div>
       </div>
       <p class="pie-bloque pie-final">© 2026 Yoiber · <a href="#" id="arriba">Volver arriba</a></p>
     </footer>
 
-    <!-- LA GALERÍA. Siete proyectos (27/09/2026: Kuantera, Comandas, Contenido, las automatizaciones, el vídeo desde
+    <!-- LA GALERÍA. Diez proyectos (27/09/2026: Kuantera, Comandas, Contenido, las automatizaciones, el vídeo desde
          barcos y la web de Sebastian; fuera SysRRHH, TechDocAPI, la API financiera y KUIDY-CORE; el 07/10/2026 entra el
-         ajolote), cada uno con su VITRINA:
+         ajolote; el 09/10/2026, Daebon, Tsuzuku y km 0, las tres en marco de teléfono), cada uno con su VITRINA:
          el trabajo en movimiento, grande, donde antes estaba el motor (effects/vitrinas.ts pone los
          carteles y los vídeos al acercarse y anda solo el de la tarjeta que manda). Las secciones de #capitulos son espaciadores:
          lo que se ve vive aquí, en una capa fija, y el reloj del maestro decide cuál está delante.
@@ -536,6 +542,102 @@
         </details>
         <p class="acceso"><a href="https://ajolote.yoiber.dev" target="_blank" rel="noopener">Visitarlo</a> · mejor con ratón</p>
         <p class="aviso">Como en el juego, el azul es el raro: sale una vez de cada doce clics.</p>
+      </article>
+
+      <article class="tarjeta" data-slot="7">
+        <h2>Daebon</h2>
+        <figure class="captura" style="--proporcion: 540 / 1200">
+            <span class="vitrina" data-marco="movil">
+              <span class="vitrina-medio">
+                <img class="vitrina-cartel" data-src="/proyectos/daebon-cartel.webp" alt="Grabación de Daebon en un teléfono: la lista de doramas como guiones engrapados, el episodio 10 marcado, la ficha de un drama en emisión con la plataforma donde verlo en Perú, su reparto y la programación de la semana." width="540" height="1200" decoding="async" />
+                <video class="vitrina-video" data-video="/proyectos/daebon" muted loop playsinline preload="none" aria-hidden="true"></video>
+                <noscript><img class="vitrina-sin-js" src="/proyectos/daebon-cartel.webp" alt="Grabación de Daebon en un teléfono: la lista de doramas como guiones engrapados, el episodio 10 marcado, la ficha de un drama en emisión con la plataforma donde verlo en Perú, su reparto y la programación de la semana." /></noscript>
+              </span>
+            </span>
+        </figure>
+        <span class="avance" aria-hidden="true"></span>
+        <p class="que">Mi lista de doramas, hecha como un guion coreano: cada drama es un libreto engrapado, lo que ya salió y me falta va con resaltador, y cada ficha dice en qué plataforma está en Perú.</p>
+        <p class="pila">Svelte 5 · TypeScript · Capacitor · Node · TMDB</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="flujo">
+          <line data-paso="linea" x1="1" y1="32" x2="326" y2="32" />
+          <rect class="tapa" data-paso="caja1" x="1" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja2" x="115" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja3" x="229" y="18" width="98" height="28" rx="3" />
+          <text data-paso="r1" x="50" y="35.5" text-anchor="middle">TMDB</text>
+          <text data-paso="r2" x="164" y="35.5" text-anchor="middle">MI LISTA</text>
+          <text data-paso="r3" x="278" y="35.5" text-anchor="middle">AVISO</text>
+          <polyline data-paso="tic" points="337,33 344,40 358,24" />
+        </svg>
+        <details class="por-dentro" open>
+          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
+          <p class="detalle">La clave de TMDB no viaja en la app: la guarda un servidor en Node sin dependencias, que responde siete rutas fijas ya en español. En español, TMDB devuelve muchos títulos y actores coreanos en hangul, y el servidor elige el inglés antes que dejar algo ilegible. La semana agrupa los dramas como la tele coreana, por los días en que salen.</p>
+        </details>
+        <p class="acceso"><a href="https://doramas.yoiber.dev" target="_blank" rel="noopener">Abrirla</a> · también como app de Android</p>
+        <p class="aviso">Grabación de la web con una lista de prueba. No tiene episodios: cada ficha lleva a donde se pueden ver legalmente.</p>
+      </article>
+
+      <article class="tarjeta" data-slot="8">
+        <h2>Tsuzuku</h2>
+        <figure class="captura" style="--proporcion: 540 / 1200">
+            <span class="vitrina" data-marco="movil">
+              <span class="vitrina-medio">
+                <img class="vitrina-cartel" data-src="/proyectos/tsuzuku-cartel.webp" alt="Grabación de Tsuzuku en un teléfono: la lista de anime con un episodio más marcado, el calendario de estrenos con la línea de ahora y la ficha de un anime con dónde verlo y sus personajes." width="540" height="1200" decoding="async" />
+                <video class="vitrina-video" data-video="/proyectos/tsuzuku" muted loop playsinline preload="none" aria-hidden="true"></video>
+                <noscript><img class="vitrina-sin-js" src="/proyectos/tsuzuku-cartel.webp" alt="Grabación de Tsuzuku en un teléfono: la lista de anime con un episodio más marcado, el calendario de estrenos con la línea de ahora y la ficha de un anime con dónde verlo y sus personajes." /></noscript>
+              </span>
+            </span>
+        </figure>
+        <span class="avance" aria-hidden="true"></span>
+        <p class="que">Mi lista de anime: en qué episodio voy de cada uno, el calendario de estrenos en mi hora y dónde verlo legal. En Android me avisa cuando sale el siguiente.</p>
+        <p class="pila">Svelte 5 · TypeScript · Capacitor · AniList GraphQL</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="flujo">
+          <line data-paso="linea" x1="1" y1="32" x2="326" y2="32" />
+          <rect class="tapa" data-paso="caja1" x="1" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja2" x="115" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja3" x="229" y="18" width="98" height="28" rx="3" />
+          <text data-paso="r1" x="50" y="35.5" text-anchor="middle">ANILIST</text>
+          <text data-paso="r2" x="164" y="35.5" text-anchor="middle">+1</text>
+          <text data-paso="r3" x="278" y="35.5" text-anchor="middle">AVISO</text>
+          <polyline data-paso="tic" points="337,33 344,40 358,24" />
+        </svg>
+        <details class="por-dentro" open>
+          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
+          <p class="detalle">AniList permite 30 consultas por minuto, así que cada respuesta se guarda un rato y dos pantallas que piden lo mismo comparten la consulta. Los avisos se programan en el propio teléfono con las fechas de estreno, sin servidor. Las sinopsis llegan en inglés y Google las traduce una sola vez por anime.</p>
+        </details>
+        <p class="acceso"><a href="https://anime.yoiber.dev" target="_blank" rel="noopener">Abrirla</a> · también como app de Android</p>
+        <p class="aviso">Grabación de la web con una lista de prueba. El botón de cada anime lleva a la plataforma donde está.</p>
+      </article>
+
+      <article class="tarjeta" data-slot="9">
+        <h2>km 0</h2>
+        <figure class="captura" style="--proporcion: 540 / 1200">
+            <span class="vitrina" data-marco="movil">
+              <span class="vitrina-medio">
+                <img class="vitrina-cartel" data-src="/proyectos/km0-cartel.webp" alt="Capturas de km 0 en Android: grabando con el botón «Empecé antes», lo que encontró Health Connect antes del inicio, el tramo marcado en el mapa, las cifras con ese tramo sumado y la actividad guardada." width="540" height="1200" decoding="async" />
+                <video class="vitrina-video" data-video="/proyectos/km0" muted loop playsinline preload="none" aria-hidden="true"></video>
+                <noscript><img class="vitrina-sin-js" src="/proyectos/km0-cartel.webp" alt="Capturas de km 0 en Android: grabando con el botón «Empecé antes», lo que encontró Health Connect antes del inicio, el tramo marcado en el mapa, las cifras con ese tramo sumado y la actividad guardada." /></noscript>
+              </span>
+            </span>
+        </figure>
+        <span class="avance" aria-hidden="true"></span>
+        <p class="que">Salgo a caminar y a medio camino me acuerdo de darle a «iniciar». km 0 graba como Strava y, si empecé tarde, trae de Health Connect el tramo que ya había caminado y pone la placa KM 0 donde de verdad salí.</p>
+        <p class="pila">Svelte · Capacitor · Kotlin · Health Connect · MapLibre</p>
+        <svg class="esquema" viewBox="0 0 360 64" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false" data-esquema="flujo">
+          <line data-paso="linea" x1="1" y1="32" x2="326" y2="32" />
+          <rect class="tapa" data-paso="caja1" x="1" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja2" x="115" y="18" width="98" height="28" rx="3" />
+          <rect class="tapa" data-paso="caja3" x="229" y="18" width="98" height="28" rx="3" />
+          <text data-paso="r1" x="50" y="35.5" text-anchor="middle">INICIO TARDE</text>
+          <text data-paso="r2" x="164" y="35.5" text-anchor="middle">HEALTH CONNECT</text>
+          <text data-paso="r3" x="278" y="35.5" text-anchor="middle">KM 0</text>
+          <polyline data-paso="tic" points="337,33 344,40 358,24" />
+        </svg>
+        <details class="por-dentro" open>
+          <summary>Cómo está hecho<span class="signo" aria-hidden="true"></span></summary>
+          <p class="detalle">Graba con la pantalla apagada desde un servicio en Kotlin, y cada punto se escribe en un archivo apenas llega: si Android cierra la app a mitad de camino, la actividad se guarda con lo que había. El tramo de antes sale de un recorrido de Health Connect o de los pasos; si no hay ninguno, se dibuja en el mapa.</p>
+        </details>
+        <p class="acceso"><a href="https://github.com/yoiberdev/km0" target="_blank" rel="noopener">Ver el código</a> · app de Android</p>
+        <p class="aviso">Capturas de la app en el emulador de Android.</p>
       </article>
     </div>
 
