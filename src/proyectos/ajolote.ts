@@ -9,19 +9,26 @@
 // y cruza un cardumen entero (con uno azul, si hay suerte). La pista está en la última tarjeta del
 // muro. Con movimiento reducido no nada ni hay cardumen: se queda quieto y cambia de color igual.
 
-// El dibujo, 20 × 9: B cuerpo, C cola, G branquias, P patas, O ojo, M boca.
+// El dibujo, 34 × 13, como el ajolote de Minecraft visto de costado: la cabeza grande y cuadrada,
+// las tres branquias detrás, las patas nadando hacia atrás y la cola con su aleta. Cada letra es un
+// tono: l luz, b cuerpo, d sombra, g y G branquias, t y T aleta, w brillo del ojo, e ojo, m boca.
 const MAPA = [
-  '............G..G....',
-  '...........GG.GG....',
-  '........BBBBBBBB....',
-  'C.....BBBBBBBBBBB...',
-  'CC..BBBBBBBBBBOBBB..',
-  'CCCBBBBBBBBBBBBBBBM.',
-  'CC..BBBBBBBBBBBBBB..',
-  'C.....PP...PP..GG...',
-  '......P....P...G.G..',
+  '...................Gg...g..g..g...',
+  '....................gg.lllllllll..',
+  '.....................Gblllllllllb.',
+  '..TTTT.....llllllGglllbbbbbbbbbbb.',
+  'Ttttttttt.llbllbllbggbbbbbbbwebbb.',
+  'tttbbbbbbbbbbbbbbbbbgGbbbbbbeebbb.',
+  'tttbbbbbbbbbbbbbbbbbbbbbbbbbbbblb.',
+  'tttbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.',
+  'Ttttttttt.bbbbbbbbbbbbbbbbmmmmmmm.',
+  '..TTTT.....dddddddddgGbbbbbbbbbbb.',
+  '...........d..d....gd..ddddddddd..',
+  '.........dd.dd...Gdd....dd........',
+  '.......................d..........',
 ];
-const CLASE: Record<string, string> = { B: 'aj-cuerpo', C: 'aj-cola', G: 'aj-branquias', P: 'aj-patas', O: 'aj-ojo', M: 'aj-boca' };
+// Las partes que se mueven van en su propio grupo: la cola y las branquias.
+const PARTE: Record<string, string> = { t: 'aj-cola', T: 'aj-cola', g: 'aj-branquias', G: 'aj-branquias' };
 
 // Los colores del juego: rosado, silvestre, dorado y cian; el azul es el raro.
 const COLORES = ['rosado', 'silvestre', 'dorado', 'cian'] as const;
@@ -30,21 +37,22 @@ type Color = (typeof COLORES)[number] | 'azul';
 function dibujo(): SVGSVGElement {
   const ns = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(ns, 'svg');
-  svg.setAttribute('viewBox', '0 0 20 9');
+  svg.setAttribute('viewBox', `0 0 ${MAPA[0]?.length ?? 34} ${MAPA.length}`);
   svg.setAttribute('aria-hidden', 'true');
   svg.setAttribute('focusable', 'false');
   const grupos: Record<string, SVGGElement> = {};
   MAPA.forEach((fila, y) => {
     [...fila].forEach((c, x) => {
-      const clase = CLASE[c];
-      if (!clase) return;
-      const g = (grupos[clase] ??= svg.appendChild(document.createElementNS(ns, 'g')));
-      g.setAttribute('class', clase);
+      if (c === '.') return;
+      const parte = PARTE[c] ?? 'aj-resto';
+      const g = (grupos[parte] ??= svg.appendChild(document.createElementNS(ns, 'g')));
+      g.setAttribute('class', parte);
       const r = document.createElementNS(ns, 'rect');
       r.setAttribute('x', String(x));
       r.setAttribute('y', String(y));
       r.setAttribute('width', '1.02');
       r.setAttribute('height', '1.02');
+      r.setAttribute('class', `aj-${c}`);
       g.append(r);
     });
   });
