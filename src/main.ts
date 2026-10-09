@@ -1,42 +1,31 @@
 import '@fontsource-variable/instrument-sans';
 import '@fontsource/fragment-mono';
 import './styles/base.css';
+import './styles/portada.css';
 import { sugerirIdioma } from './comun/idioma';
 import { animate, createScope, type JSAnimation, type Scope } from 'animejs';
 import { P } from './params';
-import { crearMaestro, tramoActual } from './core/maestro';
+import { crearMaestro } from './core/maestro';
 import { crearScroller, type Proxy } from './core/scroller';
 import { montarEscena } from './core/escena';
 import { montarTema } from './core/tema';
-import { montarAcento } from './core/acento';
-import { montarSubnav, type Parada } from './core/subnav';
 import { crearViaje } from './core/viaje';
 import { montarDebug } from './core/debug';
 import { limpiarUrl } from './core/url-limpia';
 import { montarHero } from './effects/hero';
 import { montarFondoIntro } from './effects/fondo-intro';
-import { montarCabecera, tiempoPrimeraTarjeta } from './effects/cabecera';
-import { montarGaleria, tiempoConVida } from './effects/galeria';
-import { montarVitrinas } from './effects/vitrinas';
-import { montarVidaEsquemas } from './effects/vida-esquemas';
+import { montarCabecera, alturaProyectos } from './effects/cabecera';
 import { montarLogoIntro } from './effects/logo-intro';
 import { montarLogoSalida } from './effects/logo-salida';
-import { montarTitulo } from './effects/titulo';
 import { montarPie } from './effects/pie';
-import { montarCierre } from './effects/cierre';
+import { montarHablemos } from './effects/hablemos';
+import { montarProyectos } from './proyectos/proyectos';
 
-// Los nombres del titular de capítulo (#capitulo-nombre, effects/titulo.ts). INTRO y HERO_OUT van
-// vacíos: ahí el logo está en pantalla y es él quien dice de quién es la página.
-// DESPEGUE va vacío por lo mismo (es el motor yéndose) y CIERRE también: la frase del cierre ya lo dice
-// todo, y «Encendido» era el nombre del encendido del motor, que ya no está ahí.
-const NOMBRES: Record<string, string> = { INTRO: '', HERO_OUT: '', DESPEGUE: '', GALERIA: 'Proyectos', CIERRE: '' };
-// Las paradas de la sub-nav (core/subnav.ts): una por tramo, en su `ini`. HERO_OUT no tiene
-// titular (es el logo yéndose) pero sí parada: es el principio de la página.
-const PARADAS: Parada[] = [
-  { X: 'HERO_OUT', nombre: 'Inicio' },
-  { X: 'GALERIA', nombre: NOMBRES.GALERIA },
-  { X: 'CIERRE', nombre: 'Hablemos' },
-];
+// LA PORTADA EN DOS MITADES (09/10/2026). Arriba, el MAESTRO: la intro del logo, el texto del hero y
+// el motor que se ensambla y despega, todo en un reloj que mueve el scroll de #capitulos. Abajo, en
+// flujo normal, los proyectos (src/proyectos), la frase de cierre y el pie: suben por encima de las
+// capas fijas cuando el maestro se acaba, y cada uno mira su propio scroll. Antes la galería era un
+// tramo más del maestro, veinte pantallas con una tarjeta cada una; ahora se ven todos de un vistazo.
 
 // Las secciones son espaciadores: su altura fija cuánto scroll dura cada tramo.
 // Sin @property el tema no puede fundirse animando sus variables (base.css): se marca <html> para
@@ -66,41 +55,22 @@ function montar(self?: Scope): () => void {
   // EL VIAJE (core/viaje.ts): el único que mueve el scroll por su cuenta. Mientras dura, el
   // scroller va clavado al scroll; el scroller nace más abajo, pero el primer viaje llega con un clic.
   const viaje = crearViaje(reduce, (activo) => scroller.exacto(activo));
-  // La cabecera entra con el texto del hero (tween en el maestro). El traductor de scroll se le
-  // pasa como función: el scroller nace más abajo, después de init(), y los clics llegan después.
-  const cabecera = montarCabecera(m, reduce, (t) => scroller.pxParaTiempo(t), viaje.irA);
-  // Antes de tl.init(): la galería añade sus tweens al maestro y init() los tiene que ver.
-  const galeria = montarGaleria(m, reduce);
-  // Las grabaciones de cada proyecto: carga perezosa y solo anda la de la tarjeta que manda.
-  const vitrinas = montarVitrinas(m, galeria, reduce);
-  // La frase final, también con tweens en el maestro (y su salida viaja al contacto).
-  const cierre = montarCierre(m, reduce, (d) => viaje.irA(d));
-  const vidaEsquemas = montarVidaEsquemas(reduce);
-  // El acento vigente (core/acento.ts) se decide desde el reloj con el reparto de la galería.
-  const acento = montarAcento(galeria);
+  // La cabecera entra con el texto del hero (tween en el maestro).
+  const cabecera = montarCabecera(m, reduce, viaje.irA);
   // El escenario: CSS siempre, y el motor 3D por encima si la máquina lo aguanta. Ver core/escena.ts.
-  // El reloj que lee el motor 3D es el del PROPIO MAESTRO, no `proxy`. Son el mismo número casi
-  // siempre, pero `proxy` es el OBJETIVO al que el scroller acerca el maestro tic a tic (ver
-  // core/scroller.ts): entre un tic y el siguiente pueden diferir, y el motor lee el reloj 60 veces
-  // por segundo para el temblor, el parpadeo del penacho y las vueltas de la turbina. Leyendo el
-  // maestro, lo que se dibuja es siempre lo que el maestro acaba de colocar.
+  // El reloj que lee el motor 3D es el del PROPIO MAESTRO, no `proxy`: el motor lee el reloj 60
+  // veces por segundo y tiene que dibujar lo que el maestro acaba de colocar.
   const escena = montarEscena(m, {
     reduce,
     tiempo: () => m.tl.currentTime,
     // El motor llega con la página quieta (lo pide la intro del logo al ensamblarse): nadie va a
-    // mover el scroll detrás para recolocar el reloj, así que se recoloca aquí. `colocar` es la
-    // función de más abajo: mueve el maestro Y la timeline de GSAP del logo, que es justo lo que
-    // hace falta reponer.
+    // mover el scroll detrás para recolocar el reloj, así que se recoloca aquí.
     alMontarMotor: () => colocar(proxy.currentTime),
   });
 
-  // EL RELEVO, en tres eslabones (ver effects/logo-salida.ts para el porqué de cada uno):
-  //   1) la SALIDA del logo se escribe en el maestro como un escalar 0..1 en HERO_OUT, y es lo que
-  //      ata la timeline de GSAP al reloj del scroll;
-  //   2) `alEmpezar` avisa a la entrada de que el visitante ya baja, para que termine deprisa en vez
-  //      de cruzarse con la retirada;
-  //   3) `alTapar` congela la flotación cuando el logo ya no se ve.
-  // El logo se monta DESPUÉS (no toca el maestro), así que la salida lo alcanza por el cierre.
+  // EL RELEVO del logo (ver effects/logo-salida.ts): la salida va en el maestro como un escalar
+  // 0..1 en HERO_OUT; `alEmpezar` acelera la entrada si el visitante ya baja, y `alTapar` congela la
+  // flotación cuando el logo ya no se ve.
   let logo: ReturnType<typeof montarLogoIntro> | null = null;
   const salidaLogo = montarLogoSalida(m, {
     reduce,
@@ -110,24 +80,16 @@ function montar(self?: Scope): () => void {
 
   m.tl.init();
 
-  // TODO EL MUNDO COLOCA EL RELOJ POR AQUÍ. `m.tl.seek()` mueve a los hijos del maestro (el hero, el
-  // escenario y, cuando llega, el motor); `salidaLogo.aplicar()` copia el escalar que acaba de
-  // moverse a la timeline de GSAP del logo. Van juntos SIEMPRE, y por eso están en la misma función:
-  // si alguien llamara al seek a secas, el logo se quedaría en el fotograma anterior.
+  // TODO EL MUNDO COLOCA EL RELOJ POR AQUÍ: el seek del maestro y la copia del escalar de la salida a
+  // la timeline de GSAP del logo van siempre juntos.
   const colocar = (t: number): void => {
     m.tl.seek(t);
     salidaLogo.aplicar();
   };
 
-  // La intro del logo de yoiber.com: entrada y flotación con su propio reloj (GSAP), como el
-  // original. Solo la SALIDA está atada al maestro. `alTerminar` es el eslabón con el motor: en
-  // cuanto las tres formas se ensamblan se pide el trozo 3D, ni antes (competiría con la entrada)
-  // ni mucho después (tiene que estar montado para cuando el visitante baje).
-  // El trozo 3D pesa 617 kB y al analizarlo el hilo principal se para. Si se pide en cuanto las
-  // formas se ensamblan, esa parada cae justo encima del arranque de la flotación y el logo se
-  // queda congelado un par de segundos: medido, la flotación empezaba a moverse a los 7,9 s en vez
-  // de a los 5,5 s del original. Así que se espera a que la flotación lleve ya un rato a la vista.
-  // Y si el visitante baja antes, se pide en el acto: entonces sí lo necesita ya.
+  // La intro del logo (GSAP, su propio reloj). En cuanto las tres formas se ensamblan se pide el
+  // trozo 3D, con una espera para que su análisis no congele la flotación (o en el acto, si el
+  // visitante baja antes).
   let esperaMotor = 0;
   const pedirYa = (): void => {
     window.clearTimeout(esperaMotor);
@@ -144,99 +106,51 @@ function montar(self?: Scope): () => void {
 
   let introTemporal: JSAnimation | null = null;
 
-  // El titular de capítulo y el pie viven FUERA del maestro (el porqué, en la cabecera de cada
-  // módulo): el titular reacciona a un cambio de nombre y el pie mide su propio scroll.
-  const titulo = montarTitulo(reduce);
+  // LO QUE VA EN FLUJO, fuera del maestro: los proyectos, la frase de cierre y el pie.
+  const quitarProyectos = montarProyectos(reduce);
+  const quitarHablemos = montarHablemos(reduce);
   const quitarPie = montarPie(reduce, viaje.irA);
-
-  // ¿Ya asoma el pie? Se mira desde el scroll y el tramo de CIERRE del scroller (su `fin` es el
-  // borde inferior de #capitulos menos una ventana) en vez de medir el DOM: este callback corre
-  // justo después de que el maestro escriba en decenas de nodos, y un getBoundingClientRect aquí
-  // forzaría el layout en cada tic.
-  const pieALaVista = (): boolean => {
-    const cierre = scroller.tramos.find((t) => t.X === 'CIERRE');
-    return cierre !== undefined && window.scrollY > cierre.fin + window.innerHeight * (1 - P.pie.tapa);
-  };
-  const pintarRotulo = (): void => {
-    const { tramo } = tramoActual(m, proxy.currentTime);
-    // El contador lo reparte la galería (indice): -1 antes de la primera tarjeta y fuera del capítulo.
-    const k = galeria.indice(proxy.currentTime);
-    titulo.pintar(pieALaVista() ? '' : (NOMBRES[tramo] ?? tramo), k >= 0 ? `${k + 1} / ${galeria.total}` : '', k);
-  };
 
   const tema = montarTema(m);
   // EL TRASPASO DE LA INTRO va en el segundo callback (`manda`): mientras la intro corre por tiempo
-  // y el visitante no ha bajado, el scroller ni toca el proxy. Antes lo escribía igual y este
-  // callback solo se saltaba el seek: dos escritores para el mismo número, y al redimensionar en
-  // mitad de la intro el suavizado tiraba del reloj. En cuanto baja 2 px la intro se para y el
-  // scroll toma el mando para siempre: una intro parada ya no vuelve a mandar aunque el scroll
-  // regrese a 0 (antes sí, y la página se quedaba congelada en el fotograma de la parada).
+  // y el visitante no ha bajado, el scroller ni toca el proxy. En cuanto baja 2 px la intro se para
+  // y el scroll toma el mando para siempre.
   const scroller = crearScroller(m, proxy, () => {
     colocar(proxy.currentTime);
     tema.actualizar(proxy.currentTime);
-    acento.actualizar(proxy.currentTime);
-    galeria.actualizar(proxy.currentTime);
-    vitrinas.actualizar(proxy.currentTime);
-    vidaEsquemas.actualizar(galeria.esquemaDe(proxy.currentTime));
     hero.actualizar(proxy.currentTime);
-    cierre.actualizar(proxy.currentTime);
     cabecera.actualizar(proxy.currentTime);
     fondo.actualizar(proxy.currentTime);
-    pintarRotulo();
-    subnav.actualizar(scroller.progreso());
   }, () => {
     if (!introTemporal || introTemporal.completed || introTemporal.paused) return true;
     if (window.scrollY < 2) return false; // el scroller aún no manda: la intro sigue por tiempo
     introTemporal.pause(); // el usuario hizo scroll durante la intro: el scroll toma el mando
     return true;
   });
-  // LAS PARADAS ATERRIZAN DONDE LOS ENLACES DE LA CABECERA. Antes iban al borde de su tramo, y
-  // "Proyectos" caía en 900 px, 1,8 pantallas antes de la primera tarjeta (el motor todavía
-  // apartándose), y "Por dentro" antes de que el despiece se abriera. Mismo cálculo que
-  // cabecera.ts, para que los dos caminos al mismo sitio lleven al mismo sitio.
-  const destinos: Record<string, () => number> = {
-    GALERIA: () => scroller.pxParaTiempo(tiempoPrimeraTarjeta(m)),
-  };
-  // LAS ESTACIONES de la sub-nav (sus rayitas, adonde lleva un clic en la barra y donde encaja el
-  // imán): además de las paradas, cada tarjeta entera con su esquema vivo y el final del maestro.
-  const nTarjetas = document.querySelectorAll('#galeria-tarjetas .tarjeta').length;
-  const estaciones = (): number[] => [
-    ...Array.from({ length: nTarjetas }, (_, i) => scroller.pxParaTiempo(tiempoConVida(m, nTarjetas, i))),
-    scroller.maxScroll,
-  ];
-  const paradas = PARADAS.map((p) => ({ ...p, destino: destinos[p.X] }));
-  const subnav = montarSubnav(scroller, viaje, paradas, { reduce, estaciones });
+  const destinos: Record<string, () => number> = { PROYECTOS: alturaProyectos };
   const quitarDebug = location.search.includes('debug')
-    ? montarDebug(m, scroller, proxy, escena, salidaLogo, { viaje, estaciones, destinos, vida: vidaEsquemas })
+    ? montarDebug(m, scroller, proxy, escena, salidaLogo, { viaje, destinos })
     : null;
 
-  // "Ver los proyectos": el enlace del hero. preventDefault porque el href="#galeria" apuntaría al
-  // espaciador, o sea al principio del tramo y no a la primera tarjeta (el cálculo, compartido con
-  // el enlace Proyectos de la cabecera, está en effects/cabecera.ts). Viaja; si la intro por tiempo
-  // aún corre, el scroller la para en cuanto el scroll pasa de 2 px.
+  // "Ver los proyectos": el enlace del hero. Viaja hasta la sección (con la cabecera descontada).
   const bajar = document.querySelector<HTMLAnchorElement>('#bajar');
   const irAProyectos = (ev: Event): void => {
     ev.preventDefault();
-    viaje.irA(destinos.GALERIA);
+    viaje.irA(alturaProyectos);
   };
   bajar?.addEventListener('click', irAProyectos);
 
   if (reduce || window.scrollY > 1) {
     // Recarga a mitad de página o movimiento reducido: sin intro por tiempo. El reloj se pone
-    // directamente donde está el scroll (con scroll 0, `objetivo()` es INTRO_END: la intro ya
-    // acabada). Antes se ponía en INTRO_END siempre y el suavizado recorría la página entera desde
-    // el hero hasta la posición que el navegador había restaurado.
+    // directamente donde está el scroll.
     proxy.currentTime = scroller.objetivo();
     colocar(proxy.currentTime);
     tema.actualizar(proxy.currentTime);
-    acento.actualizar(proxy.currentTime);
-    cierre.actualizar(proxy.currentTime);
     cabecera.actualizar(proxy.currentTime);
     fondo.actualizar(proxy.currentTime);
   } else {
-    // La intro corre por tiempo y dura lo que la entrada del logo (P.scroll.introDuration sale de
-    // los números del original). Sin onComplete: el bucle de flotación lo arranca el propio logo
-    // desde su `onComplete`, que es donde estaba en yoiber.com.
+    // La intro corre por tiempo y dura lo que la entrada del logo. Sin onComplete: el bucle de
+    // flotación lo arranca el propio logo.
     introTemporal = animate(proxy, {
       currentTime: [m.L.INTRO, m.L.INTRO_END],
       duration: P.scroll.introDuration,
@@ -245,11 +159,9 @@ function montar(self?: Scope): () => void {
         colocar(proxy.currentTime);
         hero.actualizar(proxy.currentTime);     // suelta el lema partido en cuanto acaban sus letras
         cabecera.actualizar(proxy.currentTime); // la cabecera se activa a mitad de la intro
-        pintarRotulo();
       },
     });
   }
-  pintarRotulo();
 
   let temporizador = 0;
   const alRedimensionar = (): void => {
@@ -272,17 +184,12 @@ function montar(self?: Scope): () => void {
     quitarDebug?.();
     viaje.revertir();
     quitarPie();
-    titulo.revertir();
+    quitarHablemos();
+    quitarProyectos();
     escena.revertir();
-    vidaEsquemas.revertir();
-    galeria.revertir();
-    vitrinas.revertir();
-    cierre.revertir();
-    acento.revertir();
     cabecera.revertir();
     fondo.revertir();
     tema.revertir();
-    subnav.revertir();
     scroller.revertir();
     logo?.();            // el cleanup de la intro del logo: mata entrada, flotación y espera
     salidaLogo.revertir();

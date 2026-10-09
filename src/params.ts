@@ -18,7 +18,7 @@ export const P = {
     // el tramo INTRO es "el logo entrando", así que se acaban a la vez. Antes eran 4 000 ms con un
     // título de texto partido que duraba eso; ahora manda la coreografía de yoiber.com.
     introDuration: LOGO.arranque + LOGO.entrada, // 5100
-    alturas: { HERO_OUT: 2, DESPEGUE: 1.25, GALERIA: 20, CIERRE: 2 } as Record<string, number>, // en alturas de viewport; 1 altura = 1000 unidades del maestro. GALERIA: dos por tarjeta (diez desde el 09/10/2026, con Daebon, Tsuzuku y km 0), así que cada tarjeta conserva su tramo de 2 000
+    alturas: { HERO_OUT: 2, DESPEGUE: 1.25 } as Record<string, number>, // en alturas de viewport; 1 altura = 1000 unidades del maestro. Desde el 09/10/2026 el maestro es solo la portada: los proyectos van en flujo, después
     // El suavizado lo hace core/scroller.ts con un Timer propio por tiempo (no el `sync` de
     // onScroll: ver allí por qué). `sync` sigue siendo el factor; estos dos son su mecánica.
     suavizado: {
@@ -125,10 +125,11 @@ export const P = {
     // motor se descubre a medio ensamblar, que se lee mucho mejor que en su estado de partida.
     telonSube: 600,
     telonBaja: 400,
-    // Y por arriba (27/09/2026): se tapa pasada la entrada de GALERIA, cuando el despegue ya lo ha
-    // fundido del todo, con la misma holgura para que no parpadee.
-    telonTapa: 100,
-    telonHolgura: 200,
+    // Y por arriba: se tapa a `telonTapa` unidades del final del maestro (el final de DESPEGUE, donde
+    // el fundido del motor termina), y no vuelve a subir hasta `telonHolgura` más atrás, para que
+    // arrastrar en el borde no lo haga parpadear.
+    telonTapa: 40,
+    telonHolgura: 120,
     // Espera antes de pedir el trozo 3D tras ensamblarse el logo, en ms. La flotación arranca a los
     // 500 ms; con 1400 lleva casi un segundo a la vista cuando llega la parada del analizador.
     esperaTrasIntro: 1400,
@@ -158,193 +159,6 @@ export const P = {
     sinFotogramas: 1500,  // ms sin un solo fotograma dibujado -> se rinde (ver core/escena.ts)
     origen: 'propio',
   },
-  // LA GALERÍA. `arranque` es la fracción del capítulo antes de la primera tarjeta. Era 0,18 para que
-  // el motor se apartara ANTES de que entrara nada; desde el 27/09/2026 el motor despega en su propio
-  // tramo (DESPEGUE) y ya no está cuando llega la galería: 0. El respiro ya lo pone el despegue, que
-  // saca el motor de cuadro hacia el 70 % de su tramo (medido con 1,5 alturas y un 5 % de arranque:
-  // casi una pantalla entera de scroll en blanco antes del primer título; por eso DESPEGUE mide 1,25).
-  // Dónde aterrizan "Ver los proyectos", el enlace Proyectos y la parada de la sub-nav ya no es un
-  // número de aquí: lo calcula galeria.ts (tiempoConVida), en la primera tarjeta con su esquema
-  // trazado y la vida encendida. Antes era `margenBajar: 250`, que caía con el esquema al 1,6 % y
-  // la tarjeta muerta al llegar (medido: 0 %/s).
-  galeria: {
-    // EL ARCO DEL CONTADOR en segmentos (galeria.ts, tanda 5): grados de hueco entre uno y otro.
-    arco: { hueco: 14 },
-    arranque: 0,
-    // LA MINI-SECUENCIA DE CADA TARJETA (effects/galeria.ts). Antes la tarjeta entraba en bloque
-    // (opacidad + 26 px); ahora cada pieza entra por su turno: título, captura destapándose de
-    // arriba abajo, los tres párrafos escalonados, y el acceso y el aviso al final.
-    // TODO EN FRACCIONES DEL CRUCE, no en unidades: el cruce sigue siendo min(500, 14 % del paso)
-    // (230 unidades con cinco tarjetas en 10 alturas), así que el reparto y `indice()` no cambian y
-    // el contador sigue diciendo lo mismo. Con el cruce nominal de 500, un stagger de 0,16 son los
-    // 80 ms del informe; con el de hoy, 37. Cada pieza acaba como muy tarde en 1,0 (la entrada) y
-    // la salida es más corta (0,7 del cruce) y en orden inverso: lo último que entró es lo primero
-    // que se va, y el título es lo último que queda.
-    secuencia: {
-      // El contenedor de la tarjeta se enciende en esta fracción del cruce al empezar la entrada y
-      // se apaga en la misma al acabar la salida (el porqué, en galeria.ts): 11 unidades de hoy.
-      contenedor: 0.05,
-      entrada: {
-        titulo:   { ini: 0,    dur: 0.55, y: 28, ease: 'out(3)' },
-        captura:  { ini: 0.10, dur: 0.60, ease: 'out(4)' },                      // opacidad + clip-path de arriba abajo
-        parrafos: { ini: 0.22, dur: 0.42, y: 18, stagger: 0.16, ease: 'out(3)' }, // .que, .pila, .detalle: el último acaba en 0,96
-        acceso:   { ini: 0.56, dur: 0.30, y: 18, stagger: 0.14, ease: 'out(3)' }, // .acceso, .aviso: el aviso acaba en 1,00
-      },
-      salida: {
-        acceso:   { ini: 0,    dur: 0.26, y: 12, stagger: 0.06, ease: 'in(2)' },
-        parrafos: { ini: 0.06, dur: 0.28, y: 12, stagger: 0.08, ease: 'in(2)' }, // al revés: detalle, pila, que
-        captura:  { ini: 0.18, dur: 0.36, ease: 'in(2)' },
-        titulo:   { ini: 0.30, dur: 0.40, y: 28, ease: 'in(2)' },                 // acaba en 0,70
-      },
-      // EL TÍTULO PARTIDO (tanda 5): cada trozo dura esta fracción del tramo del título y el resto es
-      // el escalón entre el primero y el último, así que el título entra y sale en el mismo tiempo.
-      // `desde` y `hasta`: más de un 100 % porque la máscara mide más que el trozo (el aire de los
-      // descendentes) y las letras asomaban como rayas de 1 px al principio y al final.
-      tituloPartido: { trozo: 0.6, desde: '115%', hasta: '-125%' },
-      // EL ESQUEMA (el <svg class="esquema"> entre la pila y el detalle) entra y sale como un
-      // párrafo más, pero con SUS PROPIOS tweens y no metido en el stagger de `parrafos`: así los
-      // tres párrafos siguen entrando cuando entraban. Entra a mitad de camino entre la pila
-      // (0,22 + 0,16 = 0,38) y el detalle (0,54) y sale entre el detalle (0,06) y la pila (0,14).
-      esquema: {
-        entrada: { ini: 0.46, dur: 0.42, y: 18, ease: 'out(3)' },   // acaba en 0,88 < 1,00
-        salida:  { ini: 0.10, dur: 0.28, y: 12, ease: 'in(2)' },    // acaba en 0,38 < 0,70
-      },
-    },
-    // LOS ESQUEMAS VIVOS (effects/esquemas.ts, fila 21 del informe: "la galería son cinco capturas
-    // JPG; nada avanza con el scroll dentro de la tarjeta"). Cada tarjeta lleva un dibujo pequeño
-    // que el SCROLL traza mientras la tarjeta está delante: en el TRAMO QUIETO, del final del cruce
-    // de entrada al principio del de salida (1 640 − 2 · 230 = 1 180 unidades con cinco tarjetas en
-    // diez alturas), así que es reversible al subir y no se cruza con las entradas.
-    //
-    // Cada pieza del dibujo tiene su VENTANA en fracciones [desde, hasta] de ese tramo quieto. Las
-    // formas (rect, line, path, polyline, circle) se trazan de '0 0' a '0 1' (createDrawable); los
-    // rótulos <text> y las piezas con data-fundido se encienden en opacidad; el punto con data-ruta
-    // recorre la polilínea .ruta de su esquema en la ventana `viaje`. Todo lineal: a mitad de su
-    // ventana una pieza está exactamente a la mitad, que es lo que se mide en el QA. Las ventanas
-    // se solapan a propósito (la línea del flujo avanza mientras aparecen las cajas): lo que se ve
-    // es una secuencia, no cinco cosas apareciendo de golpe. El nombre de cada clave es el
-    // data-paso del elemento en index.html; una clave sin elemento no hace nada, y al revés igual.
-    // LA VIDA DEL ESQUEMA (effects/vida-esquemas.ts): lo único de la galería que corre con el
-    // reloj del NAVEGADOR y no con el del scroll. Sin esto, con el scroll parado la tarjeta
-    // cambiaba el 0 % de sus píxeles por segundo mientras el motor cambiaba el 9,5 %.
-    vida: {
-      salto: 420,      // ms que tarda el foco en pasar de una caja a la siguiente (duración PERCIBIDA del muelle)
-      espera: 900,     // ms que se queda en cada caja, de media; por debajo de ~700 parece nervioso
-      // LA CADENA DEL FOCO (tanda 5). Cada espera es `espera` por un factor al azar de `azar`, con
-      // una semilla fija por tarjeta (`semilla` + su índice): no se repite la misma vuelta, pero dos
-      // cargas dan la misma secuencia y el QA es repetible. El orden de las cajas NO cambia: es un
-      // registro que avanza por etapas.
-      azar: [0.55, 1.5] as [number, number],
-      semilla: 17,
-      // El salto llega con un muelle y se pasa un poco: con bounce 0,27 el amortiguamiento es 0,73 y el
-      // sobrepaso ronda el 3,5 % del recorrido. Más de un 5 % y el marco se salía por el hueco de 16
-      // unidades entre cajas.
-      muelle: 0.27,
-      // LA CAJA QUE REACCIONA: mientras el foco está en ella, su trazo engorda (`--toque` de 0 a 1,
-      // base.css). En ms: lo que tarda en encenderse al llegar el foco y en apagarse al irse.
-      toque: { entra: 260, sale: 520 },
-      aire: 3,         // unidades del viewBox que el foco se infla sobre la caja, para no tapar el rótulo
-      opacidad: 0.55,  // el foco acompaña, no compite con el dibujo que traza el scroll
-      viaje: 820,      // ms que tarda la chispa en recorrer 100 unidades de línea
-      respiro: 500,    // ms apagado entre una vuelta y la siguiente
-      chispa: 34,      // unidades del viewBox que mide el trazo encendido; con 3,2 (un punto) no se veía
-      escalon: 420,    // ms entre la chispa de una ruta y la de la siguiente
-      // EL ENCENDIDO. La vida arranca donde acaba de trazarse la última pieza (galeria.ts,
-      // finDelDibujo(): hoy 0,342 del tramo quieto) y llega a opacidad 1 tras `entraLargo` más de
-      // tramo, siguiendo al scroll. Con 0,05 son ~62 unidades del maestro, unos 55 px de rueda:
-      // se ve encenderse sin que parezca un parpadeo.
-      entraLargo: 0.05,
-      // Cuánto más allá del encendido completo aterrizan los enlaces a Proyectos: un margen para
-      // que el suavizado del scroll no deje la vida a medio encender al llegar.
-      aterrizaAire: 0.03,
-      // EL BRILLO DE LA BARRA (tanda 4): en los teléfonos bajos el esquema no se ve y la tarjeta se
-      // quedaba sin nada vivo. Un destello de `largo` (fracción de la barra) la recorre en `viaje`
-      // ms y vuelve a empezar SIN pausa, a propósito: con 250 ms de respiro y 1,7 s de viaje había
-      // segundos en que solo cambiaba el 0,23 % de la fila de abajo de la tarjeta (medido en el
-      // iPhone 13), y la tarjeta volvía a parecer una foto.
-      // `largo` 0,5 y con meseta (base.css): la barra mide 2 px y no admite halo (su destape la
-      // recorta), así que la señal tiene que salir de la propia barra; con 0,3 y sin meseta había
-      // segundos con el 0,27 % de la tarjeta cambiando.
-      brillo: { largo: 0.5, viaje: 1400, respiro: 0, ease: 'inOut(2)' },
-    },
-    // Qué fracción del tramo quieto de la tarjeta ocupa el DIBUJO del esquema. El resto queda para
-    // la capa de vida. Con 1 (como estaba) el dibujo acababa cuando la tarjeta ya se iba, y no
-    // había ni un instante con el esquema entero delante; con 0,38 el dibujo sigue durando ~410
-    // unidades del maestro (unos 370 px de rueda) y la vida se queda con el 58 % del tramo.
-    dibujo: 0.38,
-
-    esquemas: {
-      // 1) SysRRHH: tres cajas en fila unidas por una línea, y un tic al final. La línea va por
-      //    DEBAJO de las cajas (que tapan con el color del fondo): se dibuja de un tirón y se ve
-      //    asomar entre caja y caja, como una tubería que va llegando a cada etapa.
-      flujo: {
-        caja1: [0.00, 0.16], r1: [0.08, 0.18],
-        linea: [0.06, 0.72],
-        caja2: [0.28, 0.44], r2: [0.36, 0.46],
-        caja3: [0.50, 0.66], r3: [0.58, 0.68],
-        tic:   [0.76, 0.90],
-      },
-      // 2) KUIDY-CORE: un formulario que se construye solo: tres campos cuyos bordes se trazan
-      //    uno tras otro, y un botón que se traza y luego se rellena.
-      formulario: {
-        campo1: [0.00, 0.20], r1: [0.12, 0.22],
-        campo2: [0.22, 0.42], r2: [0.34, 0.44],
-        campo3: [0.44, 0.64], r3: [0.56, 0.66],
-        boton:  [0.68, 0.82], relleno: [0.82, 0.92], r4: [0.86, 0.96],
-      },
-      // 3) TechDocAPI: tres rutas de arriba abajo: el punto, el rótulo y la línea hasta el "200".
-      rutas: {
-        punto1: [0.00, 0.06], r1: [0.06, 0.16], linea1: [0.10, 0.28],
-        punto2: [0.30, 0.36], r2: [0.36, 0.46], linea2: [0.40, 0.58],
-        punto3: [0.60, 0.66], r3: [0.66, 0.76], linea3: [0.70, 0.88],
-      },
-      // 4) API financiera reactiva: el BFF a la izquierda, dos servicios a la derecha, dos flechas
-      //    en paralelo y la vuelta; luego el identificador de correlación (el punto) recorre la
-      //    ruta: sale del BFF, llega a un servicio y vuelve por la línea de abajo.
-      correlacion: {
-        nodoA: [0.00, 0.12], rA: [0.06, 0.14],
-        flecha1: [0.12, 0.30], flecha2: [0.12, 0.30],
-        nodoB: [0.26, 0.38], nodoC: [0.26, 0.38], rB: [0.32, 0.40], rC: [0.32, 0.40],
-        vuelta: [0.38, 0.52],
-        id: [0.52, 0.56], viaje: [0.54, 0.96],
-      },
-      // 5) Kip-Up Comandas: mesa -> cocina -> caja con dos flechas, y el ticket (el rectángulo
-      //    con el borde dentado y tres rayas) aparece al final.
-      comandas: {
-        mesa: [0.00, 0.14], r1: [0.08, 0.16],
-        flecha1: [0.16, 0.28],
-        cocina: [0.28, 0.42], r2: [0.36, 0.44],
-        flecha2: [0.44, 0.56],
-        caja: [0.56, 0.70], r3: [0.64, 0.72],
-        ticket: [0.74, 0.86], rayas: [0.86, 0.94],
-      },
-    } as Record<string, Record<string, [number, number]>>,
-    // LA BARRA DE AVANCE de la captura (<span class="avance">, effects/esquemas.ts). Es la otra
-    // mitad de la fila 21: el esquema vive en una fila propia y el detalle con sus cifras está
-    // oculto en vertical, así que en los teléfonos por debajo de 900 px de alto no quedaba nada
-    // avanzando con el scroll dentro de la tarjeta. La barra ocupa el TRAMO QUIETO ENTERO, en las
-    // mismas fracciones que las ventanas de arriba: [0, 1] es "empieza cuando la tarjeta acaba de
-    // entrar y llega al final justo cuando empieza a irse", que es lo que se mide (al 20/50/80 %
-    // del tramo la barra vale 0,2/0,5/0,8). No es un paso del dibujo: no va en `esquemas`, que se
-    // busca por el data-esquema de cada svg.
-    avance: [0, 1] as [number, number],
-    origen: 'propio',
-  },
-
-  // EL TITULAR DE CAPÍTULO (effects/titulo.ts): el gesto con que entra cuando cambia el nombre.
-  // Va fuera del maestro (es la reacción a un cambio de estado, no un instante del reloj).
-  titulo: {
-    gesto: {
-      duration: 380,   // ms: más corto que el cruce más corto del maestro (500), para no pisar el siguiente cambio
-      y: 14,           // px que sube al entrar
-      ease: 'out(3)',
-    },
-    // EL PULSO del segmento del arco al cambiar de proyecto (tanda 5): el trazo pasa de 2 a `pico` en
-    // `sube` ms y vuelve en `baja`. Es el único acento del cambio de tarjeta.
-    pulso: { pico: 4, sube: 50, baja: 100 },
-    origen: 'propio',
-  },
-
   // EL PIE DE PÁGINA (effects/pie.ts). `tapa`: cuando el borde inferior de #capitulos sube por
   // encima de esta fracción de la ventana ya manda el "Yoiber" del pie y el titular se vacía.
   // `entrada`: los bloques suben de 0 a 1 con scrub exacto mientras el pie asoma (sync: true).
@@ -359,21 +173,6 @@ export const P = {
       enter: 'bottom top',   // el borde inferior de la ventana toca el borde superior del pie: asoma
       leave: 'center top',   // el borde superior del pie llega al centro de la ventana: ya está entero
     },
-    origen: 'propio',
-  },
-
-  // EL CIERRE (effects/cierre.ts, tanda 4): la frase final, en fracciones del tramo CIERRE. La
-  // última pieza acaba de entrar en 0,10 + 0,03·2 + 0,13 = 0,29; se va y la última acaba en
-  // 0,80 + 0,02·2 + 0,10 = 0,94, justo antes de que suba el pie. Entre medias, la mitad del tramo
-  // quieta y legible (desde el 27/09/2026 no hay motor detrás que la eche antes).
-  cierre: {
-    entra: 0.1,
-    pieza: 0.13,         // lo que tarda en entrar cada pieza (titular, frase, enlace)
-    escalon: 0.03,
-    sale: 0.8,           // se queda hasta casi el final: sin motor detrás, el cierre es la frase
-    piezaSalida: 0.1,
-    escalonSalida: 0.02,
-    y: 24,               // px que sube cada pieza al entrar (y otros tantos al irse)
     origen: 'propio',
   },
 
@@ -398,21 +197,6 @@ export const P = {
     // fotograma sin moverse por su cuenta, y como mucho estos ms. Sin esto, el clic se perdía.
     gracia: 500,
     reciente: 250,      // ms: cuánto antes del viaje cuenta un gesto como «el que aún se mueve»
-    origen: 'propio',
-  },
-
-  subnav: {
-    visible: [0.02, 0.98] as [number, number],
-    // EL TECLADO del cursor (role=slider): flechas un 2 % con un tween corto que responde ya
-    // (out, no inOut: con la tecla mantenida cada repetición arranca desde parado y un inOut no
-    // llegaba a acelerar nunca); RePag/AvPag, de parada en parada con el viaje de siempre.
-    tecla: { paso: 0.02, duracion: 320, ease: 'out(3)' },
-    // EL IMÁN al soltar el cursor: a menos de estos px de barra de una estación (las rayitas), el
-    // scroll viaja hasta ella. Más lejos, se queda donde se soltó.
-    iman: 10,
-    // EL AGARRE (el cursor mide 4 px): escala de la marca al pasar el ratón y al agarrarla. Va en un
-    // hijo del cursor, porque el cursor lo mueve el Draggable con su propio transform.
-    agarre: { hover: [1.5, 1.1] as [number, number], agarrado: [2, 1.3] as [number, number], ms: 250, ease: 'out(3)' },
     origen: 'propio',
   },
 };

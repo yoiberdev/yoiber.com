@@ -2,7 +2,6 @@ import { utils, type JSAnimation } from 'animejs';
 import { P } from '../params';
 import type { Maestro } from '../core/maestro';
 import type { Destino } from '../core/viaje';
-import { tiempoConVida } from './galeria';
 
 // LA CABECERA — #cabecera, fija arriba (fila 11 del informe)
 // ================================================================================================
@@ -24,18 +23,19 @@ import { tiempoConVida } from './galeria';
 // (el script de cabecera destapa la página a los 2,5 s) tiene que dejar los <a> utilizables como
 // anclas normales: lo son, sus href apuntan a las secciones.
 //
-// ADÓNDE LLEVA CADA UNO. El scroll se calcula desde el maestro (scroller.pxParaTiempo), no desde
-// los id de las secciones: "Proyectos" aterriza en la primera tarjeta ya entera (el mismo cálculo
-// que #bajar, `tiempoPrimeraTarjeta`). "Contacto" es el pie, que está fuera del maestro: su borde
-// de arriba. Los tres
+// ADÓNDE LLEVA CADA UNO. "Proyectos" y "Contacto" son secciones en flujo, después del maestro: el
+// borde de arriba de cada una (Proyectos, menos la cabecera). Los tres
 // VIAJAN (core/viaje.ts) con destinos que se releen en cada fotograma. Antes eran scrollTo y
 // scrollIntoView, y saltaban en un fotograma: el `scroll-behavior: smooth` que se suponía que los
 // suavizaba estaba en el body, y el navegador solo atiende al del elemento raíz.
 
-/** El tiempo del maestro en que aterrizan "Ver los proyectos" (#bajar), el enlace Proyectos y la
- *  parada de la sub-nav: la primera tarjeta entera, con su esquema trazado y funcionando. */
-export function tiempoPrimeraTarjeta(m: Maestro): number {
-  return tiempoConVida(m, document.querySelectorAll('#galeria-tarjetas .tarjeta').length, 0);
+/** Dónde aterriza "Proyectos" (y "Ver los proyectos" del hero): el borde de arriba de la sección,
+ *  que está en flujo después del maestro, menos lo que tapa la cabecera fija. */
+export function alturaProyectos(): number {
+  const s = document.querySelector<HTMLElement>('#proyectos');
+  if (!s) return 0;
+  const cab = document.querySelector<HTMLElement>('#cabecera')?.offsetHeight ?? 0;
+  return Math.max(0, s.getBoundingClientRect().top + window.scrollY - cab);
 }
 
 export interface Cabecera {
@@ -43,18 +43,8 @@ export interface Cabecera {
   revertir(): void;
 }
 
-/**
- * @param pxParaTiempo  Traductor de tiempo del maestro a scroll. Se pasa como función y no como
- *                      scroller porque la cabecera se monta ANTES de tl.init() (añade tweens al
- *                      maestro) y el scroller nace después; los clics llegan cuando ya existe.
- * @param ir            El viaje (core/viaje.ts).
- */
-export function montarCabecera(
-  m: Maestro,
-  reduce: boolean,
-  pxParaTiempo: (t: number) => number,
-  ir: (destino: Destino) => void,
-): Cabecera {
+/** @param ir  El viaje (core/viaje.ts). */
+export function montarCabecera(m: Maestro, reduce: boolean, ir: (destino: Destino) => void): Cabecera {
   const cab = document.querySelector<HTMLElement>('#cabecera');
   if (!cab) return { actualizar: () => undefined, revertir: () => undefined };
 
@@ -64,7 +54,7 @@ export function montarCabecera(
   const pie = document.querySelector<HTMLElement>('#pie');
   const destinos: Record<string, () => void> = {
     inicio: () => ir(0),
-    proyectos: () => ir(() => pxParaTiempo(tiempoPrimeraTarjeta(m))),
+    proyectos: () => ir(alturaProyectos),
     contacto: () => ir(() => (pie ? pie.getBoundingClientRect().top + window.scrollY : 0)),
   };
   // Un solo escuchador en la cabecera: el destino lo dice `data-ir` del enlace pulsado. Sin

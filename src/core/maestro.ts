@@ -6,7 +6,10 @@ import { P } from '../params';
 // DESPEGUE (27/09/2026): el motor ya no acompaña a la galería (Yoiber: «el cohete, solo en la
 // portada»). Se ensambla en HERO_OUT, despega en DESPEGUE y deja la pantalla a los proyectos. «Por
 // dentro» (COMO), que era el despiece del motor, se quitó con él.
-export const ORDEN = ['HERO_OUT', 'DESPEGUE', 'GALERIA', 'CIERRE'] as const;
+// EL MAESTRO ES SOLO LA PORTADA (09/10/2026). La galería de una tarjeta por pantalla (GALERIA, veinte
+// alturas) y la frase fija del cierre (CIERRE) salieron del reloj: los proyectos son una sección
+// normal, en flujo, que sube por encima de las capas fijas cuando el maestro se acaba, como el pie.
+export const ORDEN = ['HERO_OUT', 'DESPEGUE'] as const;
 export type Tramo = (typeof ORDEN)[number];
 
 export interface Maestro {
@@ -33,9 +36,9 @@ export function crearMaestro(): Maestro {
 export function tramoActual(m: Maestro, tiempo: number): { tramo: Tramo | 'INTRO'; progreso: number } {
   if (tiempo < m.L.INTRO_END) return { tramo: 'INTRO', progreso: tiempo / m.L.INTRO_END };
   for (const x of ORDEN) {
-    if (tiempo < m.L[`${x}_END`] || x === 'CIERRE') {
+    if (tiempo < m.L[`${x}_END`] || x === ORDEN[ORDEN.length - 1]) {
       return { tramo: x, progreso: Math.min(1, (tiempo - m.L[x]) / m.duracion(x)) };
     }
   }
-  return { tramo: 'CIERRE', progreso: 1 };
+  return { tramo: ORDEN[ORDEN.length - 1], progreso: 1 };
 }

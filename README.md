@@ -1,8 +1,8 @@
 # yoiber.com
 
-Mi web personal: una sola página dirigida por el scroll, con un motor cohete construido por código
-(sin modelos descargados) que se monta en la portada, se enciende y despega, y deja la pantalla a
-los proyectos: cada uno con su trabajo andando, grabado o simulado.
+Mi web personal. La portada la mueve el scroll: un motor cohete construido por código (sin modelos
+descargados) se monta, se enciende y despega. Debajo están los proyectos, cada uno en el formato de
+lo que es, y al tocarlo se abre con su trabajo andando, grabado o simulado.
 
 **En vivo: https://yoiber.com** (rama `main`) · Pruebas: https://demo.yoiber.dev (rama `develop`).
 
@@ -15,12 +15,12 @@ assets ni textos de ese sitio.
 
 | Pieza | Cómo funciona |
 |---|---|
-| Reloj maestro | Un solo `createTimeline` con etiquetas por capítulo. Nada se anima por su cuenta: todo es función del reloj, así que el scroll hacia atrás lo deshace exacto. |
+| Reloj maestro | La portada es un solo `createTimeline` con etiquetas por capítulo. Nada se anima por su cuenta: todo es función del reloj, así que el scroll hacia atrás lo deshace exacto. Lo que viene después (los proyectos, el cierre y el pie) va en flujo normal. |
 | Scroll | El scroll no mueve nada: mueve el reloj. Cada sección traduce su paso por la pantalla a un tramo, y un `createTimer` propio persigue ese objetivo con suavizado por tiempo. |
 | Intro | La entrada del logo corre por tiempo (GSAP, la misma de la versión anterior) sobre un anillo de marcas que respira, y cede el mando en cuanto el visitante baja. |
 | Motor 3D | Geometría procedimental: campana de perfil de Rao, 36 tubos de refrigeración instanciados, turbobomba, celosía y tornillería. Llega en un trozo diferido y solo si la máquina lo aguanta. |
 | Dibujo | Material *toon* de tres tonos con una luz y un filo cálido por shader; la tinta de los contornos es un pase de pantalla propio (profundidad y normales con cruz de Roberts) y FXAA. |
-| Galería | Diez proyectos, cada uno con su vitrina: una grabación corta, o una simulación dibujada en HTML y SVG (`src/sim/`) cuando la pantalla real no se puede enseñar, que se carga al acercarse y solo anda la de la tarjeta que manda. Cada tarjeta entra por piezas y traza un esquema con el scroll; el color de la página cambia con cada proyecto. |
+| Proyectos | Quince proyectos a la vista, en cuatro grupos con filtro, y cada uno en el formato de lo que es: la boleta que recibe la constancia de SUNAT, el radar de los barcos, la comanda en el riel de la cocina, la terminal del agente, el guion de Daebon. Las vistas son HTML, CSS y SVG (`src/styles/portada.css`) y solo se animan mientras se ven. Al tocar uno se abre su ficha (`src/proyectos/`) con la grabación o la simulación (`src/sim/`), cómo está hecho y sus enlaces. |
 | Escenario de reserva | Sin WebGL, o en una máquina justa, la misma coreografía se cuenta con capas CSS en 3D. |
 | Accesibilidad | Con `prefers-reduced-motion` no hay intro temporal, ni rotaciones, ni bucles: el contenido queda en su estado final. |
 
