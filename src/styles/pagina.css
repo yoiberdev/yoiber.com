@@ -268,3 +268,57 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
 }
 /* La de Kuantera es clara: el marco sigue su fondo mientras carga la escena. */
 .guia-sim-marco.guia-sim-clara { background: #f3f6f8; }
+
+/* ---------- servicios y precios (servicios/, en/services/) ---------- */
+/* LOS PAQUETES. Cuatro cajas con el precio a la vista: quien llega aquí viene a saber cuánto cuesta,
+   así que el número va grande y arriba, no escondido al final. La del medio (`destacado`) lleva el
+   borde del acento: es la que la mayoría viene a pedir. */
+.paquetes { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr)); margin: 2.5rem 0 0; padding: 0; list-style: none; }
+.paquetes > li {
+  display: flex; flex-direction: column; gap: 0.6rem;
+  border: 1px solid var(--line); border-radius: 12px; padding: 1.35rem 1.3rem 1.25rem;
+  background: color-mix(in srgb, var(--placa) 60%, transparent);
+}
+.paquetes > li.destacado { border-color: color-mix(in srgb, var(--acento) 70%, var(--line)); background: var(--placa); }
+.paquetes .para { font-family: var(--etiqueta); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--acento); }
+.paquetes h2 { margin: 0; font-size: 1.3rem; letter-spacing: -0.02em; }
+.paquetes .precio { margin: 0.1rem 0 0.2rem; display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap; }
+.paquetes .monto { font-size: clamp(1.7rem, 3vw, 2.1rem); font-weight: 700; letter-spacing: -0.03em; color: var(--fg); font-variant-numeric: tabular-nums; }
+.paquetes .desde { font-size: 0.85rem; color: var(--muted); }
+.paquetes > li > p:not(.precio) { margin: 0; color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+.paquetes .incluye { margin: 0.3rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.35rem; }
+.paquetes .incluye li { position: relative; padding-left: 1.1rem; font-size: 0.88rem; color: var(--fg); line-height: 1.45; }
+.paquetes .incluye li::before { content: ''; position: absolute; left: 0; top: 0.5em; width: 0.45rem; height: 0.45rem; border-radius: 2px; background: var(--acento); }
+/* El botón va al fondo de la caja: con `margin-top: auto` todas las cajas lo tienen a la misma altura. */
+.paquetes .pedir {
+  margin-top: auto; align-self: flex-start; padding: 0.6rem 1.1rem; border-radius: 999px;
+  font-family: var(--etiqueta); font-size: 0.82rem; text-decoration: none;
+  color: var(--fg); border: 1px solid var(--line);
+}
+.paquetes > li.destacado .pedir { color: var(--bg); background: var(--acento); border-color: var(--acento); }
+.paquetes .pedir:hover, .paquetes .pedir:focus-visible { border-color: var(--acento); }
+.paquetes > li.destacado .pedir:hover, .paquetes > li.destacado .pedir:focus-visible { filter: brightness(1.08); }
+.nota-precios { margin: 1rem 0 0; color: var(--muted-2); font-size: 0.85rem; }
+
+/* LOS PASOS: cuatro, numerados por el propio <ol>, con el número en el acento. */
+.pasos-trabajo { margin: 1.25rem 0 1rem; padding: 0; list-style: none; counter-reset: paso; display: grid; gap: 0.9rem; max-width: 68ch; }
+.pasos-trabajo li { counter-increment: paso; position: relative; padding-left: 2.6rem; color: var(--muted); line-height: 1.6; }
+.pasos-trabajo li::before {
+  content: counter(paso); position: absolute; left: 0; top: 0;
+  width: 1.8rem; height: 1.8rem; border-radius: 999px; border: 1px solid var(--acento);
+  display: grid; place-items: center; font-family: var(--mono); font-size: 0.85rem; color: var(--acento);
+}
+.pasos-trabajo b { color: var(--fg); font-weight: 600; }
+
+/* LAS PREGUNTAS, con <details>: se abren sin JavaScript y el lector de pantalla las anuncia solo. */
+.preguntas { max-width: 68ch; border-top: 1px solid var(--line); }
+.preguntas details { border-bottom: 1px solid var(--line); }
+.preguntas summary { cursor: pointer; padding: 1rem 0; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 1rem; }
+.preguntas summary::-webkit-details-marker { display: none; }
+.preguntas summary::after { content: '+'; font-family: var(--mono); color: var(--acento); }
+.preguntas details[open] summary::after { content: '−'; }
+.preguntas summary:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+.preguntas details p { margin: 0 0 1rem; color: var(--muted); line-height: 1.65; }
+.fichas h3 a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--acento); }
+.fichas + p { margin-top: 1rem; }
+.paquetes .incluye { margin-bottom: 0.5rem; }
