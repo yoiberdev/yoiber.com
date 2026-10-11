@@ -270,45 +270,87 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
 .guia-sim-marco.guia-sim-clara { background: #f3f6f8; }
 
 /* ---------- servicios y precios (servicios/, en/services/) ---------- */
-/* LOS PAQUETES. Cuatro cajas con el precio a la vista: quien llega aquí viene a saber cuánto cuesta,
-   así que el número va grande y arriba, no escondido al final. La del medio (`destacado`) lleva el
-   borde del acento: es la que la mayoría viene a pedir. */
-.paquetes { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr)); margin: 2.5rem 0 0; padding: 0; list-style: none; }
-.paquetes > li {
-  display: flex; flex-direction: column; gap: 0.6rem;
-  border: 1px solid var(--line); border-radius: 12px; padding: 1.35rem 1.3rem 1.25rem;
-  background: color-mix(in srgb, var(--placa) 60%, transparent);
+/* EL MOSTRADOR: a un lado, qué hago y el botón; al otro, la boleta con los precios. La boleta es la
+   pieza: un presupuesto impreso en papel térmico, como el que te da cualquier caja en Lima, que sale
+   de una ticketera al entrar. Cada precio es un enlace al contacto con el pedido ya escrito. */
+.mostrador { display: grid; gap: clamp(2rem, 5vw, 4.5rem); align-items: start; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .mostrador { grid-template-columns: minmax(0, 1fr) 27rem; } }
+.servicios .lado h1 { font-size: clamp(2.4rem, 6vw, 4.2rem); line-height: 0.98; letter-spacing: -0.045em; max-width: 12ch; }
+.servicios .lado .entradilla { max-width: 34ch; }
+.boton-acento {
+  display: inline-block; margin-top: 1.75rem; padding: 0.8rem 1.4rem; border-radius: 999px;
+  color: var(--bg); background: var(--acento); font-weight: 700; text-decoration: none;
 }
-.paquetes > li.destacado { border-color: color-mix(in srgb, var(--acento) 70%, var(--line)); background: var(--placa); }
-.paquetes .para { font-family: var(--etiqueta); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--acento); }
-.paquetes h2 { margin: 0; font-size: 1.3rem; letter-spacing: -0.02em; }
-.paquetes .precio { margin: 0.1rem 0 0.2rem; display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap; }
-.paquetes .monto { font-size: clamp(1.7rem, 3vw, 2.1rem); font-weight: 700; letter-spacing: -0.03em; color: var(--fg); font-variant-numeric: tabular-nums; }
-.paquetes .desde { font-size: 0.85rem; color: var(--muted); }
-.paquetes > li > p:not(.precio) { margin: 0; color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
-.paquetes .incluye { margin: 0.3rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.35rem; }
-.paquetes .incluye li { position: relative; padding-left: 1.1rem; font-size: 0.88rem; color: var(--fg); line-height: 1.45; }
-.paquetes .incluye li::before { content: ''; position: absolute; left: 0; top: 0.5em; width: 0.45rem; height: 0.45rem; border-radius: 2px; background: var(--acento); }
-/* El botón va al fondo de la caja: con `margin-top: auto` todas las cajas lo tienen a la misma altura. */
-.paquetes .pedir {
-  margin-top: auto; align-self: flex-start; padding: 0.6rem 1.1rem; border-radius: 999px;
-  font-family: var(--etiqueta); font-size: 0.82rem; text-decoration: none;
-  color: var(--fg); border: 1px solid var(--line);
-}
-.paquetes > li.destacado .pedir { color: var(--bg); background: var(--acento); border-color: var(--acento); }
-.paquetes .pedir:hover, .paquetes .pedir:focus-visible { border-color: var(--acento); }
-.paquetes > li.destacado .pedir:hover, .paquetes > li.destacado .pedir:focus-visible { filter: brightness(1.08); }
-.nota-precios { margin: 1rem 0 0; color: var(--muted-2); font-size: 0.85rem; }
+.boton-acento:hover, .boton-acento:focus-visible { filter: brightness(1.08); }
+.servicios .lado .nota { margin: 1rem 0 0; color: var(--muted-2); font-size: 0.9rem; }
 
-/* LOS PASOS: cuatro, numerados por el propio <ol>, con el número en el acento. */
-.pasos-trabajo { margin: 1.25rem 0 1rem; padding: 0; list-style: none; counter-reset: paso; display: grid; gap: 0.9rem; max-width: 68ch; }
-.pasos-trabajo li { counter-increment: paso; position: relative; padding-left: 2.6rem; color: var(--muted); line-height: 1.6; }
-.pasos-trabajo li::before {
-  content: counter(paso); position: absolute; left: 0; top: 0;
-  width: 1.8rem; height: 1.8rem; border-radius: 999px; border: 1px solid var(--acento);
-  display: grid; place-items: center; font-family: var(--mono); font-size: 0.85rem; color: var(--acento);
+/* LA TICKETERA: una ranura oscura y, debajo, el papel que sale de ella. El papel se recorta en la
+   ranura (overflow) y baja a saltos, como una impresora térmica de verdad. */
+.ticketera { position: relative; max-width: 27rem; width: 100%; justify-self: center; }
+.ranura { position: relative; z-index: 2; height: 14px; margin: 0 -10px; border-radius: 8px; background: #121110; box-shadow: inset 0 -3px 0 #2c2a27; }
+.papel { overflow: hidden; margin-top: -7px; padding: 0 6px 40px; }
+.ticket {
+  --diente: 8px;
+  position: relative; background: #f3efe4; color: #262422;
+  font-family: var(--mono); font-size: 0.86rem; line-height: 1.5; text-align: center;
+  padding: 1.6rem 1.5rem 2.2rem;
+  -webkit-mask: radial-gradient(var(--diente) at 50% 100%, #0000 98%, #000) 50% calc(100% + var(--diente) / 2) / calc(2 * var(--diente)) 51% repeat-x, linear-gradient(#000 0 0) top / 100% calc(100% - var(--diente)) no-repeat;
+          mask: radial-gradient(var(--diente) at 50% 100%, #0000 98%, #000) 50% calc(100% + var(--diente) / 2) / calc(2 * var(--diente)) 51% repeat-x, linear-gradient(#000 0 0) top / 100% calc(100% - var(--diente)) no-repeat;
+  transform-origin: top center;
+  filter: drop-shadow(0 22px 26px rgb(0 0 0 / 0.45));
 }
-.pasos-trabajo b { color: var(--fg); font-weight: 600; }
+.ticket p { margin: 0; }
+.ticket .marca { font-family: var(--etiqueta); font-weight: 700; font-size: 1.6rem; letter-spacing: -0.04em; }
+.ticket .chico { color: #6e6a62; font-size: 0.76rem; }
+.ticket hr { border: 0; border-top: 1.5px dashed #b9b3a4; margin: 0.85rem 0; }
+.ticket .titulo { letter-spacing: 0.3em; font-weight: 600; text-transform: uppercase; }
+.ticket .items { list-style: none; margin: 0; padding: 0; text-align: left; }
+.ticket .items a { display: block; color: inherit; text-decoration: none; padding: 0.5rem 0.55rem; margin: 0 -0.55rem; border-radius: 4px; transition: background 0.15s; }
+.ticket .items a:hover, .ticket .items a:focus-visible { background: #e7e1d1; outline: none; }
+.ticket .linea { display: flex; gap: 0.5rem; align-items: baseline; }
+.ticket .que, .ticket .cuanto { font-weight: 600; }
+.ticket .cuanto { white-space: nowrap; }
+.ticket .puntos { flex: 1; border-bottom: 1.5px dotted #b9b3a4; transform: translateY(-0.3em); }
+.ticket .det { display: block; color: #6e6a62; font-size: 0.76rem; padding-left: 1ch; }
+.ticket .items a:hover .que::after, .ticket .items a:focus-visible .que::after { content: ' →'; }
+.ticket .cond { text-align: left; color: #6e6a62; font-size: 0.76rem; }
+.ticket .cond b { color: #262422; font-weight: 600; }
+.ticket .qr { display: block; width: 6.2rem; margin: 1.1rem auto 0.5rem; color: #262422; }
+.ticket .qr svg { display: block; width: 100%; height: auto; }
+.ticket .agradece { margin-top: 0.7rem; font-weight: 600; }
+
+/* La impresión: el papel baja a saltos desde la ranura y se le va la inclinación al final. Solo con
+   JavaScript (servicios.ts pone la clase), así sin él la boleta se ve quieta y entera. */
+.ticketera.imprime .ticket { animation: sale-boleta 2.4s steps(28, end) both, asienta 0.5s 2.4s ease-out forwards; }
+@keyframes sale-boleta { from { transform: translateY(-100%); } }
+@keyframes asienta { to { transform: rotate(-1.4deg); } }
+.ticketera.impresa .ticket { transform: rotate(-1.4deg); }
+
+/* EL CAMINO: los cuatro pasos sobre una línea que se dibuja al llegar a la vista; cada paso se
+   enciende después del anterior. En el teléfono, de arriba abajo. */
+.camino { position: relative; display: grid; gap: 1.25rem; margin: clamp(3.5rem, 8vw, 5.5rem) 0 0; padding: 0; list-style: none; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.camino::before { content: ''; position: absolute; left: 1.4rem; right: calc((100% - 3.75rem) / 4 - 1.4rem); top: 1.4rem; height: 2px; background: var(--acento); transform: scaleX(0); transform-origin: left; transition: transform 1.2s ease-out; }
+.camino.visto::before { transform: scaleX(1); }
+.camino li { position: relative; display: grid; gap: 0.15rem; justify-items: start; opacity: 0.25; transition: opacity 0.4s calc(var(--i) * 0.3s + 0.2s); }
+.camino.visto li { opacity: 1; }
+.camino svg { box-sizing: content-box; width: 1.35rem; height: 1.35rem; padding: 0.7rem; border-radius: 999px; background: var(--bg); border: 2px solid var(--acento); fill: none; stroke: var(--acento); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 0.6rem; }
+.camino b { font-size: 1.05rem; }
+.camino span { color: var(--muted); font-size: 0.9rem; }
+@media (max-width: 680px) {
+  .camino { grid-template-columns: minmax(0, 1fr); }
+  .camino::before { left: 1.4rem; right: auto; top: 1.4rem; bottom: 1.4rem; width: 2px; height: auto; transform: scaleY(0); transform-origin: top; }
+  .camino.visto::before { transform: scaleY(1); }
+  .camino li { grid-template-columns: auto 1fr; column-gap: 1rem; align-items: center; }
+  .camino svg { grid-row: span 2; margin: 0; }
+}
+
+/* LO QUE YA HICE: tres pantallas de verdad, no texto. */
+.obras { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); margin: clamp(3rem, 7vw, 4.5rem) 0 0; padding: 0; list-style: none; }
+.obras a { position: relative; display: block; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: var(--placa); aspect-ratio: 16 / 10; }
+.obras img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top left; transition: transform 0.4s ease-out; }
+.obras a:hover img, .obras a:focus-visible img { transform: scale(1.04); }
+.obras span { position: absolute; left: 0.7rem; bottom: 0.7rem; padding: 0.3rem 0.7rem; border-radius: 999px; background: rgb(31 30 29 / 0.86); color: var(--muted); font-size: 0.8rem; }
+.obras b { color: var(--fg); font-weight: 600; }
 
 /* LAS PREGUNTAS, con <details>: se abren sin JavaScript y el lector de pantalla las anuncia solo. */
 .preguntas { max-width: 68ch; border-top: 1px solid var(--line); }
@@ -319,6 +361,8 @@ h2 { margin: 3.5rem 0 1rem; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spac
 .preguntas details[open] summary::after { content: '−'; }
 .preguntas summary:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
 .preguntas details p { margin: 0 0 1rem; color: var(--muted); line-height: 1.65; }
-.fichas h3 a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--acento); }
-.fichas + p { margin-top: 1rem; }
-.paquetes .incluye { margin-bottom: 0.5rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ticketera.imprime .ticket { animation: none; transform: rotate(-1.4deg); }
+  .camino::before, .camino li { transition: none; }
+}

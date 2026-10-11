@@ -80,120 +80,91 @@
       <a class="idioma" href="/servicios/" hreflang="es" lang="es">Español</a>
     </nav>
 
-    <main class="escena">
-      <header>
-        <p class="kicker">Services and prices</p>
-        <h1>Your software, at a fixed price, with someone who answers</h1>
-        <p class="entradilla">
-          I build what your business or product needs and I stay to look after it. <b>You know the
-          price before we start</b>, you see progress every week, and I take few projects at a time so
-          I can keep the dates I give you.
-        </p>
-      </header>
+    <main class="escena servicios">
+      <div class="mostrador">
+        <header class="lado">
+          <p class="kicker">Services and prices</p>
+          <h1>What it costs, before we start</h1>
+          <p class="entradilla">I build software for businesses. <b>Fixed price</b>, progress every week, and someone who answers when something breaks.</p>
+          <a class="boton-acento" href="/en/contact/">Tell me about your project</a>
+          <p class="nota">I take few projects at a time so I can keep my dates.</p>
+        </header>
 
-      <ul class="paquetes" aria-label="What I do">
-        <li>
-          <span class="para">To know where you stand</span>
-          <h2>Code review</h2>
-          <p class="precio"><span class="monto">US$ 300</span></p>
-          <p>I go through your app, or your plan if it does not exist yet, and give you a written report: what breaks, what is missing and what it would cost to fix.</p>
-          <ul class="incluye">
-            <li>Ready in one week</li>
-            <li>Credited if we keep working together</li>
-          </ul>
-          <a class="pedir" href="/en/contact/?about=Code review">Ask for a review</a>
-        </li>
-        <li>
-          <span class="para">For the app that is almost there</span>
-          <h2>Finish and ship</h2>
-          <p class="precio"><span class="desde">from</span> <span class="monto">US$ 1,200</span></p>
-          <p>Built by someone else or put together with AI, and now it works only sometimes, is not live, or nobody dares to touch it. I make it stable, secure and deployed.</p>
-          <ul class="incluye">
-            <li>Starts with a review of what is there</li>
-            <li>30 days of free fixes</li>
-          </ul>
-          <a class="pedir" href="/en/contact/?about=Finish and ship">Tell me about it</a>
-        </li>
-        <li class="destacado">
-          <span class="para">From idea to something people use</span>
-          <h2>Build</h2>
-          <p class="precio"><span class="desde">from</span> <span class="monto">US$ 3,000</span></p>
-          <p>A first version of your product or the internal tool your team is missing. On the web, on the phone, or both.</p>
-          <ul class="incluye">
-            <li>3 to 5 weeks</li>
-            <li>A link to see progress every week</li>
-            <li>Hosting and deploy included</li>
-          </ul>
-          <a class="pedir" href="/en/contact/?about=Build">Tell me what you need</a>
-        </li>
-        <li>
-          <span class="para">So you do not have to worry</span>
-          <h2>Care plan</h2>
-          <p class="precio"><span class="desde">from</span> <span class="monto">US$ 250</span> <span class="desde">a month</span></p>
-          <p>Keeping it running: hosting, backups, fixes and small changes.</p>
-          <ul class="incluye">
-            <li>Reply within one business day</li>
-            <li>No lock-in: cancel any month</li>
-          </ul>
-          <a class="pedir" href="/en/contact/?about=Care plan">Ask about yours</a>
-        </li>
-      </ul>
-      <p class="nota-precios">Prices in US dollars. Every «from» becomes a fixed number in the proposal, before we start, and it does not change afterwards.</p>
+        <!-- LA BOLETA (servicios.ts): sale de la ranura como de una ticketera al entrar a la página. -->
+        <div class="ticketera">
+          <div class="ranura" aria-hidden="true"></div>
+          <div class="papel">
+            <article class="ticket" aria-label="Quote">
+              <p class="marca">yoiber</p>
+              <p class="chico">Software development · Lima, Peru</p>
+              <p class="chico" data-fecha="Date"></p>
+              <hr />
+              <p class="titulo">Quote</p>
+              <hr />
+              <ul class="items">
+              <li>
+                <a href="/en/contact/?about=Code review">
+                  <span class="linea"><span class="que">Code review</span><span class="puntos" aria-hidden="true"></span><span class="cuanto">US$ 300</span></span>
+                  <span class="det">of your app or your plan, in writing. Credited if we keep going.</span>
+                </a>
+              </li>
+              <li>
+                <a href="/en/contact/?about=Finish and ship">
+                  <span class="linea"><span class="que">Finish and ship</span><span class="puntos" aria-hidden="true"></span><span class="cuanto">from US$ 1,200</span></span>
+                  <span class="det">the app that got stuck, AI-built ones too.</span>
+                </a>
+              </li>
+              <li>
+                <a href="/en/contact/?about=Build">
+                  <span class="linea"><span class="que">Build</span><span class="puntos" aria-hidden="true"></span><span class="cuanto">from US$ 3,000</span></span>
+                  <span class="det">your first version or internal tool. 3 to 5 weeks.</span>
+                </a>
+              </li>
+              <li>
+                <a href="/en/contact/?about=Care plan">
+                  <span class="linea"><span class="que">Care plan</span><span class="puntos" aria-hidden="true"></span><span class="cuanto">US$ 250 / mo</span></span>
+                  <span class="det">hosting, backups and fixes. Cancel any month.</span>
+                </a>
+              </li>
+              </ul>
+              <hr />
+              <p class="cond"><b>Includes:</b> fixed price, weekly progress and 30 days of fixes.<br /><b>Payment:</b> 50% to start, 50% on delivery.</p>
+              <a class="qr" href="/en/contact/" aria-label="Get in touch"><svg viewBox="0 0 29 29" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path stroke="currentColor" d="M0 0.5h7m1 0h2m1 0h1m1 0h3m2 0h3m1 0h7M0 1.5h1m5 0h1m1 0h2m2 0h2m2 0h1m5 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m2 0h2m5 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m1 0h3m3 0h2m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m3 0h3m1 0h1m1 0h1m2 0h2m1 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m2 0h1m2 0h2m1 0h5m2 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M8 7.5h1m1 0h1m4 0h5M0 8.5h1m1 0h2m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h2m3 0h1m2 0h1m1 0h2M0 9.5h2m1 0h2m2 0h1m1 0h1m1 0h1m1 0h3m1 0h8m3 0h1M2 10.5h6m1 0h2m2 0h1m2 0h1m1 0h1m2 0h1m1 0h2m1 0h2M3 11.5h3m1 0h3m2 0h1m3 0h1m2 0h4m5 0h1M1 12.5h2m2 0h3m3 0h1m2 0h2m1 0h1m7 0h2M0 13.5h1m1 0h1m1 0h1m4 0h3m2 0h1m1 0h4m1 0h2m3 0h3M2 14.5h1m1 0h1m1 0h1m2 0h3m1 0h1m1 0h2m1 0h3m1 0h2m2 0h3M0 15.5h1m1 0h1m1 0h1m3 0h1m1 0h2m2 0h1m1 0h1m1 0h5m4 0h1M0 16.5h2m3 0h3m1 0h1m2 0h1m1 0h3m1 0h3m2 0h3m1 0h1M1 17.5h1m1 0h2m3 0h2m4 0h1m1 0h1m6 0h1m1 0h3M0 18.5h1m1 0h2m1 0h3m2 0h7m1 0h1m1 0h1m1 0h2m2 0h1M2 19.5h1m1 0h2m2 0h2m2 0h3m2 0h2m3 0h1m1 0h1m1 0h1M1 20.5h1m4 0h1m6 0h2m1 0h3m1 0h7M8 21.5h1m2 0h2m2 0h2m1 0h1m1 0h1m3 0h5M0 22.5h7m1 0h2m1 0h1m2 0h2m3 0h2m1 0h1m1 0h2m1 0h1M0 23.5h1m5 0h1m1 0h1m1 0h1m2 0h3m2 0h1m1 0h1m3 0h2M0 24.5h1m1 0h3m1 0h1m3 0h3m4 0h1m2 0h5m1 0h1m1 0h1M0 25.5h1m1 0h3m1 0h1m1 0h1m1 0h4m3 0h3m1 0h1m1 0h3m1 0h1M0 26.5h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h1m3 0h1m1 0h1m2 0h1m2 0h1m1 0h1M0 27.5h1m5 0h1m2 0h1m2 0h2m2 0h1m1 0h1m1 0h2m1 0h3m1 0h1M0 28.5h7m1 0h2m2 0h2m1 0h1m3 0h7m1 0h1"/></svg></a>
+              <p class="chico">Tap a price to ask for it</p>
+              <p class="agradece">Thank you for your business!</p>
+            </article>
+          </div>
+        </div>
+      </div>
 
-      <h2>How we work</h2>
-      <ol class="pasos-trabajo">
-        <li><b>You tell me what you have.</b> In writing or in a free half-hour call.</li>
-        <li><b>I send you a proposal</b> with the scope, the price and the delivery date, within two days.</li>
-        <li><b>We start with 50%.</b> Every week you get a link to see where it is.</li>
-        <li><b>I deliver, you pay the other 50%</b>, and for 30 days I fix any bug at no cost.</li>
+      <ol class="camino" aria-label="How we work">
+      <li style="--i: 0"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5h16v11H9l-5 4z"/></svg><b>You tell me</b><span>free</span></li>
+      <li style="--i: 1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg><b>Proposal</b><span>within 2 days</span></li>
+      <li style="--i: 2"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><b>Progress</b><span>every week</span></li>
+      <li style="--i: 3"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12l5 5L20 6"/></svg><b>Delivery</b><span>+ 30 days of fixes</span></li>
       </ol>
-      <p>I am in Lima (UTC−5), so my working day overlaps with the United States. We can work in English or in Spanish.</p>
 
-      <h2>Work you can check</h2>
-      <ul class="fichas">
-        <li>
-          <span class="clave">Attendance and man-hours</span>
-          <h3><a href="https://bitacora.kipups.com" target="_blank" rel="noopener">Bitácora</a></h3>
-          <p>Technicians clock in on site with their phone, and the attendance register and the hours billed to each client come out on their own. There is a live demo (in Spanish).</p>
-        </li>
-        <li>
-          <span class="clave">E-invoicing</span>
-          <h3><a href="/en/cases/kuantera/">Kuantera</a></h3>
-          <p>Invoices signed with the business's own certificate and sent to Peru's tax authority with no middleman.</p>
-        </li>
-        <li>
-          <span class="clave">Running a business</span>
-          <h3><a href="/en/cases/therapy-center-erp/">Therapy center ERP</a></h3>
-          <p>A center with several branches: schedules per specialist, sessions, payments with e-receipts and staff, in one system.</p>
-        </li>
+      <ul class="obras" aria-label="Work you can check">
+      <li><a href="https://bitacora.kipups.com" target="_blank" rel="noopener"><img src="/proyectos/bitacora-cartel.webp" alt="Bitácora dashboard with the people on each site" loading="lazy" decoding="async" /><span><b>Bitácora</b> field attendance</span></a></li>
+      <li><a href="/en/cases/kuantera/"><img src="/casos/kuantera-cartel.png" alt="Kuantera sending an invoice to the tax authority" loading="lazy" decoding="async" /><span><b>Kuantera</b> e-invoicing</span></a></li>
+      <li><a href="/en/cases/therapy-center-erp/"><img src="/casos/erp-agenda.png" alt="The schedule of the therapy center ERP" loading="lazy" decoding="async" /><span><b>ERP</b> therapy center</span></a></li>
       </ul>
-      <p>More on the <a href="/en/">English page</a>, most of it you can open and try.</p>
 
       <h2>Questions</h2>
       <div class="preguntas">
         <details>
           <summary>Do you use AI?</summary>
-          <p>Yes, every day. That is why I deliver in weeks what used to take months. What I do not hand to AI: deciding what to build, reviewing what it writes, testing it, and answering when something fails.</p>
+          <p>Yes, every day: that is why I deliver in weeks. What I do not hand to AI is deciding what to build, reviewing what it writes, testing it and answering when something fails.</p>
         </details>
         <details>
           <summary>Do I own the code?</summary>
-          <p>Yes. The code and the data are yours and I hand them over when we finish. If one day you want someone else to maintain it, they can.</p>
+          <p>Yes. The code and the data are yours and I hand them over when we finish.</p>
         </details>
         <details>
-          <summary>What if something breaks after delivery?</summary>
-          <p>For the first 30 days I fix it at no cost. After that, through the care plan or as a one-off job I quote before doing it.</p>
-        </details>
-        <details>
-          <summary>How do I pay?</summary>
-          <p>By international bank transfer, 50% to start and 50% on delivery. The care plan is billed monthly.</p>
+          <summary>What if something breaks later?</summary>
+          <p>For the first 30 days I fix it at no cost. After that, through the care plan or a one-off job I quote first.</p>
         </details>
       </div>
-
-      <section class="cierre">
-        <h2>Tell me what you have and what is missing</h2>
-        <p>If it is not my kind of work I will say so and save you the time.</p>
-        <a class="accion" href="/en/contact/">Get in touch →</a>
-      </section>
     </main>
   </body>
 </html>

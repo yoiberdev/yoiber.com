@@ -52,10 +52,10 @@
           "founder": { "@id": "https://yoiber.com/#yoiber" },
           "areaServed": "PE",
           "makesOffer": [
-            { "@type": "Offer", "name": "Revisión", "price": "350", "priceCurrency": "PEN" },
-            { "@type": "Offer", "name": "Terminar o arreglar", "priceSpecification": { "@type": "PriceSpecification", "minPrice": "1500", "priceCurrency": "PEN" } },
-            { "@type": "Offer", "name": "Sistema a medida", "priceSpecification": { "@type": "PriceSpecification", "minPrice": "3500", "priceCurrency": "PEN" } },
-            { "@type": "Offer", "name": "Mantenimiento", "priceSpecification": { "@type": "UnitPriceSpecification", "minPrice": "200", "priceCurrency": "PEN", "unitText": "MONTH" } }
+            { "@type": "Offer", "name": "Revisión", "price": "100", "priceCurrency": "PEN" },
+            { "@type": "Offer", "name": "Terminar o arreglar", "priceSpecification": { "@type": "PriceSpecification", "minPrice": "500", "priceCurrency": "PEN" } },
+            { "@type": "Offer", "name": "Sistema a medida", "priceSpecification": { "@type": "PriceSpecification", "minPrice": "1200", "priceCurrency": "PEN" } },
+            { "@type": "Offer", "name": "Mantenimiento", "priceSpecification": { "@type": "UnitPriceSpecification", "minPrice": "60", "priceCurrency": "PEN", "unitText": "MONTH" } }
           ]
         }
       ]
@@ -81,119 +81,91 @@
       <a class="idioma" href="/en/services/" hreflang="en" lang="en">English</a>
     </nav>
 
-    <main class="escena">
-      <header>
-        <p class="kicker">Servicios y precios</p>
-        <h1>Tu sistema, con precio cerrado y alguien que responde</h1>
-        <p class="entradilla">
-          Te hago el sistema que tu negocio necesita y me quedo para mantenerlo. <b>Sabes cuánto
-          cuesta antes de empezar</b>, ves el avance cada semana y tomo pocos proyectos a la vez para
-          cumplir las fechas que te doy.
-        </p>
-      </header>
+    <main class="escena servicios">
+      <div class="mostrador">
+        <header class="lado">
+          <p class="kicker">Servicios y precios</p>
+          <h1>Lo que cuesta, antes de empezar</h1>
+          <p class="entradilla">Hago sistemas para negocios. <b>Precio cerrado</b>, avance cada semana y alguien que responde si algo falla.</p>
+          <a class="boton-acento" href="/contacto/">Cuéntame tu caso</a>
+          <p class="nota">Tomo pocos proyectos a la vez para cumplir las fechas.</p>
+        </header>
 
-      <ul class="paquetes" aria-label="Lo que hago">
-        <li>
-          <span class="para">Para saber dónde estás</span>
-          <h2>Revisión</h2>
-          <p class="precio"><span class="monto">S/ 350</span></p>
-          <p>Reviso tu sistema, o tu idea si aún no existe, y te entrego por escrito qué falla, qué falta y cuánto costaría resolverlo.</p>
-          <ul class="incluye">
-            <li>Lista en una semana</li>
-            <li>Se descuenta si luego trabajamos juntos</li>
-          </ul>
-          <a class="pedir" href="/contacto/?sobre=Revisión">Pedir una revisión</a>
-        </li>
-        <li>
-          <span class="para">Para lo que quedó a medias</span>
-          <h2>Terminar o arreglar</h2>
-          <p class="precio"><span class="desde">desde</span> <span class="monto">S/ 1.500</span></p>
-          <p>Un sistema que hizo otra persona, o que se armó con IA, y que funciona a ratos, no está en línea o nadie se atreve a tocar. Lo dejo estable, seguro y publicado.</p>
-          <ul class="incluye">
-            <li>Primero, una revisión de lo que hay</li>
-            <li>30 días de arreglos sin costo</li>
-          </ul>
-          <a class="pedir" href="/contacto/?sobre=Terminar o arreglar un sistema">Contarme tu caso</a>
-        </li>
-        <li class="destacado">
-          <span class="para">Para dejar el Excel y el cuaderno</span>
-          <h2>Sistema a medida</h2>
-          <p class="precio"><span class="desde">desde</span> <span class="monto">S/ 3.500</span></p>
-          <p>Ventas, inventario, citas, control de personal o lo que hoy tu negocio hace a mano. En el teléfono, en la computadora o en los dos.</p>
-          <ul class="incluye">
-            <li>De 3 a 5 semanas</li>
-            <li>Avances que abres cada semana</li>
-            <li>Boletas y facturas electrónicas, si las necesitas</li>
-          </ul>
-          <a class="pedir" href="/contacto/?sobre=Sistema a medida">Contarme qué necesitas</a>
-        </li>
-        <li>
-          <span class="para">Para no preocuparte</span>
-          <h2>Mantenimiento</h2>
-          <p class="precio"><span class="desde">desde</span> <span class="monto">S/ 200</span> <span class="desde">al mes</span></p>
-          <p>Que tu sistema siga funcionando: alojamiento, copias de seguridad, arreglos y cambios pequeños.</p>
-          <ul class="incluye">
-            <li>Respuesta en un día hábil</li>
-            <li>Sin permanencia: lo dejas cuando quieras</li>
-          </ul>
-          <a class="pedir" href="/contacto/?sobre=Mantenimiento">Preguntar por el mío</a>
-        </li>
-      </ul>
-      <p class="nota-precios">Precios en soles. Los «desde» se cierran en la propuesta, antes de empezar, y no cambian después.</p>
+        <!-- LA BOLETA (servicios.ts): sale de la ranura como de una ticketera al entrar a la página. -->
+        <div class="ticketera">
+          <div class="ranura" aria-hidden="true"></div>
+          <div class="papel">
+            <article class="ticket" aria-label="Presupuesto">
+              <p class="marca">yoiber</p>
+              <p class="chico">Desarrollo de sistemas · Lima</p>
+              <p class="chico" data-fecha="Fecha"></p>
+              <hr />
+              <p class="titulo">Presupuesto</p>
+              <hr />
+              <ul class="items">
+              <li>
+                <a href="/contacto/?sobre=Revisión">
+                  <span class="linea"><span class="que">Revisión</span><span class="puntos" aria-hidden="true"></span><span class="cuanto">S/ 100</span></span>
+                  <span class="det">de tu sistema o tu idea, por escrito. Se descuenta si seguimos.</span>
+                </a>
+              </li>
+              <li>
+                <a href="/contacto/?sobre=Terminar o arreglar">
+                  <span class="linea"><span class="que">Terminar o arreglar</span><span class="puntos" aria-hidden="true"></span><span class="cuanto">desde S/ 500</span></span>
+                  <span class="det">lo que quedó a medias, también si se hizo con IA.</span>
+                </a>
+              </li>
+              <li>
+                <a href="/contacto/?sobre=Sistema a medida">
+                  <span class="linea"><span class="que">Sistema a medida</span><span class="puntos" aria-hidden="true"></span><span class="cuanto">desde S/ 1,200</span></span>
+                  <span class="det">ventas, inventario, citas o personal. De 3 a 5 semanas.</span>
+                </a>
+              </li>
+              <li>
+                <a href="/contacto/?sobre=Mantenimiento">
+                  <span class="linea"><span class="que">Mantenimiento</span><span class="puntos" aria-hidden="true"></span><span class="cuanto">S/ 60 / mes</span></span>
+                  <span class="det">alojamiento, copias y arreglos. Sin permanencia.</span>
+                </a>
+              </li>
+              </ul>
+              <hr />
+              <p class="cond"><b>Incluye:</b> precio cerrado, avance semanal y 30 días de arreglos.<br /><b>Pago:</b> 50 % al empezar, 50 % al entregar.</p>
+              <a class="qr" href="/contacto/" aria-label="Escribirme"><svg viewBox="0 0 29 29" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path stroke="currentColor" d="M0 0.5h7m1 0h1m2 0h1m1 0h3m3 0h2m1 0h7M0 1.5h1m5 0h1m1 0h1m2 0h1m1 0h1m2 0h3m1 0h1m1 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m4 0h1m4 0h1m3 0h1m1 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m2 0h1m2 0h1m1 0h1m1 0h2m1 0h1m2 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m2 0h5m1 0h2m2 0h2m1 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M8 7.5h3m1 0h1m2 0h5M0 8.5h1m1 0h2m1 0h3m1 0h1m2 0h2m1 0h1m1 0h2m3 0h1m2 0h1m1 0h2M1 9.5h5m2 0h2m1 0h5m2 0h7m3 0h1M0 10.5h1m2 0h2m1 0h1m1 0h1m4 0h1m2 0h1m4 0h1m1 0h2m1 0h2M1 11.5h1m1 0h1m1 0h1m1 0h2m1 0h3m3 0h1m1 0h1m2 0h2m5 0h1M0 12.5h2m2 0h1m1 0h1m1 0h2m2 0h1m1 0h2m1 0h1m7 0h2M5 13.5h1m1 0h1m3 0h1m2 0h1m1 0h4m1 0h2m3 0h3M2 14.5h1m1 0h1m1 0h5m1 0h2m1 0h2m1 0h3m1 0h2m2 0h3M12 15.5h1m1 0h1m1 0h1m1 0h5m4 0h1M1 16.5h3m1 0h2m1 0h4m2 0h3m1 0h3m2 0h3m1 0h1M1 17.5h1m2 0h1m3 0h1m3 0h1m1 0h1m1 0h2m5 0h1m1 0h3M0 18.5h1m2 0h2m1 0h4m1 0h1m1 0h5m2 0h1m1 0h2m2 0h1M3 19.5h1m1 0h1m1 0h2m1 0h5m2 0h2m3 0h1m1 0h1m1 0h1M1 20.5h2m1 0h1m1 0h1m1 0h1m3 0h3m1 0h2m2 0h7M8 21.5h3m1 0h1m2 0h4m1 0h1m3 0h5M0 22.5h7m1 0h1m5 0h2m2 0h3m1 0h1m1 0h2m1 0h1M0 23.5h1m5 0h1m1 0h1m1 0h6m2 0h1m1 0h1m3 0h2m2 0h1M0 24.5h1m1 0h3m1 0h1m4 0h2m3 0h1m1 0h1m1 0h5m1 0h1m1 0h1M0 25.5h1m1 0h3m1 0h1m1 0h2m2 0h1m6 0h1m1 0h1m1 0h3m1 0h1M0 26.5h1m1 0h3m1 0h1m1 0h3m1 0h3m2 0h2m1 0h1m2 0h1m2 0h1m1 0h1M0 27.5h1m5 0h1m3 0h1m1 0h2m1 0h1m1 0h2m1 0h2m1 0h3m1 0h1M0 28.5h7m1 0h1m1 0h1m1 0h1m4 0h9m1 0h1"/></svg></a>
+              <p class="chico">Toca un precio para pedirlo</p>
+              <p class="agradece">¡Gracias por su preferencia!</p>
+            </article>
+          </div>
+        </div>
+      </div>
 
-      <h2>Cómo trabajamos</h2>
-      <ol class="pasos-trabajo">
-        <li><b>Me cuentas tu caso.</b> Por escrito o en una llamada de media hora, sin costo.</li>
-        <li><b>Te mando una propuesta</b> con lo que incluye, el precio y la fecha de entrega, en dos días.</li>
-        <li><b>Empezamos con el 50 %.</b> Cada semana te paso un enlace para ver cómo va.</li>
-        <li><b>Te entrego, pagas el otro 50 %</b> y tienes 30 días en los que cualquier falla la arreglo sin costo.</li>
+      <ol class="camino" aria-label="Cómo trabajamos">
+      <li style="--i: 0"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5h16v11H9l-5 4z"/></svg><b>Me cuentas</b><span>gratis</span></li>
+      <li style="--i: 1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg><b>Propuesta</b><span>en 2 días</span></li>
+      <li style="--i: 2"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><b>Avance</b><span>cada semana</span></li>
+      <li style="--i: 3"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12l5 5L20 6"/></svg><b>Entrega</b><span>+ 30 días de arreglos</span></li>
       </ol>
 
-      <h2>Lo que ya hice</h2>
-      <ul class="fichas">
-        <li>
-          <span class="clave">Asistencia y horas hombre</span>
-          <h3><a href="https://bitacora.kipups.com" target="_blank" rel="noopener">Bitácora</a></h3>
-          <p>Los técnicos marcan en el lugar con su teléfono y salen solos el registro que pide SUNAFIL y las horas que se cobran a cada cliente. Tiene demostración que puedes abrir.</p>
-        </li>
-        <li>
-          <span class="clave">Facturación electrónica</span>
-          <h3><a href="/casos/kuantera/">Kuantera</a></h3>
-          <p>Boletas y facturas firmadas con el certificado del propio negocio y enviadas a SUNAT sin intermediario.</p>
-        </li>
-        <li>
-          <span class="clave">Gestión de un negocio</span>
-          <h3><a href="/casos/erp-centro-de-terapias/">ERP de un centro de terapias</a></h3>
-          <p>Un centro con varias sedes: agenda por especialista, sesiones, cobros con comprobante electrónico y personal, en un solo sistema.</p>
-        </li>
+      <ul class="obras" aria-label="Lo que ya hice">
+      <li><a href="https://bitacora.kipups.com" target="_blank" rel="noopener"><img src="/proyectos/bitacora-cartel.webp" alt="El panel de Bitácora con las personas dentro de cada lugar" loading="lazy" decoding="async" /><span><b>Bitácora</b> asistencia en campo</span></a></li>
+      <li><a href="/casos/kuantera/"><img src="/casos/kuantera-cartel.png" alt="Kuantera emitiendo una factura ante SUNAT" loading="lazy" decoding="async" /><span><b>Kuantera</b> facturas ante SUNAT</span></a></li>
+      <li><a href="/casos/erp-centro-de-terapias/"><img src="/casos/erp-agenda.png" alt="La agenda del ERP del centro de terapias" loading="lazy" decoding="async" /><span><b>ERP</b> centro de terapias</span></a></li>
       </ul>
-      <p>En la <a href="/">portada</a> están las demás, la mayoría para abrir y tocar.</p>
 
       <h2>Preguntas</h2>
       <div class="preguntas">
         <details>
           <summary>¿Usas inteligencia artificial?</summary>
-          <p>Sí, todos los días. Por eso entrego en semanas lo que antes tomaba meses. Lo que no le dejo a la IA: decidir qué se hace, revisar lo que sale, probarlo y responder si algo falla.</p>
+          <p>Sí, todos los días: por eso entrego en semanas. Lo que no le dejo a la IA es decidir qué se hace, revisar lo que sale, probarlo y responder si algo falla.</p>
         </details>
         <details>
           <summary>¿El sistema es mío?</summary>
-          <p>Sí. El código y los datos son tuyos y te los entrego al terminar. Si un día quieres que lo mantenga otra persona, puede hacerlo.</p>
+          <p>Sí. El código y los datos son tuyos y te los entrego al terminar.</p>
         </details>
         <details>
-          <summary>¿Qué pasa si algo falla después de la entrega?</summary>
-          <p>Los primeros 30 días lo arreglo sin costo. Después, con el mantenimiento mensual o por un trabajo puntual que te cotizo antes.</p>
-        </details>
-        <details>
-          <summary>¿Trabajas con negocios de fuera del Perú?</summary>
-          <p>Sí, en español o en inglés. La versión en inglés de esta página tiene los precios en dólares.</p>
+          <summary>¿Y si algo falla después?</summary>
+          <p>Los primeros 30 días lo arreglo sin costo. Después, con el mantenimiento o por un trabajo que te cotizo antes.</p>
         </details>
       </div>
-
-      <section class="cierre">
-        <h2>Cuéntame qué tienes y qué te falta</h2>
-        <p>Si no es lo mío, te lo digo y te ahorro el tiempo.</p>
-        <a class="accion" href="/contacto/">Escribirme →</a>
-      </section>
     </main>
   </body>
 </html>
