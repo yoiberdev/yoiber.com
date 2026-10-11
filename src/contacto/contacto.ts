@@ -22,6 +22,15 @@ const gracias = document.querySelector<HTMLElement>('#gracias');
 
 if (form && estado && gracias) {
   const boton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+  // DESDE SERVICIOS: cada paquete enlaza aquí con `?sobre=` (`?about=` en inglés) y el mensaje
+  // empieza con eso. Es texto de la dirección: va al textarea como texto, nunca como HTML, y corto.
+  const consulta = new URLSearchParams(location.search);
+  const sobre = consulta.get('sobre') ?? consulta.get('about');
+  const mensajeCampo = form.querySelector<HTMLTextAreaElement>('textarea[name="mensaje"]');
+  if (sobre && sobre.length <= 60 && mensajeCampo && !mensajeCampo.value) {
+    mensajeCampo.value = `${form.dataset.prefijoInteres ?? 'Me interesa'}: ${sobre}.\n\n`;
+  }
   // Los avisos vienen del marcado (data-*) para que la versión en inglés no necesite otro módulo.
   const rotulo = (clave: string, porDefecto: string): string => form.dataset[clave] ?? porDefecto;
   const AVISO = {
